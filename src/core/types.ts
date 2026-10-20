@@ -1,4 +1,5 @@
 import type { AssistantEvent, AssistantMessage, AssistantProvider, AssistantProviderInfo, AssistantRequest } from "./assistantTypes";
+import type { Subtitle } from "./subtitles";
 export type MediaKind = "video" | "audio" | "image";
 export type TrackKind = MediaKind | "text";
 export interface MediaAsset {
@@ -154,6 +155,52 @@ export interface ExportProgress {
   message?: string;
   path?: string;
 }
+export type TranscriptionStage =
+  | "preparing"
+  | "extracting"
+  | "transcribing"
+  | "parsing"
+  | "complete";
+
+export interface TranscriptionRequest {
+  jobId: string;
+  source: string;
+  /** Offset into the source media, in seconds. */
+  sourceIn: number;
+  /** Clip start on the timeline, in seconds. */
+  start: number;
+  /** Clip duration on the timeline, in seconds. */
+  duration: number;
+  speed: number;
+  fps: number;
+  language: string;
+  model: string;
+}
+
+export interface TranscriptionProgress {
+  jobId: string;
+  progress: number;
+  stage: TranscriptionStage;
+}
+
+export interface TranscriptionModel {
+  path: string;
+  name: string;
+  size: number;
+}
+
+export interface TranscriptionStatus {
+  available: boolean;
+  executable?: string;
+  models: TranscriptionModel[];
+  selectedModel?: string;
+  error?: string;
+}
+
+export interface TranscriptionResult {
+  cues: Subtitle[];
+}
+
 export interface AppSettings {
   ffmpegPath?: string;
   ffprobePath?: string;
@@ -198,6 +245,13 @@ export interface EditorAPI {
   cancelCloseRequest: () => void;
   closeWindow: () => void;
   chooseMediaTool: (name: "ffmpeg" | "ffprobe") => Promise<string | null>;
+  getTranscriptionStatus: () => Promise<TranscriptionStatus>;
+  chooseWhisperTool: (kind: "executable" | "model") => Promise<string | null>;
+  transcribeAudio: (request: TranscriptionRequest) => Promise<TranscriptionResult>;
+  cancelTranscription: (jobId: string) => Promise<void>;
+  onTranscriptionProgress: (
+    callback: (event: TranscriptionProgress) => void,
+  ) => () => void;
   getFontFamilies: () => Promise<string[]>;
   getStartupProject: () => Promise<{ project: Project; path: string } | null>;
   openProject: () => Promise<{ project: Project; path: string } | null>;

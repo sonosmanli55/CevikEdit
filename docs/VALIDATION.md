@@ -1,5 +1,19 @@
 # 本机验证记录
 
+## 本地 Whisper 自动字幕（2026-10-20）
+
+新增独立实现的本地自动字幕：在字幕面板选择时间线音视频片段，经本机 FFmpeg 提取 16 kHz 单声道 WAV，调用本地 whisper.cpp CLI 与 GGML 模型，解析 JSON（`transcription[]`、`segments[]` 或裸数组）或 SRT，清理非语音标记、拆分过长句，并按片段起点、变速和项目帧率写入新的「字幕」文字轨。写入复用现有 `addSubtitles`，一次撤销；不调用云端，不自动下载程序或模型。
+
+- `tests/transcription.test.ts` 通过 11 项：三种 JSON 形状、毫秒偏移与时间戳字符串、SRT 回退、噪声标记清理、长句拆分、变速换算、片段范围与时间线起点、帧对齐、重叠处理、重复句子合并和 2000 条上限。
+- `tests/transcriptionTools.test.ts` 通过 7 项：保存选择、环境变量、内置目录与 PATH 的优先级；模型发现、非法路径和缺失工具；并回归确认 PATH 中的通用 `whisper`（OpenAI Python CLI）不会被自动采用。
+- `tests/transcriptionRunner.test.ts` 新增 2 项 Unix 合成进程测试，覆盖成功输出与取消/清理；本机 Windows 跳过，未在 Unix 实机执行。
+- `npx tsc --noEmit` 与 `npm run build` 通过。`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。
+- `npx vitest run` 共 332 项。一次整套运行 311 通过、6 跳过、15 失败；另一次复跑多出 `workflowReview` 的 30 秒媒体用例超时（310 通过、6 跳过、16 失败），该文件单独重跑 3/3 通过。其余 15 项为本机既有问题（assistantBackend 12、portableProject 2、mediaTools 1），与本次改动无关。
+- Windows 合成端到端检查：用临时编译的假 `whisper-cli.exe` 和假 `ffmpeg.exe` 启动 Electron，导入一个 12 秒音频项目，从字幕面板点击「生成字幕」；观察到提示「1 otomatik altyazı oluşturuldu」、新增「Altyazı」文字轨和 1.8 秒的「Merhaba dünya」文字片段（30 fps 下显示 00:00:01:24），无界面错误。该检查验证了 UI → preload → 主进程校验 → 结果解析 → 时间线写入，但假 FFmpeg 没有生成 WAV、假 Whisper 没有读取音频，不能证明真实提取或识别质量。
+- 土耳其语界面检查：分别截取缺少 Whisper 的引导状态和选中假可执行文件/模型的就绪状态；就绪状态下「Altyazı oluştur」按钮可用。检查中发现全局 `.small-button` 覆盖 `.primary` 的背景，已改用独立 `.subtitle-generate` 样式并复查为强调色。
+
+未覆盖：开发机没有 whisper.cpp 可执行文件和 GGML 模型，也没有可用的 FFmpeg，因此未执行真实音频提取、真实 whisper.cpp 转写和识别质量评估；macOS / Linux 未实机验证；未重新打包安装包。合成脚本位于被忽略的 `.test-output/`，不属于仓库测试。
+
 ## 标题模板扩充与文字排版（2026-10-20）
 
 文字模板由 16 款扩充到 25 款，新增「下三分之一」与「社媒」分类，并加入行高、内边距、圆角与文字阴影四项样式参数。预览画布与导出 PNG 改为共用 `src/core/textLayout.ts` 的同一套几何计算，阴影预留透明边距以免被图层边缘裁掉。

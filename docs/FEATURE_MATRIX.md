@@ -6,7 +6,8 @@
 | --- | --- | --- |
 | 熟悉的三栏编辑界面 | supported | 中性深灰、资源顺序、属性分组及小窗口布局；独立实现，非逐像素复刻，见 UI_PARITY.md |
 | 源素材预览与 I/O 选段 | supported | 单击预览、局部快捷键、入出点插入和一次撤销；实际预览与导出帧/声音验证 |
-| 字幕列表与批量编辑 | supported | 轨道筛选、多选、文本/时间编辑、批量偏移/替换/样式；锁轨和过时提案保护；无语音识别 |
+| 字幕列表与批量编辑 | supported | 轨道筛选、多选、文本/时间编辑、批量偏移/替换/样式；锁轨和过时提案保护；自动字幕见下一行 |
+| 本地 Whisper 自动字幕 | limited | 选择时间线音视频片段，FFmpeg 提取 16 kHz 单声道音频，调用本地 whisper.cpp + GGML 模型；JSON/SRT 解析、噪声清理、长句拆分、变速/区间/帧对齐与一次撤销；不上传、不自动下载程序或模型；只支持 whisper.cpp，真实识别与真实音频提取尚未在开发机验收，见 TRANSCRIPTION.md |
 | 可搬移项目素材包 | supported | 去重复制、相对路径、搬移后保存、新增媒体收集、取消与缺失素材处理；系统字体需另装 |
 | 自定义 / 选中时间区间导出 | supported | 保留区间内全部可见图层与声音；像素、RMS、逐帧边界和 UI 验证 |
 | 视频、音频、图片导入 | supported | FFprobe 检测；真实素材、Unicode 路径、缩略图、波形测试 |
@@ -44,7 +45,7 @@
 | Windows / Linux | limited | 跨平台代码及构建目标；尚未在对应系统验证 |
 | 浏览器完整视频编辑器 | limited | 预览与基础交互；缺少桌面文件操作及本地导出桥接 |
 | 账号、云项目、SaaS | unused | 没有服务端与云同步 |
-| 直接 API AI、语音识别、自动字幕、人物抠像 | unused | 未实现 |
+| 直接 API AI、云端语音识别、人物抠像 | unused | 自动字幕改用本地 whisper.cpp，见 TRANSCRIPTION.md；未接入云端 API 或人物 AI 抠像 |
 | Codex 插件 | limited | 本地 stdio MCP、fullscreen App 画面桥接、鼠标/键盘操作和版本校验编辑；协议、真实编辑器交互及导出已验，Codex 宿主打开留待用户重连后验收；见 CODEX_PLUGIN.md |
 | CLI 剪辑助手 | limited | Codex / Claude Code，项目对话、取消、受限编辑建议与一次撤销；真实 Codex 合成问答通过，Claude 本机需重新登录；见 ASSISTANT.md |
 | 原创离线素材 | supported | 64 款原创 PNG / WAV，SVG 源与 MIT 许可；分类、搜索、试听、添加 |

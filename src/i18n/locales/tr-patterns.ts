@@ -42,6 +42,8 @@ export const trPatterns: Array<[RegExp, PatternReplacement]> = [
   [/^将修改 (\d+) 条字幕，可一次撤销。$/, "$1 altyazı değiştirilecek, tek adımda geri alınabilir."],
   [/^应用 (\d+) 条修改$/, "$1 değişikliği uygula"],
   [/^应用 (\d+) 项修改$/, "$1 değişikliği uygula"],
+  [/^已生成 (\d+) 条自动字幕$/, "$1 otomatik altyazı oluşturuldu"],
+  [/^自动字幕超过 (\d+) 条，请分段转写$/, "Otomatik altyazı $1 kaydı aşıyor; lütfen parçalara ayırın"],
   [/^已导入 (\d+) 个素材$/, "$1 medya içe aktarıldı"],
   [/^已导入 (\d+) 条字幕$/, "$1 altyazı içe aktarıldı"],
   [/^(\d+) 个片段$/, "$1 klip"],
@@ -51,6 +53,8 @@ export const trPatterns: Array<[RegExp, PatternReplacement]> = [
   [/^(\d+) 款原创 · 离线可用$/, "$1 özgün · çevrimdışı kullanılabilir"],
 
   // Status / error prefixes.
+  [/^无法启动 (Whisper|FFmpeg)：(.+)$/, "$1 başlatılamadı: $2"],
+  [/^(Whisper|FFmpeg) 执行失败：(.+)$/, "$1 çalıştırılamadı: $2"],
   [/^无法读取 (.+)$/, "$1 okunamıyor"],
   [/^启动项目无法打开：(.+)$/, "Başlangıç projesi açılamıyor: $1"],
   [/^自动保存失败：(.+)$/, "Otomatik kaydetme başarısız: $1"],

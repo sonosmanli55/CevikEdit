@@ -1,15 +1,41 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Download, FolderOpen, LockKeyhole, Search, Subtitles } from "lucide-react";
+import { Download, FolderOpen, LockKeyhole, Mic, Search, Subtitles } from "lucide-react";
 import { useEditorStore } from "../editor/store";
 import { clone } from "../core/model";
 import { applySubtitleEdit, prepareSubtitleEdit, type SubtitleEdit, type SubtitleEditPlan } from "../core/subtitleEdits";
-import type { Clip, Project } from "../core/types";
+import type { Clip, Project, TranscriptionStage, TranscriptionStatus } from "../core/types";
 import "./SubtitlePanel.css";
 
 interface Props { onImport: () => void | Promise<void>; onExport: () => void | Promise<void> }
 interface CueDraft { project: Project; id: string; text: string; start: string; end: string }
 const seconds = (value: number) => Number(value.toFixed(6)).toString();
 const timeLabel = (value: number) => `${Math.floor(value / 60).toString().padStart(2, "0")}:${(value % 60).toFixed(2).padStart(5, "0")}`;
+const ipcMessage = (error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  const prefix = "Error invoking remote method ";
+  if (!message.startsWith(prefix)) return message;
+  const separator = message.indexOf(": ");
+  if (separator < 0) return message;
+  const detail = message.slice(separator + 2);
+  return detail.startsWith("Error: ") ? detail.slice(7) : detail;
+};
+const TRANSCRIPTION_LANGUAGES = [
+  ["auto", "自动检测"],
+  ["tr", "土耳其语"],
+  ["en", "英语"],
+  ["de", "德语"],
+  ["fr", "法语"],
+  ["es", "西班牙语"],
+  ["ar", "阿拉伯语"],
+  ["ru", "俄语"],
+] as const;
+const TRANSCRIPTION_STAGE: Record<TranscriptionStage, string> = {
+  preparing: "正在准备…",
+  extracting: "正在提取音频…",
+  transcribing: "正在识别语音…",
+  parsing: "正在整理字幕…",
+  complete: "完成",
+};
 
 export default function SubtitlePanel({ onImport, onExport }: Props) {
   const project = useEditorStore(s => s.project);
@@ -25,11 +51,32 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   const [plan, setPlan] = useState<SubtitleEditPlan | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [transcription, setTranscription] = useState<TranscriptionStatus | null>(null);
+  const [language, setLanguage] = useState("auto");
+  const [modelPath, setModelPath] = useState("");
+  const [transcriptionJob, setTranscriptionJob] = useState<{ id: string; progress: number; stage: TranscriptionStage } | null>(null);
+  const [transcriptionError, setTranscriptionError] = useState("");
+  const [transcriptionNotice, setTranscriptionNotice] = useState("");
+  const transcriptionJobId = useRef<string | null>(null);
+  const selectedIds = useEditorStore(s => s.selectedIds);
+  const playhead = useEditorStore(s => s.playhead);
+  const api = window.editorAPI;
   const feedback = useRef<HTMLParagraphElement>(null);
   const knownTracks = useRef(new Set(project.tracks.map(t => t.id)));
   const tracks = project.tracks.filter(t => t.kind === "text");
   const activeTrack = tracks.find(t => t.id === trackId);
   const clips = useMemo(() => project.clips.filter(c => c.trackId === trackId && c.text).sort((a, b) => a.start - b.start || a.id.localeCompare(b.id)), [project, trackId]);
+  const sourceClip = useMemo(() => {
+    const usable = (clip: Clip) => {
+      const asset = project.assets.find(a => a.id === clip.assetId);
+      return !!asset && (asset.kind === "audio" || asset.kind === "video") && asset.hasAudio !== false;
+    };
+    const selected = selectedIds
+      .map(id => project.clips.find(clip => clip.id === id))
+      .find((clip): clip is Clip => !!clip && usable(clip));
+    return selected ?? project.clips.find(clip => usable(clip) && playhead >= clip.start && playhead < clip.start + clip.duration) ?? null;
+  }, [project, selectedIds, playhead]);
+  const sourceAsset = sourceClip ? project.assets.find(a => a.id === sourceClip.assetId) : undefined;
   const visible = clips.filter(c => c.text!.text.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   const selected = checked.filter(id => clips.some(c => c.id === id));
   const locked = !!activeTrack?.locked;
@@ -52,6 +99,97 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   }, [project, trackId]);
   useEffect(() => { setChecked([]); setDraft(null); setPlan(null); setError(""); setNotice(""); setReferenceId(""); }, [trackId]);
   useEffect(() => { if (error) feedback.current?.scrollIntoView({ block: "nearest" }); }, [error]);
+  useEffect(() => { void refreshTranscription(); }, []);
+  useEffect(() => {
+    if (!api) return;
+    return api.onTranscriptionProgress(event => {
+      if (event.jobId === transcriptionJobId.current)
+        setTranscriptionJob({ id: event.jobId, progress: event.progress, stage: event.stage });
+    });
+  }, []);
+
+  async function refreshTranscription(preferredModel?: string) {
+    if (!api) return;
+    try {
+      const status = await api.getTranscriptionStatus();
+      setTranscription(status);
+      setModelPath(current => {
+        if (preferredModel && status.models.some(model => model.path === preferredModel)) return preferredModel;
+        return status.models.some(model => model.path === current) ? current : status.selectedModel ?? status.models[0]?.path ?? "";
+      });
+    } catch (e) {
+      setTranscription({ available: false, models: [], error: ipcMessage(e) });
+    }
+  }
+
+  async function chooseWhisperTool(kind: "executable" | "model") {
+    if (!api) return;
+    setTranscriptionError(""); setTranscriptionNotice("");
+    try {
+      const file = await api.chooseWhisperTool(kind);
+      if (file) await refreshTranscription(kind === "model" ? file : undefined);
+    } catch (e) {
+      setTranscriptionError(ipcMessage(e));
+    }
+  }
+
+  async function startTranscription() {
+    setTranscriptionError(""); setTranscriptionNotice(""); setNotice("");
+    if (!api) { setTranscriptionError("此功能仅在桌面版可用。"); return; }
+    if (!transcription?.available) {
+      setTranscriptionError(transcription?.error ?? "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。");
+      return;
+    }
+    if (!sourceClip || !sourceAsset) {
+      setTranscriptionError("请选择时间线中的音频或视频片段，或把播放头移到含音频的片段上。");
+      return;
+    }
+    if (!modelPath) { setTranscriptionError("请选择 Whisper 模型文件"); return; }
+    if (transcriptionJobId.current) return;
+    const projectId = project.id;
+    const jobId = crypto.randomUUID();
+    transcriptionJobId.current = jobId;
+    setTranscriptionJob({ id: jobId, progress: 0, stage: "preparing" });
+    try {
+      const result = await api.transcribeAudio({
+        jobId,
+        source: sourceAsset.path,
+        sourceIn: sourceClip.sourceIn,
+        start: sourceClip.start,
+        duration: sourceClip.duration,
+        speed: sourceClip.speed,
+        fps: project.fps,
+        language,
+        model: modelPath,
+      });
+      if (transcriptionJobId.current !== jobId) return;
+      const store = useEditorStore.getState();
+      if (store.project.id !== projectId) throw new Error("项目已切换，转写结果已丢弃");
+      if (!result.cues.length) throw new Error("Whisper 没有识别到语音");
+      store.addSubtitles(result.cues);
+      setTranscriptionNotice(`已生成 ${result.cues.length} 条自动字幕`);
+    } catch (e) {
+      if (transcriptionJobId.current !== jobId) return;
+      const message = ipcMessage(e);
+      if (message.includes("取消")) setTranscriptionNotice("转写已取消");
+      else setTranscriptionError(message);
+    } finally {
+      if (transcriptionJobId.current === jobId) {
+        transcriptionJobId.current = null;
+        setTranscriptionJob(null);
+      }
+    }
+  }
+
+  async function cancelTranscriptionJob() {
+    const jobId = transcriptionJobId.current;
+    if (!jobId || !api) return;
+    try {
+      await api.cancelTranscription(jobId);
+    } catch (e) {
+      setTranscriptionError(ipcMessage(e));
+    }
+  }
 
   function attempt(action: () => void) {
     setError(""); setNotice("");
@@ -106,6 +244,58 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
     <div className="subtitle-file-actions">
       <button className="small-button" onClick={() => void fileAction(onImport)}><FolderOpen size={14} />导入字幕文件</button>
       <button className="small-button" onClick={() => void fileAction(onExport)} disabled={!project.clips.some(c => c.text)} title="导出项目中全部文字片段为 SRT"><Download size={14} />导出全部 SRT</button>
+    </div>
+    <div className="subtitle-auto">
+      <div className="subtitle-heading"><h4>自动字幕</h4><span>本地 Whisper</span></div>
+      <p className="subtitle-hint"><Mic size={13} />使用本地 Whisper 识别所选片段中的语音，音频不会上传。</p>
+      {!api ? <p className="subtitle-hint">此功能仅在桌面版可用。</p> : <>
+        <div className="subtitle-auto-source">
+          {sourceClip && sourceAsset
+            ? <><span title={sourceAsset.name}>{sourceAsset.name}</span><small>{timeLabel(sourceClip.start)} — {timeLabel(sourceClip.start + sourceClip.duration)} · {Number(sourceClip.speed.toFixed(2))}×</small></>
+            : <span>未选择含音频的片段</span>}
+        </div>
+        {!sourceClip && <p className="subtitle-hint">请选择时间线中的音频或视频片段，或把播放头移到含音频的片段上。</p>}
+        {!transcription && <p className="subtitle-hint">正在检查本地 Whisper…</p>}
+        {transcription && !transcription.available && <>
+          <p className="subtitle-warning">{transcription.error ?? "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。"}</p>
+          <div className="subtitle-auto-actions">
+            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>选择 Whisper 程序…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>选择模型文件…</button>
+          </div>
+        </>}
+        {transcription?.available && <>
+          <div className="subtitle-auto-grid">
+            <label>语言
+              <select aria-label="转写语言" value={language} onChange={e => setLanguage(e.target.value)}>
+                {TRANSCRIPTION_LANGUAGES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </label>
+            <label>模型
+              <select aria-label="Whisper 模型" value={modelPath} onChange={e => setModelPath(e.target.value)}>
+                {!transcription.models.length && <option value="">未找到模型</option>}
+                {transcription.models.map(model => <option key={model.path} value={model.path}>{model.name} · {Math.max(1, Math.round(model.size / 1024 / 1024))} MB</option>)}
+              </select>
+            </label>
+          </div>
+          <div className="subtitle-auto-actions">
+            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>选择模型…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>更换程序…</button>
+          </div>
+          {!transcription.models.length && <p className="subtitle-warning">未找到 Whisper 模型文件，请选择 .bin 模型。</p>}
+        </>}
+        {transcriptionJob && <div className="subtitle-progress" role="status">
+          <progress max={100} value={transcriptionJob.progress} aria-label="转写进度" />
+          <span>{TRANSCRIPTION_STAGE[transcriptionJob.stage]}</span>
+        </div>}
+        {transcription?.available && !transcriptionJob && <div className="subtitle-auto-run">
+          <button className="primary subtitle-generate" disabled={!sourceClip || !modelPath} onClick={() => void startTranscription()}><Mic size={14} />生成字幕</button>
+        </div>}
+        {transcriptionJob && <div className="subtitle-auto-run">
+          <button className="small-button" onClick={() => void cancelTranscriptionJob()}>取消转写</button>
+        </div>}
+        {transcriptionError && <p className="subtitle-error" role="alert">{transcriptionError}</p>}
+        {transcriptionNotice && <p className="subtitle-notice" role="status">{transcriptionNotice}</p>}
+      </>}
     </div>
     <label className="subtitle-track-label">文字轨道
       <select aria-label="字幕轨道" value={trackId} onChange={e => setTrackId(e.target.value)}>

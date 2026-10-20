@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
-import type { EditorAPI, ExportProgress } from "../src/core/types";
+import type { EditorAPI, ExportProgress, TranscriptionProgress } from "../src/core/types";
 import type { AssistantEvent } from "../src/core/assistantTypes";
 const api: EditorAPI = {
   packageProject: project => ipcRenderer.invoke("package-project", project),
@@ -65,6 +65,19 @@ const api: EditorAPI = {
   cancelCloseRequest: () => ipcRenderer.send("cancel-close-request"),
   closeWindow: () => ipcRenderer.send("close-window"),
   chooseMediaTool: (name) => ipcRenderer.invoke("choose-media-tool", name),
+  getTranscriptionStatus: () => ipcRenderer.invoke("transcription-status"),
+  chooseWhisperTool: (kind) =>
+    ipcRenderer.invoke("choose-whisper-tool", kind),
+  transcribeAudio: (request) =>
+    ipcRenderer.invoke("transcribe-audio", request),
+  cancelTranscription: (jobId) =>
+    ipcRenderer.invoke("cancel-transcription", jobId),
+  onTranscriptionProgress: (callback) => {
+    const listener = (_: unknown, event: TranscriptionProgress) =>
+      callback(event);
+    ipcRenderer.on("transcription-progress", listener);
+    return () => ipcRenderer.removeListener("transcription-progress", listener);
+  },
 };
 contextBridge.exposeInMainWorld("editorAPI", api);
 

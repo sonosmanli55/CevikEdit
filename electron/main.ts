@@ -38,6 +38,13 @@ import {
 import { startExport, cancelExport, cancelAllExports } from "./export";
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
+import {
+  cancelAllTranscriptions,
+  cancelTranscription,
+  shutdownTranscriptions,
+  transcribeAudio,
+  whisperStatus,
+} from "./transcription";
 import { getMainLocale, resolveLocale, setMainLocale, tr, translateMenu } from "./locale";
 import { validateProject } from "../src/core/model";
 import { decodeCapcutDraft } from "./capcutCodec";
@@ -52,6 +59,8 @@ import type {
   Project,
   RecentProject,
   ExportOptions,
+  TranscriptionProgress,
+  TranscriptionRequest,
 } from "../src/core/types";
 
 const pluginMode = process.argv.includes("--reacut-plugin");
@@ -134,6 +143,26 @@ const menuAction = (action: string) =>
   window?.webContents.send("menu-action", action);
 const userFile = (name: string) => path.join(app.getPath("userData"), name);
 const cacheDir = () => userFile("thumbnails");
+let transcriptionTools: { executable?: string; model?: string } = {};
+function transcriptionToolDirectories(): string[] {
+  const directories = [
+    ...(app.isPackaged
+      ? [path.join(process.resourcesPath, "media-tools")]
+      : []),
+    path.join(app.getAppPath(), "media-tools"),
+    path.join(path.dirname(app.getPath("exe")), "media-tools"),
+    ...(process.env.REACUT_WHISPER_DIR
+      ? [path.resolve(process.env.REACUT_WHISPER_DIR)]
+      : []),
+  ];
+  return [...new Set(directories)];
+}
+const transcriptionOptions = () => ({
+  bundledDirectories: transcriptionToolDirectories(),
+  userDataDirectory: app.getPath("userData"),
+  savedExecutable: transcriptionTools.executable,
+  savedModel: transcriptionTools.model,
+});
 let writeQueue = Promise.resolve();
 async function atomicWrite(file: string, text: string) {
   await mkdir(path.dirname(file), { recursive: true });
@@ -246,6 +275,53 @@ function handle(name: string, callback: (...args: any[]) => unknown) {
       throw new Error("无效调用来源");
     return callback(...args);
   });
+}
+function validateTranscriptionRequest(
+  value: unknown,
+): asserts value is TranscriptionRequest {
+  if (!value || typeof value !== "object") throw new Error("无效的转写请求");
+  const request = value as Record<string, unknown>;
+  if (
+    typeof request.jobId !== "string" ||
+    !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
+      request.jobId,
+    )
+  )
+    throw new Error("无效的转写请求");
+  if (
+    typeof request.source !== "string" ||
+    !path.isAbsolute(request.source) ||
+    !allowedMedia.has(path.resolve(request.source))
+  )
+    throw new Error("该素材未通过本地访问授权");
+  if (typeof request.model !== "string" || !path.isAbsolute(request.model))
+    throw new Error("所选模型不可用，请重新选择");
+  const number = (key: string, min: number, max: number) => {
+    const candidate = request[key];
+    if (
+      typeof candidate !== "number" ||
+      !Number.isFinite(candidate) ||
+      candidate < min ||
+      candidate > max
+    )
+      throw new Error("无效的转写请求");
+    return candidate;
+  };
+  const sourceIn = number("sourceIn", 0, 24 * 3600);
+  const start = number("start", 0, 86400);
+  const duration = number("duration", 1 / 240, 86400);
+  const speed = number("speed", 0.1, 8);
+  number("fps", 1, 240);
+  if (start + duration > 86400) throw new Error("无效的转写请求");
+  if (duration * speed > 6 * 3600)
+    throw new Error("单个片段最长支持 6 小时");
+  if (sourceIn + duration * speed > 24 * 3600)
+    throw new Error("无效的转写请求");
+  if (
+    typeof request.language !== "string" ||
+    !/^(auto|[a-z]{2,3})$/i.test(request.language)
+  )
+    throw new Error("无效的转写语言");
 }
 function registerIPC() {
   handle("import-builtin-asset", async (id: unknown) => {
@@ -644,6 +720,83 @@ function registerIPC() {
     await atomicWrite(userFile("media-tools.json"), JSON.stringify(settings));
     return file;
   });
+  handle("transcription-status", () => whisperStatus(transcriptionOptions()));
+  handle("choose-whisper-tool", async (kind: unknown) => {
+    if (kind !== "executable" && kind !== "model")
+      throw new Error("无效工具类型");
+    const result = await dialog.showOpenDialog(window!, {
+      title: tr(
+        kind === "executable"
+          ? "选择 Whisper 可执行文件"
+          : "选择 Whisper 模型文件",
+      ),
+      properties: ["openFile"],
+      ...(kind === "model"
+        ? { filters: [{ name: tr("Whisper 模型"), extensions: ["bin"] }] }
+        : {}),
+    });
+    if (result.canceled || !result.filePaths[0]) return null;
+    const file = path.resolve(result.filePaths[0]);
+    const metadata = await stat(file);
+    if (!metadata.isFile()) throw new Error("所选文件无效");
+    if (kind === "model") {
+      if (path.extname(file).toLowerCase() !== ".bin")
+        throw new Error("请选择 .bin 模型文件");
+      if (metadata.size <= 0 || metadata.size > 8 * 1024 * 1024 * 1024)
+        throw new Error("模型文件大小无效");
+      transcriptionTools.model = file;
+    } else {
+      if (metadata.size <= 0) throw new Error("所选文件无效");
+      if (metadata.size > 512 * 1024 * 1024)
+        throw new Error("可执行文件过大");
+      transcriptionTools.executable = file;
+    }
+    await atomicWrite(
+      userFile("transcription-tools.json"),
+      JSON.stringify(transcriptionTools),
+    );
+    return file;
+  });
+  handle("transcribe-audio", async (input: unknown) => {
+    validateTranscriptionRequest(input);
+    const request = input;
+    const status = await whisperStatus(transcriptionOptions());
+    if (!status.available)
+      throw new Error(
+        status.error ??
+          "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。",
+      );
+    if (
+      !status.models.some(
+        (model) => path.resolve(model.path) === path.resolve(request.model),
+      )
+    )
+      throw new Error("所选模型不可用，请重新选择");
+    const owner = window?.webContents;
+    if (!owner) throw new Error("窗口已关闭");
+    return transcribeAudio(request, {
+      ...transcriptionOptions(),
+      onProgress: (progress, stage) => {
+        if (owner.isDestroyed()) return;
+        const event: TranscriptionProgress = {
+          jobId: request.jobId,
+          progress,
+          stage,
+        };
+        owner.send("transcription-progress", event);
+      },
+    });
+  });
+  handle("cancel-transcription", (jobId: unknown) => {
+    if (
+      typeof jobId !== "string" ||
+      !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(
+        jobId,
+      )
+    )
+      throw new Error("无效的转写请求");
+    return cancelTranscription(jobId);
+  });
   ipcMain.on("set-dirty", (event, value) => {
     if (event.sender === window?.webContents) dirty = Boolean(value);
   });
@@ -786,6 +939,7 @@ function createWindow() {
   });
   window.on("closed", () => {
     void cancelPortablePackages();
+    cancelAllTranscriptions();
     assistantCancelPending = true;
     assistantRunning?.cancel();
     capcutSelections.clear();
@@ -803,6 +957,17 @@ void app.whenReady().then(async () => {
     for (const key of ["codex", "claude"] as const)
       if (typeof settings[key] === "string" && path.isAbsolute(settings[key])) assistantOverrides[key] = settings[key];
   } catch { /* default CLI discovery */ }
+  try {
+    const settings = JSON.parse(
+      await readFile(userFile("transcription-tools.json"), "utf8"),
+    );
+    if (typeof settings.executable === "string" && path.isAbsolute(settings.executable))
+      transcriptionTools.executable = settings.executable;
+    if (typeof settings.model === "string" && path.isAbsolute(settings.model))
+      transcriptionTools.model = settings.model;
+  } catch {
+    /* choose tools from the subtitle panel */
+  }
   registerBundledFont(
     path.join(
       app.getAppPath().replace(/\.asar$/, ".asar.unpacked"),
@@ -948,6 +1113,7 @@ app.on("before-quit", (event) => {
     cancelAllExports(),
     cancelPortablePackages(),
     shutdownMediaTasks(),
+    shutdownTranscriptions(),
     writeQueue.catch(() => {}),
   ]).finally(() => {
     quitting = true;

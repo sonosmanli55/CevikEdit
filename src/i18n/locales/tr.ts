@@ -1278,5 +1278,78 @@ export const tr: Record<string, string> = {
     "REA ile gözlemlenebilen kurgu akışını inceler ve çevrimdışı düzenlemeyi bağımsız kodla gerçekleştirir. Çekirdek kaynak kodu MIT lisanslıdır. macOS kurulum paketi FFmpeg / FFprobe ve x264 (GPL-2.0-or-later) içerir; ilgili kaynak, derleme betikleri ve lisans dosyaları uygulama kaynaklarının media-tools dizinindedir.",
   "非剪映官方产品。不包含剪映的专有代码、库或素材。":
     "Resmî bir CapCut ürünü değildir. CapCut'a ait tescilli kod, kütüphane veya materyal içermez.",
+
+  // ------------------------------------------------------ Local auto subtitles
+  "自动字幕": "Otomatik altyazı",
+  "本地 Whisper": "Yerel Whisper",
+  "使用本地 Whisper 识别所选片段中的语音，音频不会上传。":
+    "Seçili klipteki konuşmayı yerel Whisper ile tanır; ses hiçbir yere yüklenmez.",
+  "此功能仅在桌面版可用。": "Bu özellik yalnızca masaüstü uygulamasında kullanılabilir.",
+  "未选择含音频的片段": "Ses içeren klip seçilmedi",
+  "请选择时间线中的音频或视频片段，或把播放头移到含音频的片段上。":
+    "Zaman çizelgesinde bir ses veya video klibi seçin ya da oynatma başlığını ses içeren bir klibin üzerine getirin.",
+  "正在检查本地 Whisper…": "Yerel Whisper denetleniyor…",
+  "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。":
+    "Whisper bulunamadı. whisper.cpp kurun veya altyazı panelinden çalıştırılabilir dosyayı seçin.",
+  "选择 Whisper 程序…": "Whisper programını seç…",
+  "选择模型文件…": "Model dosyasını seç…",
+  "语言": "Dil",
+  "转写语言": "Yazıya dökme dili",
+  "模型": "Model",
+  "Whisper 模型": "Whisper modeli",
+  "未找到模型": "Model bulunamadı",
+  "选择模型…": "Model seç…",
+  "更换程序…": "Programı değiştir…",
+  "未找到 Whisper 模型文件，请选择 .bin 模型。":
+    "Whisper model dosyası bulunamadı; bir .bin modeli seçin.",
+  "转写进度": "Yazıya dökme ilerlemesi",
+  "生成字幕": "Altyazı oluştur",
+  "取消转写": "Yazıya dökmeyi iptal et",
+  "正在准备…": "Hazırlanıyor…",
+  "正在提取音频…": "Ses çıkarılıyor…",
+  "正在识别语音…": "Konuşma tanınıyor…",
+  "正在整理字幕…": "Altyazılar düzenleniyor…",
+  "请选择 Whisper 模型文件": "Bir Whisper model dosyası seçin",
+  "项目已切换，转写结果已丢弃":
+    "Proje değiştirildi; yazıya dökme sonucu atıldı",
+  "转写已取消": "Yazıya dökme iptal edildi",
+  "Whisper 没有识别到语音": "Whisper konuşma algılamadı",
+  "自动检测": "Otomatik algıla",
+  "土耳其语": "Türkçe",
+  "英语": "İngilizce",
+  "德语": "Almanca",
+  "法语": "Fransızca",
+  "西班牙语": "İspanyolca",
+  "阿拉伯语": "Arapça",
+  "俄语": "Rusça",
+  "单个片段最长支持 6 小时": "Tek klip için en fazla 6 saat desteklenir",
+  "无效的转写请求": "Geçersiz yazıya dökme isteği",
+  "无效的转写语言": "Geçersiz yazıya dökme dili",
+  "无效工具类型": "Geçersiz araç türü",
+  "选择 Whisper 可执行文件": "Whisper çalıştırılabilir dosyasını seç",
+  "选择 Whisper 模型文件": "Whisper model dosyasını seç",
+  "所选文件无效": "Seçili dosya geçersiz",
+  "模型文件大小无效": "Model dosyası boyutu geçersiz",
+  "请选择 .bin 模型文件": "Lütfen bir .bin model dosyası seçin",
+  "可执行文件过大": "Çalıştırılabilir dosya çok büyük",
+  "窗口已关闭": "Pencere kapandı",
+  "所选模型不可用，请重新选择": "Seçili model kullanılamıyor; yeniden seçin",
+  "所选 Whisper 不可用，请重新选择可执行文件。":
+    "Seçili Whisper kullanılamıyor; çalıştırılabilir dosyayı yeniden seçin.",
+  "环境变量 REACUT_WHISPER 指向的程序不可用。":
+    "REACUT_WHISPER ortam değişkeninin gösterdiği program kullanılamıyor.",
+  "Whisper 结果无法解析": "Whisper sonucu çözümlenemedi",
+  "Whisper 输出超过安全限制。": "Whisper çıktısı güvenlik sınırını aşıyor.",
+  "Whisper 未生成结果文件。": "Whisper sonuç dosyası oluşturmadı.",
+  "自动字幕为空，请检查音频或更换模型":
+    "Otomatik altyazı boş; sesi denetleyin veya modeli değiştirin",
+  "Whisper 模型文件无效": "Whisper model dosyası geçersiz",
+  "转写任务已在运行": "Yazıya dökme görevi zaten çalışıyor",
+  "已有转写任务在运行": "Zaten çalışan bir yazıya dökme görevi var",
+  "Whisper 超时，请缩短片段或更换更小的模型。":
+    "Whisper zaman aşımına uğradı; klibi kısaltın veya daha küçük bir model kullanın.",
+  "音频提取超时，请检查媒体文件。":
+    "Ses çıkarma zaman aşımına uğradı; medya dosyasını denetleyin.",
+  "应用正在关闭。": "Uygulama kapanıyor.",
 };
 
