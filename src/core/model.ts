@@ -600,6 +600,17 @@ export function validateProject(input: unknown): Project {
       num(text.strokeWidth, "描边宽度", 0, 100);
       choice(text.align, ["left", "center", "right"], "文字对齐");
       bool(text.bold, "粗体");
+      if (text.lineHeight !== undefined)
+        num(text.lineHeight, "行高", 0.8, 3);
+      if (text.padding !== undefined) num(text.padding, "内边距", 0, 1.5);
+      if (text.radius !== undefined) num(text.radius, "圆角", 0, 2);
+      if (text.shadow !== undefined) {
+        const shadow = object(text.shadow, "文字阴影");
+        color(shadow.color, "阴影颜色");
+        num(shadow.blur, "阴影模糊", 0, 200);
+        num(shadow.offsetX, "阴影偏移 X", -200, 200);
+        num(shadow.offsetY, "阴影偏移 Y", -200, 200);
+      }
     } else {
       if (
         !asset ||

@@ -48,10 +48,20 @@ export default function PresetPreview({
     if (text) {
       const title = makeTextPreset(text, track.id, 0, p);
       // Enlarge type in the thumbnail so style differences remain legible.
+      const style = title.text!,
+        zoom = 2;
       title.text = {
-        ...title.text!,
-        fontSize: title.text!.fontSize * 1.65,
-        strokeWidth: title.text!.strokeWidth * 1.65,
+        ...style,
+        fontSize: style.fontSize * zoom,
+        strokeWidth: style.strokeWidth * zoom,
+        shadow: style.shadow
+          ? {
+              ...style.shadow,
+              blur: style.shadow.blur * zoom,
+              offsetX: style.shadow.offsetX * zoom,
+              offsetY: style.shadow.offsetY * zoom,
+            }
+          : undefined,
       };
       p.clips = [title];
     } else if (transition) {

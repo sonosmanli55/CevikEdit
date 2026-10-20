@@ -26,4 +26,7 @@ export const DEFAULT_TEXT: TextStyle = {
   bold: true,
   stroke: "#000000",
   strokeWidth: 2,
+  lineHeight: 1.3,
+  padding: 0.25,
+  radius: 0,
 };

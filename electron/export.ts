@@ -25,6 +25,12 @@ import { fadeWindow } from "../src/core/model";
 import { resolveExportRange } from "../src/core/exportRange";
 import { colorAdjustmentFilters } from "../src/core/color";
 import { applyShapeMask, getCropPixels } from "../src/core/visual";
+import {
+  roundedRectPath,
+  textFont,
+  textLayerLayout,
+  textShadowMargin,
+} from "../src/core/textLayout";
 import { findMediaTool } from "./media";
 
 interface ExportJob {
@@ -326,33 +332,25 @@ async function renderText(
   directory: string,
 ): Promise<{ file: string; width: number; height: number }> {
   const style = clip.text!;
-  const family =
-    style.fontFamily.replace(/["'\\;\n\r]/g, "").trim() || "sans-serif";
-  const font = `${style.bold ? "bold " : ""}${style.fontSize}px "${family}", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Arial Unicode MS", sans-serif`;
+  const font = textFont(style);
   const measurement = createCanvas(1, 1).getContext("2d");
   measurement.font = font;
   measurement.fontVariationSettings = `"wght" ${style.bold ? 700 : 400}`;
-  const lines = style.text.split("\n");
-  const padding = Math.ceil(style.fontSize * 0.25 + style.strokeWidth);
-  const width = Math.max(
-    2,
-    Math.ceil(
-      Math.max(...lines.map((line) => measurement.measureText(line).width), 1),
-    ) +
-      padding * 2,
+  const layout = textLayerLayout(style, (line) =>
+    measurement.measureText(line).width,
   );
-  const lineHeight = style.fontSize * 1.3;
-  const height = Math.max(
-    2,
-    Math.ceil(lineHeight * lines.length + padding * 2),
-  );
+  const margin = textShadowMargin(style);
+  const width = layout.width + margin * 2;
+  const height = layout.height + margin * 2;
   if (width > 8192 || height > 8192 || width * height > 32_000_000)
     throw new Error("文字图层过大，请减少字号或文字长度。");
   const canvas = createCanvas(width, height);
   const context = canvas.getContext("2d");
+  context.translate(margin, margin);
   if (style.background !== "transparent") {
     context.fillStyle = style.background;
-    context.fillRect(0, 0, width, height);
+    roundedRectPath(context, 0, 0, layout.width, layout.height, layout.radius);
+    context.fill();
   }
   context.font = font;
   context.textAlign = style.align;
@@ -362,16 +360,16 @@ async function renderText(
   context.strokeStyle = style.stroke;
   context.lineWidth = style.strokeWidth * 2;
   context.lineJoin = "round";
-  const x =
-    style.align === "left"
-      ? padding
-      : style.align === "right"
-        ? width - padding
-        : width / 2;
-  lines.forEach((line, index) => {
-    const y = padding + lineHeight * (index + 0.5);
-    if (style.strokeWidth > 0) context.strokeText(line, x, y);
-    context.fillText(line, x, y);
+  if (style.shadow) {
+    context.shadowColor = style.shadow.color;
+    context.shadowBlur = style.shadow.blur;
+    context.shadowOffsetX = style.shadow.offsetX;
+    context.shadowOffsetY = style.shadow.offsetY;
+  }
+  layout.lines.forEach((line, index) => {
+    const y = layout.baseline(index);
+    if (style.strokeWidth > 0) context.strokeText(line, layout.x, y);
+    context.fillText(line, layout.x, y);
   });
   const file = path.join(
     directory,

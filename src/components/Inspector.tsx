@@ -782,6 +782,127 @@ export default function Inspector({
                   }
                 />
               )}
+              <h3>排版与阴影</h3>
+              <Slider
+                label="行高"
+                value={clip.text.lineHeight ?? 1.3}
+                min={0.9}
+                max={2.4}
+                step={0.05}
+                onChange={(lineHeight) =>
+                  onUpdate({ text: { ...clip.text!, lineHeight } })
+                }
+              />
+              <Slider
+                label="内边距"
+                value={clip.text.padding ?? 0.25}
+                min={0}
+                max={1.2}
+                step={0.05}
+                onChange={(padding) =>
+                  onUpdate({ text: { ...clip.text!, padding } })
+                }
+              />
+              <Slider
+                label="圆角"
+                value={clip.text.radius ?? 0}
+                min={0}
+                max={1}
+                step={0.05}
+                onChange={(radius) =>
+                  onUpdate({ text: { ...clip.text!, radius } })
+                }
+              />
+              <label className="toggle-property">
+                <span>文字阴影</span>
+                <input
+                  type="checkbox"
+                  aria-label="文字阴影"
+                  checked={!!clip.text.shadow}
+                  onChange={(e) =>
+                    onUpdate({
+                      text: {
+                        ...clip.text!,
+                        shadow: e.target.checked
+                          ? {
+                              color: "#000000",
+                              blur: 12,
+                              offsetX: 0,
+                              offsetY: 4,
+                            }
+                          : undefined,
+                      },
+                    })
+                  }
+                />
+              </label>
+              {clip.text.shadow && (
+                <>
+                  <label className="property-row">
+                    <span>阴影颜色</span>
+                    <input
+                      aria-label="阴影颜色"
+                      type="color"
+                      value={clip.text.shadow.color}
+                      onChange={(e) =>
+                        onUpdate({
+                          text: {
+                            ...clip.text!,
+                            shadow: {
+                              ...clip.text!.shadow!,
+                              color: e.target.value,
+                            },
+                          },
+                        })
+                      }
+                    />
+                  </label>
+                  <Slider
+                    label="阴影模糊"
+                    value={clip.text.shadow.blur}
+                    min={0}
+                    max={80}
+                    step={1}
+                    format={(v) => `${v.toFixed(0)}`}
+                    onChange={(blur) =>
+                      onUpdate({
+                        text: {
+                          ...clip.text!,
+                          shadow: { ...clip.text!.shadow!, blur },
+                        },
+                      })
+                    }
+                  />
+                  <NumberField
+                    label="阴影偏移 X"
+                    value={clip.text.shadow.offsetX}
+                    min={-200}
+                    max={200}
+                    onChange={(offsetX) =>
+                      onUpdate({
+                        text: {
+                          ...clip.text!,
+                          shadow: { ...clip.text!.shadow!, offsetX },
+                        },
+                      })
+                    }
+                  />
+                  <NumberField
+                    label="阴影偏移 Y"
+                    value={clip.text.shadow.offsetY}
+                    min={-200}
+                    max={200}
+                    onChange={(offsetY) =>
+                      onUpdate({
+                        text: {
+                          ...clip.text!,
+                          shadow: { ...clip.text!.shadow!, offsetY },
+                        },
+                      })
+                    }
+                  />
+                </>
+              )}
             </>
           )}
           {tab === "速度" && (

@@ -1,6 +1,12 @@
 import type { Clip } from "../core/types";
 import { getCropPixels, applyChromaKey, applyShapeMask } from "../core/visual";
 import { applyColorAdjustments } from "../core/color";
+import {
+  roundedRectPath,
+  textFont,
+  textLayerLayout,
+  textShadowMargin,
+} from "../core/textLayout";
 interface Layer {
   canvas: HTMLCanvasElement;
   key: string;
@@ -116,22 +122,21 @@ export function textPreviewLayer(clip: Clip): {
   ]);
   const cached = cache.get(clip.id);
   if (cached?.key === cachedKey) return cached;
-  const font = `${style.bold ? "bold " : ""}${style.fontSize}px "${style.fontFamily}", "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Arial Unicode MS", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif`;
+  const font = textFont(style);
   const context = document.createElement("canvas").getContext("2d")!;
   context.font = font;
-  const lines = style.text.split("\n");
-  const padding = Math.ceil(style.fontSize * 0.25 + style.strokeWidth),
-    width = Math.max(
-      2,
-      Math.ceil(
-        Math.max(...lines.map((line) => context.measureText(line).width), 1),
-      ) +
-        padding * 2,
-    ),
-    lineHeight = style.fontSize * 1.3,
-    height = Math.max(2, Math.ceil(lineHeight * lines.length + padding * 2));
+  const layout = textLayerLayout(style, (line) =>
+    context.measureText(line).width,
+  );
+  const margin = textShadowMargin(style);
   const key = cachedKey;
-  const crop = getCropPixels({ width, height }, clip.crop);
+  const crop = getCropPixels(
+    {
+      width: layout.width + margin * 2,
+      height: layout.height + margin * 2,
+    },
+    clip.crop,
+  );
   const layer = canvasFor(
     clip,
     key,
@@ -142,10 +147,18 @@ export function textPreviewLayer(clip: Clip): {
     const ctx = layer.canvas.getContext("2d", { willReadFrequently: true })!;
     ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
     ctx.save();
-    ctx.translate(-crop.x, -crop.y);
+    ctx.translate(-crop.x + margin, -crop.y + margin);
     if (style.background !== "transparent") {
       ctx.fillStyle = style.background;
-      ctx.fillRect(0, 0, width, height);
+      roundedRectPath(
+        ctx,
+        0,
+        0,
+        layout.width,
+        layout.height,
+        layout.radius,
+      );
+      ctx.fill();
     }
     ctx.font = font;
     ctx.textAlign = style.align;
@@ -154,16 +167,16 @@ export function textPreviewLayer(clip: Clip): {
     ctx.strokeStyle = style.stroke;
     ctx.lineWidth = style.strokeWidth * 2;
     ctx.lineJoin = "round";
-    const x =
-      style.align === "left"
-        ? padding
-        : style.align === "right"
-          ? width - padding
-          : width / 2;
-    lines.forEach((line, i) => {
-      const y = padding + lineHeight * (i + 0.5);
-      if (style.strokeWidth > 0) ctx.strokeText(line, x, y);
-      ctx.fillText(line, x, y);
+    if (style.shadow) {
+      ctx.shadowColor = style.shadow.color;
+      ctx.shadowBlur = style.shadow.blur;
+      ctx.shadowOffsetX = style.shadow.offsetX;
+      ctx.shadowOffsetY = style.shadow.offsetY;
+    }
+    layout.lines.forEach((line, i) => {
+      const y = layout.baseline(i);
+      if (style.strokeWidth > 0) ctx.strokeText(line, layout.x, y);
+      ctx.fillText(line, layout.x, y);
     });
     ctx.restore();
     adjust(layer, clip);

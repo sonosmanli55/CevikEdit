@@ -34,6 +34,12 @@ export interface Adjustments {
   temperature: number;
   blur: number;
 }
+export interface TextShadow {
+  color: string;
+  blur: number;
+  offsetX: number;
+  offsetY: number;
+}
 export interface TextStyle {
   text: string;
   fontSize: number;
@@ -44,6 +50,13 @@ export interface TextStyle {
   bold: boolean;
   stroke: string;
   strokeWidth: number;
+  /** Line height as a multiple of the font size (default 1.3). */
+  lineHeight?: number;
+  /** Background padding as a multiple of the font size (default 0.25). */
+  padding?: number;
+  /** Background corner radius as a multiple of the font size (0 = square). */
+  radius?: number;
+  shadow?: TextShadow;
 }
 export interface Keyframe {
   id: string;

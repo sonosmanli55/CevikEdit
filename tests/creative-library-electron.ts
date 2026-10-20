@@ -83,7 +83,7 @@ try {
     return JSON.parse(await readFile(source, "utf8"));
   };
   await page.getByRole("button", { name: "文本", exact: true }).click();
-  await expect(page.locator(".creative-card")).toHaveCount(16);
+  await expect(page.locator(".creative-card")).toHaveCount(25);
   const preview = page.getByRole("button", {
     name: "预览弹跳登场",
     exact: true,
@@ -96,7 +96,7 @@ try {
       .evaluate((c) => (c as HTMLCanvasElement).toDataURL());
   const first = await snapshot();
   await expect.poll(snapshot).not.toBe(first);
-  checks.push("16 text recipes and animated canvas preview");
+  checks.push("25 text recipes and animated canvas preview");
   await page
     .getByRole("textbox", { name: "搜索预设", exact: true })
     .fill("不存在的模板");
@@ -105,11 +105,27 @@ try {
   ).toBeVisible();
   await page.getByRole("textbox", { name: "搜索预设", exact: true }).fill("");
   await page.getByRole("tab", { name: "动态", exact: true }).click();
-  await expect(page.locator(".creative-card")).toHaveCount(4);
+  await expect(page.locator(".creative-card")).toHaveCount(5);
+  await page.getByRole("tab", { name: "下三分之一", exact: true }).click();
+  await expect(page.locator(".creative-card")).toHaveCount(3);
+  await page.getByRole("tab", { name: "社媒", exact: true }).click();
+  await expect(page.locator(".creative-card")).toHaveCount(3);
+  await page
+    .getByRole("button", { name: "添加数据卡模板", exact: true })
+    .click();
+  let p = await save();
+  const statText = p.clips.at(-1)!.text!;
+  assert.equal(statText.text, "12.4B\n播放量");
+  assert.equal(statText.background, "#62ead1");
+  assert.equal(statText.radius, 0.2);
+  assert.equal(statText.padding, 0.4);
+  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  assert.equal((await save()).clips.length, 2);
+  await page.getByRole("tab", { name: "动态", exact: true }).click();
   await page
     .getByRole("button", { name: "添加弹跳登场模板", exact: true })
     .click();
-  let p = await save();
+  p = await save();
   assert.equal(p.clips.length, 3);
   assert(p.clips.at(-1)?.text?.text === "HELLO！");
   assert.equal(p.clips.at(-1)?.keyframes.length, 3);

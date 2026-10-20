@@ -9,58 +9,85 @@ import {
   snapToFrame,
 } from "./model";
 
+export type TextPresetCategory =
+  | "标题"
+  | "下三分之一"
+  | "字幕"
+  | "标记"
+  | "动态"
+  | "社媒";
+export type TextMotion = "rise" | "pop" | "fade" | "slide" | "settle";
 export interface TextPreset {
   id: string;
   name: string;
-  category: "标题" | "字幕" | "标记" | "动态";
+  category: TextPresetCategory;
   style: Partial<TextStyle> & { text: string };
   y?: number;
-  motion?: "rise" | "pop" | "fade";
+  motion?: TextMotion;
+  /** Latin search words; never rendered, so they need no translation. */
+  keywords?: string[];
 }
+/** Tab order used by the template browser. */
+export const TEXT_PRESET_CATEGORIES: readonly TextPresetCategory[] = [
+  "标题",
+  "下三分之一",
+  "字幕",
+  "标记",
+  "动态",
+  "社媒",
+];
 export const TEXT_PRESETS: readonly TextPreset[] = [
   {
     id: "classic",
     name: "经典标题",
     category: "标题",
+    keywords: ["title", "baslik", "simple", "sade"],
     style: { text: t("让灵感，成为画面"), fontSize: 80 },
   },
   {
     id: "chapter",
     name: "章节标题",
     category: "标题",
+    keywords: ["chapter", "bolum"],
     style: {
       text: t("CHAPTER 01\n我的故事"),
       fontSize: 66,
       color: "#ffd69a",
       strokeWidth: 0,
+      lineHeight: 1.18,
     },
   },
   {
     id: "cinema",
     name: "电影片名",
     category: "标题",
+    keywords: ["cinema", "film", "sinema"],
     style: {
       text: t("在路上\nA JOURNEY"),
       fontSize: 90,
       color: "#fff0d5",
       strokeWidth: 0,
+      lineHeight: 1.12,
     },
   },
   {
     id: "editorial",
     name: "极简刊头",
     category: "标题",
+    keywords: ["editorial", "magazine", "dergi"],
     style: {
       text: t("生活观察\nVOL. 01"),
       fontSize: 70,
       bold: false,
       strokeWidth: 0,
+      lineHeight: 1.24,
     },
   },
   {
     id: "subtitle",
     name: "字幕底条",
     category: "字幕",
+    keywords: ["subtitle", "altyazi", "bar"],
     y: 0.36,
     style: {
       text: t("每一帧，都值得记录"),
@@ -68,12 +95,15 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
       bold: false,
       background: "#11151c",
       strokeWidth: 0,
+      padding: 0.42,
+      radius: 0.14,
     },
   },
   {
     id: "outline",
     name: "清晰描边",
     category: "字幕",
+    keywords: ["outline", "kontur", "stroke"],
     y: 0.36,
     style: { text: t("给平凡的一天，加一点光"), fontSize: 54, strokeWidth: 4 },
   },
@@ -81,6 +111,7 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "warm-caption",
     name: "暖白旁白",
     category: "字幕",
+    keywords: ["caption", "warm", "sicak"],
     y: 0.32,
     style: {
       text: t("慢慢走，沿途都有风景"),
@@ -89,12 +120,15 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
       color: "#fff0d5",
       background: "#493b32",
       strokeWidth: 0,
+      padding: 0.38,
+      radius: 0.22,
     },
   },
   {
     id: "quote",
     name: "访谈引用",
     category: "字幕",
+    keywords: ["quote", "alinti", "interview"],
     style: {
       text: t("“把热爱，写进每一天。”"),
       fontSize: 64,
@@ -106,12 +140,14 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "mint",
     name: "薄荷标记",
     category: "标记",
+    keywords: ["wordmark", "logo", "marka"],
     style: { text: "REACUT", fontSize: 104, color: "#62ead1", strokeWidth: 0 },
   },
   {
     id: "comic",
     name: "漫画强调",
     category: "标记",
+    keywords: ["comic", "pop", "cizgi"],
     style: {
       text: t("精彩来了！"),
       fontSize: 100,
@@ -124,18 +160,22 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "news",
     name: "资讯快报",
     category: "标记",
+    keywords: ["news", "haber", "breaking"],
     y: 0.29,
     style: {
       text: t("现场直击 · 最新动态"),
       fontSize: 60,
       background: "#b63f43",
       strokeWidth: 0,
+      padding: 0.3,
+      radius: 0.05,
     },
   },
   {
     id: "label",
     name: "人物姓名牌",
     category: "标记",
+    keywords: ["name", "isim", "tag"],
     y: 0.3,
     style: {
       text: t("林间 · 创作者"),
@@ -143,12 +183,15 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
       color: "#15252c",
       background: "#62ead1",
       strokeWidth: 0,
+      padding: 0.36,
+      radius: 0.5,
     },
   },
   {
     id: "rise",
     name: "轻盈升起",
     category: "动态",
+    keywords: ["rise", "yukari", "intro"],
     motion: "rise",
     style: { text: t("新的故事，现在开始"), fontSize: 74, strokeWidth: 0 },
   },
@@ -156,6 +199,7 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "pop",
     name: "弹跳登场",
     category: "动态",
+    keywords: ["pop", "bounce", "zipla"],
     motion: "pop",
     style: { text: t("HELLO！"), fontSize: 108, color: "#ffd176", strokeWidth: 4 },
   },
@@ -163,6 +207,7 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "fade",
     name: "柔光开场",
     category: "动态",
+    keywords: ["fade", "soft", "yumusak"],
     motion: "fade",
     style: {
       text: t("遇见，美好的一刻"),
@@ -176,12 +221,161 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     id: "end",
     name: "温柔谢幕",
     category: "动态",
+    keywords: ["end", "outro", "bitis"],
     motion: "fade",
     style: {
       text: t("感谢观看\n下次再见"),
       fontSize: 76,
       color: "#a0f1df",
       strokeWidth: 0,
+      lineHeight: 1.28,
+    },
+  },
+  {
+    id: "lower-third",
+    name: "姓名下三分之一",
+    category: "下三分之一",
+    keywords: ["lower third", "isim", "unvan", "name"],
+    y: 0.28,
+    style: {
+      text: t("艾琳·德米尔\n导演 · 伊斯坦布尔"),
+      fontSize: 54,
+      color: "#ffffff",
+      align: "left",
+      background: "#0f1720",
+      strokeWidth: 0,
+      lineHeight: 1.2,
+      padding: 0.44,
+      radius: 0.12,
+    },
+  },
+  {
+    id: "news-band",
+    name: "新闻条",
+    category: "下三分之一",
+    keywords: ["news", "haber", "band", "bant"],
+    y: 0.38,
+    motion: "slide",
+    style: {
+      text: t("突发新闻 · 最新进展"),
+      fontSize: 46,
+      color: "#ffffff",
+      background: "#c0392b",
+      strokeWidth: 0,
+      padding: 0.34,
+      radius: 0.06,
+    },
+  },
+  {
+    id: "quote-band",
+    name: "引言条",
+    category: "下三分之一",
+    keywords: ["quote", "alinti", "interview"],
+    y: 0.3,
+    style: {
+      text: t("“光会追随影子。”\n— 佚名"),
+      fontSize: 48,
+      bold: false,
+      align: "left",
+      color: "#f4f1ea",
+      background: "#1b1f24",
+      strokeWidth: 0,
+      lineHeight: 1.42,
+      padding: 0.42,
+      radius: 0.1,
+    },
+  },
+  {
+    id: "stat-card",
+    name: "数据卡",
+    category: "社媒",
+    keywords: ["stat", "number", "sayi", "data"],
+    y: 0.3,
+    style: {
+      text: t("12.4B\n播放量"),
+      fontSize: 62,
+      color: "#0f1418",
+      background: "#62ead1",
+      strokeWidth: 0,
+      lineHeight: 1.06,
+      padding: 0.4,
+      radius: 0.2,
+    },
+  },
+  {
+    id: "neon",
+    name: "霓虹标签",
+    category: "标记",
+    keywords: ["neon", "glow", "parlak"],
+    style: {
+      text: t("新品"),
+      fontSize: 88,
+      color: "#d9fff8",
+      strokeWidth: 0,
+      shadow: { color: "#62ead1", blur: 28, offsetX: 0, offsetY: 0 },
+    },
+  },
+  {
+    id: "gold",
+    name: "金色徽章",
+    category: "标记",
+    keywords: ["gold", "badge", "rozet", "altin"],
+    y: 0.3,
+    style: {
+      text: t("获奖"),
+      fontSize: 56,
+      color: "#2a1a06",
+      background: "#f2c14e",
+      strokeWidth: 0,
+      padding: 0.36,
+      radius: 0.5,
+    },
+  },
+  {
+    id: "hook",
+    name: "短视频开场",
+    category: "社媒",
+    keywords: ["hook", "short", "reels", "tiktok", "kanca"],
+    motion: "settle",
+    y: -0.22,
+    style: {
+      text: t("这个你绝对不知道"),
+      fontSize: 60,
+      lineHeight: 1.16,
+      color: "#ffffff",
+      strokeWidth: 0,
+      shadow: { color: "#000000", blur: 16, offsetX: 0, offsetY: 4 },
+    },
+  },
+  {
+    id: "follow",
+    name: "关注提示",
+    category: "社媒",
+    keywords: ["follow", "cta", "takip", "abone"],
+    motion: "fade",
+    y: 0.36,
+    style: {
+      text: t("关注 → @reacut"),
+      fontSize: 42,
+      color: "#12161a",
+      background: "#ffffff",
+      strokeWidth: 0,
+      padding: 0.38,
+      radius: 0.5,
+    },
+  },
+  {
+    id: "countdown",
+    name: "倒计时数字",
+    category: "动态",
+    keywords: ["countdown", "number", "geri sayim"],
+    motion: "pop",
+    style: {
+      text: "03",
+      fontSize: 160,
+      color: "#ffffff",
+      strokeWidth: 0,
+      shadow: { color: "#000000", blur: 24, offsetX: 0, offsetY: 6 },
     },
   },
 ];
@@ -222,6 +416,13 @@ export function makeTextPreset(
     ),
     strokeWidth: (preset.style.strokeWidth ?? 2) * scale,
   };
+  if (preset.style.shadow)
+    clip.text.shadow = {
+      color: preset.style.shadow.color,
+      blur: preset.style.shadow.blur * scale,
+      offsetX: preset.style.shadow.offsetX * scale,
+      offsetY: preset.style.shadow.offsetY * scale,
+    };
   clip.name = preset.style.text.replaceAll("\n", " · ");
   clip.transform.y = (preset.y ?? 0) * project.height;
   if (preset.motion) {
@@ -238,6 +439,16 @@ export function makeTextPreset(
       [0, 0.45],
       [0.4, 1.1],
       [0.65, 1],
+    ]);
+  if (preset.motion === "slide")
+    clip.keyframes = keys("x", [
+      [0, project.width * 0.4],
+      [0.55, 0],
+    ]);
+  if (preset.motion === "settle")
+    clip.keyframes = keys("scale", [
+      [0, 1.22],
+      [0.6, 1],
     ]);
   return clip;
 }

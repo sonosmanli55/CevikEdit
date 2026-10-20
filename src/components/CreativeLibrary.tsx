@@ -3,6 +3,7 @@ import { Plus, Search, Type } from "lucide-react";
 import {
   MOTION_PRESETS,
   TEXT_PRESETS,
+  TEXT_PRESET_CATEGORIES,
   TRANSITION_PRESETS,
   type MotionId,
   type TextPreset,
@@ -43,13 +44,19 @@ export function TextLibrary({
 }) {
   const [query, setQuery] = useState(""),
     [category, setCategory] = useState("全部");
+  const needle = query.toLowerCase().trim();
   const presets = TEXT_PRESETS.filter(
     (p) =>
       (category === "全部" || category === p.category) &&
-      (p.name + p.style.text)
+      [p.name, p.style.text, ...(p.keywords ?? [])]
+        .join(" ")
         .toLowerCase()
-        .includes(query.toLowerCase().trim()),
+        .includes(needle),
   );
+  const countFor = (name: string) =>
+    name === "全部"
+      ? TEXT_PRESETS.length
+      : TEXT_PRESETS.filter((p) => p.category === name).length;
   return (
     <section className="creative-library" aria-label="文字模板库">
       <header>
@@ -62,7 +69,7 @@ export function TextLibrary({
       </header>
       <SearchBox value={query} onChange={setQuery} />
       <div className="creative-tabs" role="tablist" aria-label="文字模板分类">
-        {["全部", "标题", "字幕", "标记", "动态"].map((c) => (
+        {["全部", ...TEXT_PRESET_CATEGORIES].map((c) => (
           <button
             key={c}
             role="tab"
@@ -70,21 +77,27 @@ export function TextLibrary({
             onClick={() => setCategory(c)}
           >
             {c}
+            <span className="creative-tab-count" aria-hidden="true">
+              {countFor(c)}
+            </span>
           </button>
         ))}
       </div>
       <div className="creative-scroll">
         <p className="creative-help">
-          添加到播放头位置；内容、字体、描边和动画均可编辑。
+          添加到播放头位置；内容、字体、描边、行高、圆角和动画均可编辑。
         </p>
         <div className="creative-grid">
           {presets.map((p) => (
             <article className="creative-card" key={p.id} data-preset-id={p.id}>
               <PresetPreview text={p} label={p.name} />
               <div>
-                <span>
+                <span title={p.style.text}>
                   {p.name}
-                  <small>{p.category} · 可编辑文字</small>
+                  <small>
+                    {p.category}
+                    {p.motion ? " · 动效" : " · 可编辑文字"}
+                  </small>
                 </span>
                 <button
                   aria-label={`添加${p.name}模板`}

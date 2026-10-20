@@ -505,6 +505,7 @@ export const tr: Record<string, string> = {
   "文字模板分类": "Metin şablonu kategorisi",
   "标记": "İşaret",
   "动态": "Hareketli",
+  "社媒": "Sosyal medya",
   "没有匹配的文字模板": "Eşleşen metin şablonu yok",
   "关键帧动效": "Anahtar kare animasyonu",
   "没有匹配的动效": "Eşleşen animasyon yok",
@@ -544,6 +545,23 @@ export const tr: Record<string, string> = {
   "柔光开场": "Yumuşak ışıkla açılış",
   "遇见，美好的一刻": "Güzel bir anla karşılaş",
   "温柔谢幕": "Nazik kapanış",
+  "姓名下三分之一": "İsim alt bandı",
+  "艾琳·德米尔\n导演 · 伊斯坦布尔": "Elif Demir\nYönetmen · İstanbul",
+  "新闻条": "Haber bandı",
+  "突发新闻 · 最新进展": "SON DAKİKA · YENİ GELİŞME",
+  "引言条": "Alıntı bandı",
+  "“光会追随影子。”\n— 佚名": "\"Işık gölgeyi izler.\"\n— Anonim",
+  "数据卡": "Veri kartı",
+  "12.4B\n播放量": "12.4B\ngörüntüleme",
+  "霓虹标签": "Neon etiket",
+  "新品": "YENİ",
+  "金色徽章": "Altın rozet",
+  "获奖": "ÖDÜLLÜ",
+  "短视频开场": "Kısa video açılışı",
+  "这个你绝对不知道": "BUNU BİLİYOR MUYDUNUZ?",
+  "关注提示": "Takip çağrısı",
+  "关注 → @reacut": "Takip et → @reacut",
+  "倒计时数字": "Geri sayım",
 
   // -------------------------------------------------------- Camera animations
   "缓慢推进": "Yavaş yaklaşma",
@@ -718,6 +736,14 @@ export const tr: Record<string, string> = {
   "描边宽度": "Kontur kalınlığı",
   "文字背景": "Metin arka planı",
   "文字背景颜色": "Metin arka plan rengi",
+  "排版与阴影": "Düzen ve gölge",
+  "行高": "Satır yüksekliği",
+  "内边距": "İç boşluk",
+  "文字阴影": "Metin gölgesi",
+  "阴影颜色": "Gölge rengi",
+  "阴影模糊": "Gölge bulanıklığı",
+  "阴影偏移 X": "Gölge kayması X",
+  "阴影偏移 Y": "Gölge kayması Y",
   "常规变速": "Normal hız değiştirme",
   "播放速度": "Oynatma hızı",
   "时间范围": "Zaman aralığı",
@@ -867,8 +893,8 @@ export const tr: Record<string, string> = {
 
   // -------------------------------------------------------- Preset preview
   "素材预览": "Medya önizlemesi",
-  "播放中": "Oynatılıyor",
-  "悬停预览": "Üzerine gelince önizle",
+  "播放中": "Oynuyor",
+  "悬停预览": "Önizle",
 
   // --------------------------------------------------------- Source preview
   "无法播放此素材，请检查格式或重新导入以生成预览代理。":
@@ -1111,9 +1137,10 @@ export const tr: Record<string, string> = {
   // ------------------------------------------------- Creative library details
   "文字模板": "Metin şablonları",
   "添加文本": "Metin ekle",
-  "添加到播放头位置；内容、字体、描边和动画均可编辑。":
-    "Oynatma başlığı konumuna ekler; içerik, yazı tipi, kontur ve animasyon düzenlenebilir.",
+  "添加到播放头位置；内容、字体、描边、行高、圆角和动画均可编辑。":
+    "Oynatma başlığı konumuna ekler; içerik, yazı tipi, kontur, satır yüksekliği, köşe yuvarlaklığı ve animasyon düzenlenebilir.",
   "· 可编辑文字": "· düzenlenebilir metin",
+  "· 动效": "· animasyon",
   "画面转场": "Görüntü geçişleri",
   "选择同轨相邻画面的前一段。时长按帧与片段长度限制；除「经过背景」外，后段会提前重叠。运镜会替换后段开头对应的关键帧。":
     "Aynı kanaldaki bitişik görüntülerden öncekini seçin. Süre, kare ve klip uzunluğuyla sınırlıdır; \"Arka plandan geçiş\" dışındakilerde sonraki klip öne bindirilir. Kamera hareketleri sonraki klibin başındaki ilgili anahtar kareleri değiştirir.",
