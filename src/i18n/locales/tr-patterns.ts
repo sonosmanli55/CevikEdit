@@ -53,6 +53,13 @@ export const trPatterns: Array<[RegExp, PatternReplacement]> = [
   [/^(\d+) 款原创 · 离线可用$/, "$1 özgün · çevrimdışı kullanılabilir"],
 
   // Status / error prefixes.
+  [/^正在倒放… (\d+)%$/, "Ters oynatılıyor… %$1"],
+  [/^倒放片段过长：当前分辨率下最多 ([\d.]+) 秒，请先分割片段。$/, "Klip ters oynatma için çok uzun: bu çözünürlükte en fazla $1 saniye. Önce klibi bölün."],
+  [/^倒放失败：([\s\S]+)$/, m => `Ters oynatma başarısız: ${translateText(m[1])}`],
+  [/^生成定格画面失败：([\s\S]+)$/, m => `Donmuş kare oluşturulamadı: ${translateText(m[1])}`],
+  [/^FFmpeg 倒放失败：([\s\S]+)$/, m => `FFmpeg ters oynatma hatası: ${m[1]}`],
+  [/^(.+) · 倒放$/, m => `${translateText(m[1])} · ters`],
+  [/^(.+) · 定格画面$/, m => `${translateText(m[1])} · donmuş kare`],
   [/^无法启动 (Whisper|FFmpeg)：(.+)$/, "$1 başlatılamadı: $2"],
   [/^(Whisper|FFmpeg) 执行失败：(.+)$/, "$1 çalıştırılamadı: $2"],
   [/^无法读取 (.+)$/, "$1 okunamıyor"],

@@ -1351,5 +1351,82 @@ export const tr: Record<string, string> = {
   "音频提取超时，请检查媒体文件。":
     "Ses çıkarma zaman aşımına uğradı; medya dosyasını denetleyin.",
   "应用正在关闭。": "Uygulama kapanıyor.",
+
+  // ------------------------------------------------- Reverse & freeze frame
+  "请选择一个视频片段。": "Bir video klibi seçin.",
+  "原视频素材已丢失，无法倒放。":
+    "Özgün video medyası eksik; ters oynatılamıyor.",
+  "轨道已锁定，无法倒放。": "Kanal kilitli; ters oynatılamıyor.",
+  "视频倒放仅支持桌面版。": "Video ters oynatma yalnızca masaüstü sürümünde kullanılabilir.",
+  "片段已不存在，倒放结果未加入项目。":
+    "Klip artık yok; ters oynatma sonucu projeye eklenmedi.",
+  "片段已倒放，原素材仍保留在媒体库。":
+    "Klip ters çevrildi; özgün medya kitaplıkta korunuyor.",
+  "倒放已取消。": "Ters oynatma iptal edildi.",
+  "倒放失败：": "Ters oynatma başarısız: ",
+  "原视频素材已丢失，无法定格。":
+    "Özgün video medyası eksik; kare dondurulamıyor.",
+  "轨道已锁定，无法定格。": "Kanal kilitli; kare dondurulamıyor.",
+  "请先把播放头移到选中的视频片段范围内。":
+    "Önce oynatma başlığını seçili video klibinin aralığına taşıyın.",
+  "定格画面仅支持桌面版。": "Kare dondurma yalnızca masaüstü sürümünde kullanılabilir.",
+  "片段已不存在，定格画面未加入项目。":
+    "Klip artık yok; donmuş kare projeye eklenmedi.",
+  "已生成定格画面，可在画面属性中调整持续时长。":
+    "Donmuş kare oluşturuldu; süresini görüntü özelliklerinden ayarlayabilirsiniz.",
+  "生成定格画面失败：": "Donmuş kare oluşturulamadı: ",
+  "片段工具": "Klip araçları",
+  "倒放片段": "Klibi ters oynat",
+  "倒放进度": "Ters oynatma ilerlemesi",
+  "视频与原有声音一起倒放。系统会生成独立媒体，原素材不会被覆盖。":
+    "Video ve varsa özgün ses birlikte ters çevrilir. Ayrı bir medya oluşturulur; özgün medyanın üzerine yazılmaz.",
+  "定格画面": "Donmuş kare",
+  "定格时长": "Donmuş kare süresi",
+  "正在生成定格画面…": "Donmuş kare oluşturuluyor…",
+  "定格当前帧": "Geçerli kareyi dondur",
+  "从当前播放头生成独立画面，可在画面属性中调整持续时长。":
+    "Geçerli oynatma başlığından ayrı bir görüntü oluşturur; süresini görüntü özelliklerinden ayarlayabilirsiniz.",
+  "请先把播放头移到当前视频片段范围内。":
+    "Önce oynatma başlığını geçerli video klibinin aralığına taşıyın.",
+  "定格画面或图片在时间线上的持续时间。":
+    "Donmuş karenin veya görselin zaman çizelgesindeki süresi.",
+  "倒放": "Ters",
+  "无效的倒放请求": "Geçersiz ters oynatma isteği",
+  "无效的定格请求": "Geçersiz kare dondurma isteği",
+  "所选素材无效": "Seçili medya geçersiz",
+  "无法读取倒放后的视频": "Ters çevrilen video okunamadı",
+  "无法读取定格画面": "Donmuş kare okunamadı",
+  "找不到要倒放的片段": "Ters oynatılacak klip bulunamadı",
+  "找不到片段所在轨道": "Klibin bulunduğu kanal bulunamadı",
+  "轨道已锁定，无法倒放": "Kanal kilitli; ters oynatılamıyor",
+  "找不到原视频素材": "Özgün video medyası bulunamadı",
+  "只有视频片段可以倒放": "Yalnızca video klipleri ters oynatılabilir",
+  "原视频素材已丢失": "Özgün video medyası eksik",
+  "倒放结果不是视频": "Ters oynatma sonucu video değil",
+  "倒放结果时长无效": "Ters oynatma sonucunun süresi geçersiz",
+  "倒放结果缺少原声，请重试": "Ters oynatma sonucunda özgün ses yok; tekrar deneyin",
+  "片段时长无效": "Klip süresi geçersiz",
+  "片段超出原视频范围": "Klip özgün video aralığının dışında",
+  "倒放结果时长不足，请重试": "Ters oynatma sonucu çok kısa; tekrar deneyin",
+  "找不到要定格的片段": "Dondurulacak klip bulunamadı",
+  "轨道已锁定，无法定格": "Kanal kilitli; kare dondurulamıyor",
+  "只有视频片段可以定格画面": "Yalnızca video kliplerinde kare dondurulabilir",
+  "定格结果不是图片": "Kare dondurma sonucu görsel değil",
+  "播放头位置无效": "Oynatma başlığı konumu geçersiz",
+  "播放头必须在选中视频片段范围内":
+    "Oynatma başlığı seçili video klibinin aralığında olmalıdır",
+  "定格时长无效": "Donmuş kare süresi geçersiz",
+  "定格画面超出时间线范围":
+    "Donmuş kare zaman çizelgesi aralığının dışına çıkıyor",
+  "倒放已取消": "Ters oynatma iptal edildi",
+  "已有倒放任务在运行": "Zaten çalışan bir ters oynatma görevi var",
+  "这段素材没有可倒放的画面": "Bu medyada ters çevrilecek görüntü yok",
+  "倒放范围超出源素材": "Ters oynatma aralığı kaynak medyanın dışında",
+  "倒放超时，请缩短片段后重试。":
+    "Ters oynatma zaman aşımına uğradı; klibi kısaltıp tekrar deneyin.",
+  "FFmpeg 倒放失败：": "FFmpeg ters oynatma hatası: ",
+  "倒放没有生成输出文件": "Ters oynatma çıktı dosyası oluşturmadı",
+  "这段素材没有可定格的画面": "Bu medyada dondurulacak görüntü yok",
+  "定格时间无效": "Kare dondurma zamanı geçersiz",
 };
 

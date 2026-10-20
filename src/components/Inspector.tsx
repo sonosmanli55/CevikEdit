@@ -30,6 +30,12 @@ interface Props {
   onProjectUpdate: (patch: Partial<Project>) => void;
   onSeparateAudio?: () => void;
   separating?: boolean;
+  onReverse?: () => void;
+  onCancelReverse?: () => void;
+  reversing?: boolean;
+  reverseProgress?: number;
+  onFreezeFrame?: (duration: number) => void;
+  freezing?: boolean;
 }
 function NumberField({
   label,
@@ -154,7 +160,14 @@ export default function Inspector({
   onProjectUpdate,
   onSeparateAudio,
   separating = false,
+  onReverse,
+  onCancelReverse,
+  reversing = false,
+  reverseProgress,
+  onFreezeFrame,
+  freezing = false,
 }: Props) {
+  const [freezeDuration, setFreezeDuration] = useState(2);
   const [tab, setTab] = useState("画面"),
     [fonts, setFonts] = useState<string[]>([
       "Noto Sans SC",
@@ -284,7 +297,10 @@ export default function Inspector({
     asset = project.assets.find((a) => a.id === clip.assetId);
   const local = Math.max(0, Math.min(clip.duration, playhead - clip.start)),
     evaluated = evaluateKeyframes(clip, local),
-    locked = track.locked;
+    locked = track.locked,
+    playheadInside =
+      playhead >= clip.start - 1e-9 &&
+      playhead <= clip.start + clip.duration + 1e-9;
   const key = (property: Keyframe["property"], value: number) => {
     const at = Math.min(
       clip.duration,
@@ -503,6 +519,36 @@ export default function Inspector({
                 suffix="s"
                 onChange={(fadeOut) => onUpdate({ fadeOut })}
               />
+              {asset?.kind === "image" && (
+                <>
+                  <h3>片段时长</h3>
+                  <NumberField
+                    label="片段时长"
+                    value={clip.duration}
+                    min={1 / project.fps}
+                    max={Math.max(1 / project.fps, 86400 - clip.start)}
+                    step={1 / project.fps}
+                    suffix="s"
+                    onChange={(duration) => {
+                      const next = Math.max(
+                        1 / project.fps,
+                        Math.min(duration, 86400 - clip.start),
+                      );
+                      onUpdate({
+                        duration: next,
+                        fadeIn: Math.min(clip.fadeIn, next),
+                        fadeOut: Math.min(clip.fadeOut, next),
+                        keyframes: clip.keyframes.filter(
+                          (keyframe) => keyframe.time <= next,
+                        ),
+                      });
+                    }}
+                  />
+                  <p className="muted small">
+                    定格画面或图片在时间线上的持续时间。
+                  </p>
+                </>
+              )}
             </>
           )}
           {tab === "音频" && (
@@ -955,6 +1001,65 @@ export default function Inspector({
               <p className="muted small">
                 在时间线上拖动片段两侧，可以裁剪入点和出点。
               </p>
+              {asset?.kind === "video" && onReverse && onFreezeFrame && (
+                <div className="clip-tools">
+                  <h3>片段工具</h3>
+                  <div className="clip-tool-row">
+                    <button
+                      className="small-button"
+                      disabled={reversing || locked}
+                      onClick={onReverse}
+                    >
+                      <RotateCcw size={14} />
+                      {reversing
+                        ? `正在倒放… ${Math.round(reverseProgress ?? 0)}%`
+                        : "倒放片段"}
+                    </button>
+                    {reversing && onCancelReverse && (
+                      <button
+                        className="small-button"
+                        onClick={onCancelReverse}
+                      >
+                        取消
+                      </button>
+                    )}
+                  </div>
+                  {reversing && (
+                    <progress
+                      className="clip-tool-progress"
+                      max={100}
+                      value={reverseProgress ?? 0}
+                      aria-label="倒放进度"
+                    />
+                  )}
+                  <p className="muted small">
+                    视频与原有声音一起倒放。系统会生成独立媒体，原素材不会被覆盖。
+                  </p>
+                  <h3>定格画面</h3>
+                  <NumberField
+                    label="定格时长"
+                    value={freezeDuration}
+                    min={1 / project.fps}
+                    max={600}
+                    step={0.1}
+                    suffix="s"
+                    onChange={setFreezeDuration}
+                  />
+                  <button
+                    className="small-button"
+                    disabled={freezing || locked || !playheadInside}
+                    onClick={() => onFreezeFrame(freezeDuration)}
+                  >
+                    <Image size={14} />
+                    {freezing ? "正在生成定格画面…" : "定格当前帧"}
+                  </button>
+                  <p className="muted small">
+                    {playheadInside
+                      ? "从当前播放头生成独立画面，可在画面属性中调整持续时长。"
+                      : "请先把播放头移到当前视频片段范围内。"}
+                  </p>
+                </div>
+              )}
             </>
           )}
           {tab === "动画" && (

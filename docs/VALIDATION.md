@@ -1,5 +1,18 @@
 # 本机验证记录
 
+## 视频倒放与定格画面（2026-10-21）
+
+新增独立实现的视频倒放与定格画面。倒放取选中视频片段的精确源区间（`sourceIn` 到 `sourceIn + duration × speed`），由本机 FFmpeg 生成独立缓存 MP4；视频使用 `reverse,setpts=PTS-STARTPTS`，存在音频时同时使用 `areverse,asetpts=PTS-STARTPTS`，因此原声随画面一起反向。完成后只替换片段的素材引用并把 `sourceIn` 归零，保留时间线起点、时长、速度、关键帧和淡化包络；原素材仍在项目、媒体库和磁盘中。缓存位于用户数据目录的 `reverse-media`，按源路径、大小、修改时间、入点和时长哈希复用。主进程校验授权素材、请求范围和数值，FFmpeg 使用参数数组启动；进度来自 `-progress pipe:1`，取消会终止子进程并删除临时文件。
+
+定格画面从当前播放头换算到源视频时间，由 FFmpeg 提取单帧 PNG 到 `freeze-frames` 内容寻址缓存。新片段放在文字轨之后、普通视频轨之前的独立视频轨，避免改变原时间线；继承当前求值后的变换、调色、裁剪、抠像和蒙版，清除关键帧与淡化，持续时长可在画面属性中修改。定格图片没有自身音轨，底层视频声音继续播放。
+
+- `tests/clipTools.test.ts` 通过 7 项：倒放素材替换、源区间保护、缓存素材复用、锁轨/非视频/时长不足/缺原声拒绝；定格轨道层级、当前变换与效果继承、关键帧清除、时长与缓存复用、播放头和时长边界。
+- `tests/clipMedia.integration.test.ts` 通过 4 项，使用真实 FFmpeg 8.0：3 秒 10 fps 合成视频以 0.5 秒入点、1 秒时长倒放，输出帧顺序与源帧反向对应，时长约 1 秒且保留音频；源文件内容不变并可重新导入；0.75 秒定格 PNG 对应正确的源帧并可导入为图片素材；运行中的 720p 倒放可取消，子进程结束后不留下目标文件。
+- `npx tsx tests/clip-tools-electron.ts` 桌面流程通过：导入逐帧变色视频，界面倒放后播放器画布解码出该倒放区间内的帧（允许一个帧边界误差），随后保存、撤销/重做、播放头 1 秒处生成 1 秒定格、保存重开并导出。导出为 90 帧；0.5 秒与 2.5 秒分别对应倒放后的尾帧和头帧，1.25/1.5/1.75 秒保持同一冻结帧，2.25 秒恢复播放；原视频 SHA-256 未变化，页面无错误。
+- `npm run typecheck`、`npm run build` 通过；`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。
+
+限制：FFmpeg `reverse` 需要把选中区间解码帧留在内存，本项目按 3 GiB 估算上限，1080p30 约 34 秒、4K30 约 13 秒，超出时提示先分割；没有实现分块磁盘缓存。倒放缓存不会自动清理，删除仍被项目引用的缓存会导致重开缺素材。当前仅在 Windows 开发机用系统 FFmpeg 8.0 验证，未在 macOS / Linux 实机复核，也未重新打包安装包。定格是图片叠加而非切分并推动后续片段，因此底层声音和后续画面时间不变；如需要静音，请单独处理底层片段。
+
 ## 本地 Whisper 自动字幕（2026-10-20）
 
 新增独立实现的本地自动字幕：在字幕面板选择时间线音视频片段，经本机 FFmpeg 提取 16 kHz 单声道 WAV，调用本地 whisper.cpp CLI 与 GGML 模型，解析 JSON（`transcription[]`、`segments[]` 或裸数组）或 SRT，清理非语音标记、拆分过长句，并按片段起点、变速和项目帧率写入新的「字幕」文字轨。写入复用现有 `addSubtitles`，一次撤销；不调用云端，不自动下载程序或模型。
@@ -8,7 +21,7 @@
 - `tests/transcriptionTools.test.ts` 通过 7 项：保存选择、环境变量、内置目录与 PATH 的优先级；模型发现、非法路径和缺失工具；并回归确认 PATH 中的通用 `whisper`（OpenAI Python CLI）不会被自动采用。
 - `tests/transcriptionRunner.test.ts` 新增 2 项 Unix 合成进程测试，覆盖成功输出与取消/清理；本机 Windows 跳过，未在 Unix 实机执行。
 - `npx tsc --noEmit` 与 `npm run build` 通过。`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。
-- `npx vitest run` 共 332 项。一次整套运行 311 通过、6 跳过、15 失败；另一次复跑多出 `workflowReview` 的 30 秒媒体用例超时（310 通过、6 跳过、16 失败），该文件单独重跑 3/3 通过。其余 15 项为本机既有问题（assistantBackend 12、portableProject 2、mediaTools 1），与本次改动无关。
+- 最新整套 `npx vitest run` 共 343 项：322 通过、6 跳过、15 失败。失败集中在 3 个本机既有环境用例文件：`assistantBackend` 12 项（带空格的临时目录中 CLI fixture 无法 spawn/发现，后续协议用例被连带）、`portableProject` 2 项（Windows 路径序列化断言与符号链接创建 `EPERM`）、`mediaTools` 1 项（PATH 驱动器前缀/大小写断言）；本次倒放/定格相关测试全部通过，未修改这些模块。整套结果不能视为全绿。
 - Windows 合成端到端检查：用临时编译的假 `whisper-cli.exe` 和假 `ffmpeg.exe` 启动 Electron，导入一个 12 秒音频项目，从字幕面板点击「生成字幕」；观察到提示「1 otomatik altyazı oluşturuldu」、新增「Altyazı」文字轨和 1.8 秒的「Merhaba dünya」文字片段（30 fps 下显示 00:00:01:24），无界面错误。该检查验证了 UI → preload → 主进程校验 → 结果解析 → 时间线写入，但假 FFmpeg 没有生成 WAV、假 Whisper 没有读取音频，不能证明真实提取或识别质量。
 - 土耳其语界面检查：分别截取缺少 Whisper 的引导状态和选中假可执行文件/模型的就绪状态；就绪状态下「Altyazı oluştur」按钮可用。检查中发现全局 `.small-button` 覆盖 `.primary` 的背景，已改用独立 `.subtitle-generate` 样式并复查为强调色。
 

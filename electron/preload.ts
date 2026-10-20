@@ -1,5 +1,10 @@
 import { contextBridge, ipcRenderer, webUtils } from "electron";
-import type { EditorAPI, ExportProgress, TranscriptionProgress } from "../src/core/types";
+import type {
+  EditorAPI,
+  ExportProgress,
+  ReverseProgress,
+  TranscriptionProgress,
+} from "../src/core/types";
 import type { AssistantEvent } from "../src/core/assistantTypes";
 const api: EditorAPI = {
   packageProject: project => ipcRenderer.invoke("package-project", project),
@@ -24,6 +29,14 @@ const api: EditorAPI = {
   importMedia: (paths) => ipcRenderer.invoke("import-media", paths),
   relinkAsset: (asset) => ipcRenderer.invoke("relink-asset", asset),
   extractAudio: (asset) => ipcRenderer.invoke("extract-audio", asset),
+  reverseClip: (request) => ipcRenderer.invoke("reverse-clip", request),
+  cancelReverse: (jobId) => ipcRenderer.invoke("cancel-reverse", jobId),
+  onReverseProgress: (callback) => {
+    const listener = (_: unknown, event: ReverseProgress) => callback(event);
+    ipcRenderer.on("reverse-progress", listener);
+    return () => ipcRenderer.removeListener("reverse-progress", listener);
+  },
+  freezeFrame: (request) => ipcRenderer.invoke("freeze-frame", request),
   getStartupProject: () => ipcRenderer.invoke("get-startup-project"),
   openProject: () => ipcRenderer.invoke("open-project"),
   saveProject: (project, path) =>

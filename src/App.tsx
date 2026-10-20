@@ -44,6 +44,7 @@ import type {
   MediaAsset,
   Project,
   RecentProject,
+  ReverseProgress,
 } from "./core/types";
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
 import { importCapcutDraft } from "./core/capcutImport";
@@ -484,6 +485,8 @@ export default function App() {
     [toast, setToast] = useState(""),
     [importing, setImporting] = useState(false),
     [separating, setSeparating] = useState(false),
+    [reverseJob, setReverseJob] = useState<ReverseProgress | null>(null),
+    [freezing, setFreezing] = useState(false),
     [system, setSystem] = useState<{
       ffmpeg: boolean;
       version?: string;
@@ -493,8 +496,16 @@ export default function App() {
     [recent, setRecent] = useState<RecentProject[]>([]),
     [recover, setRecover] = useState<Project | null>(null),
     [initialized, setInitialized] = useState(false);
+  const reverseJobId = useRef<string | null>(null);
   useEffect(() => { setSourceAssetId(null); }, [s.project.id, modal, s.selectedIds]);
   useEffect(() => { if (s.playing) setSourceAssetId(null); }, [s.playing]);
+  useEffect(() => {
+    const api = window.editorAPI;
+    if (!api?.onReverseProgress) return;
+    return api.onReverseProgress((event) => {
+      if (event.jobId === reverseJobId.current) setReverseJob(event);
+    });
+  }, []);
   const [timelineHeight, setTimelineHeight] = useState(() =>
     Math.max(220, Math.min(420, window.innerHeight * 0.34)),
   );
@@ -666,6 +677,129 @@ export default function App() {
       notify(`分离音频失败：${cleanIPCError(error)}`);
     } finally {
       setSeparating(false);
+    }
+  };
+  const reverseClip = async (clip: Clip) => {
+    const state = useEditorStore.getState(),
+      projectId = state.project.id,
+      asset = state.project.assets.find((entry) => entry.id === clip.assetId),
+      track = state.project.tracks.find((entry) => entry.id === clip.trackId);
+    if (!asset || asset.kind !== "video") {
+      notify("请选择一个视频片段。");
+      return;
+    }
+    if (asset.missing) {
+      notify("原视频素材已丢失，无法倒放。");
+      return;
+    }
+    if (track?.locked) {
+      notify("轨道已锁定，无法倒放。");
+      return;
+    }
+    if (!window.editorAPI) {
+      notify("视频倒放仅支持桌面版。");
+      return;
+    }
+    if (reverseJobId.current) return;
+    const jobId = crypto.randomUUID();
+    reverseJobId.current = jobId;
+    setReverseJob({ jobId, progress: 0, status: "preparing" });
+    try {
+      const reversed = await window.editorAPI.reverseClip({
+        jobId,
+        source: asset.path,
+        sourceIn: clip.sourceIn,
+        duration: clip.duration * clip.speed,
+        name: asset.name,
+      });
+      const latest = useEditorStore.getState();
+      if (latest.project.id !== projectId) return;
+      if (!latest.project.clips.some((entry) => entry.id === clip.id)) {
+        notify("片段已不存在，倒放结果未加入项目。");
+        return;
+      }
+      latest.reverseClip(clip.id, reversed);
+      notify("片段已倒放，原素材仍保留在媒体库。");
+    } catch (error) {
+      const message = cleanIPCError(error);
+      if (message.includes("取消")) notify("倒放已取消。");
+      else notify(`倒放失败：${message}`);
+    } finally {
+      if (reverseJobId.current === jobId) {
+        reverseJobId.current = null;
+        setReverseJob(null);
+      }
+    }
+  };
+  const cancelReverse = async () => {
+    const jobId = reverseJobId.current;
+    if (!jobId || !window.editorAPI) return;
+    try {
+      await window.editorAPI.cancelReverse(jobId);
+    } catch (error) {
+      notify(cleanIPCError(error));
+    }
+  };
+  const addFreezeFrame = async (duration: number) => {
+    const state = useEditorStore.getState(),
+      projectId = state.project.id,
+      clip = state.project.clips.find((entry) => entry.id === state.selectedIds[0]),
+      asset = clip
+        ? state.project.assets.find((entry) => entry.id === clip.assetId)
+        : undefined,
+      track = clip
+        ? state.project.tracks.find((entry) => entry.id === clip.trackId)
+        : undefined;
+    if (!clip || !asset || asset.kind !== "video") {
+      notify("请选择一个视频片段。");
+      return;
+    }
+    if (asset.missing) {
+      notify("原视频素材已丢失，无法定格。");
+      return;
+    }
+    if (track?.locked) {
+      notify("轨道已锁定，无法定格。");
+      return;
+    }
+    if (
+      state.playhead < clip.start - 1e-9 ||
+      state.playhead > clip.start + clip.duration + 1e-9
+    ) {
+      notify("请先把播放头移到选中的视频片段范围内。");
+      return;
+    }
+    if (!window.editorAPI) {
+      notify("定格画面仅支持桌面版。");
+      return;
+    }
+    if (freezing) return;
+    const start = Math.round(state.playhead * state.project.fps) / state.project.fps,
+      lastFrame = Math.max(0, clip.duration - 1 / state.project.fps),
+      local = Math.max(
+        0,
+        Math.min(lastFrame, Math.max(0, start - clip.start)),
+      ),
+      time = clip.sourceIn + local * clip.speed;
+    setFreezing(true);
+    try {
+      const image = await window.editorAPI.freezeFrame({
+        source: asset.path,
+        time,
+        name: asset.name,
+      });
+      const latest = useEditorStore.getState();
+      if (latest.project.id !== projectId) return;
+      if (!latest.project.clips.some((entry) => entry.id === clip.id)) {
+        notify("片段已不存在，定格画面未加入项目。");
+        return;
+      }
+      latest.addFreezeFrame(clip.id, image, start, duration);
+      notify("已生成定格画面，可在画面属性中调整持续时长。");
+    } catch (error) {
+      notify(`生成定格画面失败：${cleanIPCError(error)}`);
+    } finally {
+      setFreezing(false);
     }
   };
   const save = async (as = false) => {    if (saving.current) {
@@ -1273,6 +1407,12 @@ export default function App() {
           onProjectUpdate={s.updateProject}
           onSeparateAudio={active ? () => void separateAudio(active) : undefined}
           separating={separating}
+          onReverse={active ? () => void reverseClip(active) : undefined}
+          onCancelReverse={reverseJob ? () => void cancelReverse() : undefined}
+          reversing={!!reverseJob}
+          reverseProgress={reverseJob?.progress}
+          onFreezeFrame={active ? (duration) => void addFreezeFrame(duration) : undefined}
+          freezing={freezing}
         />}
       </EditorWorkspace>
       <div className="timeline-pane">

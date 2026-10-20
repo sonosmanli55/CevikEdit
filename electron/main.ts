@@ -36,6 +36,13 @@ import {
   extractAudioTrack,
 } from "./media";
 import { startExport, cancelExport, cancelAllExports } from "./export";
+import {
+  cancelAllClipMedia,
+  cancelReverseClip,
+  extractFreezeFrame,
+  reverseClipMedia,
+  shutdownClipMedia,
+} from "./clipMedia";
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
 import {
@@ -59,6 +66,9 @@ import type {
   Project,
   RecentProject,
   ExportOptions,
+  FreezeFrameRequest,
+  ReverseClipRequest,
+  ReverseProgress,
   TranscriptionProgress,
   TranscriptionRequest,
 } from "../src/core/types";
@@ -143,6 +153,8 @@ const menuAction = (action: string) =>
   window?.webContents.send("menu-action", action);
 const userFile = (name: string) => path.join(app.getPath("userData"), name);
 const cacheDir = () => userFile("thumbnails");
+const reverseDir = () => userFile("reverse-media");
+const freezeDir = () => userFile("freeze-frames");
 let transcriptionTools: { executable?: string; model?: string } = {};
 function transcriptionToolDirectories(): string[] {
   const directories = [
@@ -323,6 +335,78 @@ function validateTranscriptionRequest(
   )
     throw new Error("无效的转写语言");
 }
+const jobIdPattern =
+  /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+function validateReverseRequest(
+  value: unknown,
+): asserts value is ReverseClipRequest {
+  if (!value || typeof value !== "object") throw new Error("无效的倒放请求");
+  const request = value as Record<string, unknown>;
+  if (typeof request.jobId !== "string" || !jobIdPattern.test(request.jobId))
+    throw new Error("无效的倒放请求");
+  if (
+    typeof request.source !== "string" ||
+    !path.isAbsolute(request.source) ||
+    !allowedMedia.has(path.resolve(request.source))
+  )
+    throw new Error("该素材未通过本地访问授权");
+  const number = (key: string, min: number, max: number) => {
+    const candidate = request[key];
+    if (
+      typeof candidate !== "number" ||
+      !Number.isFinite(candidate) ||
+      candidate < min ||
+      candidate > max
+    )
+      throw new Error("无效的倒放请求");
+    return candidate;
+  };
+  const sourceIn = number("sourceIn", 0, 24 * 3600);
+  const duration = number("duration", 1 / 240, 6 * 3600);
+  if (sourceIn + duration > 24 * 3600) throw new Error("无效的倒放请求");
+  if (
+    request.name !== undefined &&
+    (typeof request.name !== "string" ||
+      !request.name.trim() ||
+      request.name.length > 4096 ||
+      request.name.includes("\0"))
+  )
+    throw new Error("无效的倒放请求");
+}
+
+function validateFreezeRequest(
+  value: unknown,
+): asserts value is FreezeFrameRequest {
+  if (!value || typeof value !== "object") throw new Error("无效的定格请求");
+  const request = value as Record<string, unknown>;
+  if (
+    typeof request.source !== "string" ||
+    !path.isAbsolute(request.source) ||
+    !allowedMedia.has(path.resolve(request.source))
+  )
+    throw new Error("该素材未通过本地访问授权");
+  if (
+    typeof request.time !== "number" ||
+    !Number.isFinite(request.time) ||
+    request.time < 0 ||
+    request.time > 24 * 3600
+  )
+    throw new Error("无效的定格请求");
+  if (
+    request.name !== undefined &&
+    (typeof request.name !== "string" ||
+      !request.name.trim() ||
+      request.name.length > 4096 ||
+      request.name.includes("\0"))
+  )
+    throw new Error("无效的定格请求");
+}
+
+function derivedAssetName(name: string | undefined, source: string): string {
+  const base = (name?.trim() || path.basename(source)).replace(/\0/g, "");
+  return base.length > 3800 ? base.slice(0, 3800) : base;
+}
+
 function registerIPC() {
   handle("import-builtin-asset", async (id: unknown) => {
     const definition = BUILTIN_ASSETS.find(asset => asset.id === id);
@@ -465,6 +549,113 @@ function registerIPC() {
         : extracted.name;
     authorizeAsset(extracted);
     return extracted;
+  });
+  handle("reverse-clip", async (input: unknown) => {
+    validateReverseRequest(input);
+    const request = input;
+    const source = path.resolve(request.source);
+    const metadata = await stat(source);
+    if (!metadata.isFile()) throw new Error("所选素材无效");
+    const directory = reverseDir();
+    await mkdir(directory, { recursive: true });
+    const key = createHash("sha256")
+      .update(
+        `reverse-v1:${source}:${metadata.size}:${metadata.mtimeMs}:${request.sourceIn.toFixed(6)}:${request.duration.toFixed(6)}`,
+      )
+      .digest("hex")
+      .slice(0, 24);
+    const target = path.join(directory, `${key}.mp4`);
+    const owner = window?.webContents;
+    const emit = (
+      progress: number,
+      status: ReverseProgress["status"],
+      message?: string,
+    ) => {
+      if (!owner || owner.isDestroyed()) return;
+      owner.send("reverse-progress", {
+        jobId: request.jobId,
+        progress: Math.max(0, Math.min(100, progress)),
+        status,
+        ...(message ? { message } : {}),
+      } satisfies ReverseProgress);
+    };
+    emit(0, "preparing");
+    try {
+      let exists = true;
+      try {
+        await access(target);
+      } catch {
+        exists = false;
+      }
+      if (!exists)
+        await reverseClipMedia({
+          jobId: request.jobId,
+          source,
+          sourceIn: request.sourceIn,
+          duration: request.duration,
+          destination: target,
+          onProgress: (progress, status) => emit(progress, status),
+        });
+      const [reversed] = await importAssets([target], cacheDir());
+      if (!reversed || reversed.kind !== "video")
+        throw new Error("无法读取倒放后的视频");
+      reversed.name = `${derivedAssetName(request.name, source)} · ${tr("倒放")}`;
+      authorizeAsset(reversed);
+      emit(100, "complete");
+      return reversed;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!message.includes("取消")) {
+        emit(0, "error", message);
+      } else {
+        emit(0, "cancelled", message);
+      }
+      throw error;
+    }
+  });
+  handle("cancel-reverse", (jobId: unknown) => {
+    if (typeof jobId !== "string" || !jobIdPattern.test(jobId))
+      throw new Error("无效的倒放请求");
+    return cancelReverseClip(jobId);
+  });
+  handle("freeze-frame", async (input: unknown) => {
+    validateFreezeRequest(input);
+    const request = input;
+    const source = path.resolve(request.source);
+    const metadata = await stat(source);
+    if (!metadata.isFile()) throw new Error("所选素材无效");
+    const directory = freezeDir();
+    await mkdir(directory, { recursive: true });
+    const key = createHash("sha256")
+      .update(
+        `freeze-v1:${source}:${metadata.size}:${metadata.mtimeMs}:${request.time.toFixed(6)}`,
+      )
+      .digest("hex")
+      .slice(0, 24);
+    const target = path.join(directory, `${key}.png`);
+    let exists = true;
+    try {
+      await access(target);
+    } catch {
+      exists = false;
+    }
+    if (!exists) {
+      try {
+        await extractFreezeFrame(source, request.time, target);
+      } catch (error) {
+        try {
+          await access(target);
+        } catch {
+          throw error;
+        }
+      }
+    }
+    const [image] = await importAssets([target], cacheDir());
+    if (!image || image.kind !== "image")
+      throw new Error("无法读取定格画面");
+    image.name = `${derivedAssetName(request.name, source)} · ${tr("定格画面")}`;
+    authorizeAsset(image);
+    return image;
   });
   handle("relink-asset", async (asset: MediaAsset) => {
     const result = await dialog.showOpenDialog(window!, {
@@ -939,6 +1130,7 @@ function createWindow() {
   });
   window.on("closed", () => {
     void cancelPortablePackages();
+    cancelAllClipMedia();
     cancelAllTranscriptions();
     assistantCancelPending = true;
     assistantRunning?.cancel();
@@ -1112,6 +1304,7 @@ app.on("before-quit", (event) => {
     (async () => { assistantCancelPending = true; await assistantStartDone; const running = assistantRunning; running?.cancel(); await running?.done; await assistantHistoryWrites.catch(() => {}); })(),
     cancelAllExports(),
     cancelPortablePackages(),
+    shutdownClipMedia(),
     shutdownMediaTasks(),
     shutdownTranscriptions(),
     writeQueue.catch(() => {}),

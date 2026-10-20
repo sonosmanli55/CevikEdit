@@ -20,6 +20,7 @@ import {
 } from "../core/model";
 import type { Subtitle } from "../core/subtitles";
 import { separateProjectAudio } from "../core/audio";
+import { addFreezeFrameClip, reverseProjectClip } from "../core/clipTools";
 interface EditorState {
   project: Project;
   path?: string;
@@ -42,6 +43,13 @@ interface EditorState {
   updateProject: (patch: Partial<Project>) => void;
   addAssets: (assets: MediaAsset[]) => void;
   separateAudio: (clipId: string, audioAsset: MediaAsset) => void;
+  reverseClip: (clipId: string, reversedAsset: MediaAsset) => void;
+  addFreezeFrame: (
+    clipId: string,
+    imageAsset: MediaAsset,
+    playhead: number,
+    duration?: number,
+  ) => void;
   removeAsset: (assetId: string) => void;
   addAssetClip: (assetId: string, start?: number, trackId?: string, range?: { sourceIn: number; duration: number }) => void;
   addText: () => void;
@@ -196,6 +204,43 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       );
     get().commit(result.project);
     set({ selectedIds: [result.clip.id] });
+  },
+  reverseClip: (clipId, reversedAsset) => {
+    const p = get().project,
+      existing = p.assets.find(
+        (asset) =>
+          asset.path === reversedAsset.path &&
+          asset.kind === reversedAsset.kind,
+      ),
+      result = reverseProjectClip(
+        {
+          ...p,
+          assets: existing ? p.assets : [...p.assets, reversedAsset],
+        },
+        clipId,
+        existing ?? reversedAsset,
+      );
+    get().commit(result.project);
+    set({ selectedIds: [result.clip.id] });
+  },
+  addFreezeFrame: (clipId, imageAsset, playhead, duration) => {
+    const p = get().project,
+      existing = p.assets.find(
+        (asset) =>
+          asset.path === imageAsset.path && asset.kind === imageAsset.kind,
+      ),
+      result = addFreezeFrameClip(
+        {
+          ...p,
+          assets: existing ? p.assets : [...p.assets, imageAsset],
+        },
+        clipId,
+        existing ?? imageAsset,
+        playhead,
+        duration,
+      );
+    get().commit(result.project);
+    set({ selectedIds: [result.clip.id], playhead: result.clip.start });
   },
   removeAsset: (assetId) => {
     const p = get().project;

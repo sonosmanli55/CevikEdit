@@ -201,6 +201,41 @@ export interface TranscriptionResult {
   cues: Subtitle[];
 }
 
+export interface ReverseClipRequest {
+  jobId: string;
+  /** Absolute path of an already authorized local media file. */
+  source: string;
+  /** Offset into the source media, in seconds. */
+  sourceIn: number;
+  /** Source duration to reverse, before timeline speed is applied. */
+  duration: number;
+  /** Optional display name inherited from the project asset. */
+  name?: string;
+}
+
+export type ReverseStatus =
+  | "preparing"
+  | "rendering"
+  | "complete"
+  | "error"
+  | "cancelled";
+
+export interface ReverseProgress {
+  jobId: string;
+  progress: number;
+  status: ReverseStatus;
+  message?: string;
+}
+
+export interface FreezeFrameRequest {
+  /** Absolute path of an already authorized local video. */
+  source: string;
+  /** Source timestamp in seconds. */
+  time: number;
+  /** Optional display name inherited from the project asset. */
+  name?: string;
+}
+
 export interface AppSettings {
   ffmpegPath?: string;
   ffprobePath?: string;
@@ -240,6 +275,10 @@ export interface EditorAPI {
   importMedia: (paths?: string[]) => Promise<MediaAsset[]>;
   relinkAsset: (asset: MediaAsset) => Promise<MediaAsset | null>;
   extractAudio: (asset: MediaAsset) => Promise<MediaAsset>;
+  reverseClip: (request: ReverseClipRequest) => Promise<MediaAsset>;
+  cancelReverse: (jobId: string) => Promise<void>;
+  onReverseProgress: (callback: (event: ReverseProgress) => void) => () => void;
+  freezeFrame: (request: FreezeFrameRequest) => Promise<MediaAsset>;
   onMenuAction: (callback: (action: string) => void) => () => void;
   setDirty: (dirty: boolean) => void;
   cancelCloseRequest: () => void;
