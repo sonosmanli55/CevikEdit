@@ -437,7 +437,8 @@ export async function importAssets(
           60_000,
         );
         const samples = Math.floor(pcm.length / 4);
-        const bins = Math.min(160, samples);
+        // Dense enough for a CapCut-style mirrored envelope on wide clips.
+        const bins = Math.min(512, samples);
         asset.waveform = Array.from({ length: bins }, (_, bin) => {
           const from = Math.floor((bin * samples) / bins);
           const to = Math.floor(((bin + 1) * samples) / bins);
@@ -456,4 +457,47 @@ export async function importAssets(
     assets.push(asset);
   }
   return assets;
+}
+
+/**
+ * Extract the audio stream of a media file into a standalone AAC/M4A file.
+ * M4A keeps the result small and decodes in Chromium, which the editor needs for
+ * scrubbing and preview, so the separated clip behaves like any other audio.
+ */
+export async function extractAudioTrack(
+  source: string,
+  destination: string,
+): Promise<void> {
+  const temporary = `${destination}.${process.pid}.tmp.m4a`;
+  try {
+    await mkdir(path.dirname(destination), { recursive: true });
+    await runMediaTool(
+      "ffmpeg",
+      [
+        "-v",
+        "error",
+        "-y",
+        "-i",
+        source,
+        "-vn",
+        "-sn",
+        "-dn",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-movflags",
+        "+faststart",
+        temporary,
+      ],
+      10 * 60_000,
+    );
+    await rename(temporary, destination);
+  } finally {
+    await rm(temporary, { force: true }).catch(() => {});
+  }
 }

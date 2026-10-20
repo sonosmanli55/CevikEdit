@@ -4,6 +4,7 @@ import { useEditorStore } from "../editor/store";
 import { assistantProjectContext, previewAssistantEdits, type AssistantEditPreview } from "../core/assistantEdits";
 import type { AssistantMessage, AssistantProvider, AssistantProviderInfo } from "../core/assistantTypes";
 import type { Project } from "../core/types";
+import { t } from "../i18n/locale";
 import "./AssistantPanel.css";
 
 type Proposal = { preview: AssistantEditPreview; base: string; applied: boolean };
@@ -81,7 +82,7 @@ export default function AssistantPanel({ onClose }: { onClose(): void }) {
     </div>
     <p className="assistant-provider-status">{currentProvider?.available ? `已检测到 ${currentProvider.label} ${currentProvider.version ?? ""}` : currentProvider?.error ?? "正在检测本机 CLI…"}</p>
     <div className="assistant-chat" aria-live="polite">
-      {!messages.length && <div className="assistant-welcome"><MessageSquare size={28} /><h3>把剪辑想法说出来</h3><p>根据当前时间线提出修改，检查后由你应用。支持文字、裁剪、分割、变速、音量和画面调整。</p><button onClick={() => setPrompt("在播放头添加持续3秒的标题：故事由此开始")}>添加片头标题</button><button onClick={() => setPrompt("分析当前时间线，给我3条剪辑建议，暂时不要修改")}>看看可以怎样改进</button></div>}
+      {!messages.length && <div className="assistant-welcome"><MessageSquare size={28} /><h3>把剪辑想法说出来</h3><p>根据当前时间线提出修改，检查后由你应用。支持文字、裁剪、分割、变速、音量和画面调整。</p><button onClick={() => setPrompt(t("在播放头添加持续3秒的标题：故事由此开始"))}>添加片头标题</button><button onClick={() => setPrompt(t("分析当前时间线，给我3条剪辑建议，暂时不要修改"))}>看看可以怎样改进</button></div>}
       {messages.map((message, i) => <div key={i} className={`assistant-message ${message.role}`}><small>{message.role === "user" ? "你" : "助手"}</small><p>{message.content}</p></div>)}
       {stream && <div className="assistant-message assistant"><small>助手</small><p>{stream}</p></div>}
       {status && <p className="assistant-status">{status}</p>}

@@ -179,6 +179,7 @@ export interface EditorAPI {
   saveAssistantHistory: (projectId: string, messages: AssistantMessage[]) => Promise<void>;
   importMedia: (paths?: string[]) => Promise<MediaAsset[]>;
   relinkAsset: (asset: MediaAsset) => Promise<MediaAsset | null>;
+  extractAudio: (asset: MediaAsset) => Promise<MediaAsset>;
   onMenuAction: (callback: (action: string) => void) => () => void;
   setDirty: (dirty: boolean) => void;
   cancelCloseRequest: () => void;
@@ -230,5 +231,6 @@ export interface EditorAPI {
 declare global {
   interface Window {
     editorAPI?: EditorAPI;
+    reacutLocale?: string;
   }
 }

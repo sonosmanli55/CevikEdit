@@ -32,7 +32,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import type { Clip, Project, Track, TrackKind } from "../core/types";
+import type { Clip, MediaAsset, Project, Track, TrackKind } from "../core/types";
 import { snapToFrame } from "../core/model";
 import "./Timeline.css";
 
@@ -152,6 +152,48 @@ export function waveformSamples(
     );
     return waveform[index];
   });
+}
+/**
+ * Mirrored peak bars. One path of vertical strokes keeps the DOM light, and the
+ * non-scaling stroke keeps the bars readable at every zoom level.
+ */
+function Waveform({
+  clip,
+  asset,
+  width,
+}: {
+  clip: Clip;
+  asset: MediaAsset;
+  width: number;
+}) {
+  const waveform = asset.waveform;
+  if (!waveform?.length) return null;
+  const samples = waveformSamples(
+    clip,
+    waveform,
+    Math.min(520, Math.max(16, Math.round(width / 2.6))),
+    asset.duration,
+  );
+  const bars = samples
+    .map((value, index) => {
+      const x = ((index + 0.5) / samples.length) * 1000;
+      const half = Math.max(
+        1.6,
+        Math.min(34, Math.sqrt(Math.max(0, value)) * 32),
+      );
+      return `M${x.toFixed(1)},${(50 - half).toFixed(1)}V${(50 + half).toFixed(1)}`;
+    })
+    .join("");
+  return (
+    <svg
+      className="tl-waveform"
+      viewBox="0 0 1000 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d={bars} vectorEffect="non-scaling-stroke" />
+    </svg>
+  );
 }
 function TrackIcon({ kind }: { kind: TrackKind }) {
   return kind === "audio" ? (
@@ -1137,27 +1179,11 @@ export default function Timeline(props: TimelineProps) {
                         {asset?.waveform &&
                           (track.kind === "audio" ||
                             (asset.hasAudio && clip.duration * pps > 80)) && (
-                            <div className="tl-waveform" aria-hidden="true">
-                              {waveformSamples(
-                                clip,
-                                asset.waveform,
-                                Math.min(
-                                  180,
-                                  Math.max(
-                                    4,
-                                    Math.floor((clip.duration * pps) / 3),
-                                  ),
-                                ),
-                                asset.duration,
-                              ).map((value, i) => (
-                                <i
-                                  key={i}
-                                  style={{
-                                    height: `${Math.max(3, Math.min(100, value * 100))}%`,
-                                  }}
-                                />
-                              ))}
-                            </div>
+                            <Waveform
+                              clip={clip}
+                              asset={asset}
+                              width={clip.duration * pps}
+                            />
                           )}
                         {clip.fadeIn > 0 && (
                           <div

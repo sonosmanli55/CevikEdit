@@ -19,6 +19,7 @@ import {
   validateProject,
 } from "../core/model";
 import type { Subtitle } from "../core/subtitles";
+import { separateProjectAudio } from "../core/audio";
 interface EditorState {
   project: Project;
   path?: string;
@@ -40,6 +41,7 @@ interface EditorState {
   transactionRecorded: boolean;
   updateProject: (patch: Partial<Project>) => void;
   addAssets: (assets: MediaAsset[]) => void;
+  separateAudio: (clipId: string, audioAsset: MediaAsset) => void;
   removeAsset: (assetId: string) => void;
   addAssetClip: (assetId: string, start?: number, trackId?: string, range?: { sourceIn: number; duration: number }) => void;
   addText: () => void;
@@ -179,6 +181,21 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       return true;
     });
     if (fresh.length) get().commit({ ...p, assets: [...p.assets, ...fresh] });
+  },
+  separateAudio: (clipId, audioAsset) => {
+    const p = get().project,
+      // Reuse the asset when the same extracted file is already in the project.
+      existing = p.assets.find((asset) => asset.path === audioAsset.path),
+      result = separateProjectAudio(
+        {
+          ...p,
+          assets: existing ? p.assets : [...p.assets, audioAsset],
+        },
+        clipId,
+        existing ?? audioAsset,
+      );
+    get().commit(result.project);
+    set({ selectedIds: [result.clip.id] });
   },
   removeAsset: (assetId) => {
     const p = get().project;

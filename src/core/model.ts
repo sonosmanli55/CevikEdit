@@ -12,6 +12,7 @@ import {
   DEFAULT_ADJUSTMENTS,
   DEFAULT_TEXT,
 } from "./defaults";
+import { t } from "../i18n/locale";
 export const id = () => crypto.randomUUID();
 export const clone = <T>(value: T): T => structuredClone(value);
 export const snapToFrame = (time: number, fps: number) =>
@@ -21,7 +22,7 @@ export const projectDuration = (project: Project): number =>
     (end, clip) => Math.max(end, clip.start + clip.duration),
     0,
   );
-export function createProject(name = "未命名项目"): Project {
+export function createProject(name = t("未命名项目")): Project {
   const now = new Date().toISOString();
   return {
     version: 1,
@@ -64,7 +65,7 @@ export function createClip(
     id: id(),
     trackId,
     assetId: asset?.id,
-    name: asset?.name ?? "默认文本",
+    name: asset?.name ?? t("默认文本"),
     start: snapToFrame(Math.max(0, start), fps),
     duration:
       asset?.kind === "image" || !asset ? 5 : Math.max(1 / fps, asset.duration),

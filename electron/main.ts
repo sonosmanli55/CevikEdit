@@ -32,10 +32,13 @@ import {
   systemFontFamilies,
   shutdownMediaTasks,
   registerBundledFont,
+  probeFile,
+  extractAudioTrack,
 } from "./media";
 import { startExport, cancelExport, cancelAllExports } from "./export";
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
+import { getMainLocale, resolveLocale, setMainLocale, tr, translateMenu } from "./locale";
 import { validateProject } from "../src/core/model";
 import { decodeCapcutDraft } from "./capcutCodec";
 import {
@@ -52,6 +55,7 @@ import type {
 } from "../src/core/types";
 
 const pluginMode = process.argv.includes("--reacut-plugin");
+setMainLocale(resolveLocale(app.isPackaged));
 // A connected MCP server is a background app until its desktop window is shown.
 if (process.platform === "darwin") app.setActivationPolicy(pluginMode ? "accessory" : "regular");
 if (pluginMode && !process.env.REACUT_USER_DATA)
@@ -261,7 +265,7 @@ function registerIPC() {
   handle("assistant-providers", () => discoverAssistantProviders(assistantOverrides));
   handle("assistant-choose-cli", async (provider: AssistantProvider) => {
     if (provider !== "codex" && provider !== "claude") throw new Error("无效助手类型");
-    const result = await dialog.showOpenDialog(window!, { title: `选择 ${provider === "codex" ? "Codex" : "Claude Code"} CLI`, properties: ["openFile"] });
+    const result = await dialog.showOpenDialog(window!, { title: tr(`选择 ${provider === "codex" ? "Codex" : "Claude Code"} CLI`), properties: ["openFile"] });
     if (!result.canceled) {
       assistantOverrides[provider] = result.filePaths[0];
       await mkdir(path.dirname(userFile("assistant-clis.json")), { recursive: true });
@@ -313,11 +317,11 @@ function registerIPC() {
     let selected = paths;
     if (!selected) {
       const result = await dialog.showOpenDialog(window!, {
-        title: "导入素材",
+        title: tr("导入素材"),
         properties: ["openFile", "multiSelections"],
         filters: [
           {
-            name: "媒体文件",
+            name: tr("媒体文件"),
             extensions: [
               "mp4",
               "mov",
@@ -340,7 +344,7 @@ function registerIPC() {
               "heic",
             ],
           },
-          { name: "所有文件", extensions: ["*"] },
+          { name: tr("所有文件"), extensions: ["*"] },
         ],
       });
       if (result.canceled) return [];
@@ -356,9 +360,39 @@ function registerIPC() {
     assets.forEach(authorizeAsset);
     return assets;
   });
+  handle("extract-audio", async (asset: MediaAsset) => {
+    const source = path.resolve(String(asset?.path ?? ""));
+    if (!allowedMedia.has(source))
+      throw new Error("该素材未通过本地访问授权");
+    const probe = await probeFile(source);
+    if (!probe.streams.some((stream) => stream.codec_type === "audio"))
+      throw new Error("这段素材没有可分离的音频");
+    const metadata = await stat(source);
+    const directory = userFile("extracted-audio");
+    await mkdir(directory, { recursive: true });
+    // Content-addressed: extracting the same clip twice reuses one file.
+    const key = createHash("sha256")
+      .update(`${source}:${metadata.size}:${metadata.mtimeMs}`)
+      .digest("hex")
+      .slice(0, 16);
+    const target = path.join(directory, `${key}.m4a`);
+    try {
+      await access(target);
+    } catch {
+      await extractAudioTrack(source, target);
+    }
+    const [extracted] = await importAssets([target], cacheDir());
+    if (!extracted) throw new Error("无法读取分离出的音频");
+    extracted.name =
+      typeof asset.name === "string" && asset.name.trim()
+        ? asset.name
+        : extracted.name;
+    authorizeAsset(extracted);
+    return extracted;
+  });
   handle("relink-asset", async (asset: MediaAsset) => {
     const result = await dialog.showOpenDialog(window!, {
-      title: `重新链接 ${asset.name}`,
+      title: tr(`重新链接 ${asset.name}`),
       properties: ["openFile"],
     });
     if (result.canceled) return null;
@@ -388,9 +422,9 @@ function registerIPC() {
   });
   handle("open-project", async () => {
     const result = await dialog.showOpenDialog(window!, {
-      title: "打开 ReaCut 项目",
+      title: tr("打开 ReaCut 项目"),
       properties: ["openFile"],
-      filters: [{ name: "ReaCut 项目", extensions: ["reacut", "json"] }],
+      filters: [{ name: tr("ReaCut 项目"), extensions: ["reacut", "json"] }],
     });
     if (result.canceled) return null;
     const file = result.filePaths[0],
@@ -414,9 +448,9 @@ function registerIPC() {
     if (file && !savePaths.has(file)) throw new Error("未经选择的项目保存位置");
     if (!file) {
       const result = await dialog.showSaveDialog(window!, {
-        title: "保存项目",
+        title: tr("保存项目"),
         defaultPath: project.name + ".reacut",
-        filters: [{ name: "ReaCut 项目", extensions: ["reacut"] }],
+        filters: [{ name: tr("ReaCut 项目"), extensions: ["reacut"] }],
       });
       if (result.canceled || !result.filePath) return null;
       file = result.filePath;
@@ -432,7 +466,7 @@ function registerIPC() {
   handle("package-project", async (input: unknown) => {
     const project = validateProject(input), owner = window!.webContents;
     for (const asset of project.assets) if (!allowedMedia.has(path.resolve(asset.path))) throw new Error("项目引用了未经导入的素材");
-    const selected = await dialog.showOpenDialog(window!, { title: "选择素材包保存位置", properties: ["openDirectory", "createDirectory"] });
+    const selected = await dialog.showOpenDialog(window!, { title: tr("选择素材包保存位置"), properties: ["openDirectory", "createDirectory"] });
     if (selected.canceled || !selected.filePaths[0] || owner.isDestroyed()) return null;
     return startPortablePackage(project, selected.filePaths[0], event => {
       if (event.status === "complete" && event.path) outputPaths.add(event.path);
@@ -458,9 +492,9 @@ function registerIPC() {
   handle("choose-export-path", async (name: string, format: string) => {
     if (!["mp4", "mov"].includes(format)) throw new Error("无效导出格式");
     const result = await dialog.showSaveDialog(window!, {
-      title: "导出视频",
+      title: tr("导出视频"),
       defaultPath: name + "." + format,
-      filters: [{ name: format.toUpperCase() + " 视频", extensions: [format] }],
+      filters: [{ name: format.toUpperCase() + " " + tr("视频"), extensions: [format] }],
     });
     if (result.canceled || !result.filePath) return null;
     outputPaths.add(result.filePath);
@@ -491,7 +525,7 @@ function registerIPC() {
       throw new Error("无效文件类型");
     const result = await dialog.showOpenDialog(window!, {
       properties: ["openFile"],
-      filters: [{ name: "文本文件", extensions }],
+      filters: [{ name: tr("文本文件"), extensions }],
     });
     if (result.canceled) return null;
     const file = result.filePaths[0];
@@ -504,10 +538,10 @@ function registerIPC() {
       throw new Error("请选择草稿文件或项目文件夹");
     const owner = window!;
     const result = await dialog.showOpenDialog(owner, {
-      title: mode === "file" ? "选择剪映草稿文件" : "选择剪映项目文件夹",
+      title: tr(mode === "file" ? "选择剪映草稿文件" : "选择剪映项目文件夹"),
       properties: [mode === "file" ? "openFile" : "openDirectory"],
       ...(mode === "file"
-        ? { filters: [{ name: "剪映草稿", extensions: ["json"] }] }
+        ? { filters: [{ name: tr("剪映草稿"), extensions: ["json"] }] }
         : {}),
     });
     if (result.canceled || !result.filePaths[0]) return null;
@@ -597,7 +631,7 @@ function registerIPC() {
   handle("choose-media-tool", async (name: string) => {
     if (!["ffmpeg", "ffprobe"].includes(name)) throw new Error("无效工具名");
     const result = await dialog.showOpenDialog(window!, {
-      title: `选择 ${name} 可执行文件`,
+      title: tr(`选择 ${name} 可执行文件`),
       properties: ["openFile"],
     });
     if (result.canceled) return null;
@@ -697,7 +731,7 @@ function createWindow() {
     show: !pluginMode,
     minWidth: 1060,
     minHeight: 680,
-    title: "ReaCut · 映刻",
+    title: tr("ReaCut · 映刻"),
     backgroundColor: "#141518",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 17 },
@@ -707,7 +741,10 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true,
       backgroundThrottling: !pluginMode,
-      additionalArguments: pluginMode ? ["--reacut-plugin"] : [],
+      additionalArguments: [
+        ...(pluginMode ? ["--reacut-plugin"] : []),
+        `--reacut-locale=${getMainLocale()}`,
+      ],
     },
   });
   if (pluginMode) {
@@ -730,9 +767,9 @@ function createWindow() {
     void dialog
       .showMessageBox(window!, {
         type: "question",
-        message: "项目有未保存的修改",
-        detail: "保存项目后再关闭？最近编辑也会自动恢复。",
-        buttons: ["保存并关闭", "取消", "不保存"],
+        message: tr("项目有未保存的修改"),
+        detail: tr("保存项目后再关闭？最近编辑也会自动恢复。"),
+        buttons: [tr("保存并关闭"), tr("取消"), tr("不保存")],
         defaultId: 0,
         cancelId: 1,
       })
@@ -887,7 +924,7 @@ void app.whenReady().then(async () => {
       ],
     },
   ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  Menu.setApplicationMenu(Menu.buildFromTemplate(translateMenu(template)));
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

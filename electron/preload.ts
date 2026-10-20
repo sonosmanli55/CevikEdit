@@ -23,6 +23,7 @@ const api: EditorAPI = {
   },
   importMedia: (paths) => ipcRenderer.invoke("import-media", paths),
   relinkAsset: (asset) => ipcRenderer.invoke("relink-asset", asset),
+  extractAudio: (asset) => ipcRenderer.invoke("extract-audio", asset),
   getStartupProject: () => ipcRenderer.invoke("get-startup-project"),
   openProject: () => ipcRenderer.invoke("open-project"),
   saveProject: (project, path) =>
@@ -66,6 +67,16 @@ const api: EditorAPI = {
   chooseMediaTool: (name) => ipcRenderer.invoke("choose-media-tool", name),
 };
 contextBridge.exposeInMainWorld("editorAPI", api);
+
+// Locale negotiated by the main process. The packaged desktop app ships the
+// Turkish language pack; development and test runs keep the Chinese source UI.
+const localeArgument = process.argv.find((argument) =>
+  argument.startsWith("--reacut-locale="),
+);
+contextBridge.exposeInMainWorld(
+  "reacutLocale",
+  localeArgument ? localeArgument.slice("--reacut-locale=".length) : "zh",
+);
 
 // Present only in the dedicated plugin process, never in a normal desktop window.
 if (process.argv.includes("--reacut-plugin")) {

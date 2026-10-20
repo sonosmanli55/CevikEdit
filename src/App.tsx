@@ -68,6 +68,11 @@ type PendingCapcutImport = {
   selection: CapcutImportSelection;
   capturedProject: Project;
 };
+/** Electron wraps IPC failures; show the message the user can act on. */
+function cleanIPCError(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, "");
+}
 const shortcuts = [
   ["播放 / 暂停", "Space"],
   ["分割片段", "⌘ / Ctrl + B"],
@@ -478,6 +483,7 @@ export default function App() {
     [fileMenu, setFileMenu] = useState(false),
     [toast, setToast] = useState(""),
     [importing, setImporting] = useState(false),
+    [separating, setSeparating] = useState(false),
     [system, setSystem] = useState<{
       ffmpeg: boolean;
       version?: string;
@@ -564,8 +570,7 @@ export default function App() {
       try {
         await action();
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        notify(message.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, ""));
+        notify(cleanIPCError(error));
       }
     },
     [notify],
@@ -637,8 +642,33 @@ export default function App() {
       setImporting(false);
     }
   };
-  const save = async (as = false) => {
-    if (saving.current) {
+  const separateAudio = async (clip: Clip) => {
+    const projectId = useEditorStore.getState().project.id,
+      asset = useEditorStore
+        .getState()
+        .project.assets.find((entry) => entry.id === clip.assetId);
+    if (!asset?.hasAudio) {
+      notify("这段素材没有可分离的音频。");
+      return;
+    }
+    if (!window.editorAPI) {
+      notify("音频分离仅支持桌面版。");
+      return;
+    }
+    if (separating) return;
+    setSeparating(true);
+    try {
+      const extracted = await window.editorAPI.extractAudio(asset);
+      if (useEditorStore.getState().project.id !== projectId) return;
+      useEditorStore.getState().separateAudio(clip.id, extracted);
+      notify("已分离音频，可在新的音频轨道上单独编辑");
+    } catch (error) {
+      notify(`分离音频失败：${cleanIPCError(error)}`);
+    } finally {
+      setSeparating(false);
+    }
+  };
+  const save = async (as = false) => {    if (saving.current) {
       notify("项目正在保存，请稍候");
       return false;
     }
@@ -1012,51 +1042,6 @@ export default function App() {
       setCapcutBusy(false);
     }
   };
-  const detachAudio = () => {
-    if (!active || !active.assetId) return;
-    const asset = s.project.assets.find((a) => a.id === active.assetId);
-    if (!asset?.hasAudio || asset.kind === "audio")
-      throw new Error("请选择带声音的视频片段");
-    if (activeTrack?.locked) throw new Error("请先解锁轨道");
-    const audio = {
-      ...asset,
-      id: id(),
-      kind: "audio" as const,
-      name: asset.name + " · 音频",
-      width: 0,
-      height: 0,
-      thumbnail: undefined,
-      previewUrl: asset.previewUrl,
-    };
-    const track =
-      s.project.tracks.find((t) => t.kind === "audio" && !t.locked) ??
-      createTrack("audio", "分离音频");
-    const clip = {
-      ...clone(active),
-      id: id(),
-      assetId: audio.id,
-      trackId: track.id,
-      name: audio.name,
-      keyframes: active.keyframes
-        .filter((k) => k.property === "volume")
-        .map((k) => ({ ...k, id: id() })),
-    };
-    s.commit({
-      ...s.project,
-      assets: [...s.project.assets, audio],
-      tracks: s.project.tracks.includes(track)
-        ? s.project.tracks
-        : [...s.project.tracks, track],
-      clips: [
-        ...s.project.clips.map((c) =>
-          c.id === active.id ? { ...c, muted: true } : c,
-        ),
-        clip,
-      ],
-    });
-    s.select([clip.id]);
-    notify("音频已分离到独立轨道");
-  };
   const applySceneTransition = (transition: TransitionId, seconds: number) => {
     if (!active) throw new Error("请选择一个画面片段");
     const result = applyTransition(s.project, active.id, transition, seconds);
@@ -1286,6 +1271,8 @@ export default function App() {
           playhead={s.playhead}
           onUpdate={(patch) => active && s.updateClip(active.id, patch)}
           onProjectUpdate={s.updateProject}
+          onSeparateAudio={active ? () => void separateAudio(active) : undefined}
+          separating={separating}
         />}
       </EditorWorkspace>
       <div className="timeline-pane">
@@ -1370,8 +1357,15 @@ export default function App() {
         </span>
         <div>
           {active?.assetId &&
-            s.project.assets.find((a) => a.id === active.assetId)?.hasAudio && (
-              <button onClick={() => void safe(detachAudio)}>分离音频</button>
+            s.project.assets.find((a) => a.id === active.assetId)?.hasAudio &&
+            s.project.assets.find((a) => a.id === active.assetId)?.kind ===
+              "video" && (
+              <button
+                disabled={separating}
+                onClick={() => void separateAudio(active)}
+              >
+                {separating ? "正在分离音频…" : "分离音频"}
+              </button>
             )}
           {s.project.assets.some((a) => a.missing) && (
             <button

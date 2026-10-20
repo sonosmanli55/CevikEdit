@@ -10,6 +10,7 @@ import {
   ZoomIn,
 } from "lucide-react";
 import type { Clip, MediaAsset, Project } from "../core/types";
+import { t } from "../i18n/locale";
 import {
   evaluateKeyframes,
   evaluateFade,
@@ -450,7 +451,7 @@ export default function Player({
           <button
             className="preview-error"
             onClick={() => setErrors([])}
-            title={errors.join("、")}
+            title={errors.join(t("、"))}
           >
             素材无法预览，导出仍使用原文件 · 点击收起
           </button>

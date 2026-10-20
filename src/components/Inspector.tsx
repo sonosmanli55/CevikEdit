@@ -3,6 +3,7 @@ import {
   AlignCenter,
   AlignLeft,
   AlignRight,
+  AudioLines,
   ChevronDown,
   Diamond,
   FlipHorizontal2,
@@ -27,6 +28,8 @@ interface Props {
   playhead: number;
   onUpdate: (patch: Partial<Clip>) => void;
   onProjectUpdate: (patch: Partial<Project>) => void;
+  onSeparateAudio?: () => void;
+  separating?: boolean;
 }
 function NumberField({
   label,
@@ -149,6 +152,8 @@ export default function Inspector({
   playhead,
   onUpdate,
   onProjectUpdate,
+  onSeparateAudio,
+  separating = false,
 }: Props) {
   const [tab, setTab] = useState("画面"),
     [fonts, setFonts] = useState<string[]>([
@@ -542,6 +547,22 @@ export default function Inspector({
               />
               {!asset?.hasAudio && (
                 <p className="muted">这段素材没有音频流。</p>
+              )}
+              {asset?.kind === "video" && asset.hasAudio && onSeparateAudio && (
+                <div className="audio-separate">
+                  <h3>分离音频</h3>
+                  <button
+                    className="small-button"
+                    disabled={separating}
+                    onClick={onSeparateAudio}
+                  >
+                    <AudioLines size={14} />
+                    {separating ? "正在分离音频…" : "分离音频"}
+                  </button>
+                  <p className="muted small">
+                    将视频中的声音写成独立音频片段，原片段自动静音，可单独调整。
+                  </p>
+                </div>
               )}
             </>
           )}
