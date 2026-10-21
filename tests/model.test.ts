@@ -200,6 +200,46 @@ describe("timeline semantics", () => {
     });
     expect(evaluateKeyframes(c, 2).transform.x).toBe(400);
   });
+  it("supports ease-in and ease-out with exact split and trim curves", () => {
+    for (const [easing, curve] of [
+      ["easeIn", (u: number) => 1.5 * u * u - 0.5 * u * u * u],
+      ["easeOut", (u: number) => 1.5 * u - 0.5 * u * u * u],
+    ] as const) {
+      const p = fixture(),
+        original = p.clips[0];
+      original.keyframes[1].easing = easing;
+      for (const time of [0, 1, 2, 4, 6, 8])
+        expect(evaluateKeyframes(original, time).transform.x).toBeCloseTo(
+          800 * curve(time / 8),
+          8,
+        );
+      const split = splitClip(p, original.id, 5),
+        [left, right] = split.clips;
+      expect(left.keyframes[1].easing).toBe(easing);
+      expect(right.keyframes.at(-1)!.easing).toBe(easing);
+      for (let time = 0; time <= 8; time += 0.25) {
+        const part = time <= 3 ? left : right;
+        expect(
+          evaluateKeyframes(part, time <= 3 ? time : time - 3).transform.x,
+        ).toBeCloseTo(evaluateKeyframes(original, time).transform.x, 8);
+      }
+      const trimmed = trimClip(p, original.id, "start", 4).clips[0];
+      for (let time = 0; time <= 4; time += 0.25)
+        expect(evaluateKeyframes(trimmed, time).transform.x).toBeCloseTo(
+          evaluateKeyframes(original, time + 2).transform.x,
+          8,
+        );
+    }
+  });
+  it("accepts ease-in and ease-out keyframes with explicit windows", () => {
+    const p = fixture();
+    p.clips[0].keyframes[1].easing = "easeIn";
+    p.clips[0].keyframes[1].easingWindow = { start: 0, end: 0.5 };
+    expect(() => validateProject(p)).not.toThrow();
+    p.clips[0].keyframes[1].easing = "easeOut";
+    p.clips[0].keyframes[1].easingWindow = { start: 0.5, end: 1 };
+    expect(() => validateProject(p)).not.toThrow();
+  });
   it("speed preserves source extent and scales keyframes and fades", () => {
     const p = fixture(),
       c = p.clips[0],

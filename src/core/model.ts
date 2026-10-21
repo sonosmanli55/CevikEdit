@@ -5,6 +5,7 @@ import type {
   TrackKind,
   Track,
   Keyframe,
+  KeyframeEasing,
   FadeWindow,
 } from "./types";
 import {
@@ -274,6 +275,55 @@ export function changeClipSpeed(
   };
 }
 
+export const KEYFRAME_EASINGS = [
+  "linear",
+  "easeIn",
+  "easeOut",
+  "easeInOut",
+] as const satisfies readonly KeyframeEasing[];
+
+/**
+ * Each destination key owns the interpolation for the interval ending at it.
+ * The optional window narrows the easing inside that interval; trimming and
+ * splitting remap it so the curve keeps its original shape.
+ */
+export function keyframeEasingWindow(
+  key: Pick<Keyframe, "easing" | "easingWindow">,
+): { start: number; end: number } {
+  if (key.easingWindow) return key.easingWindow;
+  if (key.easing === "easeIn") return { start: 0, end: 0.5 };
+  if (key.easing === "easeOut") return { start: 0.5, end: 1 };
+  return { start: 0, end: 1 };
+}
+
+/** Coefficients of the shared normalized cubic easing family. */
+export function keyframeEasingCoefficients(
+  easing: KeyframeEasing,
+  window: { start: number; end: number },
+): { a: number; b: number; c: number; denominator: number } {
+  if (easing === "linear") return { a: 1, b: 0, c: 0, denominator: 1 };
+  const start = window.start,
+    delta = window.end - window.start,
+    a = 6 * start * (1 - start),
+    b = 3 * delta * (1 - 2 * start),
+    c = -2 * delta * delta;
+  return { a, b, c, denominator: a + b + c };
+}
+
+/** Shared normalized easing used by preview, export and curve editing. */
+export function keyframeEasedRatio(
+  easing: KeyframeEasing,
+  ratio: number,
+  window = keyframeEasingWindow({ easing }),
+): number {
+  const r = Math.max(0, Math.min(1, ratio));
+  if (easing === "linear") return r;
+  const { a, b, c, denominator } = keyframeEasingCoefficients(easing, window);
+  if (!Number.isFinite(denominator) || denominator === 0) return r;
+  const value = (r * (a + b * r + c * r * r)) / denominator;
+  return Math.max(0, Math.min(1, value));
+}
+
 /** Each destination key owns the interpolation for the interval ending at it. */
 function orderedKeys(clip: Clip, property: Keyframe["property"]): Keyframe[] {
   const keys = clip.keyframes
@@ -325,8 +375,8 @@ function sliceKeyframes(clip: Clip, from: number, to: number): Keyframe[] {
           const left = keys[rightIndex - 1],
             right = keys[rightIndex];
           key.easing = right.easing;
-          if (right.easing === "easeInOut") {
-            const window = right.easingWindow ?? { start: 0, end: 1 },
+          if (right.easing !== "linear") {
+            const window = keyframeEasingWindow(right),
               span = right.time - left.time;
             const start =
               window.start +
@@ -364,16 +414,11 @@ export function evaluateKeyframes(clip: Clip, time: number): Clip {
     else
       for (let i = 0; i < keys.length - 1; i++)
         if (time >= keys[i].time && time <= keys[i + 1].time) {
-          let ratio =
-            (time - keys[i].time) / (keys[i + 1].time - keys[i].time || 1);
-          if (keys[i + 1].easing === "easeInOut") {
-            const window = keys[i + 1].easingWindow ?? { start: 0, end: 1 };
-            const delta = window.end - window.start;
-            const a = 6 * window.start * (1 - window.start),
-              b = 3 * delta * (1 - 2 * window.start),
-              c = -2 * delta * delta;
-            ratio = (ratio * (a + b * ratio + c * ratio * ratio)) / (a + b + c);
-          }
+          const ratio = keyframeEasedRatio(
+            keys[i + 1].easing,
+            (time - keys[i].time) / (keys[i + 1].time - keys[i].time || 1),
+            keyframeEasingWindow(keys[i + 1]),
+          );
           value = keys[i].value + (keys[i + 1].value - keys[i].value) * ratio;
           break;
         }
@@ -639,7 +684,7 @@ export function validateProject(input: unknown): Project {
         num(w.end, "插值窗口终点", 0, 1);
         if (
           (w.start as number) >= (w.end as number) ||
-          k.easing !== "easeInOut"
+          k.easing === "linear"
         )
           fail("关键帧插值窗口");
       }
@@ -649,7 +694,7 @@ export function validateProject(input: unknown): Project {
         ["x", "y", "scale", "rotation", "opacity", "volume"],
         "关键帧属性",
       );
-      choice(k.easing, ["linear", "easeInOut"], "关键帧插值");
+      choice(k.easing, KEYFRAME_EASINGS, "关键帧插值");
       const low =
         k.property === "scale"
           ? 0.000001

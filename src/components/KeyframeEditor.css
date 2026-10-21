@@ -1,0 +1,136 @@
+.keyframe-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.keyframe-editor .field-hint { margin: 0; }
+.keyframe-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.keyframe-toolbar select {
+  min-width: 96px;
+  flex: 1;
+}
+.keyframe-toolbar button,
+.keyframe-detail button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 27px;
+}
+.keyframe-current {
+  color: #9ca7b6;
+  font: 10px ui-monospace, monospace;
+  white-space: nowrap;
+}
+.keyframe-curve {
+  overflow: hidden;
+  border: 1px solid #343a45;
+  border-radius: 6px;
+  background: #1c2027;
+}
+.keyframe-curve svg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 320 / 170;
+  touch-action: none;
+}
+.keyframe-plot-bg {
+  fill: transparent;
+  cursor: crosshair;
+}
+.keyframe-grid {
+  stroke: #2d333d;
+  stroke-width: 1;
+  pointer-events: none;
+}
+.keyframe-axis {
+  fill: #778394;
+  font: 8px ui-monospace, monospace;
+  pointer-events: none;
+}
+.keyframe-curve-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.keyframe-playhead {
+  stroke: #e4c46b;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  pointer-events: none;
+}
+.keyframe-point {
+  fill: #171a20;
+  stroke: var(--accent);
+  stroke-width: 2;
+  cursor: grab;
+  touch-action: none;
+}
+.keyframe-point.selected {
+  fill: var(--accent);
+  stroke: #d8fff4;
+}
+.keyframe-point:active { cursor: grabbing; }
+.keyframe-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(70px, 0.9fr) 27px 27px;
+  gap: 5px;
+  align-items: end;
+}
+.keyframe-detail label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  color: #8f9baa;
+  font-size: 9px;
+}
+.keyframe-detail input,
+.keyframe-detail select {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 4px;
+  font-size: 10px;
+}
+.keyframe-empty {
+  margin: 0;
+  color: #778394;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.keyframe-editor .keyframe-row {
+  grid-template-columns: minmax(58px, 1.1fr) 48px 58px 72px 22px;
+  padding: 2px 3px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.keyframe-editor .keyframe-row:hover { background: #242a33; }
+.keyframe-editor .keyframe-row.selected {
+  background: #29413c;
+  outline: 1px solid #3f7668;
+}
+.keyframe-editor .keyframe-row > span {
+  overflow: hidden;
+  color: #aab4c1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.keyframe-editor .keyframe-row input,
+.keyframe-editor .keyframe-row select { font-size: 10px; }
+.keyframe-editor .keyframe-add { margin-bottom: 0; }
+.keyframe-editor .keyframe-list { display: flex; flex-direction: column; }
+@media (max-width: 1100px) {
+  .keyframe-editor .keyframe-row {
+    grid-template-columns: minmax(54px, 1fr) 43px 52px 62px 20px;
+  }
+  .keyframe-detail {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 27px 27px;
+  }
+  .keyframe-detail label:nth-child(3) { grid-column: 1 / 3; }
+}

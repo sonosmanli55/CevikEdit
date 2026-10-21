@@ -21,7 +21,7 @@ flowchart LR
 
 `sourceIn` 是源素材入点；时间线局部时间 `t` 对应 `sourceIn + t * speed`。`duration` 是时间线时长，变速保持源范围并调整时长。视频、图片和文字按轨道次序合成；同轨重叠片段按时间次序绘制。同轨叠化通过片段重叠和后片段透明度淡入实现，暂未建立独立转场对象。
 
-每个关键帧的 `easing` 描述结束于该帧的区间。线性与 smoothstep 缓入缓出由预览、模型和导出共同使用。`easingWindow` 记录曲线的截取区间；分割和裁剪加入边界锚点，保持原曲线。`videoFadeWindow` 与 `audioFadeWindow` 保留原包络时长、偏移及淡入淡出范围；变速等比例缩放其秒数。手动设置淡化参数时重置对应截取窗口。
+每个关键帧的 `easing` 描述结束于该帧的区间。`linear`、`easeIn`、`easeOut`、`easeInOut` 共用 `keyframeEasingWindow`、`keyframeEasingCoefficients` 与 `keyframeEasedRatio`，预览、`KeyframeEditor` 曲线采样和 FFmpeg 导出不再各自实现公式。`easingWindow` 记录曲线的截取区间；分割和裁剪加入边界锚点并重映射窗口，保持原曲线。`videoFadeWindow` 与 `audioFadeWindow` 保留原包络时长、偏移及淡入淡出范围；变速等比例缩放其秒数。手动设置淡化参数时重置对应截取窗口。
 
 store 使用独立快照维护撤销/重做，持续属性编辑可通过 transaction 合并为一步。轨道锁限制编辑动作；磁吸删除按同轨被删区间的并集压缩后续起点，不重复扣除重叠片段时长。锁定不影响播放或导出。轨道删除连同片段原子提交，保留媒体库并清理选择；排序不移动锁轨或交换锁定邻轨。
 
@@ -41,7 +41,7 @@ source-space 裁剪、RGB 色度抠像和矩形/椭圆蒙版采用可选项目�
 
 renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程校验调用来自主窗口及主 frame。`reacut-media` scheme 提供已授权本地媒体，支持 range 请求。生产 HTML 使用 CSP；外部窗口和应用页面导航被限制。
 
-项目和最近列表通过同目录临时文件与 rename 保存。自动保存写入串行队列。导出将源裁剪、变速、画面处理、文字图层、关键帧、淡化和混音编译为 FFmpeg filter graph，使用独立进程，不启用 shell 拼接执行。
+项目和最近列表通过同目录临时文件与 rename 保存。自动保存写入串行队列。导出将源裁剪、变速、画面处理、文字图层、关键帧、淡化和混音编译为 FFmpeg filter graph，使用独立进程，不启用 shell 拼接执行。关键帧表达式使用共享缓动系数；同时启用动态缩放和透明度时，先在稳定尺寸的输入上应用 alpha，再执行逐帧缩放，避免 `alphamerge` 在帧尺寸变化时失败。
 
 导出先写唯一临时路径，成功后替换用户选择的目标；失败或取消不把不完整视频覆盖到目标。任务报告进度，关闭应用时终止媒体和导出子进程并清理临时数据。MP4 / MOV 当前均使用 H.264 与 AAC，不是原始码流智能复制。
 

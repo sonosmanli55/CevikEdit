@@ -11,7 +11,6 @@ import {
   Image,
   RotateCcw,
   SlidersHorizontal,
-  Trash2,
   Type,
   Volume2,
   WandSparkles,
@@ -20,6 +19,7 @@ import type { Clip, Keyframe, Project } from "../core/types";
 import { DEFAULT_TRANSFORM, DEFAULT_ADJUSTMENTS } from "../core/defaults";
 import { evaluateKeyframes, formatTime, id } from "../core/model";
 import VisualTools from "./VisualTools";
+import KeyframeEditor from "./KeyframeEditor";
 import "./Inspector.css";
 import { useEditorStore } from "../editor/store";
 interface Props {
@@ -1065,115 +1065,14 @@ export default function Inspector({
           {tab === "动画" && (
             <>
               <h3>关键帧</h3>
-              <p className="field-hint">
-                把播放头移动到目标时间，点击属性旁的 ◇
-                添加关键帧；该属性后续调整会写入当前时间。
-              </p>
-              <div className="keyframe-add">
-                {(["x", "y", "scale", "rotation", "opacity", "volume"] as const)
-                  .filter((property) => visual || property === "volume")
-                  .map((property) => (
-                    <button
-                      key={property}
-                      onClick={() =>
-                        key(
-                          property,
-                          property === "volume"
-                            ? evaluated.volume
-                            : evaluated.transform[property],
-                        )
-                      }
-                    >
-                      <Diamond size={11} />
-                      {
-                        {
-                          x: "位置 X",
-                          y: "位置 Y",
-                          scale: "缩放",
-                          rotation: "旋转",
-                          opacity: "透明度",
-                          volume: "音量",
-                        }[property]
-                      }
-                    </button>
-                  ))}
-              </div>
-              {!clip.keyframes.length && (
-                <div className="quiet-empty">还没有关键帧</div>
-              )}
-              {[...clip.keyframes]
-                .sort((a, b) => a.time - b.time)
-                .map((k) => (
-                  <div key={k.id} className="keyframe-row">
-                    <button
-                      className="keyframe-time"
-                      onClick={() =>
-                        useEditorStore.getState().seek(clip.start + k.time)
-                      }
-                    >
-                      {formatTime(k.time, project.fps)}
-                    </button>
-                    <span>{k.property}</span>
-                    <input
-                      aria-label={`关键帧 ${k.property} 值`}
-                      type="number"
-                      step={0.01}
-                      value={k.value}
-                      onChange={(e) => {
-                        const value = Number(e.target.value);
-                        if (
-                          Number.isFinite(value) &&
-                          !(
-                            k.property === "opacity" &&
-                            (value < 0 || value > 1)
-                          ) &&
-                          !(
-                            k.property === "scale" &&
-                            (value <= 0 || value > 10)
-                          ) &&
-                          !(k.property === "volume" && (value < 0 || value > 4))
-                        )
-                          onUpdate({
-                            keyframes: clip.keyframes.map((key) =>
-                              key.id === k.id ? { ...key, value } : key,
-                            ),
-                          });
-                      }}
-                    />
-                    <select
-                      aria-label="关键帧插值"
-                      value={k.easing}
-                      onChange={(e) =>
-                        onUpdate({
-                          keyframes: clip.keyframes.map((key) =>
-                            key.id === k.id
-                              ? {
-                                  ...key,
-                                  easing: e.target.value as Keyframe["easing"],
-                                  easingWindow: undefined,
-                                }
-                              : key,
-                          ),
-                        })
-                      }
-                    >
-                      <option value="linear">线性</option>
-                      <option value="easeInOut">缓入缓出</option>
-                    </select>
-                    <button
-                      aria-label="删除关键帧"
-                      onClick={() =>
-                        onUpdate({
-                          keyframes: clip.keyframes.filter(
-                            (key) => key.id !== k.id,
-                          ),
-                        })
-                      }
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                ))}
+              <KeyframeEditor
+                clip={clip}
+                project={project}
+                playhead={playhead}
+                visual={visual}
+                locked={locked}
+                onUpdate={onUpdate}
+              />
             </>
           )}
         </fieldset>

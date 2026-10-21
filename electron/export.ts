@@ -21,7 +21,11 @@ import type {
   Project,
   ShapeMask,
 } from "../src/core/types";
-import { fadeWindow } from "../src/core/model";
+import {
+  fadeWindow,
+  keyframeEasingCoefficients,
+  keyframeEasingWindow,
+} from "../src/core/model";
 import { resolveExportRange } from "../src/core/exportRange";
 import { colorAdjustmentFilters } from "../src/core/color";
 import { applyShapeMask, getCropPixels } from "../src/core/visual";
@@ -75,19 +79,15 @@ export function keyframeExpression(
     const left = unique[i];
     const right = unique[i + 1];
     let progress = `((${clock}-${number(left.time)})/${number(right.time - left.time)})`;
-    if (right.easing === "easeInOut") {
-      const start = right.easingWindow?.start ?? 0;
-      const end = right.easingWindow?.end ?? 1;
-      const delta = end - start;
-      // Cancel the common delta analytically to preserve tiny sliced windows near 0/1.
-      const coefficients = [
-        6 * start * (1 - start),
-        3 * delta * (1 - 2 * start),
-        -2 * delta * delta,
-      ];
+    if (right.easing !== "linear") {
+      const { a, b, c, denominator } = keyframeEasingCoefficients(
+        right.easing,
+        keyframeEasingWindow(right),
+      );
+      // Keep full precision so tiny sliced windows near 0 or 1 remain exact.
       const precision = (value: number) =>
         Number(value.toPrecision(15)).toString();
-      progress = `(${progress}*(${precision(coefficients[0])}+${precision(coefficients[1])}*${progress}+${precision(coefficients[2])}*${progress}*${progress})/${precision(coefficients.reduce((sum, value) => sum + value, 0))})`;
+      progress = `(${progress}*(${precision(a)}+${precision(b)}*${progress}+${precision(c)}*${progress}*${progress})/${precision(denominator)})`;
     }
     const interpolation = `(${number(left.value)}+(${number(right.value - left.value)})*${progress})`;
     expression = `if(lt(${clock},${number(right.time)}),${interpolation},${expression})`;
@@ -281,12 +281,13 @@ function validate(project: Project, options: ExportOptions): number {
         !["x", "y", "scale", "rotation", "opacity", "volume"].includes(
           key.property,
         ) ||
-        !["linear", "easeInOut"].includes(key.easing)
+        !["linear", "easeIn", "easeOut", "easeInOut"].includes(key.easing)
       )
         throw new Error("未知关键帧属性或插值方式。");
       if (
         key.easingWindow &&
-        (!Number.isFinite(key.easingWindow.start) ||
+        (key.easing === "linear" ||
+          !Number.isFinite(key.easingWindow.start) ||
           !Number.isFinite(key.easingWindow.end) ||
           key.easingWindow.start < 0 ||
           key.easingWindow.end > 1 ||
@@ -544,6 +545,31 @@ export async function createExportArguments(
           : Math.min(options.width / width, options.height / height);
         const scale = keyframeExpression(clip, "scale", clip.transform.scale);
         const animatedScale = clip.keyframes.some((key) => key.property === "scale");
+        const opacity = keyframeExpression(
+          clip,
+          "opacity",
+          clip.transform.opacity,
+          "T",
+        );
+        const animatedOpacity = clip.keyframes.some(
+          (key) => key.property === "opacity",
+        );
+        // `alphamerge` requires a stable frame size. Apply animated opacity
+        // before a dynamic scale so the alpha plane does not change dimensions.
+        const opacityBeforeScale = animatedScale && animatedOpacity;
+        if (opacityBeforeScale) {
+          graph.push(
+            `[${visualSource}]${filters.join(",")},split=2[opacityrgb${layer}][opacitysource${layer}]`,
+          );
+          filters.length = 0;
+          graph.push(
+            `[opacitysource${layer}]alphaextract,geq=lum='floor(lum(X,Y)*(${opacity})+0.5)'[opacityalpha${layer}]`,
+          );
+          graph.push(
+            `[opacityrgb${layer}][opacityalpha${layer}]alphamerge=shortest=1[opaque${layer}]`,
+          );
+          visualSource = `opaque${layer}`;
+        }
         // Keep dynamic scaling on a conversion path, including frames whose size
         // equals the input. FFmpeg 9 can fail when switching to its no-op path.
         // Planar/packed RGB conversion preserves colors and alpha.
@@ -570,13 +596,7 @@ export async function createExportArguments(
           filters.push(
             `rotate=angle='(${rotation})*PI/180':ow='hypot(iw,ih)':oh='hypot(iw,ih)':c=black@0`,
           );
-        const opacity = keyframeExpression(
-          clip,
-          "opacity",
-          clip.transform.opacity,
-          "T",
-        );
-        if (clip.keyframes.some((k) => k.property === "opacity")) {
+        if (animatedOpacity && !opacityBeforeScale) {
           graph.push(
             `[${visualSource}]${filters.join(",")},split=2[opacityrgb${layer}][opacitysource${layer}]`,
           );
@@ -588,7 +608,7 @@ export async function createExportArguments(
             `[opacityrgb${layer}][opacityalpha${layer}]alphamerge=shortest=1[opaque${layer}]`,
           );
           visualSource = `opaque${layer}`;
-        } else if (clip.transform.opacity !== 1)
+        } else if (!animatedOpacity && clip.transform.opacity !== 1)
           filters.push(
             `colorchannelmixer=aa=${number(clip.transform.opacity)}`,
           );

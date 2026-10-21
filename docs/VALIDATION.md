@@ -1,5 +1,19 @@
 # 本机验证记录
 
+## 可视化关键帧曲线与缓动（2026-10-22）
+
+“动画”页新增独立实现的 `KeyframeEditor`：SVG 曲线和全片段关键帧列表可切换属性，点击曲线定位播放头，拖动圆点按项目帧率吸附时间并按属性范围限制数值；选中后可精确输入时间/数值、跳转、删除、复制并粘贴到播放头。拖动使用 store transaction，一次撤销恢复整个拖动。预设在原有 `linear`、`easeInOut` 上增加 `easeIn`、`easeOut`，四者共享 `keyframeEasingWindow`、`keyframeEasingCoefficients` 和 `keyframeEasedRatio`；预览、曲线采样、裁剪/分割和 FFmpeg 导出使用同一窗口化公式。裁剪和分割会把窗口重映射到剩余区间，保留曲线形状。
+
+导出侧使用同一组系数生成 FFmpeg 表达式。新增回归覆盖动态缩放与透明度同时启用：先在稳定输入尺寸上应用 alpha，再执行逐帧缩放，避免 `alphamerge` 在帧尺寸变化时报告 `Invalid argument`；该组合此前会失败，现已能完成 90 帧导出。
+
+- `tests/model.test.ts` 通过 41 项：包含缓入/缓出边界、重复时间戳、精确截断窗口，以及分割/裁剪后逐点数值一致的曲线连续性。
+- `tests/export.integration.test.ts` 通过 21 项真实 FFmpeg/FFprobe 测试：新增缓入/缓出曲线截断后的实际帧比较，以及动态缩放 + 透明度组合的输出像素与 alpha 平面稳定性；原有动画、调色、淡化、音量与导出取消用例保持通过。
+- `npx tsx tests/keyframe-electron.ts` 通过：用 160×90 合成图片建立缩放 1→2、位置 X 0→40、透明度 1→0.2 三组动画，在界面中完成曲线属性切换、拖动圆点并一次撤销、复制/粘贴/删除、精确时间输入和三种缓动设置；保存后重新打开，6 个关键帧的 ID、时间、数值、缓动与曲线窗口保持一致。随后顺序采集 0–89 帧预览，并对导出的 90 帧逐帧比较；32×18 采样平均绝对差最大约 6.42、平均约 1.18（阈值 18）。播放头第 3、30、57 帧对应时间码 `00:00:00:03`、`00:00:01:00`、`00:00:01:27`，与导出帧的平均差分别约 6.42、1.65、0.50，最佳匹配均在对应帧或相邻一帧内。结束帧蓝色通道低于 120，确认透明度动画生效；页面无 renderer error。
+- `npm run typecheck`、`npm run build` 通过；`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。
+- 最新整套 `npx vitest run` 共 347 项：326 通过、6 跳过、15 失败。失败仍集中在既有环境用例：`assistantBackend` 12 项（带空格的临时目录中 CLI fixture 无法 spawn/发现，后续协议用例被连带）、`portableProject` 2 项（Windows 路径序列化断言与符号链接创建 `EPERM`）、`mediaTools` 1 项（PATH 驱动器前缀/大小写断言）；本次关键帧模型、导出和新增桌面用例全部通过，未修改这些失败模块。整套结果不能视为全绿。
+
+限制：当前是线性/缓入/缓出/缓入缓出四种预设，尚无自由贝塞尔控制手柄或曲线预设库。复制/粘贴缓冲保留在当前动画面板实例内；若选择清空导致面板卸载（例如撤销）会清空，未实现跨项目剪贴板。预览/导出比较使用采样网格和容差，H.264 有损编码与画布合成使结果不是逐像素完全相同；测试只在本机 Windows FFmpeg 8.0、合成图片和 160×90 / 30 fps 项目上执行，未在 macOS / Linux 实机或打包安装包复核。若同一属性在精确输入中产生重复时间戳，求值会保留排序后的最后一个同时间关键帧，界面暂不自动合并。
+
 ## 视频倒放与定格画面（2026-10-21）
 
 新增独立实现的视频倒放与定格画面。倒放取选中视频片段的精确源区间（`sourceIn` 到 `sourceIn + duration × speed`），由本机 FFmpeg 生成独立缓存 MP4；视频使用 `reverse,setpts=PTS-STARTPTS`，存在音频时同时使用 `areverse,asetpts=PTS-STARTPTS`，因此原声随画面一起反向。完成后只替换片段的素材引用并把 `sourceIn` 归零，保留时间线起点、时长、速度、关键帧和淡化包络；原素材仍在项目、媒体库和磁盘中。缓存位于用户数据目录的 `reverse-media`，按源路径、大小、修改时间、入点和时长哈希复用。主进程校验授权素材、请求范围和数值，FFmpeg 使用参数数组启动；进度来自 `-progress pipe:1`，取消会终止子进程并删除临时文件。
@@ -270,6 +284,7 @@ v0.2 安装包的 `hdiutil verify`、ZIP 校验及严格代码签名检查通过
 | `.test-output/audio-electron/evidence.json` | 05:32:39 | MKV 本地代理、UI 分离音频、原视频静音与派生音频可听、源移动后共享引用重新链接、保持 ID/名称/类型/代理、真实导出非重复混音 |
 | `.test-output/track-electron/evidence.json` | 05:34:28 | 冻结跨轨拖动几何、重命名/上下移动 App 回调、锁轨及邻锁约束、非空轨删除确认和快捷键阻断、保留素材、一次撤销恢复、竖向滚动后的固定播放头手柄 |
 | `.test-output/player-electron/evidence.json` | 05:34:49 | 实际解码预览、松开前实时画面拖动、关键帧路径一起移动、一次撤销、项目末尾保持最终帧 |
+| `.test-output/keyframe-electron/evidence.json` | 00:40:27 | 曲线/列表选择、拖动与一次撤销、复制/粘贴/删除、精确时间/数值、三种缓动保存重开、90 帧导出及全部 90 帧预览/导出采样比较 |
 
 音频 evidence 保留实际 GainNode 和 waveform RMS：分离后的原视频 gain=0/RMS=0，派生 audio gain=1/RMS 约0.0603；移动源文件并重新链接后派生音频 RMS 约0.0614，真实输出 RMS 约0.0873。它们证明这次实际播放/导出中声音存在且没有原视频重复叠加，不替代所有音频设备的验证。
 
@@ -307,6 +322,7 @@ npm ci
 npm run check
 npm run test:timeline
 npm run test:desktop
+npm run test:keyframes
 npm run test:visual
 npm run test:storage
 npm run test:player

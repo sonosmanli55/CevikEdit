@@ -659,6 +659,53 @@ describe("real local media and FFmpeg export", () => {
     );
   }, 60_000);
 
+  it("combines animated scale and opacity without an unstable alpha plane", async () => {
+    const options = settings("scale-opacity.mp4");
+    await render(
+      project([
+        clip(assets[2], "overlay", {
+          duration: 2,
+          transform: { ...DEFAULT_TRANSFORM, scale: 0.5 },
+          keyframes: [
+            {
+              id: "scale-start",
+              time: 0,
+              property: "scale",
+              value: 0.5,
+              easing: "linear",
+            },
+            {
+              id: "scale-end",
+              time: 2,
+              property: "scale",
+              value: 1,
+              easing: "linear",
+            },
+            {
+              id: "opacity-start",
+              time: 0,
+              property: "opacity",
+              value: 1,
+              easing: "linear",
+            },
+            {
+              id: "opacity-end",
+              time: 2,
+              property: "opacity",
+              value: 0.2,
+              easing: "linear",
+            },
+          ],
+        }),
+      ]),
+      options,
+    );
+    const opening = await frame(options.path, 0.1);
+    const ending = await frame(options.path, 1.9);
+    expect(pixel(opening, 80, 45)[2]).toBeGreaterThan(150);
+    expect(pixel(ending, 80, 45)[2]).toBeLessThan(100);
+  }, 60_000);
+
   it("preserves a sliced easing curve in actual exported frames", async () => {
     const full = settings("easing-full.mp4");
     const sliced = settings("easing-sliced.mp4");
@@ -705,6 +752,47 @@ describe("real local media and FFmpeg export", () => {
       for (let i = 0; i < original.length; i++)
         difference += Math.abs(original[i] - after[i]);
       expect(difference / original.length).toBeLessThan(1);
+    }
+  }, 60_000);
+
+  it("exports ease-in and ease-out curves and preserves them after trimming", async () => {
+    for (const easing of ["easeIn", "easeOut"] as const) {
+      const full = settings(`easing-${easing}-full.mp4`);
+      const trimmed = settings(`easing-${easing}-trimmed.mp4`);
+      const original = project([
+        clip(assets[2], "overlay", {
+          duration: 2,
+          transform: { ...DEFAULT_TRANSFORM, scale: 0.25 },
+          keyframes: [
+            {
+              id: "start",
+              time: 0,
+              property: "x",
+              value: -40,
+              easing: "linear",
+            },
+            {
+              id: "end",
+              time: 2,
+              property: "x",
+              value: 40,
+              easing,
+            },
+          ],
+        }),
+      ]);
+      await render(original, full);
+      const cut = trimClip(original, original.clips[0].id, "start", 1);
+      cut.clips[0].start = 0;
+      await render(cut, trimmed);
+      for (const time of [0.1, 0.3, 0.6]) {
+        const before = await frame(full.path, time + 1);
+        const after = await frame(trimmed.path, time);
+        let difference = 0;
+        for (let index = 0; index < before.length; index++)
+          difference += Math.abs(before[index] - after[index]);
+        expect(difference / before.length).toBeLessThan(1);
+      }
     }
   }, 60_000);
 

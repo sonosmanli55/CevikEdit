@@ -6,6 +6,7 @@ import {
   createTrack,
   evaluateKeyframes,
   id,
+  keyframeEasingWindow,
   snapToFrame,
 } from "./model";
 
@@ -638,10 +639,10 @@ function incomingKeys(
         k.id !== right?.id ||
         !left ||
         left.time >= duration ||
-        right.easing !== "easeInOut"
+        right.easing === "linear"
       )
         return k;
-      const window = right.easingWindow ?? { start: 0, end: 1 };
+      const window = keyframeEasingWindow(right);
       return {
         ...k,
         easingWindow: {

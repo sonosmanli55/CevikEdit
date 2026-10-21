@@ -150,6 +150,8 @@ export const trPatterns: Array<[RegExp, PatternReplacement]> = [
   [/^终点 ([\d.,]+)s$/, "Bitiş $1s"],
   [/^(.+)滑块$/, m => `${translateText(m[1])} kaydırıcısı`],
   [/^关键帧 (.+) 值$/, m => `Anahtar kare ${translateText(m[1])} değeri`],
+  [/^(.+)关键帧曲线$/, m => `${translateText(m[1])} anahtar kare eğrisi`],
+  [/^当前 (.+)$/, m => `Şu an ${m[1]}`],
   [/^选择字幕：(.+)$/, "Altyazı seç: $1"],
   [/^素材 (.+)$/, m => `Medya: ${translateText(m[1])}`],
   [/^轨道 (.+)$/, m => `Kanal: ${translateText(m[1])}`],

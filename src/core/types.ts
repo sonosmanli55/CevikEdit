@@ -59,12 +59,13 @@ export interface TextStyle {
   radius?: number;
   shadow?: TextShadow;
 }
+export type KeyframeEasing = "linear" | "easeIn" | "easeOut" | "easeInOut";
 export interface Keyframe {
   id: string;
   time: number;
   property: "x" | "y" | "scale" | "rotation" | "opacity" | "volume";
   value: number;
-  easing: "linear" | "easeInOut";
+  easing: KeyframeEasing;
   easingWindow?: { start: number; end: number };
 }
 export interface FadeWindow {
