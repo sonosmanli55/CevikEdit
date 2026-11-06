@@ -36,7 +36,7 @@ const page=await browser.newPage({viewport:{width:1024,height:720}});
 const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 const checks:string[]=[];
 try {
- await page.goto('http://127.0.0.1:5194/source-test');
+ await page.goto('http://127.0.0.1:5194/source-test?locale=zh');
  await expect(page.getByRole('button',{name:'播放素材',exact:true})).toBeEnabled();
  await expect.poll(()=>page.locator('video').evaluate(v=>(v as HTMLVideoElement).readyState)).toBeGreaterThanOrEqual(2);
  const pixel=await page.locator('video').evaluate(v=>{const c=document.createElement('canvas');c.width=2;c.height=2;const x=c.getContext('2d')!;x.drawImage(v as HTMLVideoElement,0,0,2,2);return Array.from(x.getImageData(0,0,1,1).data);});

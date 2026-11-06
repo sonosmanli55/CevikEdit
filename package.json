@@ -41,6 +41,7 @@
     "test:audio-tools": "npm run build && tsx tests/audio-tools-electron.ts",
     "test:placement": "npm run build && tsx tests/placement-electron.ts",
     "test:linked": "npm run build && tsx tests/linked-electron.ts",
+    "test:timeline-view": "npm run build && tsx tests/timeline-view-electron.ts",
     "test:portable": "npm run build && tsx tests/portable-range-electron.ts",
     "test:source": "npm run build && tsx tests/source-preview-electron.ts",
     "test:source:browser": "tsx tests/source-preview-browser.ts",

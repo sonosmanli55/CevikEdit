@@ -34,6 +34,17 @@ import {
 } from "lucide-react";
 import type { Clip, MediaAsset, Project, Track, TrackKind } from "../core/types";
 import { snapToFrame } from "../core/model";
+import {
+  MAX_PPS,
+  MIN_PPS,
+  clampPps,
+  clampScrollLeft,
+  fitTimelinePps,
+  panScrollLeft,
+  visibleRange,
+  wheelZoomPps,
+  zoomedScrollLeft,
+} from "../core/timelineView";
 import "./Timeline.css";
 
 export interface TimelineProps {
@@ -243,11 +254,13 @@ export default function Timeline(props: TimelineProps) {
   const [deleteTrackId, setDeleteTrackId] = useState<string | null>(null);
   const [trackMenu, setTrackMenu] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(800);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [panning, setPanning] = useState(false);
   const [localSnap, setLocalSnap] = useState(true);
   const [localMagnetic, setLocalMagnetic] = useState(false);
   const snapping = props.snapping ?? localSnap;
   const magnetic = props.magnetic ?? localMagnetic;
-  const pps = Math.max(5, Math.min(400, zoom));
+  const pps = clampPps(zoom);
   const duration = Math.max(
     30,
     (viewportWidth - GUTTER) / pps,
@@ -256,6 +269,7 @@ export default function Timeline(props: TimelineProps) {
   );
   const bodyWidth = duration * pps;
   const interval = rulerInterval(pps);
+  const view = visibleRange(scrollLeft, viewportWidth, GUTTER, pps);
   const ticks = Array.from(
     { length: Math.ceil(duration / interval) + 1 },
     (_, i) => i * interval,
@@ -479,16 +493,55 @@ export default function Timeline(props: TimelineProps) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
+    const syncScroll = () => setScrollLeft(el.scrollLeft);
+    el.addEventListener("scroll", syncScroll, { passive: true });
     const wheel = (event: WheelEvent) => {
-      if (event.ctrlKey || event.metaKey) {
+      const rect = el.getBoundingClientRect();
+      if (event.ctrlKey || event.metaKey) {        // Pinch / ctrl-wheel zooms around the cursor so the frame under the
+        // pointer stays under the pointer at every scale.
         event.preventDefault();
-        props.onZoom(
-          Math.max(5, Math.min(400, pps * (event.deltaY < 0 ? 1.12 : 0.89))),
+        const nextPps = wheelZoomPps(pps, event.deltaY);
+        if (Math.abs(nextPps - pps) < 1e-9) return;
+        const cursorX = event.clientX - rect.left;
+        const target = zoomedScrollLeft({
+          pps,
+          nextPps,
+          scrollLeft: el.scrollLeft,
+          cursorX,
+          gutter: GUTTER,
+        });
+        props.onZoom(nextPps);
+        requestAnimationFrame(() => {
+          if (!scrollRef.current) return;
+          scrollRef.current.scrollLeft = clampScrollLeft(
+            target,
+            scrollRef.current.scrollWidth,
+            scrollRef.current.clientWidth,
+          );
+          setScrollLeft(scrollRef.current.scrollLeft);
+        });
+        return;
+      }
+      if (event.shiftKey) {
+        // Shift-wheel and horizontal trackpad gestures pan freely, without
+        // changing the scale.
+        const delta = event.deltaY || event.deltaX;
+        if (!delta) return;
+        event.preventDefault();
+        el.scrollLeft = panScrollLeft(
+          el.scrollLeft,
+          delta,
+          el.scrollWidth,
+          el.clientWidth,
         );
+        setScrollLeft(el.scrollLeft);
       }
     };
     el.addEventListener("wheel", wheel, { passive: false });
-    return () => el.removeEventListener("wheel", wheel);
+    return () => {
+      el.removeEventListener("scroll", syncScroll);
+      el.removeEventListener("wheel", wheel);
+    };
   }, [pps, props.onZoom]);
   useEffect(() => {
     if (!props.playing || gestureRef.current) return;
@@ -499,6 +552,40 @@ export default function Timeline(props: TimelineProps) {
       el.scrollLeft = Math.max(0, x - (el.clientWidth - GUTTER) * 0.3);
     else if (x < el.scrollLeft) el.scrollLeft = x;
   }, [playhead, pps, props.playing]);
+
+  /** Middle-button drag (and Alt+drag over empty space) pans freely. */
+  const startPan = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const middle = event.button === 1;
+    const altLeft = event.button === 0 && event.altKey;
+    if (!middle && !altLeft) return;
+    if (
+      altLeft &&
+      (event.target as HTMLElement).closest(
+        ".tl-clip, .tl-ruler-body, .tl-lane, .tl-track-header",
+      )
+    )
+      return;
+    const el = scrollRef.current;
+    if (!el) return;
+    event.preventDefault();
+    const startX = event.clientX,
+      startY = event.clientY,
+      originLeft = el.scrollLeft,
+      originTop = el.scrollTop;
+    setPanning(true);
+    listenForGesture(
+      (move) => {
+        el.scrollLeft = clampScrollLeft(
+          originLeft - (move.clientX - startX),
+          el.scrollWidth,
+          el.clientWidth,
+        );
+        el.scrollTop = Math.max(0, originTop - (move.clientY - startY));
+        setScrollLeft(el.scrollLeft);
+      },
+      () => setPanning(false),
+    );
+  };
 
   const startClip = (
     event: ReactPointerEvent,
@@ -804,25 +891,31 @@ export default function Timeline(props: TimelineProps) {
               project.fps,
             )}
           </span>
+          <span className="tl-viewport" title="可见时间范围">
+            {formatTimelineTime(view.span, project.fps)} 可见
+          </span>
           <button
             title="缩小时间线"
             aria-label="缩小时间线"
-            onClick={() => props.onZoom(Math.max(5, pps / 1.25))}
+            onClick={() => props.onZoom(clampPps(pps / 1.25))}
+            disabled={pps <= MIN_PPS + 1e-9}
           >
             <ZoomOut size={16} />
           </button>
           <input
             aria-label="时间线缩放"
             type="range"
-            min="5"
-            max="400"
-            value={pps}
-            onChange={(e) => props.onZoom(Number(e.target.value))}
+            min={MIN_PPS}
+            max={MAX_PPS}
+            step="1"
+            value={Math.round(pps)}
+            onChange={(e) => props.onZoom(clampPps(Number(e.target.value)))}
           />
           <button
             title="放大时间线"
             aria-label="放大时间线"
-            onClick={() => props.onZoom(Math.min(400, pps * 1.25))}
+            onClick={() => props.onZoom(clampPps(pps * 1.25))}
+            disabled={pps >= MAX_PPS - 1e-9}
           >
             <ZoomIn size={16} />
           </button>
@@ -830,29 +923,48 @@ export default function Timeline(props: TimelineProps) {
             className="tl-fit"
             title="适配整个项目"
             onClick={() => {
-              const width =
-                (scrollRef.current?.clientWidth ?? 900) - GUTTER - 60;
-              props.onZoom(
-                Math.max(
-                  5,
-                  Math.min(
-                    400,
-                    width /
-                      Math.max(
-                        10,
-                        ...project.clips.map((c) => c.start + c.duration),
-                      ),
-                  ),
-                ),
+              const el = scrollRef.current;
+              const end = Math.max(
+                10,
+                ...project.clips.map((c) => c.start + c.duration),
               );
-              if (scrollRef.current) scrollRef.current.scrollLeft = 0;
+              props.onZoom(
+                fitTimelinePps(el?.clientWidth ?? 900, GUTTER, end),
+              );
+              if (el) {
+                el.scrollLeft = 0;
+                setScrollLeft(0);
+              }
             }}
           >
             适配
           </button>
+          <button
+            className="tl-fit"
+            title="定位到播放头"
+            aria-label="定位到播放头"
+            onClick={() => {
+              const el = scrollRef.current;
+              if (!el) return;
+              const next = clampScrollLeft(
+                playhead * pps - (el.clientWidth - GUTTER) / 2,
+                el.scrollWidth,
+                el.clientWidth,
+              );
+              el.scrollLeft = next;
+              setScrollLeft(next);
+            }}
+          >
+            播放头
+          </button>
         </div>
       </div>
-      <div className="tl-scroll" ref={scrollRef}>
+      <div
+        className={`tl-scroll ${panning ? "is-panning" : ""}`}
+        ref={scrollRef}
+        onPointerDown={startPan}
+        onAuxClick={(event) => event.preventDefault()}
+      >
         <div
           className="tl-content"
           style={{

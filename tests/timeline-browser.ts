@@ -79,7 +79,7 @@ const drag = async (x: number, y: number, toX: number, toY: number) => {
   await page.mouse.up();
 };
 try {
-  await page.goto("http://127.0.0.1:5181/timeline-qa");
+  await page.goto("http://127.0.0.1:5181/timeline-qa?locale=zh");
   await page.waitForSelector(".tl-clip", { timeout: 8000 });
   const first = page
     .locator(".tl-clip")

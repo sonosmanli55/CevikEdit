@@ -22,6 +22,7 @@ import type { Subtitle } from "../core/subtitles";
 import { separateProjectAudio } from "../core/audio";
 import { addFreezeFrameClip, reverseProjectClip } from "../core/clipTools";
 import { placeClip, type PlacementMode } from "../core/placement";
+import { clampPps } from "../core/timelineView";
 interface EditorState {
   project: Project;
   path?: string;
@@ -558,7 +559,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   setPlaying: (playing) => set({ playing }),
   setZoom: (zoom) => {
-    if (Number.isFinite(zoom)) set({ zoom: Math.min(400, Math.max(5, zoom)) });
+    if (Number.isFinite(zoom)) set({ zoom: clampPps(zoom) });
   },
   setSnapping: (snapping) => set({ snapping }),
   setMagnetic: (magnetic) => set({ magnetic }),

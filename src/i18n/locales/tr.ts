@@ -1279,6 +1279,10 @@ export const tr: Record<string, string> = {
   "或直接拖入本地文件": "veya yerel dosyaları buraya sürükleyin",
   "素材留在本机，项目完全离线": "Medya yerelde kalır, proje tamamen çevrimdışı",
   "适配": "Sığdır",
+  "定位到播放头": "Oynatma konumuna git",
+  "播放头": "Oynatma konumu",
+  "可见时间范围": "Görünür zaman aralığı",
+  "可见": "görünür",
   "时间线": "Zaman çizelgesi",
   "从素材库拖入视频、图片或音频，开始创作":
     "Düzenlemeye başlamak için kitaplıktan video, görsel veya ses sürükleyin",
