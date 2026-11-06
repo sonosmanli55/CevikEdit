@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { AudioLines, Brackets, ChevronLeft, ChevronRight, CircleAlert, Pause, Play, Plus, RotateCcw, Volume2, VolumeX, X } from "lucide-react";
 import type { MediaAsset } from "../core/types";
+import type { PlacementMode } from "../core/placement";
 import { formatTime } from "../core/model";
 import "./SourcePreview.css";
 
@@ -8,7 +9,9 @@ export interface SourcePreviewProps {
   asset: MediaAsset;
   fps: number;
   onClose: () => void;
-  onAddRange: (sourceIn: number, duration: number) => void;
+  onAddRange: (sourceIn: number, duration: number, mode: PlacementMode) => void;
+  mode: PlacementMode;
+  onModeChange: (mode: PlacementMode) => void;
 }
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -16,7 +19,7 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 export default function SourcePreview(props: SourcePreviewProps) {
   return <SourcePreviewSession key={`${props.asset.id}:${props.asset.url}:${props.asset.previewUrl ?? ""}`} {...props} />;
 }
-function SourcePreviewSession({ asset, fps, onClose, onAddRange }: SourcePreviewProps) {
+function SourcePreviewSession({ asset, fps, onClose, onAddRange, mode, onModeChange }: SourcePreviewProps) {
   const media = useRef<HTMLMediaElement | null>(null);
   const panel = useRef<HTMLElement>(null);
   const alive = useRef(true);
@@ -131,7 +134,7 @@ function SourcePreviewSession({ asset, fps, onClose, onAddRange }: SourcePreview
   const add = () => {
     if (unavailable) return;
     pause();
-    onAddRange(image ? 0 : sourceIn, image ? duration : sourceOut - sourceIn);
+    onAddRange(image ? 0 : sourceIn, image ? duration : sourceOut - sourceIn, mode);
   };
   return (
     <section ref={panel} className="source-preview player-panel panel" aria-label="素材源预览" tabIndex={0} onKeyDown={keyDown}
@@ -165,7 +168,8 @@ function SourcePreviewSession({ asset, fps, onClose, onAddRange }: SourcePreview
           <label><button title="将当前位置设为出点 · O" aria-label="标记源素材出点" disabled={unavailable} onClick={() => setOut(time)}>出点 <kbd>O</kbd></button><input aria-label="源素材出点" type="number" min={sourceIn+minLength} max={duration} step={frame} value={Number(sourceOut.toFixed(6))} disabled={unavailable} onChange={event => {if(event.target.value !== "") setOut(Number(event.target.value));}} /><span>秒</span></label>
           <button title="重置为完整素材" aria-label="重置源素材范围" disabled={unavailable} onClick={() => {setSourceIn(0);setSourceOut(duration);seek(0);}}><RotateCcw size={14} /></button>
         </div>}
-        <div className="source-add-row"><span>{image ? `${asset.width} × ${asset.height} · 图片` : <><Brackets size={12} /> 已选 {formatTime(Math.max(0, sourceOut-sourceIn),frameRate)}</>}</span><button className="primary" disabled={unavailable} onClick={add}><Plus size={14} />{image ? "添加图片" : "添加选中片段"}</button></div>
+        <div className="source-add-row"><span>{image ? `${asset.width} × ${asset.height} · 图片` : <><Brackets size={12} /> 已选 {formatTime(Math.max(0, sourceOut-sourceIn),frameRate)}</>}</span><label className="source-mode">入轨方式<select aria-label="入轨方式" value={mode} onChange={event => onModeChange(event.target.value as PlacementMode)}><option value="append">追加到末尾</option><option value="insert">插入并后移</option><option value="overwrite">覆盖当前位置</option></select></label><button className="primary" disabled={unavailable} onClick={add}><Plus size={14} />{image ? "添加图片" : "添加选中片段"}</button></div>
+        <p className="source-tip">追加保留现有片段；插入会在播放头处让同轨后续片段后移，必要时切开跨点片段；覆盖会替换同轨对应区间。三种方式都只提交一次撤销。</p>
         {!image && <p className="source-tip">聚焦预览后按 I / O 标记，空格播放选段，← / → 逐帧定位</p>}
         {!image && ready && duration < frame - 1e-8 && <p className="source-error">素材不足项目的一帧，暂时无法添加。</p>}
       </footer>

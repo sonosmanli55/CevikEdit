@@ -21,6 +21,7 @@ import {
 import type { Subtitle } from "../core/subtitles";
 import { separateProjectAudio } from "../core/audio";
 import { addFreezeFrameClip, reverseProjectClip } from "../core/clipTools";
+import { placeClip, type PlacementMode } from "../core/placement";
 interface EditorState {
   project: Project;
   path?: string;
@@ -51,13 +52,14 @@ interface EditorState {
     duration?: number,
   ) => void;
   removeAsset: (assetId: string) => void;
-  addAssetClip: (assetId: string, start?: number, trackId?: string, range?: { sourceIn: number; duration: number }) => void;
+  addAssetClip: (assetId: string, start?: number, trackId?: string, range?: { sourceIn: number; duration: number }, mode?: PlacementMode) => void;
   addText: () => void;
   addSubtitles: (cues: Subtitle[]) => void;
   updateClip: (clipId: string, patch: Partial<Clip>) => void;
   updateSelected: (patch: Partial<Clip>) => void;
   moveClips: (ids: string[], delta: number, trackId?: string) => void;
   trim: (clipId: string, edge: "start" | "end", time: number) => void;
+  detachLinks: (ids: string[]) => void;
   split: () => void;
   deleteSelected: () => void;
   duplicate: () => void;
@@ -86,6 +88,17 @@ const acceptsClip = (p: Project, track: Track, clip: Clip) =>
     : !!p.assets.find((a) => a.id === clip.assetId && acceptsAsset(track, a));
 const editable = (p: Project, clip: Clip) =>
   !!p.tracks.find((t) => t.id === clip.trackId && !t.locked);
+/** Every clip that must follow an edit because it shares a link id. */
+const linkedClips = (p: Project, ids: readonly string[]): Clip[] => {
+  const links = new Set(
+    p.clips
+      .filter((clip) => ids.includes(clip.id) && clip.linkId)
+      .map((clip) => clip.linkId!),
+  );
+  return p.clips.filter(
+    (clip) => (ids.includes(clip.id) || (clip.linkId && links.has(clip.linkId))) && editable(p, clip),
+  );
+};
 const freshCopy = (clip: Clip): Clip => ({
   ...clone(clip),
   id: id(),
@@ -248,7 +261,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       throw new Error("素材仍被时间线使用，请先删除对应片段");
     get().commit({ ...p, assets: p.assets.filter((a) => a.id !== assetId) });
   },
-  addAssetClip: (assetId, start, trackId, range) => {
+  addAssetClip: (assetId, start, trackId, range, mode) => {
     let p = get().project;
     const asset = p.assets.find((a) => a.id === assetId);
     if (!asset || (start !== undefined && !Number.isFinite(start))) return;
@@ -272,6 +285,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
         .reduce((end, c) => Math.max(end, c.start + c.duration), 0),
       clip = createClip(asset, track.id, start ?? end, p.fps);
     if (range) { clip.sourceIn = range.sourceIn; clip.duration = range.duration; }
+    if (mode && start !== undefined) {
+      const placed = placeClip(p, clip, mode);
+      get().commit(placed.project);
+      set({ selectedIds: [placed.clip.id], playhead: placed.clip.start });
+      return;
+    }
     get().commit({ ...p, clips: [...p.clips, clip] });
     set({ selectedIds: [clip.id], playhead: clip.start });
   },
@@ -325,7 +344,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   moveClips: (ids, delta, trackId) => {
     const p = get().project;
     if (!Number.isFinite(delta)) return;
-    const moving = p.clips.filter((c) => ids.includes(c.id) && editable(p, c));
+    const moving = linkedClips(p, ids);
     if (!moving.length) return;
     const adjusted = Math.max(delta, -Math.min(...moving.map((c) => c.start))),
       target = p.tracks.find((t) => t.id === trackId && !t.locked);
@@ -343,8 +362,32 @@ export const useEditorStore = create<EditorState>((set, get) => ({
       ),
     });
   },
-  trim: (clipId, edge, time) =>
-    get().commit(trimClip(get().project, clipId, edge, time)),
+  trim: (clipId, edge, time) => {
+    const p = get().project;
+    const clip = p.clips.find((item) => item.id === clipId);
+    if (!clip) return;
+    const affected = clip.linkId ? linkedClips(p, [clipId]) : [clip];
+    let next = p;
+    for (const item of affected) next = trimClip(next, item.id, edge, time);
+    get().commit(next);
+  },
+  detachLinks: (ids) => {
+    const p = get().project;
+    const links = new Set(
+      p.clips
+        .filter((clip) => ids.includes(clip.id) && clip.linkId)
+        .map((clip) => clip.linkId!),
+    );
+    if (!links.size) return;
+    get().commit({
+      ...p,
+      clips: p.clips.map((clip) => {
+        if (!clip.linkId || !links.has(clip.linkId)) return clip;
+        const { linkId: _linkId, ...rest } = clip;
+        return rest;
+      }),
+    });
+  },
   split: () => {
     let p = get().project;
     const ids = get().selectedIds.length
@@ -355,15 +398,14 @@ export const useEditorStore = create<EditorState>((set, get) => ({
               c.start < get().playhead && c.start + c.duration > get().playhead,
           )
           .map((c) => c.id);
-    for (const clipId of ids) p = splitClip(p, clipId, get().playhead);
+    const targets = linkedClips(p, ids).map((clip) => clip.id);
+    for (const clipId of targets) p = splitClip(p, clipId, get().playhead);
     get().commit(p);
   },
   deleteSelected: () => {
     const s = get(),
       p = s.project,
-      removed = p.clips.filter(
-        (c) => s.selectedIds.includes(c.id) && editable(p, c),
-      );
+      removed = linkedClips(p, s.selectedIds);
     if (!removed.length) return;
     let clips = p.clips.filter((c) => !removed.includes(c));
     if (s.magnetic) {
@@ -397,13 +439,20 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   duplicate: () => {
     const s = get(),
-      originals = s.project.clips.filter(
-        (c) => s.selectedIds.includes(c.id) && editable(s.project, c),
-      );
-    const copies = originals.map((c) => ({
-      ...freshCopy(c),
-      start: c.start + c.duration,
-    }));
+      originals = linkedClips(s.project, s.selectedIds);
+    const remappedLinks = new Map<string, string>();
+    const copies = originals.map((c) => {
+      let linkId = c.linkId;
+      if (linkId) {
+        if (!remappedLinks.has(linkId)) remappedLinks.set(linkId, id());
+        linkId = remappedLinks.get(linkId);
+      }
+      return {
+        ...freshCopy(c),
+        start: c.start + c.duration,
+        ...(linkId ? { linkId } : {}),
+      };
+    });
     if (copies.length) {
       get().commit({ ...s.project, clips: [...s.project.clips, ...copies] });
       set({ selectedIds: copies.map((c) => c.id) });
@@ -411,13 +460,12 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   copy: () =>
     set({
-      clipboard: clone(
-        get().project.clips.filter((c) => get().selectedIds.includes(c.id)),
-      ),
+      clipboard: clone(linkedClips(get().project, get().selectedIds)),
     }),
   paste: () => {
     const s = get();
     if (!s.clipboard.length) return;
+    const remappedLinks = new Map<string, string>();
     const min = Math.min(...s.clipboard.map((c) => c.start)),
       clips = s.clipboard
         .filter((c) =>
@@ -426,13 +474,21 @@ export const useEditorStore = create<EditorState>((set, get) => ({
               t.id === c.trackId && !t.locked && acceptsClip(s.project, t, c),
           ),
         )
-        .map((c) => ({
-          ...freshCopy(c),
-          start: Math.max(
-            0,
-            snapToFrame(s.playhead + c.start - min, s.project.fps),
-          ),
-        }));
+        .map((c) => {
+          let linkId = c.linkId;
+          if (linkId) {
+            if (!remappedLinks.has(linkId)) remappedLinks.set(linkId, id());
+            linkId = remappedLinks.get(linkId);
+          }
+          return {
+            ...freshCopy(c),
+            start: Math.max(
+              0,
+              snapToFrame(s.playhead + c.start - min, s.project.fps),
+            ),
+            ...(linkId ? { linkId } : {}),
+          };
+        });
     if (!clips.length) return;
     get().commit({ ...s.project, clips: [...s.project.clips, ...clips] });
     set({ selectedIds: clips.map((c) => c.id) });

@@ -576,6 +576,7 @@ export function validateProject(input: unknown): Project {
     if (start + duration > 86400) fail("时间线时长（最长 24 小时）");
     num(c.volume, "音量", 0, 4);
     bool(c.muted, "片段静音");
+    if (c.linkId !== undefined) str(c.linkId, "片段关联 ID", 64);
     for (const field of [
       "fadeIn",
       "fadeOut",

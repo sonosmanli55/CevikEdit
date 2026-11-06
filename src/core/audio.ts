@@ -32,6 +32,7 @@ export function separateProjectAudio(
   );
   if (span < frame - 1e-9) throw new Error("分离出的音频过短");
   const track = createTrack("audio");
+  const linkId = id();
   const clip = createClip(audioAsset, track.id, source.start, project.fps);
   clip.name = source.name;
   clip.sourceIn = source.sourceIn;
@@ -56,11 +57,13 @@ export function separateProjectAudio(
       tracks: [...project.tracks, track],
       clips: [
         ...project.clips.map((clip) =>
-          clip.id === clipId ? { ...clip, muted: true } : clip,
+          clip.id === clipId
+            ? { ...clip, muted: true, linkId: linkId }
+            : clip,
         ),
-        clip,
+        { ...clip, linkId },
       ],
     },
-    clip,
+    clip: { ...clip, linkId },
   };
 }

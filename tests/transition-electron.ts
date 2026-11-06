@@ -82,6 +82,7 @@ const env: Record<string, string> = Object.fromEntries(
 env.REACUT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
+env.REACUT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs"), original],
   env,

@@ -31,6 +31,7 @@ const errors: string[] = [];
 let app!: ElectronApplication;
 let page!: Page;
 const launch = async () => {
+env.REACUT_LOCALE = "zh";
   app = await electron.launch({
     args: [path.join(root, "dist-electron", "main.cjs")],
     env,

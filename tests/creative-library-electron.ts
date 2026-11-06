@@ -42,6 +42,7 @@ if (packaged) {
   delete env.REACUT_FFMPEG;
   delete env.REACUT_FFPROBE;
 }
+env.REACUT_LOCALE = "zh";
 const app = await electron.launch({
   ...(packaged
     ? {

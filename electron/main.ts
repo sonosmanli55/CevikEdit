@@ -45,6 +45,7 @@ import {
 } from "./clipMedia";
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
+import { measureLoudness, validateLoudnessRequest } from "./loudness";
 import {
   cancelAllTranscriptions,
   cancelTranscription,
@@ -656,6 +657,14 @@ function registerIPC() {
     image.name = `${derivedAssetName(request.name, source)} · ${tr("定格画面")}`;
     authorizeAsset(image);
     return image;
+  });
+  handle("analyze-loudness", async (input: unknown) => {
+    const request = validateLoudnessRequest(input);
+    if (!allowedMedia.has(request.source))
+      throw new Error("该素材未通过本地访问授权");
+    const metadata = await stat(request.source);
+    if (!metadata.isFile()) throw new Error("所选素材无效");
+    return measureLoudness(request);
   });
   handle("relink-asset", async (asset: MediaAsset) => {
     const result = await dialog.showOpenDialog(window!, {

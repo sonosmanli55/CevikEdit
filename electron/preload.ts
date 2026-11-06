@@ -37,6 +37,7 @@ const api: EditorAPI = {
     return () => ipcRenderer.removeListener("reverse-progress", listener);
   },
   freezeFrame: (request) => ipcRenderer.invoke("freeze-frame", request),
+  analyzeLoudness: (request) => ipcRenderer.invoke("analyze-loudness", request),
   getStartupProject: () => ipcRenderer.invoke("get-startup-project"),
   openProject: () => ipcRenderer.invoke("open-project"),
   saveProject: (project, path) =>
@@ -94,14 +95,14 @@ const api: EditorAPI = {
 };
 contextBridge.exposeInMainWorld("editorAPI", api);
 
-// Locale negotiated by the main process. The packaged desktop app ships the
-// Turkish language pack; development and test runs keep the Chinese source UI.
+// Locale negotiated by the main process. The application ships in Turkish;
+// `--reacut-locale=zh` is kept for the Chinese-source regression harnesses.
 const localeArgument = process.argv.find((argument) =>
   argument.startsWith("--reacut-locale="),
 );
 contextBridge.exposeInMainWorld(
   "reacutLocale",
-  localeArgument ? localeArgument.slice("--reacut-locale=".length) : "zh",
+  localeArgument ? localeArgument.slice("--reacut-locale=".length) : "tr",
 );
 
 // Present only in the dedicated plugin process, never in a normal desktop window.

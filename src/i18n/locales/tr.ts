@@ -942,6 +942,26 @@ export const tr: Record<string, string> = {
   "重置源素材范围": "Kaynak medya aralığını sıfırla",
   "添加图片": "Görsel ekle",
   "添加选中片段": "Seçili klibi ekle",
+  "入轨方式": "Yerleştirme biçimi",
+  "追加到末尾": "Sona ekle",
+  "插入并后移": "Araya ekle ve kaydır",
+  "覆盖当前位置": "Geçerli aralığı kapla",
+  "追加保留现有片段；插入会在播放头处让同轨后续片段后移，必要时切开跨点片段；覆盖会替换同轨对应区间。三种方式都只提交一次撤销。":
+    "Sona ekleme mevcut klipleri korur; araya ekleme oynatma konumundaki sonraki klipleri sağa kaydırır ve gerektiğinde klibi ikiye böler; kaplama aynı kanaldaki aralığı değiştirir. Üç yöntem de tek adımda geri alınır.",
+  "片段已追加到轨道末尾，可撤销": "Klip kanal sonuna eklendi; geri alınabilir",
+  "片段已插入播放头，后续同轨片段已后移，可撤销":
+    "Klip oynatma konumuna eklendi, sonraki klipler kaydırıldı; geri alınabilir",
+  "片段已覆盖播放头处同轨区间，可撤销":
+    "Klip oynatma konumundaki kanal aralığını kapladı; geri alınabilir",
+  "不支持的入轨模式": "Desteklenmeyen yerleştirme biçimi",
+  "片段轨道不存在": "Klibin kanalı bulunamadı",
+  "片段时间无效": "Klip zamanı geçersiz",
+  "片段超出时间线范围": "Klip zaman çizelgesi aralığının dışında",
+  "关联片段": "Bağlı klip",
+  "片段关联 ID": "Klip bağlantı kimliği",
+  "此片段与分离出的音频保持关联：移动、裁剪、分割和删除会同时作用于另一条片段。":
+    "Bu klip ayrılan sesle bağlantılıdır: taşıma, kırpma, bölme ve silme işlemleri diğer klibe de uygulanır.",
+  "解除关联": "Bağlantıyı çöz",
   "聚焦预览后按 I / O 标记，空格播放选段，← / → 逐帧定位":
     "Önizlemeye odaklanıp I / O ile işaretleyin, boşlukla seçimi oynatın, ← / → ile kare kare gezinin",
   "素材不足项目的一帧，暂时无法添加。":
@@ -1028,6 +1048,132 @@ export const tr: Record<string, string> = {
   "重新检查": "Yeniden denetle",
   "检查修改": "Değişiklikleri denetle",
   "项目已变化，请重新检查修改。": "Proje değişti; değişiklikleri yeniden denetleyin.",
+  "SRT / WebVTT 只保存时间与文本；样式、画面位置和文字动画不会写入字幕文件，请导出视频保留成片效果。":
+    "SRT / WebVTT yalnızca zaman ve metni saklar; stil, görsel konum ve metin animasyonu altyazı dosyasına yazılmaz. Bitmiş görünümü korumak için videoyu dışa aktarın.",
+  "导出项目中全部文字片段为 SRT；字幕文件不携带样式、位置或动画":
+    "Projedeki tüm metin kliplerini SRT olarak dışa aktar; altyazı dosyası stil, konum veya animasyon taşımaz",
+  "拆分 / 合并": "Böl / birleştir",
+  "文字动画": "Metin animasyonu",
+  "拆分按项目帧对齐播放头，左段为 [开始, 播放头)，右段为 [播放头, 结束)，两侧至少各留一帧；文本按字符比例并优先在附近标点或空白处切开。":
+    "Bölme, oynatma konumunu proje karelerine hizalar; sol parça [başlangıç, oynatma konumu), sağ parça [oynatma konumu, bitiş) olur ve iki tarafta en az bir kare kalır. Metin karakter oranına göre, yakındaki noktalama veya boşluk tercih edilerek ayrılır.",
+  "合并只处理同轨连续且相接或重叠的字幕：时间取最早开始至最晚结束，文本以换行拼接，样式和局部动画沿用最早一条。":
+    "Birleştirme yalnızca aynı kanaldaki ardışık ve bitişik/örtüşen altyazılarda çalışır: zaman en erken başlangıçtan en geç bitişe uzanır, metinler yeni satırla birleştirilir, stil ve yerel animasyon en erken kayıttan alınır.",
+  "按播放头拆分": "Oynatma konumunda böl",
+  "合并所选字幕": "Seçili altyazıları birleştir",
+  "已按播放头拆分为两条字幕，可一次撤销":
+    "Oynatma konumunda iki altyazıya bölündü; tek adımda geri alınabilir",
+  "请选择参考字幕，或直接修改一项字幕样式":
+    "Bir referans altyazı seçin veya doğrudan bir altyazı stilini değiştirin",
+  "选择参考会填入下方字段；修改任意字段后按当前值应用。只改样式，保留每条文案、时间、位置和动画。":
+    "Referans seçimi aşağıdaki alanları doldurur; herhangi bir alanı değiştirdiğinizde güncel değerler uygulanır. Yalnızca stil değişir; metin, zaman, konum ve animasyon korunur.",
+  "字幕字体": "Altyazı yazı tipi",
+  "字幕字号": "Altyazı yazı boyutu",
+  "字幕文字颜色": "Altyazı metin rengi",
+  "字幕描边颜色": "Altyazı kontur rengi",
+  "字幕描边宽度": "Altyazı kontur genişliği",
+  "字幕行高": "Altyazı satır yüksekliği",
+  "字幕内边距": "Altyazı iç boşluğu",
+  "字幕圆角": "Altyazı köşe yarıçapı",
+  "字幕粗体": "Altyazı kalın",
+  "字幕背景": "Altyazı arka planı",
+  "字幕背景颜色": "Altyazı arka plan rengi",
+  "字幕对齐": "Altyazı hizalaması",
+  "左": "Sol",
+  "右": "Sağ",
+  "无": "Yok",
+  "上滑": "Yukarı kay",
+  "下滑": "Aşağı kay",
+  "静止": "Sabit",
+  "呼吸": "Nefes",
+  "入场": "Giriş",
+  "停留": "Bekleme",
+  "出场": "Çıkış",
+  "字幕入场动画": "Altyazı giriş animasyonu",
+  "字幕停留动画": "Altyazı bekleme animasyonu",
+  "字幕出场动画": "Altyazı çıkış animasyonu",
+  "入场时长 (秒)": "Giriş süresi (sn)",
+  "出场时长 (秒)": "Çıkış süresi (sn)",
+  "字幕入场时长": "Altyazı giriş süresi",
+  "字幕出场时长": "Altyazı çıkış süresi",
+  "统一应用到所选字幕；会替换这些字幕的位置、缩放和透明度关键帧，保留旋转与音量关键帧。短字幕会自动缩短动画。字幕文件不保存动画。":
+    "Seçili altyazıların tamamına uygulanır; bu altyazıların konum, ölçek ve saydamlık anahtar karelerini değiştirir, döndürme ve ses anahtar karelerini korur. Kısa altyazılarda animasyon otomatik kısalır. Altyazı dosyası animasyonu saklamaz.",
+  "请填写文字入场和出场时长": "Metin giriş ve çıkış sürelerini girin",
+  "请使用拆分或合并按钮": "Lütfen bölme veya birleştirme düğmelerini kullanın",
+  "拆分只能选择一条字幕": "Bölme için yalnızca bir altyazı seçin",
+  "播放头必须位于所选字幕内部，且两侧各留出至少一帧":
+    "Oynatma konumu seçili altyazının içinde olmalı ve iki tarafta en az bir kare kalmalıdır",
+  "无法拆分所选字幕": "Seçili altyazı bölünemiyor",
+  "字幕文本太短，无法拆分": "Altyazı metni bölmek için çok kısa",
+  "字幕文本太短，无法拆分为两条": "Altyazı metni iki parçaya bölmek için çok kısa",
+  "请选择至少两条字幕再合并": "Birleştirmek için en az iki altyazı seçin",
+  "只能合并轨道上连续相邻的字幕":
+    "Yalnızca kanaldaki ardışık komşu altyazılar birleştirilebilir",
+  "只能合并相接或时间重叠的字幕，请先补合间隙":
+    "Yalnızca bitişik veya zaman olarak örtüşen altyazılar birleştirilebilir; önce boşluğu kapatın",
+  "合并后的字幕时长至少为一帧": "Birleşen altyazı en az bir kare olmalıdır",
+  "合并后的字幕内容无效（最多 20000 字）":
+    "Birleşen altyazı içeriği geçersiz (en fazla 20000 karakter)",
+  "字幕样式": "Altyazı stili",
+  "字幕阴影": "Altyazı gölgesi",
+  "字幕阴影颜色": "Altyazı gölge rengi",
+  "字幕阴影模糊": "Altyazı gölge bulanıklığı",
+  "字幕阴影偏移 X": "Altyazı gölge kayması X",
+  "字幕阴影偏移 Y": "Altyazı gölge kayması Y",
+  "播放头时间": "Oynatma konumu zamanı",
+  "文字入场动画": "Metin giriş animasyonu",
+  "文字停留动画": "Metin bekleme animasyonu",
+  "文字出场动画": "Metin çıkış animasyonu",
+  "文字入场时长": "Metin giriş süresi",
+  "文字出场时长": "Metin çıkış süresi",
+  "请选择参考字幕，或直接编辑一项字幕样式":
+    "Bir referans altyazı seçin veya doğrudan bir altyazı stilini düzenleyin",
+  "字幕样式无效": "Altyazı stili geçersiz",
+  "字幕字体无效": "Altyazı yazı tipi geçersiz",  "字幕文字颜色无效": "Altyazı metin rengi geçersiz",
+  "字幕背景颜色无效": "Altyazı arka plan rengi geçersiz",
+  "字幕对齐无效": "Altyazı hizalaması geçersiz",
+  "字幕粗体设置无效": "Altyazı kalın ayarı geçersiz",
+  "字幕描边颜色无效": "Altyazı kontur rengi geçersiz",
+  "字幕阴影颜色无效": "Altyazı gölge rengi geçersiz",
+  "文字动画设置无效": "Metin animasyonu ayarları geçersiz",
+  "文字入场动画无效": "Metin giriş animasyonu geçersiz",
+  "文字停留动画无效": "Metin bekleme animasyonu geçersiz",
+  "文字出场动画无效": "Metin çıkış animasyonu geçersiz",
+  "请设置大于 0 的文字入场时长": "0'dan büyük bir metin giriş süresi ayarlayın",
+  "请设置大于 0 的文字出场时长": "0'dan büyük bir metin çıkış süresi ayarlayın",
+  "字幕至少需要两帧才能设置文字动画":
+    "Metin animasyonu için altyazı en az iki kare olmalıdır",
+
+  // ------------------------------------------------------- Audio mix tools
+  "所选音频片段不存在": "Seçili ses klibi bulunamadı",
+  "所选音频片段的轨道不存在": "Seçili ses klibinin kanalı bulunamadı",
+  "没有读取到响度测量结果": "Ses düzeyi ölçüm sonucu okunamadı",
+  "响度测量结果无效": "Ses düzeyi ölçüm sonucu geçersiz",
+  "没有读取到有效的响度测量结果":
+    "Geçerli bir ses düzeyi ölçüm sonucu okunamadı",
+  "目标响度": "Hedef ses düzeyi",
+  "峰值上限": "Tepe sınırı",
+  "所选音频过于安静，无法测量有效响度":
+    "Seçili ses ölçüm için fazla sessiz; geçerli ses düzeyi ölçülemedi",
+  "应用响度增益后音量会超过 400%，请降低目标响度或先降低片段音量":
+    "Ses düzeyi kazancı uygulanınca ses %400'ü aşar; hedef ses düzeyini düşürün veya önce klip sesini azaltın",
+  "应用响度增益后关键帧音量会超过 400%":
+    "Ses düzeyi kazancı uygulanınca anahtar kare sesi %400'ü aşar",
+  "同一条片段不能同时作为语音和音乐":
+    "Aynı klip hem konuşma hem müzik olarak kullanılamaz",
+  "压低量": "Kısma miktarı",
+  "过渡时长": "Geçiş süresi",
+  "压低量必须小于 0 dB": "Kısma miktarı 0 dB'den küçük olmalıdır",
+  "语音区间过多，无法为这条音乐生成压低包络":
+    "Çok fazla konuşma aralığı var; bu müzik için kısma zarfı oluşturulamadı",
+  "所选音乐没有与语音区间重叠，未修改任何片段":
+    "Seçili müzik konuşma aralıklarıyla örtüşmüyor; hiçbir klip değiştirilmedi",
+  "项目已变化，请重新检查音频修改后再应用":
+    "Proje değişti; ses değişikliklerini yeniden denetleyip uygulayın",
+  "响度测量请求无效": "Ses düzeyi ölçüm isteği geçersiz",
+  "响度测量需要本地素材的绝对路径":
+    "Ses düzeyi ölçümü için yerel medyanın tam yolu gerekli",
+  "响度测量的时间范围无效": "Ses düzeyi ölçümünün zaman aralığı geçersiz",
+  "语音": "konuşma",
 
   // -------------------------------------------------------------- Timeline
   "多轨时间线": "Çok kanallı zaman çizelgesi",

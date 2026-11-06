@@ -4,6 +4,7 @@ import {
   reverseProjectClip,
 } from "../src/core/clipTools";
 import { evaluateKeyframes, createClip, createProject } from "../src/core/model";
+import { t } from "../src/i18n/locale";
 import type { Clip, MediaAsset, Project } from "../src/core/types";
 
 const video: MediaAsset = {
@@ -178,7 +179,7 @@ describe("addFreezeFrameClip", () => {
       "audio",
     ]);
     expect(result.project.tracks[0].kind).toBe("text");
-    expect(track.name).toBe("定格画面");
+    expect(track.name).toBe(t("定格画面"));
     expect(freeze.start).toBe(2.5);
     expect(freeze.duration).toBe(1.5);
     expect(freeze.assetId).toBe(still.id);
@@ -208,7 +209,7 @@ describe("addFreezeFrameClip", () => {
       1,
     );
     expect(
-      second.project.tracks.filter((track) => track.name === "定格画面"),
+      second.project.tracks.filter((track) => track.name === t("定格画面")),
     ).toHaveLength(1);
     expect(second.project.clips).toHaveLength(3);
     expect(second.clip.assetId).toBe("still");

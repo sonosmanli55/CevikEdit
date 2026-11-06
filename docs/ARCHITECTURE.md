@@ -23,6 +23,8 @@ flowchart LR
 
 每个关键帧的 `easing` 描述结束于该帧的区间。`linear`、`easeIn`、`easeOut`、`easeInOut` 共用 `keyframeEasingWindow`、`keyframeEasingCoefficients` 与 `keyframeEasedRatio`，预览、`KeyframeEditor` 曲线采样和 FFmpeg 导出不再各自实现公式。`easingWindow` 记录曲线的截取区间；分割和裁剪加入边界锚点并重映射窗口，保持原曲线。`videoFadeWindow` 与 `audioFadeWindow` 保留原包络时长、偏移及淡入淡出范围；变速等比例缩放其秒数。手动设置淡化参数时重置对应截取窗口。
 
+字幕样式与文字动画不新增独立求值器：样式只更新 `TextStyle` 的可编辑子集，动画由 `src/core/textAnimation.ts` 写入现有 `fadeIn`/`fadeOut` 和 x/y/缩放/透明度关键帧，入出场时长按帧吸附且不超过每条字幕一半。预览与导出因此继续共用 `evaluateFade` / `evaluateKeyframes`。字幕计划在克隆上生成并绑定 JSON 快照；拆分/合并、样式和动画各自作为一次事务提交，合并沿用最早条目的样式与局部动画。
+
 store 使用独立快照维护撤销/重做，持续属性编辑可通过 transaction 合并为一步。轨道锁限制编辑动作；磁吸删除按同轨被删区间的并集压缩后续起点，不重复扣除重叠片段时长。锁定不影响播放或导出。轨道删除连同片段原子提交，保留媒体库并清理选择；排序不移动锁轨或交换锁定邻轨。
 
 `validateProject(unknown)` 验证持久化输入的结构、所有必填字段、有限数值、引用、ID、类型和支持范围；返回隔离副本。外部项目不会直接以类型断言视为可信。
@@ -53,10 +55,16 @@ renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程
 
 `assistantBackend.ts` 管理 CLI 发现、隔离目录、结构化输出、取消和超时；`assistantEdits.ts` 对每项操作进行白名单验证，renderer 先显示计划再一次提交。摘要明确选择可发送字段，对话按项目 ID 的 SHA-256 存储在本机。内置素材由原创 SVG/合成音频生成，安装包资源被复制到稳定的用户缓存路径再按普通媒体导入，更新应用不改变已保存工程的素材引用。详见 [助手](ASSISTANT.md) 和 [原创素材](ORIGINAL_ASSETS.md)。
 
+## 语言与本地化
+
+桌面版默认土耳其语：`electron/locale.ts` 的 `resolveLocale` 不再依据是否打包，统一返回 `tr`；渲染层 `activeLocale` 同样默认 `tr`。主进程菜单、原生对话框与 IPC 错误经 `tr()`/`translateText` 翻译，renderer 由 `installI18n` 在 DOM 变更时翻译中文源文案。`tr.ts` 保存精确词条，`tr-patterns.ts` 处理计数、名称与范围等运行时拼接；`scripts/i18n-audit.ts` 静态扫描所有可进入 DOM 的中文字面量与 JSX 文本。`REACUT_LOCALE=zh` 仅供既有中文断言脚本使用，不面向用户。
+
 ## v0.4 本地工作流
 
 - SourcePreview 使用独立 HTML 媒体元素、焦点内快捷键和源入出点；卸载暂停并释放源。App 在时间线操作时返回项目播放器，store 校验选段后一次性创建片段/轨道，保留 sourceIn。
-- subtitleEdits 是纯计划/应用层，字幕面板提交整项目原子修改；提案绑定创建时状态，避免覆盖随后编辑。
+- subtitleEdits 是纯计划/应用层，字幕面板提交整项目原子修改；提案绑定创建时状态，避免覆盖随后编辑。拆分/合并、可编辑样式和统一动画都走同一计划路径：拆分复用 `splitClip` 并检查两侧至少一帧，合并只接受同轨连续且相接/重叠的条目，动画由 `textAnimation` 生成现有淡化与 x/y/缩放/透明度关键帧，预览和导出共用 `evaluateFade`/`evaluateKeyframes`。
+- placement 定义源区间入轨方式：追加取轨道末尾，插入在播放头处切开跨点片段并右移后续片段，覆盖按两端切分后裁掉占用区间；结果作为整个工程一次提交。`Clip.linkId` 关联分离出的音视频，store 的移动、裁剪、分割、删除、复制/粘贴与重复按 linkId 展开，解除关联只移除该字段。
+- audioMix 是纯计划层：`loudnorm` 的 stderr 汇总由主进程解析，增益与真峰值钳制、语音/音乐阈值与音量关键帧包络都在核心计算；写入沿用普通片段音量字段，因此预览与导出无需新的音频路径。
 - portableProject 定义版本化 reacut-portable 封装。仅接受受限 media/UUID.ext 相对路径，解析时校验 realpath 边界；绝对媒体路径仍经现有授权协议提供给 renderer。流式复制到临时文件夹，失败/取消清理，完成后 rename；保存保留相对引用。首次 SHA-256 清单是历史记录。
 - exportRange 校验时间边界和一帧下限；合成保留原时间轴，最终 trim/atrim 并重置时间戳，保持动画和淡化相位。完全在区间外的素材不进入渲染输入。
 

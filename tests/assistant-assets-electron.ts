@@ -31,6 +31,7 @@ const env = Object.fromEntries(Object.entries(process.env).filter((entry): entry
 env.REACUT_USER_DATA = path.join(output,"user-data");
 delete env.ELECTRON_RUN_AS_NODE; delete env.VITE_DEV_SERVER_URL; delete env.REACUT_FFMPEG; delete env.REACUT_FFPROBE;
 if(packaged) env.PATH="";
+env.REACUT_LOCALE = "zh";
 const app = await electron.launch({...(packaged ? { executablePath:path.join(path.resolve(packaged),"Contents/MacOS/ReaCut"),args:[],cwd:output } : {args:[path.join(root,"dist-electron/main.cjs")]}),env});
 let page: Page | undefined;
 const errors: string[] = [], failedMedia: string[] = [], checks: string[] = [];

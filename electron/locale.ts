@@ -3,18 +3,15 @@ import { translateText } from "../src/i18n/translate";
 
 export type Locale = "zh" | "tr";
 
-let mainLocale: Locale = "zh";
+let mainLocale: Locale = "tr";
 
 /**
- * The packaged desktop app ships with the Turkish language pack enabled.
- * Development runs, the desktop test harness and the plugin host keep the
- * original Simplified Chinese strings so existing workflows and assertions
- * stay valid. Set `REACUT_LOCALE=tr` (or `zh`) to force a locale.
+ * The desktop app is Turkish by default. Simplified Chinese remains available
+ * as the authoring source locale for the existing UI regression harnesses via
+ * `REACUT_LOCALE=zh`; users never need to switch the app to Chinese.
  */
-export function resolveLocale(isPackaged: boolean, env: NodeJS.ProcessEnv = process.env): Locale {
-  const override = env.REACUT_LOCALE;
-  if (override === "tr" || override === "zh") return override;
-  return isPackaged ? "tr" : "zh";
+export function resolveLocale(_isPackaged: boolean, env: NodeJS.ProcessEnv = process.env): Locale {
+  return env.REACUT_LOCALE === "zh" ? "zh" : "tr";
 }
 
 export function setMainLocale(locale: Locale): void {

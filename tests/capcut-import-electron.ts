@@ -101,6 +101,7 @@ env.REACUT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 const packagedApp = process.env.REACUT_TEST_APP;
+env.REACUT_LOCALE = "zh";
 const app = await electron.launch({
   ...(packagedApp ? {
     executablePath: path.join(path.resolve(packagedApp), "Contents", "MacOS", "ReaCut"),

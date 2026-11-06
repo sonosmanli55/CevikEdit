@@ -46,6 +46,7 @@ env.PATH = emptyPath;
 const bundledTools = path.join(bundle, "Contents", "Resources", "media-tools");
 // The verification probe also uses the shipped executable, not Homebrew.
 process.env.REACUT_FFPROBE = path.join(bundledTools, "ffprobe");
+env.REACUT_LOCALE = "zh";
 const app = await electron.launch({
   executablePath: executable,
   args: [demo],

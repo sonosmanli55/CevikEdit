@@ -49,6 +49,8 @@ import type {
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
 import { importCapcutDraft } from "./core/capcutImport";
 import SubtitlePanel from "./components/SubtitlePanel";
+import type { PlacementMode } from "./core/placement";
+import AudioTools from "./components/AudioTools";
 import PackageDialog from "./components/PackageDialog";
 import { resolveExportRange, selectedClipRange } from "./core/exportRange";
 import AssistantPanel from "./components/AssistantPanel";
@@ -571,6 +573,7 @@ export default function App() {
   const [subtitleAction, setSubtitleAction] = useState<"import" | "draft">(
     "import",
   );
+  const [placementMode, setPlacementMode] = useState<PlacementMode>("append");
   const notify = useCallback((message: string) => {
     setToast(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
@@ -1080,6 +1083,7 @@ export default function App() {
       a.click();
       URL.revokeObjectURL(url);
     }
+    notify("SRT 已导出；字幕文件只保存时间与文本，不包含样式、位置或动画");
   };
   const cancelCapcutImport = () => {
     if (capcutBusyRef.current) return;
@@ -1184,6 +1188,40 @@ export default function App() {
       ? `已添加 ${result.duration.toFixed(2)} 秒叠化（后片段提前重叠）`
       : `已添加 ${result.duration.toFixed(2)} 秒转场，可撤销`);
   };
+  const renderMediaLibrary = (audioOnly: boolean) => (
+    <MediaLibrary
+      project={
+        audioOnly
+          ? {
+              ...s.project,
+              assets: s.project.assets.filter((a) => a.kind === "audio"),
+            }
+          : s.project
+      }
+      onImport={(paths) => void safe(() => importMedia(paths))}
+      onPreviewAsset={(assetId) => {
+        s.setPlaying(false);
+        setSourceAssetId(assetId);
+      }}
+      onAddAsset={(assetId) => {
+        setSourceAssetId(null);
+        s.addAssetClip(assetId);
+      }}
+      onRemoveAsset={(assetId) => void safe(() => s.removeAsset(assetId))}
+      importing={importing}
+      onImportFiles={(files) =>
+        void safe(async () => s.addAssets(await browserAssets(files)))
+      }
+      onRevealAsset={(assetId) =>
+        void safe(() => {
+          const asset = s.project.assets.find((a) => a.id === assetId);
+          if (asset?.missing) return relink(asset);
+          if (asset && window.editorAPI)
+            return window.editorAPI.revealPath(asset.path);
+        })
+      }
+    />
+  );
   return (
     <div
       className="app-shell"
@@ -1327,39 +1365,12 @@ export default function App() {
           </nav>
           <div className="resource-body">
             {tab === "贴纸" && <AssetLibrary onAdd={addBuiltin} addingId={addingBuiltin} />}
-            {(tab === "素材" || tab === "音频") && (
-              <MediaLibrary
-                project={
-                  tab === "音频"
-                    ? {
-                        ...s.project,
-                        assets: s.project.assets.filter(
-                          (a) => a.kind === "audio",
-                        ),
-                      }
-                    : s.project
-                }
-                onImport={(paths) => void safe(() => importMedia(paths))}
-                onPreviewAsset={(assetId) => { s.setPlaying(false); setSourceAssetId(assetId); }}
-                onAddAsset={(assetId) => { setSourceAssetId(null); s.addAssetClip(assetId); }}
-                onRemoveAsset={(assetId) =>
-                  void safe(() => s.removeAsset(assetId))
-                }
-                importing={importing}
-                onImportFiles={(files) =>
-                  void safe(async () => s.addAssets(await browserAssets(files)))
-                }
-                onRevealAsset={(assetId) =>
-                  void safe(() => {
-                    const asset = s.project.assets.find(
-                      (a) => a.id === assetId,
-                    );
-                    if (asset?.missing) return relink(asset);
-                    if (asset && window.editorAPI)
-                      return window.editorAPI.revealPath(asset.path);
-                  })
-                }
-              />
+            {tab === "素材" && renderMediaLibrary(false)}
+            {tab === "音频" && (
+              <div className="audio-tab">
+                <div className="audio-library">{renderMediaLibrary(true)}</div>
+                <AudioTools />
+              </div>
             )}
             {tab === "文本" && <TextLibrary onAdd={addStyledText} onBlank={s.addText} />}
             {tab === "字幕" && <SubtitlePanel onImport={() => safe(readSubtitles)} onExport={() => safe(exportSubtitles)} />}
@@ -1384,10 +1395,23 @@ export default function App() {
         {sourceAsset ? <SourcePreview
           asset={sourceAsset}
           fps={s.project.fps}
+          mode={placementMode}
+          onModeChange={setPlacementMode}
           onClose={() => setSourceAssetId(null)}
-          onAddRange={(sourceIn, duration) => void safe(() => {
-            s.addAssetClip(sourceAsset.id, s.playhead, undefined, { sourceIn, duration });
+          onAddRange={(sourceIn, duration, mode) => void safe(() => {
+            s.addAssetClip(
+              sourceAsset.id,
+              mode === "append" ? undefined : s.playhead,
+              undefined,
+              { sourceIn, duration },
+              mode === "append" ? undefined : mode,
+            );
             setSourceAssetId(null);
+            notify(mode === "append"
+              ? "片段已追加到轨道末尾，可撤销"
+              : mode === "insert"
+                ? "片段已插入播放头，后续同轨片段已后移，可撤销"
+                : "片段已覆盖播放头处同轨区间，可撤销");
           })}
         /> : <Player
           project={s.project}
@@ -1406,6 +1430,7 @@ export default function App() {
           onUpdate={(patch) => active && s.updateClip(active.id, patch)}
           onProjectUpdate={s.updateProject}
           onSeparateAudio={active ? () => void separateAudio(active) : undefined}
+          onDetachLink={active ? () => s.detachLinks(s.selectedIds) : undefined}
           separating={separating}
           onReverse={active ? () => void reverseClip(active) : undefined}
           onCancelReverse={reverseJob ? () => void cancelReverse() : undefined}

@@ -114,6 +114,8 @@ export interface Clip {
   videoFadeWindow?: FadeWindow;
   audioFadeWindow?: FadeWindow;
   keyframes: Keyframe[];
+  /** Clips sharing this id move, trim, split and delete together until detached. */
+  linkId?: string;
   crop?: CropRect;
   chromaKey?: ChromaKey;
   mask?: ShapeMask;
@@ -237,6 +239,26 @@ export interface FreezeFrameRequest {
   name?: string;
 }
 
+export interface LoudnessMeasurement {
+  /** Integrated loudness in LUFS. */
+  inputI: number;
+  /** True peak in dBTP. */
+  inputTp: number;
+  /** Loudness range in LU. */
+  inputLra: number;
+}
+
+export interface LoudnessRequest {
+  /** Absolute path of an already authorized local media file. */
+  source: string;
+  /** Source in-point in seconds. */
+  sourceIn: number;
+  /** Timeline duration in seconds. */
+  duration: number;
+  /** Playback speed used to derive the analysed source span. */
+  speed: number;
+}
+
 export interface AppSettings {
   ffmpegPath?: string;
   ffprobePath?: string;
@@ -280,6 +302,9 @@ export interface EditorAPI {
   cancelReverse: (jobId: string) => Promise<void>;
   onReverseProgress: (callback: (event: ReverseProgress) => void) => () => void;
   freezeFrame: (request: FreezeFrameRequest) => Promise<MediaAsset>;
+  analyzeLoudness: (
+    request: LoudnessRequest,
+  ) => Promise<LoudnessMeasurement>;
   onMenuAction: (callback: (action: string) => void) => () => void;
   setDirty: (dirty: boolean) => void;
   cancelCloseRequest: () => void;

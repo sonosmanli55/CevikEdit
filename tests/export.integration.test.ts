@@ -25,6 +25,9 @@ import {
   DEFAULT_TRANSFORM,
 } from "../src/core/defaults";
 import { splitClip, trimClip } from "../src/core/model";
+import { prepareSubtitleEdit } from "../src/core/subtitleEdits";
+import { prepareAudioNormalization, prepareDucking } from "../src/core/audioMix";
+import { measureLoudness } from "../electron/loudness";
 import {
   applyColorAdjustments,
   colorAdjustmentFilters,
@@ -455,6 +458,111 @@ describe("real local media and FFmpeg export", () => {
     const title = await frame(options.path, 2.5);
     expect([...title].filter((value) => value > 180).length).toBeGreaterThan(
       300,
+    );
+  }, 60_000);
+
+  it("renders the same caption entrance, hold and exit animation that preview evaluates", async () => {
+    const caption = clip(undefined, "title", {
+      duration: 2,
+      text: {
+        ...DEFAULT_TEXT,
+        text: "A",
+        fontSize: 44,
+        strokeWidth: 0,
+        background: "transparent",
+      },
+    });
+    const source = project([caption]);
+    source.fps = 30;
+    const plan = prepareSubtitleEdit(source, [caption.id], {
+      type: "animation",
+      animation: {
+        entrance: "slideUp",
+        hold: "pulse",
+        exit: "fade",
+        inDuration: 0.5,
+        outDuration: 0.5,
+      },
+    });
+    const options = settings("subtitle-animation.mp4", { fps: 20 });
+    await render(plan.project, options);
+    const litPixels = async (second: number) =>
+      [...(await frame(options.path, second))].filter((value) => value > 180)
+        .length;
+    const entrance = await litPixels(0.05);
+    const middle = await litPixels(1);
+    const exit = await litPixels(1.95);
+    expect(middle).toBeGreaterThan(300);
+    expect(middle).toBeGreaterThan(entrance * 2);
+    expect(middle).toBeGreaterThan(exit * 2);
+  }, 60_000);
+
+  it("measures local loudness and writes normalization gain into editable volume and keys", async () => {
+    const measurement = await measureLoudness({
+      source: assets[1].path,
+      sourceIn: 0,
+      duration: 2,
+      speed: 1,
+    });
+    expect(Number.isFinite(measurement.inputI)).toBe(true);
+    expect(measurement.inputI).toBeGreaterThan(-40);
+    expect(measurement.inputI).toBeLessThan(0);
+    expect(measurement.inputTp).toBeLessThan(1);
+    const music = clip(assets[1], "audio", {
+      duration: 3,
+      keyframes: [
+        {
+          id: randomUUID(),
+          time: 1,
+          property: "volume",
+          value: 0.5,
+          easing: "linear",
+        },
+      ],
+    });
+    const source = project([music]);
+    source.fps = 30;
+    const plan = prepareAudioNormalization(
+      source,
+      music.id,
+      measurement,
+      -23,
+    );
+    const normalized = plan.project.clips.find((c) => c.id === music.id)!;
+    const factor = normalized.volume / music.volume;
+    expect(factor).toBeLessThan(1);
+    expect(normalized.keyframes.find((key) => key.property === "volume")!.value).toBeCloseTo(
+      0.5 * factor,
+      10,
+    );
+    const options = settings("normalized.mp4", { fps: 10 });
+    await render(plan.project, options);
+    const output = await rms(options.path, 0.5);
+    expect(output).toBeGreaterThan(0.001);
+  }, 60_000);
+
+  it("ducks the music under speech and restores it afterwards in the exported mix", async () => {
+    const music = clip(assets[1], "audio", { duration: 4 });
+    const speech = clip(assets[0], "video", {
+      start: 1,
+      duration: 1.5,
+      volume: 1,
+    });
+    const source = project([music, speech]);
+    source.fps = 30;
+    const plan = prepareDucking(source, [speech.id], [music.id], {
+      amountDb: -12,
+      fade: 0.2,
+    });
+    const options = settings("ducked.mp4", { fps: 10 });
+    await render(plan.project, options);
+    const before = await frequencyEnergy(options.path, 0.5, 600);
+    const during = await frequencyEnergy(options.path, 1.75, 600);
+    const after = await frequencyEnergy(options.path, 3.5, 600);
+    expect(before).toBeGreaterThan(during * 2.5);
+    expect(after).toBeGreaterThan(during * 2.5);
+    expect(await frequencyEnergy(options.path, 1.75, 440)).toBeGreaterThan(
+      during * 0.5,
     );
   }, 60_000);
 

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, FolderOpen, LockKeyhole, Mic, Search, Subtitles } from "lucide-react";
 import { useEditorStore } from "../editor/store";
-import { clone } from "../core/model";
-import { applySubtitleEdit, prepareSubtitleEdit, type SubtitleEdit, type SubtitleEditPlan } from "../core/subtitleEdits";
+import { clone, snapToFrame } from "../core/model";
+import { applySubtitleEdit, prepareSubtitleEdit, type SubtitleEdit, type SubtitleEditPlan, type SubtitleStylePatch } from "../core/subtitleEdits";
 import type { Clip, Project, TranscriptionStage, TranscriptionStatus } from "../core/types";
 import "./SubtitlePanel.css";
 
@@ -36,6 +36,29 @@ const TRANSCRIPTION_STAGE: Record<TranscriptionStage, string> = {
   parsing: "正在整理字幕…",
   complete: "完成",
 };
+const DEFAULT_STYLE_DRAFT: SubtitleStylePatch = {
+  fontFamily: "Noto Sans SC",
+  fontSize: 64,
+  color: "#ffffff",
+  background: "transparent",
+  align: "center",
+  bold: true,
+  stroke: "#000000",
+  strokeWidth: 2,
+  lineHeight: 1.3,
+  padding: 0.25,
+  radius: 0,
+};
+const styleFromClip = (clip: Clip): SubtitleStylePatch => {
+  const { text: _content, ...style } = clip.text!;
+  return clone(style);
+};
+const ANIMATION_ENTRANCES = [["none", "无"], ["fade", "淡入"], ["slideUp", "上滑"], ["scale", "缩放"]] as const;
+const ANIMATION_HOLDS = [["none", "静止"], ["pulse", "呼吸"]] as const;
+const ANIMATION_EXITS = [["none", "无"], ["fade", "淡出"], ["slideDown", "下滑"], ["scale", "缩放"]] as const;
+const SPLIT_HINT = "拆分按项目帧对齐播放头，左段为 [开始, 播放头)，右段为 [播放头, 结束)，两侧至少各留一帧；文本按字符比例并优先在附近标点或空白处切开。";
+const MERGE_HINT = "合并只处理同轨连续且相接或重叠的字幕：时间取最早开始至最晚结束，文本以换行拼接，样式和局部动画沿用最早一条。";
+type SubtitleMode = "splitMerge" | "offset" | "replace" | "style" | "animation";
 
 export default function SubtitlePanel({ onImport, onExport }: Props) {
   const project = useEditorStore(s => s.project);
@@ -43,11 +66,21 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   const [query, setQuery] = useState("");
   const [checked, setChecked] = useState<string[]>([]);
   const [draft, setDraft] = useState<CueDraft | null>(null);
-  const [mode, setMode] = useState<"offset" | "replace" | "style">("offset");
+  const [mode, setMode] = useState<SubtitleMode>("offset");
   const [offset, setOffset] = useState("0");
   const [find, setFind] = useState("");
   const [replacement, setReplacement] = useState("");
   const [referenceId, setReferenceId] = useState("");
+  const [styleDraft, setStyleDraft] = useState<SubtitleStylePatch>({ ...DEFAULT_STYLE_DRAFT });
+  const [styleDirty, setStyleDirty] = useState(false);
+  const [fonts, setFonts] = useState<string[]>(["Noto Sans SC", "sans-serif", "PingFang SC", "Arial", "Georgia"]);
+  const [animation, setAnimation] = useState({
+    entrance: "fade" as (typeof ANIMATION_ENTRANCES)[number][0],
+    hold: "none" as (typeof ANIMATION_HOLDS)[number][0],
+    exit: "fade" as (typeof ANIMATION_EXITS)[number][0],
+    inDuration: "0.3",
+    outDuration: "0.3",
+  });
   const [plan, setPlan] = useState<SubtitleEditPlan | null>(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
@@ -81,12 +114,24 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   const selected = checked.filter(id => clips.some(c => c.id === id));
   const locked = !!activeTrack?.locked;
   const stale = !!plan && plan.base !== JSON.stringify(project);
+  const splitCue = selected.length === 1 ? clips.find(c => c.id === selected[0]) : undefined;
+  const splitFrame = snapToFrame(playhead, project.fps);
+  const frame = 1 / project.fps;
+  const canSplit = !!splitCue && !locked &&
+    splitFrame >= splitCue.start + frame - 1e-9 &&
+    splitFrame <= splitCue.start + splitCue.duration - frame + 1e-9;
+  const canMerge = selected.length >= 2 && !locked;
+  const styleReady = !!referenceId || styleDirty;
 
   useEffect(() => {
     const textTracks = project.tracks.filter(t => t.kind === "text");
     const preferred = textTracks.find(t => t.name.includes("字幕")) ?? textTracks[0];
     setTrackId(preferred?.id ?? ""); setQuery(""); setChecked([]); setDraft(null); setPlan(null); setError(""); setNotice("");
   }, [project.id]);
+  useEffect(() => {
+    if (!api) return;
+    void api.getFontFamilies().then(setFonts).catch(() => {});
+  }, [api]);
   useEffect(() => {
     if (!project.tracks.some(t => t.id === trackId && t.kind === "text")) {
       const preferred = project.tracks.find(t => t.kind === "text" && t.name.includes("字幕")) ?? project.tracks.find(t => t.kind === "text");
@@ -97,7 +142,7 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
     if (first && first.trackId !== trackId && (!knownTracks.current.has(first.trackId) || !project.clips.some(c => c.trackId === trackId))) setTrackId(first.trackId);
     knownTracks.current = new Set(project.tracks.map(t => t.id));
   }, [project, trackId]);
-  useEffect(() => { setChecked([]); setDraft(null); setPlan(null); setError(""); setNotice(""); setReferenceId(""); }, [trackId]);
+  useEffect(() => { setChecked([]); setDraft(null); setPlan(null); setError(""); setNotice(""); setReferenceId(""); setStyleDirty(false); }, [trackId]);
   useEffect(() => { if (error) feedback.current?.scrollIntoView({ block: "nearest" }); }, [error]);
   useEffect(() => { void refreshTranscription(); }, []);
   useEffect(() => {
@@ -215,6 +260,30 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
       setDraft(null); setNotice(next.changedIds.length ? "字幕已保存，可一次撤销" : "字幕未变化");
     });
   }
+  function updateStyle(patch: SubtitleStylePatch) {
+    setStyleDraft(current => ({ ...current, ...patch }));
+    setStyleDirty(true); setPlan(null);
+  }
+  function chooseStyleReference(id: string) {
+    setReferenceId(id); setPlan(null);
+    const clip = clips.find(c => c.id === id);
+    if (clip?.text) { setStyleDraft(styleFromClip(clip)); setStyleDirty(false); }
+  }
+  function structural(type: "split" | "merge") {
+    const count = selected.length;
+    attempt(() => {
+      const store = useEditorStore.getState();
+      const edit: SubtitleEdit = type === "split"
+        ? { type: "split", at: store.playhead }
+        : { type: "merge" };
+      const next = prepareSubtitleEdit(store.project, selected, edit);
+      store.commit(applySubtitleEdit(store.project, next));
+      setSelection([]); setPlan(null); setDraft(null);
+      setNotice(type === "split"
+        ? "已按播放头拆分为两条字幕，可一次撤销"
+        : `已合并 ${count} 条字幕，可一次撤销`);
+    });
+  }
   function prepare() {
     attempt(() => {
       let edit: SubtitleEdit;
@@ -222,7 +291,26 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
         if (!offset.trim()) throw new Error("请填写时间偏移量");
         edit = { type: "offset", seconds: Number(offset) };
       } else if (mode === "replace") edit = { type: "replace", find, replacement };
-      else edit = { type: "style", referenceId };
+      else if (mode === "style") {
+        if (referenceId && !styleDirty) edit = { type: "style", referenceId };
+        else {
+          if (!styleReady) throw new Error("请选择参考字幕，或直接修改一项字幕样式");
+          edit = { type: "style", patch: styleDraft };
+        }
+      } else if (mode === "animation") {
+        if (!animation.inDuration.trim() || !animation.outDuration.trim())
+          throw new Error("请填写文字入场和出场时长");
+        edit = {
+          type: "animation",
+          animation: {
+            entrance: animation.entrance,
+            hold: animation.hold,
+            exit: animation.exit,
+            inDuration: Number(animation.inDuration),
+            outDuration: Number(animation.outDuration),
+          },
+        };
+      } else throw new Error("请使用拆分或合并按钮");
       const next = prepareSubtitleEdit(useEditorStore.getState().project, selected, edit);
       if (!next.changedIds.length) { setPlan(null); setNotice("没有需要修改的字幕"); return; }
       setPlan(next);
@@ -243,8 +331,9 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
     <div className="subtitle-heading"><h3>字幕编辑</h3><span>{clips.length} 条</span></div>
     <div className="subtitle-file-actions">
       <button className="small-button" onClick={() => void fileAction(onImport)}><FolderOpen size={14} />导入字幕文件</button>
-      <button className="small-button" onClick={() => void fileAction(onExport)} disabled={!project.clips.some(c => c.text)} title="导出项目中全部文字片段为 SRT"><Download size={14} />导出全部 SRT</button>
+      <button className="small-button" onClick={() => void fileAction(onExport)} disabled={!project.clips.some(c => c.text)} title="导出项目中全部文字片段为 SRT；字幕文件不携带样式、位置或动画"><Download size={14} />导出全部 SRT</button>
     </div>
+    <p className="subtitle-hint">SRT / WebVTT 只保存时间与文本；样式、画面位置和文字动画不会写入字幕文件，请导出视频保留成片效果。</p>
     <div className="subtitle-auto">
       <div className="subtitle-heading"><h4>自动字幕</h4><span>本地 Whisper</span></div>
       <p className="subtitle-hint"><Mic size={13} />使用本地 Whisper 识别所选片段中的语音，音频不会上传。</p>
@@ -330,12 +419,51 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
     <div className="subtitle-batch">
       <div className="subtitle-heading"><h4>批量修改</h4><span>已选 {selected.length} 条</span></div>
       <div className="subtitle-batch-tabs" role="tablist" aria-label="字幕批量操作">
-        {([['offset', '时间偏移'], ['replace', '查找替换'], ['style', '统一样式']] as const).map(([key, label]) => <button key={key} role="tab" aria-selected={mode === key} className={mode === key ? "active" : ""} onClick={() => { setMode(key); setPlan(null); }}>{label}</button>)}
+        {([['splitMerge', '拆分 / 合并'], ['offset', '时间偏移'], ['replace', '查找替换'], ['style', '统一样式'], ['animation', '文字动画']] as const).map(([key, label]) => <button key={key} role="tab" aria-selected={mode === key} className={mode === key ? "active" : ""} onClick={() => { setMode(key); setPlan(null); }}>{label}</button>)}
       </div>
+      {mode === "splitMerge" && <div className="subtitle-structure">
+        <p className="subtitle-hint">{SPLIT_HINT}</p>
+        <p className="subtitle-hint">{MERGE_HINT}</p>
+        <div className="subtitle-structure-actions">
+          <button className="small-button" disabled={!canSplit} onClick={() => structural("split")}>按播放头拆分</button>
+          <button className="small-button" disabled={!canMerge} onClick={() => structural("merge")}>合并所选字幕</button>
+        </div>
+        <p className="subtitle-hint">{`播放头 ${timeLabel(playhead)} · 已选 ${selected.length} 条`}</p>
+        {splitCue && <p className="subtitle-hint">{`当前字幕 ${timeLabel(splitCue.start)} — ${timeLabel(splitCue.start + splitCue.duration)}`}</p>}
+      </div>}
       {mode === "offset" && <label className="subtitle-batch-field">偏移秒数（负数提前）<input aria-label="字幕偏移秒数" type="number" step={1 / project.fps} value={offset} onChange={e => { setOffset(e.target.value); setPlan(null); }} /></label>}
       {mode === "replace" && <div className="subtitle-replace"><input aria-label="查找字幕文字" placeholder="查找文字（区分大小写）" value={find} onChange={e => { setFind(e.target.value); setPlan(null); }} /><input aria-label="替换字幕文字" placeholder="替换为（可留空）" value={replacement} onChange={e => { setReplacement(e.target.value); setPlan(null); }} /></div>}
-      {mode === "style" && <><label className="subtitle-batch-field">样式参考字幕<select aria-label="字幕样式参考" value={referenceId} onChange={e => { setReferenceId(e.target.value); setPlan(null); }}><option value="">选择参考字幕</option>{clips.map(c => <option key={c.id} value={c.id}>{timeLabel(c.start)} · {c.text!.text.slice(0, 30) || "空字幕"}</option>)}</select></label><p className="subtitle-hint">复制字体、字号、颜色、描边与对齐；保留每条文案、位置和动画。</p></>}
-      {plan ? <div className="subtitle-plan"><p>{stale ? "项目已变化，请重新检查修改。" : `将修改 ${plan.changedIds.length} 条字幕，可一次撤销。`}</p><div><button className="small-button" onClick={prepare}>重新检查</button><button className="primary small-button" disabled={stale || locked} onClick={apply}>应用 {plan.changedIds.length} 条修改</button></div></div> : <button className="small-button subtitle-check" disabled={!selected.length || locked} onClick={prepare}>检查修改</button>}
+      {mode === "style" && <div className="subtitle-style-editor">
+        <label className="subtitle-batch-field">样式参考字幕<select aria-label="字幕样式参考" value={referenceId} onChange={e => chooseStyleReference(e.target.value)}><option value="">选择参考字幕</option>{clips.map(c => <option key={c.id} value={c.id}>{timeLabel(c.start)} · {c.text!.text.slice(0, 30) || "空字幕"}</option>)}</select></label>
+        <p className="subtitle-hint">选择参考会填入下方字段；修改任意字段后按当前值应用。只改样式，保留每条文案、时间、位置和动画。</p>
+        <div className="subtitle-style-grid">
+          <label>字体<select aria-label="字幕字体" value={styleDraft.fontFamily ?? "Noto Sans SC"} onChange={e => updateStyle({ fontFamily: e.target.value })}>{fonts.map(font => <option key={font} value={font}>{font}</option>)}</select></label>
+          <label>字号<input aria-label="字幕字号" type="number" min="1" max="1000" value={styleDraft.fontSize ?? 64} onChange={e => updateStyle({ fontSize: Number(e.target.value) })} /></label>
+          <label>文字颜色<input aria-label="字幕文字颜色" type="color" value={styleDraft.color ?? "#ffffff"} onChange={e => updateStyle({ color: e.target.value })} /></label>
+          <label>描边颜色<input aria-label="字幕描边颜色" type="color" value={styleDraft.stroke ?? "#000000"} onChange={e => updateStyle({ stroke: e.target.value })} /></label>
+          <label>描边宽度<input aria-label="字幕描边宽度" type="number" min="0" max="100" step="0.1" value={styleDraft.strokeWidth ?? 2} onChange={e => updateStyle({ strokeWidth: Number(e.target.value) })} /></label>
+          <label>行高<input aria-label="字幕行高" type="number" min="0.8" max="3" step="0.05" value={styleDraft.lineHeight ?? 1.3} onChange={e => updateStyle({ lineHeight: Number(e.target.value) })} /></label>
+          <label>内边距<input aria-label="字幕内边距" type="number" min="0" max="1.5" step="0.05" value={styleDraft.padding ?? 0.25} onChange={e => updateStyle({ padding: Number(e.target.value) })} /></label>
+          <label>圆角<input aria-label="字幕圆角" type="number" min="0" max="2" step="0.05" value={styleDraft.radius ?? 0} onChange={e => updateStyle({ radius: Number(e.target.value) })} /></label>
+        </div>
+        <div className="subtitle-style-row">
+          <label><input type="checkbox" aria-label="字幕粗体" checked={styleDraft.bold ?? true} onChange={e => updateStyle({ bold: e.target.checked })} />粗体</label>
+          <label><input type="checkbox" aria-label="字幕背景" checked={(styleDraft.background ?? "transparent") !== "transparent"} onChange={e => updateStyle({ background: e.target.checked ? "#15151c" : "transparent" })} />背景</label>
+          {(styleDraft.background ?? "transparent") !== "transparent" && <input aria-label="字幕背景颜色" type="color" value={styleDraft.background} onChange={e => updateStyle({ background: e.target.value })} />}
+          <label>对齐<select aria-label="字幕对齐" value={styleDraft.align ?? "center"} onChange={e => updateStyle({ align: e.target.value as "left" | "center" | "right" })}><option value="left">左</option><option value="center">居中</option><option value="right">右</option></select></label>
+        </div>
+      </div>}
+      {mode === "animation" && <div className="subtitle-animation">
+        <div className="subtitle-animation-grid">
+          <label>入场<select aria-label="字幕入场动画" value={animation.entrance} onChange={e => { setAnimation({ ...animation, entrance: e.target.value as typeof animation.entrance }); setPlan(null); }}>{ANIMATION_ENTRANCES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>停留<select aria-label="字幕停留动画" value={animation.hold} onChange={e => { setAnimation({ ...animation, hold: e.target.value as typeof animation.hold }); setPlan(null); }}>{ANIMATION_HOLDS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>出场<select aria-label="字幕出场动画" value={animation.exit} onChange={e => { setAnimation({ ...animation, exit: e.target.value as typeof animation.exit }); setPlan(null); }}>{ANIMATION_EXITS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>入场时长 (秒)<input aria-label="字幕入场时长" type="number" min="0" max="10" step={1 / project.fps} value={animation.inDuration} onChange={e => { setAnimation({ ...animation, inDuration: e.target.value }); setPlan(null); }} /></label>
+          <label>出场时长 (秒)<input aria-label="字幕出场时长" type="number" min="0" max="10" step={1 / project.fps} value={animation.outDuration} onChange={e => { setAnimation({ ...animation, outDuration: e.target.value }); setPlan(null); }} /></label>
+        </div>
+        <p className="subtitle-hint">统一应用到所选字幕；会替换这些字幕的位置、缩放和透明度关键帧，保留旋转与音量关键帧。短字幕会自动缩短动画。字幕文件不保存动画。</p>
+      </div>}
+      {mode !== "splitMerge" && (plan ? <div className="subtitle-plan"><p>{stale ? "项目已变化，请重新检查修改。" : `将修改 ${plan.changedIds.length} 条字幕，可一次撤销。`}</p><div><button className="small-button" onClick={prepare}>重新检查</button><button className="primary small-button" disabled={stale || locked} onClick={apply}>应用 {plan.changedIds.length} 条修改</button></div></div> : <button className="small-button subtitle-check" disabled={!selected.length || locked || (mode === "style" && !styleReady)} onClick={prepare}>检查修改</button>)}
     </div>
     {error && <p ref={feedback} className="subtitle-error" role="alert">{error}</p>}
     {notice && <p className="subtitle-notice" role="status">{notice}</p>}

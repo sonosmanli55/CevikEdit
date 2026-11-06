@@ -30,6 +30,7 @@ interface Props {
   onProjectUpdate: (patch: Partial<Project>) => void;
   onSeparateAudio?: () => void;
   separating?: boolean;
+  onDetachLink?: () => void;
   onReverse?: () => void;
   onCancelReverse?: () => void;
   reversing?: boolean;
@@ -160,6 +161,7 @@ export default function Inspector({
   onProjectUpdate,
   onSeparateAudio,
   separating = false,
+  onDetachLink,
   onReverse,
   onCancelReverse,
   reversing = false,
@@ -593,6 +595,17 @@ export default function Inspector({
               />
               {!asset?.hasAudio && (
                 <p className="muted">这段素材没有音频流。</p>
+              )}
+              {clip.linkId && onDetachLink && (
+                <div className="audio-separate">
+                  <h3>关联片段</h3>
+                  <p className="muted small">
+                    此片段与分离出的音频保持关联：移动、裁剪、分割和删除会同时作用于另一条片段。
+                  </p>
+                  <button className="small-button" onClick={onDetachLink}>
+                    解除关联
+                  </button>
+                </div>
               )}
               {asset?.kind === "video" && asset.hasAudio && onSeparateAudio && (
                 <div className="audio-separate">

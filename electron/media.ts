@@ -42,6 +42,19 @@ export async function runMediaTool(
   timeout = 60_000,
   limit = 16 * 1024 * 1024,
 ): Promise<Buffer> {
+  return (await runMediaToolWithDiagnostics(name, args, timeout, limit)).output;
+}
+
+/**
+ * Same execution path, also returning the bounded stderr tail. Filters such as
+ * `loudnorm` report their measurement there instead of on stdout.
+ */
+export async function runMediaToolWithDiagnostics(
+  name: "ffmpeg" | "ffprobe",
+  args: string[],
+  timeout = 60_000,
+  limit = 16 * 1024 * 1024,
+): Promise<{ output: Buffer; diagnostics: string }> {
   if (mediaShuttingDown) throw new Error("应用正在关闭。");
   const executable = await findMediaTool(name);
   if (mediaShuttingDown) throw new Error("应用正在关闭。");
@@ -97,7 +110,7 @@ export async function runMediaTool(
           failure ??
             new Error(`${name} 执行失败：${diagnostic.trim() || code}`),
         );
-      else resolve(Buffer.concat(output));
+      else resolve({ output: Buffer.concat(output), diagnostics: diagnostic });
     });
   });
 }

@@ -18,6 +18,7 @@ const appPath=process.env.REACUT_TEST_APP;
 const env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));
 env.REACUT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;
 if(appPath){env.PATH='';delete env.REACUT_FFMPEG;delete env.REACUT_FFPROBE;}
+env.REACUT_LOCALE = "zh";
 const app=await electron.launch({...appPath?{executablePath:path.join(path.resolve(appPath),'Contents/MacOS/ReaCut'),args:[projectFile],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),projectFile]},env});
 const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 try {
