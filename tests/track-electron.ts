@@ -208,7 +208,7 @@ try {
   await mkdir(path.join(root, "docs", "screenshots"), { recursive: true });
   const finalGeometry = await verifyEditorViewport(page);
   await page.screenshot({
-    path: path.join(root, "docs", "screenshots", "electron-track-tools.png"),
+    path: path.join(output, "electron-track-tools.png"),
   });
   const evidence = {
     passedAt: new Date().toISOString(),

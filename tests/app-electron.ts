@@ -347,7 +347,7 @@ try {
   await mkdir(path.join(root, "docs", "screenshots"), { recursive: true });
   await verifyEditorViewport(page);
   await page.screenshot({
-    path: path.join(root, "docs", "screenshots", "electron-export.png"),
+    path: path.join(output, "electron-export.png"),
     // Public evidence must not expose the workstation username or local output path.
     mask: [page.getByLabel("导出位置", { exact: true })],
     maskColor: "#262626",
@@ -365,7 +365,7 @@ try {
   await verifyThumbnails();
   const finalGeometry = await verifyEditorViewport(page);
   await page.screenshot({
-    path: path.join(root, "docs", "screenshots", "electron-editor.png"),
+    path: path.join(output, "electron-editor.png"),
   });
   const evidence = {
     passedAt: new Date().toISOString(),
