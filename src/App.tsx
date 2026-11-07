@@ -21,6 +21,7 @@ import {
   Settings2,
   Sparkles,
   Subtitles,
+  LayoutTemplate,
   Type,
   Upload,
   Video,
@@ -49,6 +50,7 @@ import type {
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
 import { importCapcutDraft } from "./core/capcutImport";
 import SubtitlePanel from "./components/SubtitlePanel";
+import TemplatesLibrary from "./components/TemplatesLibrary";
 import type { PlacementMode } from "./core/placement";
 import AudioTools from "./components/AudioTools";
 import PackageDialog from "./components/PackageDialog";
@@ -1352,6 +1354,7 @@ export default function App() {
               ["特效", WandSparkles],
               ["转场", Sparkles],
               ["字幕", Subtitles],
+              ["模板", LayoutTemplate],
             ].map(([label, Icon]) => (
               <button
                 key={label as string}
@@ -1374,6 +1377,7 @@ export default function App() {
             )}
             {tab === "文本" && <TextLibrary onAdd={addStyledText} onBlank={s.addText} />}
             {tab === "字幕" && <SubtitlePanel onImport={() => safe(readSubtitles)} onExport={() => safe(exportSubtitles)} />}
+            {tab === "模板" && <TemplatesLibrary />}
             {tab === "特效" && (
               <EffectsPanel
                 clip={active}

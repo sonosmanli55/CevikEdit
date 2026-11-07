@@ -1497,6 +1497,7 @@ export const tr: Record<string, string> = {
 
   // ------------------------------------------------- Creative library details
   "文字模板": "Metin şablonları",
+  "模板": "Şablonlar",
   "添加文本": "Metin ekle",
   "添加到播放头位置；内容、字体、描边、行高、圆角和动画均可编辑。":
     "Oynatma başlığı konumuna ekler; içerik, yazı tipi, kontur, satır yüksekliği, köşe yuvarlaklığı ve animasyon düzenlenebilir.",

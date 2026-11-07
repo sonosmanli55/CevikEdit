@@ -65,6 +65,7 @@ renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程
 - subtitleEdits 是纯计划/应用层，字幕面板提交整项目原子修改；提案绑定创建时状态，避免覆盖随后编辑。拆分/合并、可编辑样式和统一动画都走同一计划路径：拆分复用 `splitClip` 并检查两侧至少一帧，合并只接受同轨连续且相接/重叠的条目，动画由 `textAnimation` 生成现有淡化与 x/y/缩放/透明度关键帧，预览和导出共用 `evaluateFade`/`evaluateKeyframes`。
 - placement 定义源区间入轨方式：追加取轨道末尾，插入在播放头处切开跨点片段并右移后续片段，覆盖按两端切分后裁掉占用区间；结果作为整个工程一次提交。`Clip.linkId` 关联分离出的音视频，store 的移动、裁剪、分割、删除、复制/粘贴与重复按 linkId 展开，解除关联只移除该字段。
 - audioMix 是纯计划层：`loudnorm` 的 stderr 汇总由主进程解析，增益与真峰值钳制、语音/音乐阈值与音量关键帧包络都在核心计算；写入沿用普通片段音量字段，因此预览与导出无需新的音频路径。
+- templates 定义 `.reacut-template`：模板工程只保存 `template://media/<slot>` 占位与槽位清单，保存时丢弃未使用素材和缓存，实例化时重建全部 ID、把媒体重置到源 0 并按可用长度裁剪；`electron/templates.ts` 负责原子读写与逐文件校验，损坏文件只产生警告。
 - timelineView 把时间线的比例、光标锚定缩放、可见区间、适配比例与平移边界做成纯函数；Timeline 只负责读取滚动容器并把结果同步回状态。缩放和平移属于视图状态，不进入工程或撤销栈。
 - portableProject 定义版本化 reacut-portable 封装。仅接受受限 media/UUID.ext 相对路径，解析时校验 realpath 边界；绝对媒体路径仍经现有授权协议提供给 renderer。流式复制到临时文件夹，失败/取消清理，完成后 rename；保存保留相对引用。首次 SHA-256 清单是历史记录。
 - exportRange 校验时间边界和一帧下限；合成保留原时间轴，最终 trim/atrim 并重置时间戳，保持动画和淡化相位。完全在区间外的素材不进入渲染输入。

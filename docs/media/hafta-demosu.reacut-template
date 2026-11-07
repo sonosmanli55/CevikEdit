@@ -1,0 +1,1126 @@
+{
+  "format": "reacut-template",
+  "version": 1,
+  "id": "52edc903-3de8-466a-9202-b4952e4a393b",
+  "name": "Hafta demosu",
+  "description": "Otuz saniyelik gösterim projesi; medya ve metin yer tutucularıyla.",
+  "cover": "",
+  "createdAt": "2026-11-07T23:16:04.582Z",
+  "project": {
+    "version": 1,
+    "id": "3dfd6062-3e7f-4cf2-8fe7-d768efd55ee5",
+    "name": "ReaCut · hafta demosu",
+    "width": 1280,
+    "height": 720,
+    "fps": 30,
+    "background": "#0b1016",
+    "assets": [
+      {
+        "id": "8f37ccb7-2a41-4a59-bef5-03ff74487878",
+        "name": "sahne-1.png",
+        "path": "template://media/m1",
+        "url": "template://media/m1",
+        "kind": "image",
+        "duration": 0,
+        "width": 1280,
+        "height": 720,
+        "fps": 0,
+        "hasAudio": false,
+        "missing": false
+      },
+      {
+        "id": "bf1e7c06-d398-4856-a04a-340e983e5872",
+        "name": "sahne-2.png",
+        "path": "template://media/m2",
+        "url": "template://media/m2",
+        "kind": "image",
+        "duration": 0,
+        "width": 1280,
+        "height": 720,
+        "fps": 0,
+        "hasAudio": false,
+        "missing": false
+      },
+      {
+        "id": "bb9d0d82-34f9-4d63-8890-8277ddc1e9a6",
+        "name": "sahne-3.png",
+        "path": "template://media/m3",
+        "url": "template://media/m3",
+        "kind": "image",
+        "duration": 0,
+        "width": 1280,
+        "height": 720,
+        "fps": 0,
+        "hasAudio": false,
+        "missing": false
+      },
+      {
+        "id": "ad7c0d48-c05b-4fa0-9a84-7d14cffe6e2c",
+        "name": "anlati.wav",
+        "path": "template://media/m4",
+        "url": "template://media/m4",
+        "kind": "audio",
+        "duration": 30,
+        "width": 0,
+        "height": 0,
+        "fps": 0,
+        "hasAudio": true,
+        "missing": false
+      },
+      {
+        "id": "e048afcf-c846-4995-85bc-3abdf4534e96",
+        "name": "muzik.wav",
+        "path": "template://media/m5",
+        "url": "template://media/m5",
+        "kind": "audio",
+        "duration": 30,
+        "width": 0,
+        "height": 0,
+        "fps": 0,
+        "hasAudio": true,
+        "missing": false
+      }
+    ],
+    "tracks": [
+      {
+        "id": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "kind": "text",
+        "name": "Altyazılar",
+        "muted": false,
+        "hidden": false,
+        "locked": false
+      },
+      {
+        "id": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "kind": "text",
+        "name": "Başlıklar",
+        "muted": false,
+        "hidden": false,
+        "locked": false
+      },
+      {
+        "id": "51f251c2-3526-4c65-99f6-f963941f6ddf",
+        "kind": "video",
+        "name": "视频 1",
+        "muted": false,
+        "hidden": false,
+        "locked": false
+      },
+      {
+        "id": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
+        "kind": "audio",
+        "name": "音频 1",
+        "muted": false,
+        "hidden": false,
+        "locked": false
+      }
+    ],
+    "clips": [
+      {
+        "id": "6ab5b714-ce49-4bc6-bcf1-06b279ea0a8f",
+        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "name": "ReaCut",
+        "start": 0.5,
+        "duration": 3.6,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": -140,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "ReaCut",
+          "fontSize": 132,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.25,
+          "radius": 0,
+          "shadow": {
+            "color": "#000000",
+            "blur": 22,
+            "offsetX": 0,
+            "offsetY": 6
+          }
+        },
+        "fadeIn": 0.6,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "0a9030fc-d53a-423a-bd5c-44fdfcaeb1c4",
+            "time": 0,
+            "property": "y",
+            "value": -27.6,
+            "easing": "linear"
+          },
+          {
+            "id": "9ca74682-b7af-4960-9629-bfee342277bd",
+            "time": 0.8,
+            "property": "y",
+            "value": -60,
+            "easing": "easeOut"
+          }
+        ]
+      },
+      {
+        "id": "95fc0432-dc26-46c1-bdb2-9e0aa92958b8",
+        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
+        "assetId": "8f37ccb7-2a41-4a59-bef5-03ff74487878",
+        "name": "Sabah ışığı",
+        "start": 0,
+        "duration": 8,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0.01,
+          "contrast": 1.05,
+          "saturation": 0.97,
+          "temperature": 0.06,
+          "blur": 0
+        },
+        "fadeIn": 0.7,
+        "fadeOut": 0.3,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "87c72a98-2bb7-4c5a-a5ec-416e197dbe76",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "b9ebecaa-d1df-470a-afd2-e5b3a707775e",
+            "time": 8,
+            "property": "scale",
+            "value": 1.07,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "ce8aa296-ede2-4338-9230-b85826c2eace",
+        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "name": "Sabah ışığı",
+        "start": 0.2,
+        "duration": 4.4,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": -180,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Sabah ışığı",
+          "fontSize": 74,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.3,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": []
+      },
+      {
+        "id": "dcfd274e-5476-420a-926f-3fe397adc3f5",
+        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
+        "assetId": "bf1e7c06-d398-4856-a04a-340e983e5872",
+        "name": "Açık su",
+        "start": 8,
+        "duration": 8,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0.01,
+          "contrast": 1.05,
+          "saturation": 0.97,
+          "temperature": -0.03,
+          "blur": 0
+        },
+        "fadeIn": 0.3,
+        "fadeOut": 0.3,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "2c28eee6-556f-4dfb-b073-20c7588b77cd",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "9d316a83-14d7-4179-899e-9715e3262194",
+            "time": 8,
+            "property": "scale",
+            "value": 1.07,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "9790ea00-33f8-4997-adf6-fed813047d5a",
+        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "name": "Açık su",
+        "start": 8.2,
+        "duration": 4.4,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": -180,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Açık su",
+          "fontSize": 74,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.3,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": []
+      },
+      {
+        "id": "e50cf2ec-d890-44f2-a33f-91413af22e7c",
+        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
+        "assetId": "bb9d0d82-34f9-4d63-8890-8277ddc1e9a6",
+        "name": "Gün batımı",
+        "start": 16,
+        "duration": 14,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0.01,
+          "contrast": 1.05,
+          "saturation": 0.97,
+          "temperature": -0.05,
+          "blur": 0
+        },
+        "fadeIn": 0.3,
+        "fadeOut": 0.3,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "a8517f1b-f955-42f5-ad13-f70d7a0ee3af",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "57a8af9d-59ac-4ef3-850e-a69b3d6a2196",
+            "time": 14,
+            "property": "scale",
+            "value": 1.07,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "efc60a76-7b70-4675-971f-7b9a16dd686f",
+        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "name": "Gün batımı",
+        "start": 16.2,
+        "duration": 4.4,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": -180,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Gün batımı",
+          "fontSize": 74,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.3,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": []
+      },
+      {
+        "id": "486c1ab9-2a73-4125-86f0-be61ea951942",
+        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "name": "Her şey bu bilgisayarda kalır",
+        "start": 1.2,
+        "duration": 4,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 280,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Her şey bu bilgisayarda kalır",
+          "fontSize": 40,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.34,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "a6fe3e46-d8ed-4d60-a5ae-c23b7f928300",
+            "time": 0,
+            "property": "y",
+            "value": 323.2,
+            "easing": "linear"
+          },
+          {
+            "id": "81460e4c-a1ef-4009-9a21-77329f0c6535",
+            "time": 0.5,
+            "property": "y",
+            "value": 280,
+            "easing": "easeOut"
+          },
+          {
+            "id": "5840bc8d-db7c-4240-8ac3-087299c91cec",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "3b059ea0-c56d-4700-8167-967ef4ecbd7b",
+            "time": 2.033333333333333,
+            "property": "scale",
+            "value": 1.04,
+            "easing": "easeInOut"
+          },
+          {
+            "id": "4403dded-2c8f-425c-9532-b2406adeca2c",
+            "time": 3.6,
+            "property": "scale",
+            "value": 1,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "502107f8-5e78-43c6-9e27-6351d99281c9",
+        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "name": "Kes, böl,\nyerleştir",
+        "start": 8.4,
+        "duration": 5,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 280,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Kes, böl,\nyerleştir",
+          "fontSize": 40,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.34,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "5da94540-8abf-4142-aec6-cfb4b8e23c07",
+            "time": 0,
+            "property": "y",
+            "value": 323.2,
+            "easing": "linear"
+          },
+          {
+            "id": "61d5187a-3923-41d1-a8b8-9fd3a9636853",
+            "time": 0.5,
+            "property": "y",
+            "value": 280,
+            "easing": "easeOut",
+            "easingWindow": {
+              "start": 0.5,
+              "end": 1
+            }
+          },
+          {
+            "id": "ea0bcf96-7d95-4e1f-8c53-43f267c83545",
+            "time": 2.5,
+            "property": "y",
+            "value": 280,
+            "easing": "linear"
+          },
+          {
+            "id": "da341e56-1ed0-42e1-8905-f670e1be2475",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "40bf805e-c794-495e-b114-c37617642b2f",
+            "time": 2.5,
+            "property": "scale",
+            "value": 1.0399204438671465,
+            "easing": "easeInOut",
+            "easingWindow": {
+              "start": 0,
+              "end": 0.9740259740259739
+            }
+          }
+        ]
+      },
+      {
+        "id": "d76873a7-dcee-4dca-93d8-a66710acfd83",
+        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "name": "Anahtar karelerle hareket",
+        "start": 15.6,
+        "duration": 4.799999999999999,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 280,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Anahtar karelerle hareket",
+          "fontSize": 40,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.34,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "07620cea-42b6-44c6-a0e2-3fbf6d57dce6",
+            "time": 0,
+            "property": "y",
+            "value": 323.2,
+            "easing": "linear"
+          },
+          {
+            "id": "46b84c88-a748-4a54-8533-34dda11a8faf",
+            "time": 0.5,
+            "property": "y",
+            "value": 280,
+            "easing": "easeOut"
+          },
+          {
+            "id": "32b1279f-01b4-4e1d-afd4-8768e25d61d6",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "c610f064-f2b3-428a-8a8c-4455b3cc2902",
+            "time": 2.433333333333333,
+            "property": "scale",
+            "value": 1.04,
+            "easing": "easeInOut"
+          },
+          {
+            "id": "90874894-0c73-4f97-b78c-7d66776c30a1",
+            "time": 4.4,
+            "property": "scale",
+            "value": 1,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "3b721dec-4e0f-47ff-bed2-4f8afe12c4a6",
+        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "name": "Konuşurken müzik kısılır",
+        "start": 21.6,
+        "duration": 4.399999999999999,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 280,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Konuşurken müzik kısılır",
+          "fontSize": 40,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.34,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "f412179b-85e1-4988-8bae-2ea2dcba324e",
+            "time": 0,
+            "property": "y",
+            "value": 323.2,
+            "easing": "linear"
+          },
+          {
+            "id": "eefacc21-5c23-49b5-b8e7-c736a69be440",
+            "time": 0.5,
+            "property": "y",
+            "value": 280,
+            "easing": "easeOut"
+          },
+          {
+            "id": "f09921db-e481-478a-a9d7-6685482f0371",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "f6f665ba-c14e-4821-b98b-f71f142880d4",
+            "time": 2.2333333333333334,
+            "property": "scale",
+            "value": 1.04,
+            "easing": "easeInOut"
+          },
+          {
+            "id": "0b04d9bf-9a23-46f8-9be9-e5cd2e5ef612",
+            "time": 4,
+            "property": "scale",
+            "value": 1,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "44ba2750-5bf2-4538-8ba4-cedd23d0d05c",
+        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "name": "Şablonla saniyeler içinde başla",
+        "start": 26.4,
+        "duration": 3.6000000000000014,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 280,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "text": {
+          "text": "Şablonla saniyeler içinde başla",
+          "fontSize": 40,
+          "fontFamily": "Noto Sans SC",
+          "color": "#ffffff",
+          "background": "transparent",
+          "align": "center",
+          "bold": true,
+          "stroke": "#000000",
+          "strokeWidth": 0,
+          "lineHeight": 1.3,
+          "padding": 0.34,
+          "radius": 0.4,
+          "shadow": {
+            "color": "#00000099",
+            "blur": 18,
+            "offsetX": 0,
+            "offsetY": 4
+          }
+        },
+        "fadeIn": 0.5,
+        "fadeOut": 0.4,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": [
+          {
+            "id": "0560719f-b9ef-4eb9-83de-9c715b824175",
+            "time": 0,
+            "property": "y",
+            "value": 323.2,
+            "easing": "linear"
+          },
+          {
+            "id": "8711ef7c-317f-4486-9912-e87ebe4b0b99",
+            "time": 0.5,
+            "property": "y",
+            "value": 280,
+            "easing": "easeOut"
+          },
+          {
+            "id": "d984fc4f-9ceb-463d-9187-be15f8793907",
+            "time": 0,
+            "property": "scale",
+            "value": 1,
+            "easing": "linear"
+          },
+          {
+            "id": "c103a42c-4c90-4309-9917-5ed844b874c2",
+            "time": 1.8666666666666667,
+            "property": "scale",
+            "value": 1.04,
+            "easing": "easeInOut"
+          },
+          {
+            "id": "9f45681f-5edb-4d8f-9552-8f05a15dbb3c",
+            "time": 3.2,
+            "property": "scale",
+            "value": 1,
+            "easing": "easeInOut"
+          }
+        ]
+      },
+      {
+        "id": "3c703dbf-a6c2-4ea2-b2b4-ddbddec94af1",
+        "trackId": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
+        "assetId": "ad7c0d48-c05b-4fa0-9a84-7d14cffe6e2c",
+        "name": "anlatı",
+        "start": 0,
+        "duration": 30,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 0.9,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "fadeIn": 0,
+        "fadeOut": 0,
+        "audioFadeIn": 0,
+        "audioFadeOut": 0,
+        "keyframes": []
+      },
+      {
+        "id": "0d62a4f5-64bb-42ca-95d8-030b127bd42f",
+        "trackId": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
+        "assetId": "e048afcf-c846-4995-85bc-3abdf4534e96",
+        "name": "müzik",
+        "start": 0,
+        "duration": 30,
+        "sourceIn": 0,
+        "speed": 1,
+        "volume": 1.4287952716874737,
+        "muted": false,
+        "transform": {
+          "x": 0,
+          "y": 0,
+          "scale": 1,
+          "rotation": 0,
+          "opacity": 1,
+          "flipX": false,
+          "flipY": false
+        },
+        "adjustments": {
+          "brightness": 0,
+          "contrast": 1,
+          "saturation": 1,
+          "temperature": 0,
+          "blur": 0
+        },
+        "fadeIn": 0,
+        "fadeOut": 0,
+        "audioFadeIn": 1,
+        "audioFadeOut": 1.6,
+        "keyframes": [
+          {
+            "id": "7ffdc499-3df9-4be8-bd4c-9b7f7f602862",
+            "time": 0,
+            "property": "volume",
+            "value": 0.4026892205995334,
+            "easing": "linear"
+          },
+          {
+            "id": "ef2dc36b-33e8-4355-95fe-9e7133060c63",
+            "time": 30,
+            "property": "volume",
+            "value": 0.4026892205995334,
+            "easing": "linear"
+          }
+        ]
+      }
+    ],
+    "createdAt": "2026-11-07T23:16:03.939Z",
+    "updatedAt": "2026-11-07T23:16:03.939Z"
+  },
+  "media": [
+    {
+      "key": "m1",
+      "label": "sahne-1.png",
+      "kind": "image",
+      "start": 0,
+      "duration": 8,
+      "optional": true
+    },
+    {
+      "key": "m2",
+      "label": "sahne-2.png",
+      "kind": "image",
+      "start": 8,
+      "duration": 8,
+      "optional": true
+    },
+    {
+      "key": "m3",
+      "label": "sahne-3.png",
+      "kind": "image",
+      "start": 16,
+      "duration": 14,
+      "optional": true
+    },
+    {
+      "key": "m4",
+      "label": "anlati.wav",
+      "kind": "audio",
+      "start": 0,
+      "duration": 30,
+      "optional": true
+    },
+    {
+      "key": "m5",
+      "label": "muzik.wav",
+      "kind": "audio",
+      "start": 0,
+      "duration": 30,
+      "optional": true
+    }
+  ],
+  "texts": [
+    {
+      "key": "6ab5b714-ce49-4bc6-bcf1-06b279ea0a8f",
+      "label": "Metin 1",
+      "text": "ReaCut",
+      "start": 0.5,
+      "duration": 3.6
+    },
+    {
+      "key": "ce8aa296-ede2-4338-9230-b85826c2eace",
+      "label": "Metin 2",
+      "text": "Sabah ışığı",
+      "start": 0.2,
+      "duration": 4.4
+    },
+    {
+      "key": "9790ea00-33f8-4997-adf6-fed813047d5a",
+      "label": "Metin 3",
+      "text": "Açık su",
+      "start": 8.2,
+      "duration": 4.4
+    },
+    {
+      "key": "efc60a76-7b70-4675-971f-7b9a16dd686f",
+      "label": "Metin 4",
+      "text": "Gün batımı",
+      "start": 16.2,
+      "duration": 4.4
+    },
+    {
+      "key": "486c1ab9-2a73-4125-86f0-be61ea951942",
+      "label": "Metin 5",
+      "text": "Her şey bu bilgisayarda kalır",
+      "start": 1.2,
+      "duration": 4
+    },
+    {
+      "key": "502107f8-5e78-43c6-9e27-6351d99281c9",
+      "label": "Metin 6",
+      "text": "Kes, böl,\nyerleştir",
+      "start": 8.4,
+      "duration": 5
+    },
+    {
+      "key": "d76873a7-dcee-4dca-93d8-a66710acfd83",
+      "label": "Metin 7",
+      "text": "Anahtar karelerle hareket",
+      "start": 15.6,
+      "duration": 4.799999999999999
+    },
+    {
+      "key": "3b721dec-4e0f-47ff-bed2-4f8afe12c4a6",
+      "label": "Metin 8",
+      "text": "Konuşurken müzik kısılır",
+      "start": 21.6,
+      "duration": 4.399999999999999
+    },
+    {
+      "key": "44ba2750-5bf2-4538-8ba4-cedd23d0d05c",
+      "label": "Metin 9",
+      "text": "Şablonla saniyeler içinde başla",
+      "start": 26.4,
+      "duration": 3.6000000000000014
+    }
+  ]
+}

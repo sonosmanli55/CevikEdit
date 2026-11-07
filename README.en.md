@@ -20,7 +20,7 @@ ReaCut brings media management, multitrack editing, subtitles and video export i
 
 The project uses [REA](https://github.com/morluto/rea) to study Jianying's interface behavior and local project formats, then independently implements an editor with Electron, React, TypeScript and FFmpeg. REA supports development research; REA, Ghidra and Jianying are not runtime dependencies.
 
-> **Current source: v0.5.1, early development.** Includes the lazy plugin startup fix; packages for this version have not been published yet. macOS Apple Silicon is verified. Windows / Linux build configurations are available but await testing on those platforms. Published packages are available in the [v0.5.0 preview release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0), or follow the source instructions below. See the [weekly feature plan (中文)](docs/WEEKLY_TODO.md) for upcoming work.
+> **Current source: v0.6.0 release candidate, early development.** This week adds reusable templates, timeline insert/overwrite placement with linked audio, free timeline zoom/pan, subtitle split/merge with text animation, local loudness measurement and automatic music ducking. The interface ships in Turkish only. A Windows x64 NSIS candidate was built and launched on this machine; the macOS package has not been rebuilt with this week's work, and Linux is unverified. Published packages remain in the [v0.5.0 preview release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0), or follow the source instructions below. A 30-second showcase is in [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); per-feature evidence is in [docs/VALIDATION.md](docs/VALIDATION.md) (Chinese).
 
 ## Features
 

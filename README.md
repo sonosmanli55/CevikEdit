@@ -20,7 +20,7 @@ ReaCut 将素材管理、多轨剪辑、字幕和视频导出放在一个熟悉�
 
 项目使用 [REA](https://github.com/morluto/rea) 辅助研究剪映的界面行为和本地项目格式，再以 Electron、React、TypeScript 和 FFmpeg 独立实现编辑器。REA 是开发研究工具，运行 ReaCut 不需要安装 REA、Ghidra 或剪映。
 
-> **当前源码：v0.5.1，早期开发中。** 包含插件按需启动修复；此版本安装包尚未发布。macOS Apple Silicon 已验证；Windows / Linux 已提供构建配置，尚待实机验证。已发布的安装包见 [v0.5.0 预览版 Release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0)，也可按下方步骤从源码运行。下一阶段计划见 [本周功能计划](docs/WEEKLY_TODO.md)。
+> **当前源码：v0.6.0 候选，早期开发中。** 本周新增可复用模板、时间线插入/覆盖与关联音频、自由缩放平移、字幕拆分/合并与文字动画、本地响度与自动压低音乐，界面仅提供土耳其语。已在本机构建并启动 Windows x64 NSIS 候选包；macOS 包尚未随本周功能重新构建，Linux 未验证。已发布的安装包仍见 [v0.5.0 预览版 Release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0)，也可按下方步骤从源码运行。30 秒演示见 [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4)，逐项证据见 [本机验证记录](docs/VALIDATION.md)。
 
 ## 核心功能
 

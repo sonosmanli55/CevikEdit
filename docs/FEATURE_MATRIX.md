@@ -12,6 +12,7 @@
 | 对白自动压低音乐 | limited | 用户显式选择语音/音乐片段，按语音区间生成音量关键帧包络，可调压低量与过渡时长，预览/导出共用求值；按片段区间而非内容检测停顿，会替换音乐原有音量关键帧 |
 | 本地 Whisper 自动字幕 | limited | 选择时间线音视频片段，FFmpeg 提取 16 kHz 单声道音频，调用本地 whisper.cpp + GGML 模型；JSON/SRT 解析、噪声清理、长句拆分、变速/区间/帧对齐与一次撤销；不上传、不自动下载程序或模型；只支持 whisper.cpp，真实识别与真实音频提取尚未在开发机验收，见 TRANSCRIPTION.md |
 | 可搬移项目素材包 | supported | 去重复制、相对路径、搬移后保存、新增媒体收集、取消与缺失素材处理；包内为 `proje.reacut`、`KULLANIM.txt` 与 `media/`，文件夹名与说明为土耳其语；系统字体需另装 |
+| 可复用模板与批量替换 | supported | 工程保存为模板（媒体转占位、丢弃未使用素材与缓存）、从模板新建并一次替换全部媒体与文案、新增媒体按可用长度裁短并裁剪关键帧、可选占位缺失只警告；模板导出/导入 `.reacut-template`，导入前拒绝本机路径/越界占位/重复键/超大封面；3 套自主生成内置模板；见 VALIDATION.md 与 `docs/media/` |
 | 自定义 / 选中时间区间导出 | supported | 保留区间内全部可见图层与声音；像素、RMS、逐帧边界和 UI 验证 |
 | 视频、音频、图片导入 | supported | FFprobe 检测；真实素材、Unicode 路径、缩略图、波形测试 |
 | 本地预览代理 | supported | H.264 4:4:4、不兼容视频/音频容器代理测试；具体编码依赖本机 FFmpeg |
@@ -47,7 +48,7 @@
 | 剪映基础片段与画布转换 | limited | 微秒时间、基础速度、音量和静态变换映射；缺失画布由首个可导入视觉片段推断并警告。位移几何仅有受控预览近似证据，尚无原生导出逐像素保真证明 |
 | 剪映文字、复杂效果及写回 | limited | 文字仅保留内容，使用自己的默认字体/样式；复杂关键帧、效果和转场不保真。只读导入，不实现剪映格式写回 |
 | macOS 桌面 | supported | arm64 本机开发构建、visual 实际导出与最终 DMG 内 app 工作流均通过 |
-| Windows / Linux | limited | 跨平台代码及构建目标；尚未在对应系统验证 |
+| Windows / Linux | limited | Windows x64 已在本机构建 0.6.0 NSIS 候选包并启动打包后的 `ReaCut.exe` 验证模板、保存、导出（1920×1080 H.264）；Linux 仍只有构建目标未实机验证 |
 | 浏览器完整视频编辑器 | limited | 预览与基础交互；缺少桌面文件操作及本地导出桥接 |
 | 账号、云项目、SaaS | unused | 没有服务端与云同步 |
 | 直接 API AI、云端语音识别、人物抠像 | unused | 自动字幕改用本地 whisper.cpp，见 TRANSCRIPTION.md；未接入云端 API 或人物 AI 抠像 |
@@ -56,7 +57,7 @@
 | 原创离线素材 | supported | 64 款原创 PNG / WAV，SVG 源与 MIT 许可；分类、搜索、试听、添加 |
 | HDR、专业颜色管理、曲线变速 | unused | 本期无完整实现 |
 | 商业素材、贴纸、付费模板、专业转场库 | unused | 不复制或分发剪映资源 |
-| macOS .app / DMG / ZIP 打包 | supported | 最终镜像/ZIP/ad-hoc 签名校验、DMG复制app与原包ASAR一致、独立cwd字体/预览/九秒真实混音导出通过 |
+| macOS .app / DMG / ZIP 打包 | limited | v0.5.0 时通过镜像/ZIP/ad-hoc 签名校验与 DMG 内 app 导出；**本周功能未重新打包或实机验证 macOS**，本机无 macOS 环境 |
 | 本地 ad-hoc 签名 | supported | macOS identity `-`，严格签名验证通过；不是 Developer ID 签名 |
 | 自动更新、Developer ID、公证 | unused | 未接入更新服务、未配置开发者发行签名/公证 |
 

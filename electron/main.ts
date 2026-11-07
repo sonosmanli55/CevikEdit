@@ -46,6 +46,8 @@ import {
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
 import { measureLoudness, validateLoudnessRequest } from "./loudness";
+import { loadTemplates, readTemplateFile, removeTemplate, writeTemplate } from "./templates";
+import { serializeTemplate } from "../src/core/templates";
 import {
   cancelAllTranscriptions,
   cancelTranscription,
@@ -665,6 +667,39 @@ function registerIPC() {
     const metadata = await stat(request.source);
     if (!metadata.isFile()) throw new Error("所选素材无效");
     return measureLoudness(request);
+  });
+  handle("list-templates", () => loadTemplates(userFile("templates")));
+  handle("save-template", async (input: unknown) => {
+    await writeTemplate(userFile("templates"), input);
+    return loadTemplates(userFile("templates"));
+  });
+  handle("delete-template", async (id: unknown) => {
+    await removeTemplate(userFile("templates"), id);
+    return loadTemplates(userFile("templates"));
+  });
+  handle("import-template", async () => {
+    const result = await dialog.showOpenDialog(window!, {
+      title: tr("Şablon içe aktar"),
+      properties: ["openFile"],
+      filters: [{ name: tr("ReaCut şablonu"), extensions: ["reacut-template"] }],
+    });
+    if (result.canceled || !result.filePaths[0]) return null;
+    const template = await readTemplateFile(result.filePaths[0]);
+    await writeTemplate(userFile("templates"), template);
+    return loadTemplates(userFile("templates"));
+  });
+  handle("export-template", async (id: unknown) => {
+    const store = await loadTemplates(userFile("templates"));
+    const template = store.templates.find((item) => item.id === id);
+    if (!template) throw new Error("Şablon bulunamadı");
+    const result = await dialog.showSaveDialog(window!, {
+      title: tr("Şablonu dışa aktar"),
+      defaultPath: `${template.name}.reacut-template`,
+      filters: [{ name: tr("ReaCut şablonu"), extensions: ["reacut-template"] }],
+    });
+    if (result.canceled || !result.filePath) return null;
+    await writeFile(result.filePath, serializeTemplate(template), "utf8");
+    return result.filePath;
   });
   handle("relink-asset", async (asset: MediaAsset) => {
     const result = await dialog.showOpenDialog(window!, {

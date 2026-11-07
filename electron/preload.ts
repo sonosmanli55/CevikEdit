@@ -38,6 +38,11 @@ const api: EditorAPI = {
   },
   freezeFrame: (request) => ipcRenderer.invoke("freeze-frame", request),
   analyzeLoudness: (request) => ipcRenderer.invoke("analyze-loudness", request),
+  listTemplates: () => ipcRenderer.invoke("list-templates"),
+  saveTemplate: (template) => ipcRenderer.invoke("save-template", template),
+  deleteTemplate: (id) => ipcRenderer.invoke("delete-template", id),
+  importTemplate: () => ipcRenderer.invoke("import-template"),
+  exportTemplate: (id) => ipcRenderer.invoke("export-template", id),
   getStartupProject: () => ipcRenderer.invoke("get-startup-project"),
   openProject: () => ipcRenderer.invoke("open-project"),
   saveProject: (project, path) =>

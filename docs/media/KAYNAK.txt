@@ -1,0 +1,1 @@
+Bu video scripts/generate-showcase.ts tarafından üretildi. Tüm görseller, altyazılar ve sesler bu betikte sentezlenmiştir; indirilmiş veya üçüncü tarafa ait medya yoktur. Üretici kaynak ve çıktılar MIT lisanslıdır.

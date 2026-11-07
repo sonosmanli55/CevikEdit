@@ -1,5 +1,6 @@
 import type { AssistantEvent, AssistantMessage, AssistantProvider, AssistantProviderInfo, AssistantRequest } from "./assistantTypes";
 import type { Subtitle } from "./subtitles";
+import type { ReacutTemplate } from "./templates";
 export type MediaKind = "video" | "audio" | "image";
 export type TrackKind = MediaKind | "text";
 export interface MediaAsset {
@@ -283,6 +284,26 @@ export interface CapcutImportSelection {
   requiresTimelineChoice: boolean;
   warnings: string[];
 }
+export interface TemplateSummary {
+  id: string;
+  name: string;
+  description: string;
+  cover: string;
+  createdAt: string;
+  width: number;
+  height: number;
+  fps: number;
+  duration: number;
+  mediaCount: number;
+  textCount: number;
+  builtin: boolean;
+}
+
+export interface TemplateStore {
+  templates: ReacutTemplate[];
+  warnings: string[];
+}
+
 export interface EditorAPI {
   packageProject: (project: Project) => Promise<{ jobId: string } | null>;
   cancelPackage: (jobId: string) => Promise<void>;
@@ -302,6 +323,11 @@ export interface EditorAPI {
   cancelReverse: (jobId: string) => Promise<void>;
   onReverseProgress: (callback: (event: ReverseProgress) => void) => () => void;
   freezeFrame: (request: FreezeFrameRequest) => Promise<MediaAsset>;
+  listTemplates: () => Promise<TemplateStore>;
+  saveTemplate: (template: ReacutTemplate) => Promise<TemplateStore>;
+  deleteTemplate: (id: string) => Promise<TemplateStore>;
+  importTemplate: () => Promise<TemplateStore | null>;
+  exportTemplate: (id: string) => Promise<string | null>;
   analyzeLoudness: (
     request: LoudnessRequest,
   ) => Promise<LoudnessMeasurement>;
