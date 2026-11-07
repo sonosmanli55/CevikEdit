@@ -1175,6 +1175,202 @@ export const tr: Record<string, string> = {
   "响度测量的时间范围无效": "Ses düzeyi ölçümünün zaman aralığı geçersiz",
   "语音": "konuşma",
 
+  // ------------------------------------------------- Main-process messages
+  "请选择支持的 CLI": "Desteklenen bir CLI seçin",
+  "请求标识": "İstek kimliği",
+  "请求标识无效": "İstek kimliği geçersiz",
+  "消息": "Mesaj",
+  "请先输入消息": "Önce bir mesaj yazın",
+  "项目摘要": "Proje özeti",
+  "项目摘要过长": "Proje özeti çok uzun",
+  "项目摘要不是有效 JSON": "Proje özeti geçerli JSON değil",
+  "项目摘要无效": "Proje özeti geçersiz",
+  "项目摘要层级过深": "Proje özeti çok fazla iç içe",
+  "项目摘要包含本机路径或媒体地址，请移除后重试":
+    "Proje özeti yerel yol veya medya adresi içeriyor; kaldırıp yeniden deneyin",
+  "项目摘要包含不允许发送的字段":
+    "Proje özeti gönderilmesine izin verilmeyen alanlar içeriyor",
+  "对话历史过长": "Sohbet geçmişi çok uzun",
+  "对话角色无效": "Sohbet rolü geçersiz",
+  "历史消息": "Geçmiş mesajı",
+  "助手回复过长": "Asistan yanıtı çok uzun",
+  "CLI 未返回可识别的编辑提案，请换一种方式描述需求":
+    "CLI tanınabilir bir düzenleme önerisi döndürmedi; isteği farklı biçimde anlatın",
+  "助手回复格式无效": "Asistan yanıtının biçimi geçersiz",
+  "助手回复格式无效或提案过多":
+    "Asistan yanıtının biçimi geçersiz veya çok fazla öneri var",
+  "编辑提案格式无效": "Düzenleme önerisinin biçimi geçersiz",
+  "所选脚本的解释器无法在本机启动，请选择原生 .exe":
+    "Seçilen betiğin yorumlayıcısı bu makinede başlatılamıyor; yerel bir .exe seçin",
+  "CLI 检查超时": "CLI denetimi zaman aşımına uğradı",
+  "CLI 检查输出过长": "CLI denetim çıktısı çok uzun",
+  "CLI 检查失败，请确认所选文件": "CLI denetimi başarısız; seçilen dosyayı doğrulayın",
+  "CLI 检查失败": "CLI denetimi başarısız",
+  "CLI 服务拒绝了本次请求；请查看服务提供方的提示或官方支持，不会自动重试。":
+    "CLI hizmeti bu isteği reddetti; sağlayıcının bildirimine veya resmî desteğine bakın. Otomatik yeniden deneme yapılmaz.",
+  "CLI 尚未登录或登录已失效。请在终端正常登录所选 CLI，然后重新发送。":
+    "CLI oturumu açık değil veya süresi doldu. Seçili CLI'ye terminalde normal şekilde giriş yapıp yeniden gönderin.",
+  "CLI 服务用量或额度受限，请在对应服务中确认后再发送。":
+    "CLI hizmet kotası veya kullanım sınırı aşıldı; ilgili hizmette kontrol edip yeniden gönderin.",
+  "CLI 无法连接服务，请检查网络和所选 CLI 的连接设置。":
+    "CLI hizmete bağlanamıyor; ağı ve seçili CLI'nin bağlantı ayarlarını kontrol edin.",
+  "所选 CLI 版本不支持所需隔离选项，请更新 CLI 后再试。":
+    "Seçili CLI sürümü gerekli yalıtım seçeneklerini desteklemiyor; CLI'yi güncelleyip yeniden deneyin.",
+  "所选 CLI 版本不支持所需隔离选项，请更新 CLI 后再试":
+    "Seçili CLI sürümü gerekli yalıtım seçeneklerini desteklemiyor; CLI'yi güncelleyip yeniden deneyin",
+  "CLI 未完成本次请求。请在终端检查所选 CLI 的登录、版本和服务状态。":
+    "CLI bu isteği tamamlayamadı. Terminalde seçili CLI'nin oturumunu, sürümünü ve hizmet durumunu kontrol edin.",
+  "助手回复过长，已停止": "Asistan yanıtı çok uzun; durduruldu",
+  "CLI 返回了无效的事件数据": "CLI geçersiz olay verisi döndürdü",
+  "CLI 尝试使用编辑提案以外的工具，已停止本次请求":
+    "CLI düzenleme önerisi dışında bir araç kullanmaya çalıştı; istek durduruldu",
+  "CLI 输出超出限制，已停止": "CLI çıktısı sınırı aştı; durduruldu",
+  "CLI 未返回完整回复，请确认登录状态后重试":
+    "CLI tam yanıt döndürmedi; oturum durumunu doğrulayıp yeniden deneyin",
+  "助手回复无法解析": "Asistan yanıtı çözümlenemedi",
+  "助手响应超时，已停止本次请求。可以缩短需求后重新发送。":
+    "Asistan yanıtı zaman aşımına uğradı; istek durduruldu. İsteği kısaltıp yeniden gönderin.",
+
+  // CapCut draft reading
+  "剪映草稿需要 JSON 对象": "CapCut taslağı bir JSON nesnesi olmalı",
+  "剪映草稿需要文本输入": "CapCut taslağı metin girişi gerektiriyor",
+  "剪映草稿超过 20 MiB 读取限制": "CapCut taslağı 20 MiB okuma sınırını aşıyor",
+  "剪映草稿是不透明载体，格式未知或长度不足":
+    "CapCut taslağı opak bir taşıyıcı; biçim bilinmiyor veya uzunluk yetersiz",
+  "剪映草稿是不透明载体，嵌入 ASCII 格式无法识别":
+    "CapCut taslağı opak bir taşıyıcı; gömülü ASCII biçimi tanınamadı",
+  "剪映草稿是不透明载体，Base64 格式无法识别":
+    "CapCut taslağı opak bir taşıyıcı; Base64 biçimi tanınamadı",
+  "剪映草稿是不透明载体，Base64 载体不完整或不规范":
+    "CapCut taslağı opak bir taşıyıcı; Base64 taşıyıcısı eksik veya geçersiz",
+  "剪映草稿认证失败，文件可能损坏，或此剪映版本的草稿格式尚不支持":
+    "CapCut taslağı kimlik doğrulaması başarısız; dosya bozuk olabilir veya bu CapCut sürümünün taslak biçimi henüz desteklenmiyor",
+  "剪映草稿解码后的文本不是有效 UTF-8":
+    "CapCut taslağının çözülen metni geçerli UTF-8 değil",
+  "剪映时间线 ID 不是安全的目录名称":
+    "CapCut zaman çizelgesi kimliği güvenli bir klasör adı değil",
+  "剪映项目选择无效": "CapCut proje seçimi geçersiz",
+  "请选择剪映项目的本机绝对路径":
+    "CapCut projesinin yerel tam yolunu seçin",
+  "剪映时间线清单": "CapCut zaman çizelgesi listesi",
+  "剪映项目缺少 timelines 时间线清单":
+    "CapCut projesinde timelines zaman çizelgesi listesi yok",
+  "剪映时间线数量超过导入限制":
+    "CapCut zaman çizelgesi sayısı içe aktarma sınırını aşıyor",
+  "时间线清单版本尚未验证，导入前请核对所选时间线。":
+    "Zaman çizelgesi listesi sürümü henüz doğrulanmadı; içe aktarmadan önce seçili zaman çizelgesini kontrol edin.",
+  "剪映时间线条目不是对象": "CapCut zaman çizelgesi girdisi bir nesne değil",
+  "剪映时间线 ID 重复": "CapCut zaman çizelgesi kimliği yineleniyor",
+  "剪映时间线缺少明确的删除状态":
+    "CapCut zaman çizelgesinde açık bir silinme durumu yok",
+  "剪映时间线名称无效": "CapCut zaman çizelgesi adı geçersiz",
+  "剪映时间线名称过长": "CapCut zaman çizelgesi adı çok uzun",
+  "剪映项目没有可导入的未删除时间线":
+    "CapCut projesinde içe aktarılabilir, silinmemiş zaman çizelgesi yok",
+  "主时间线已删除或不在清单中，请手动选择时间线。":
+    "Ana zaman çizelgesi silinmiş veya listede yok; zaman çizelgesini elle seçin.",
+  "剪映时间线布局": "CapCut zaman çizelgesi düzeni",
+  "活动时间线已删除或不在清单中，请手动选择时间线。":
+    "Etkin zaman çizelgesi silinmiş veya listede yok; zaman çizelgesini elle seçin.",
+  "时间线布局无法验证，已忽略活动时间线提示。":
+    "Zaman çizelgesi düzeni doğrulanamadı; etkin zaman çizelgesi ipucu yok sayıldı.",
+  "所选时间线已删除或不在项目清单中":
+    "Seçili zaman çizelgesi silinmiş veya proje listesinde yok",
+  "该剪映项目有多条时间线，请明确选择要导入的时间线":
+    "Bu CapCut projesinde birden fazla zaman çizelgesi var; içe aktarılacak olanı açıkça seçin",
+  "所选时间线不在可导入清单中":
+    "Seçili zaman çizelgesi içe aktarılabilir listede değil",
+  "剪映草稿路径逃离所选项目目录":
+    "CapCut taslak yolu seçili proje klasörünün dışına çıkıyor",
+  "无法验证剪映草稿缺失路径的项目目录边界":
+    "Eksik CapCut taslak yolunun proje klasörü sınırı doğrulanamadı",
+  "剪映草稿路径层级超过验证限制":
+    "CapCut taslak yolu doğrulama sınırından daha derin",
+  "剪映草稿路径不是普通文件": "CapCut taslak yolu normal bir dosya değil",
+  "剪映草稿文件超过读取大小限制":
+    "CapCut taslak dosyası okuma boyutu sınırını aşıyor",
+  "剪映草稿文件在读取前发生变化，请重试":
+    "CapCut taslak dosyası okumadan önce değişti; yeniden deneyin",
+  "剪映草稿文件在读取期间发生变化，请重试":
+    "CapCut taslak dosyası okuma sırasında değişti; yeniden deneyin",
+  "剪映草稿包含非 UTF-8 字节，当前读取接口尚不支持该载体":
+    "CapCut taslağı UTF-8 olmayan baytlar içeriyor; geçerli okuma arayüzü bu taşıyıcıyı henüz desteklemiyor",
+  "剪映项目路径不是目录": "CapCut proje yolu bir klasör değil",
+  "所选剪映项目目录已发生变化，请重新选择项目":
+    "Seçili CapCut proje klasörü değişti; projeyi yeniden seçin",
+
+  // Export validation
+  "时间线为空，请添加素材再导出。":
+    "Zaman çizelgesi boş; dışa aktarmadan önce medya ekleyin.",
+  "导出格式必须为 MP4 或 MOV。": "Dışa aktarma biçimi MP4 veya MOV olmalı.",
+  "未知导出质量。": "Bilinmeyen dışa aktarma kalitesi.",
+  "帧率必须为 1–120。": "Kare hızı 1–120 arasında olmalı.",
+  "工程画布尺寸无效。": "Proje tuval boyutu geçersiz.",
+  "导出位置必须为绝对路径。": "Dışa aktarma konumu tam yol olmalı.",
+  "导出文件不能覆盖工程的源素材，请选择其他位置。":
+    "Dışa aktarılan dosya projenin kaynak medyasının üzerine yazamaz; başka bir konum seçin.",
+  "裁剪区域必须位于源画面内。": "Kırpma alanı kaynak görüntünün içinde olmalı.",
+  "色度抠像参数无效。": "Kroma key parametreleri geçersiz.",
+  "蒙版参数无效。": "Maske parametreleri geçersiz.",
+  "文字字号或长度超出支持范围。":
+    "Metin boyutu veya uzunluğu desteklenen aralığın dışında.",
+  "文字描边宽度无效。": "Metin kontur genişliği geçersiz.",
+  "关键帧数值": "Anahtar kare değeri",
+  "未知关键帧属性或插值方式。":
+    "Bilinmeyen anahtar kare özelliği veya ara değerleme biçimi.",
+  "关键帧曲线窗口无效。": "Anahtar kare eğri penceresi geçersiz.",
+  "单次导出最长支持 24 小时。": "Tek dışa aktarma en fazla 24 saat destekler.",
+  "文字图层过大，请减少字号或文字长度。":
+    "Metin katmanı çok büyük; yazı boyutunu veya metin uzunluğunu azaltın.",
+  "蒙版素材尺寸过大，请使用较小的源素材。":
+    "Maske medyası çok büyük; daha küçük bir kaynak medya kullanın.",
+
+  // Main process validation
+  "无效项目 ID": "Geçersiz proje kimliği",
+  "对话记录过大": "Sohbet kaydı çok büyük",
+  "对话记录格式无效": "Sohbet kaydı biçimi geçersiz",
+  "剪映项目选择无效，请重新选择项目":
+    "CapCut proje seçimi geçersiz; projeyi yeniden seçin",
+  "项目文件过大（最大 30MB）": "Proje dosyası çok büyük (en fazla 30 MB)",
+  "无效调用来源": "Geçersiz çağrı kaynağı",
+  "未找到内置素材": "Yerleşik medya bulunamadı",
+  "无效助手类型": "Geçersiz asistan türü",
+  "助手正在处理上一条消息": "Asistan önceki mesajı işliyor",
+  "助手请求无效": "Asistan isteği geçersiz",
+  "请提供最多 100 个本地素材的绝对路径":
+    "En fazla 100 yerel medya için tam yol sağlayın",
+  "新素材类型与原素材不一致": "Yeni medya türü özgün medyayla eşleşmiyor",
+  "项目不在最近打开列表": "Proje son açılanlar listesinde değil",
+  "未经选择的项目保存位置": "Seçilmemiş proje kayıt konumu",
+  "项目引用了未经导入的素材": "Proje içe aktarılmamış medyaya başvuruyor",
+  "无效导出格式": "Geçersiz dışa aktarma biçimi",
+  "请先选择导出位置": "Önce dışa aktarma konumunu seçin",
+  "导出引用了未经导入的素材":
+    "Dışa aktarma içe aktarılmamış medyaya başvuruyor",
+  "无效文件类型": "Geçersiz dosya türü",
+  "文件超过 20MB": "Dosya 20 MB sınırını aşıyor",
+  "请选择草稿文件或项目文件夹": "Taslak dosyası veya proje klasörü seçin",
+  "剪映项目选择已失效，请重新选择项目":
+    "CapCut proje seçimi geçersizleşti; projeyi yeniden seçin",
+  "所选时间线正在读取，请稍候": "Seçili zaman çizelgesi okunuyor; bekleyin",
+  "请选择项目中已有的时间线": "Projede var olan bir zaman çizelgesi seçin",
+  "文本内容无效或过大": "Metin içeriği geçersiz veya çok büyük",
+  "未授权的文件位置": "Yetkisiz dosya konumu",
+  "无效工具名": "Geçersiz araç adı",
+
+  // Portability
+  "已取消项目打包": "Proje paketleme iptal edildi",
+  "不支持的素材包版本": "Desteklenmeyen medya paketi sürümü",
+  "素材包目录指向包外位置": "Medya paketi klasörü paket dışını gösteriyor",
+  "素材包包含无效的相对路径": "Medya paketi geçersiz göreli yol içeriyor",
+  "素材包引用了包外文件": "Medya paketi paket dışındaki bir dosyaya başvuruyor",
+  "请选择有效的目标文件夹": "Geçerli bir hedef klasör seçin",
+  "素材在打包期间发生变化，请完成修改后重试":
+    "Medya paketleme sırasında değişti; düzenlemeyi bitirip yeniden deneyin",
+  "素材在保存期间发生变化，请重试":
+    "Medya kaydetme sırasında değişti; yeniden deneyin",
+  "操作失败": "İşlem başarısız",
+
   // -------------------------------------------------------------- Timeline
   "多轨时间线": "Çok kanallı zaman çizelgesi",
   "撤销 · ⌘Z": "Geri al · ⌘Z",

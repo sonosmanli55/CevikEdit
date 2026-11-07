@@ -68,7 +68,7 @@ describe("assistant CLI isolation and protocol", () => {
     expect(invocation.prompt).toContain(input.prompt);
     expect(invocation.args).not.toContain(input.prompt);
     expect(invocation.cwd).not.toBe(process.cwd());
-    expect(path.dirname(invocation.cwd)).toBe(await realpath(folder));
+    expect(await realpath(path.dirname(invocation.cwd))).toBe(await realpath(folder));
     expect((await readdir(folder)).filter(name => name.startsWith("reacut-assistant-"))).toEqual([]);
   });
   it("uses provider tool restrictions without permission bypass", () => {

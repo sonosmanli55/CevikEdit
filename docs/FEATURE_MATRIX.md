@@ -11,7 +11,7 @@
 | 响度分析与归一化 | limited | 主进程 FFmpeg `loudnorm` 测量所选片段源区间，目标 LUFS 与 -1 dBTP 峰值上限写入片段音量与音量关键帧，一次撤销；片段级离线测量，无总线响度或实时电平表 |
 | 对白自动压低音乐 | limited | 用户显式选择语音/音乐片段，按语音区间生成音量关键帧包络，可调压低量与过渡时长，预览/导出共用求值；按片段区间而非内容检测停顿，会替换音乐原有音量关键帧 |
 | 本地 Whisper 自动字幕 | limited | 选择时间线音视频片段，FFmpeg 提取 16 kHz 单声道音频，调用本地 whisper.cpp + GGML 模型；JSON/SRT 解析、噪声清理、长句拆分、变速/区间/帧对齐与一次撤销；不上传、不自动下载程序或模型；只支持 whisper.cpp，真实识别与真实音频提取尚未在开发机验收，见 TRANSCRIPTION.md |
-| 可搬移项目素材包 | supported | 去重复制、相对路径、搬移后保存、新增媒体收集、取消与缺失素材处理；系统字体需另装 |
+| 可搬移项目素材包 | supported | 去重复制、相对路径、搬移后保存、新增媒体收集、取消与缺失素材处理；包内为 `proje.reacut`、`KULLANIM.txt` 与 `media/`，文件夹名与说明为土耳其语；系统字体需另装 |
 | 自定义 / 选中时间区间导出 | supported | 保留区间内全部可见图层与声音；像素、RMS、逐帧边界和 UI 验证 |
 | 视频、音频、图片导入 | supported | FFprobe 检测；真实素材、Unicode 路径、缩略图、波形测试 |
 | 本地预览代理 | supported | H.264 4:4:4、不兼容视频/音频容器代理测试；具体编码依赖本机 FFmpeg |
@@ -51,7 +51,7 @@
 | 账号、云项目、SaaS | unused | 没有服务端与云同步 |
 | 直接 API AI、云端语音识别、人物抠像 | unused | 自动字幕改用本地 whisper.cpp，见 TRANSCRIPTION.md；未接入云端 API 或人物 AI 抠像 |
 | Codex 插件 | limited | 本地 stdio MCP、fullscreen App 画面桥接、鼠标/键盘操作和版本校验编辑；协议、真实编辑器交互及导出已验，Codex 宿主打开留待用户重连后验收；见 CODEX_PLUGIN.md |
-| CLI 剪辑助手 | limited | Codex / Claude Code，项目对话、取消、受限编辑建议与一次撤销；真实 Codex 合成问答通过，Claude 本机需重新登录；见 ASSISTANT.md |
+| CLI 剪辑助手 | limited | Codex / Claude Code，土耳其语对话、取消、受限编辑建议与一次撤销；Windows 支持 shebang 脚本（经解释器启动），不支持 `.cmd/.bat/.ps1`，需选原生 `.exe`；真实 Codex 合成问答通过，Claude 本机需重新登录；见 ASSISTANT.md |
 | 原创离线素材 | supported | 64 款原创 PNG / WAV，SVG 源与 MIT 许可；分类、搜索、试听、添加 |
 | HDR、专业颜色管理、曲线变速 | unused | 本期无完整实现 |
 | 商业素材、贴纸、付费模板、专业转场库 | unused | 不复制或分发剪映资源 |

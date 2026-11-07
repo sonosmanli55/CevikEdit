@@ -18,7 +18,7 @@ const fs=require('node:fs');const args=process.argv.slice(2);
 if(args.includes('--version')){console.log('ReaCut synthetic fixture 1.0');process.exit(0)}
 if(args.includes('--help')){console.log('--ignore-user-config --ephemeral --output-schema --sandbox --tools --strict-mcp-config --setting-sources --no-session-persistence --json-schema');process.exit(0)}
 let prompt='';process.stdin.setEncoding('utf8');process.stdin.on('data',d=>prompt+=d);process.stdin.on('end',()=>{
-const current=prompt.split('本次用户请求：').at(-1);fs.appendFileSync(${JSON.stringify(invocations)},JSON.stringify({args,cwd:process.cwd(),prompt,current,pid:process.pid})+'\\n');
+const current=prompt.includes('Bu istek:')?prompt.split('Bu istek:').at(-1):prompt.split('本次用户请求：').at(-1);fs.appendFileSync(${JSON.stringify(invocations)},JSON.stringify({args,cwd:process.cwd(),prompt,current,pid:process.pid})+'\\n');
 const event=value=>process.stdout.write(JSON.stringify(value)+'\\n');
 if(current.includes('CASE_CANCEL')){setInterval(()=>{},1000);return;}
 const response={reply:args[0]==='exec'?'Codex 合成回复：请确认两项修改。':'Claude 合成回复：请确认两项修改。',actions:[{type:'addText',text:'原创片头·你好映刻',start:0,duration:2,fontSize:32,color:'#ffffff',x:null,y:null},{type:'setProject',name:null,width:null,height:null,fps:null,background:'#172b3c'}]};
@@ -174,5 +174,5 @@ try {
  assert.deepEqual(errors,[]);assert.deepEqual(failedMedia,[]);
  await writeFile(path.join(output,"evidence.json"),JSON.stringify({at:new Date().toISOString(),packaged:!!packaged,emptyPath:!!packaged,checks,pixels,assets:project.assets.map(a=>({name:a.name,kind:a.kind,width:a.width,height:a.height,duration:a.duration})),clips:project.clips.length,sourceHash:createHash("sha256").update(await readFile(fixture)).digest("hex"),mediaTools:bundled,export:{width:640,height:360,duration:Number(exportedMedia.format.duration),rms,mintPixels,backgroundPixels,whitePixels},errors,failedMedia},null,2));
  console.log(`Assistant/assets Electron: ${checks.length} checks passed (packaged=${!!packaged}).`);
-} catch(error) { if(page)await page.screenshot({path:path.join(output,"failure.png")}).catch(()=>{});throw error; }
+} catch(error) { if(page){await page.screenshot({path:path.join(output,"failure.png")}).catch(()=>{});await writeFile(path.join(output,"failure.txt"),await page.locator("body").innerText()).catch(()=>{});}throw error; }
 finally {await app.close();}

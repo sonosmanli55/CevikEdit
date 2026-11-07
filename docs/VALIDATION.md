@@ -1,5 +1,25 @@
 # 本机验证记录
 
+## 跨平台回归与主进程本地化修复（2026-11-07）
+
+此前整套测试长期保留 15 项失败，均被当作“环境问题”记录。本次逐项定位后发现其中 4 项是测试自身只适用于 macOS，**1 项是真实产品缺陷**：
+
+- **CLI 脚本无法在 Windows 启动（真实缺陷）**：`assistantBackend` 直接 `spawn` 用户选择的可执行文件。macOS 上带 `#!` 的脚本由内核执行；Windows 没有 shebang 支持，因此 `spawn` 返回 `ENOENT`。新增 `assistantLaunch`：在 Windows 读取文件头，若为 `#!` 则解析解释器（`/usr/bin/env node`、指向 node 的路径都映射到当前 Node 运行时），以 `spawn(interpreter, [script, ...args])` 启动，仍然 `shell: false`，不引入 shell 注入面。`--version` 探测与实际会话使用同一启动描述。无法解析解释器时明确拒绝并提示选择原生 `.exe`。
+- `tests/mediaTools.test.ts` 以 `platform: "darwin"` 在 Windows 上运行，导致 PATH 被 `:` 拆分而丢失盘符；改为使用当前平台与 `.exe` 后缀，断言真实行为。
+- `tests/portableProject.test.ts` 用 `JSON.stringify(project).toContain(绝对路径)` 断言，Windows 反斜杠被 JSON 转义；改为比较解析后的 `assets[0].path`。符号链接逃逸用例在 Windows 需要开发者模式，改为目录 junction（无需提权）验证同一 `realpath` 边界。
+- `tests/assistantBackend.test.ts` 比较 `path.dirname(cwd)` 与 `realpath(folder)`，但 `os.tmpdir()` 在 Windows 返回 8.3 短路径；两侧都取 `realpath` 后再比较。
+
+结果：`npm test` **398 项，392 通过、6 跳过、0 失败**（首次全绿）。此前记录的 `assistantBackend` 12、`portableProject` 2、`mediaTools` 1 全部消失，且没有任何测试被跳过或断言被削弱。
+
+主进程本地化：桌面版默认土耳其语后，渲染层字典只覆盖 `src/`，主进程 `electron/*.ts` 的 181 条中文错误仍可能经 IPC 显示为中文。本次新增 150 余条词条与约 40 个运行时模式，覆盖助手校验、CapCut 导入、导出校验、文件桥接、可搬移项目、媒体工具与转写错误；`tests/mainLocale.test.ts` 会扫描 `electron/` 中所有中文字面量，只允许 4 个内部模板（提示词包装、派生素材名、进度计数）例外。助手提示词本身也改为土耳其语，模型现在被要求用土耳其语回答。可搬移包内的 `KULLANIM.txt` 与 `<ad>-medya-paketi-<id>` 文件夹名改为土耳其语，项目入口文件统一为 `proje.reacut`。
+
+- `tests/mainLocale.test.ts` 3 项：扫描主进程词条、验证组合错误（片段/素材/FFmpeg/CLI/CapCut）均可翻译为无中文的土耳其语、确认助手提示词为土耳其语且保留 JSON 契约。
+- `npx tsx tests/assistant-assets-electron.ts` 13 项通过：内置素材导入、Codex/Claude 合成 CLI 协议、参数篡改拦截、真实子进程取消、导出带音频与中文标题成片。
+- `npx tsx tests/portable-range-electron.ts` 6 项、`audio-tools-electron` 7 项、`placement-electron` 5 项、`linked-electron` 5 项、`timeline-view-electron` 10 项、`subtitle-electron` 15 项全部通过。
+- `npx tsx scripts/i18n-audit.ts` 0 未翻译；`npm run typecheck`、`npm run build` 通过。
+
+限制：主进程错误依赖“渲染时翻译”，即 DOM 文本节点与 `title`/`aria-label` 属性；若未来新增原生对话框文案，必须继续用 `tr()` 包裹，否则会绕过该机制。Windows 上仍不支持 `.cmd`/`.bat`/`.ps1` 包装器（安全考虑，必须选择原生 `.exe`）；无法识别的 shebang 解释器会被拒绝。全部验证仍只在 Windows 开发机的 FFmpeg 8.0 上完成，未在 macOS/Linux 实机或打包安装包复核。
+
 ## 时间线缩放与自由平移（2026-11-06）
 
 时间线视图改成独立的纯计算模块 `src/core/timelineView.ts`，工具栏、滚轮和平移都走同一组函数，缩放范围为 **2–1600 px/s**（此前上限 400）。新增交互：
