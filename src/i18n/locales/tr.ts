@@ -959,6 +959,11 @@ export const tr: Record<string, string> = {
   "片段超出时间线范围": "Klip zaman çizelgesi aralığının dışında",
   "关联片段": "Bağlı klip",
   "片段关联 ID": "Klip bağlantı kimliği",
+  "关键帧贝塞尔曲线": "Anahtar kare Bézier eğrisi",
+  "贝塞尔 X1": "Bézier X1",
+  "贝塞尔 X2": "Bézier X2",
+  "贝塞尔 Y1": "Bézier Y1",
+  "贝塞尔 Y2": "Bézier Y2",
   "此片段与分离出的音频保持关联：移动、裁剪、分割和删除会同时作用于另一条片段。":
     "Bu klip ayrılan sesle bağlantılıdır: taşıma, kırpma, bölme ve silme işlemleri diğer klibe de uygulanır.",
   "解除关联": "Bağlantıyı çöz",

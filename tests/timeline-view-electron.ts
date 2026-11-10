@@ -169,6 +169,46 @@ try {
   );
   checks.push("middle-button drag pans the timeline viewport");
 
+  // A quick flick keeps gliding after release (kinetic scrolling).
+  await page.locator(".tl-scroll").evaluate((el) => {
+    el.scrollLeft = 0;
+  });
+  await page.waitForTimeout(80);
+  const flickX = area.x + area.width / 2,
+    flickY = area.y + area.height / 2;
+  await page.mouse.move(flickX, flickY);
+  await page.mouse.down({ button: "middle" });
+  for (let step = 1; step <= 5; step += 1)
+    await page.mouse.move(flickX - step * 40, flickY, { steps: 1 });
+  await page.mouse.up({ button: "middle" });
+  const atRelease = (await scrollState()).left;
+  await page.waitForTimeout(350);
+  const afterGlide = (await scrollState()).left;
+  assert(
+    afterGlide > atRelease + 20,
+    `inertia should continue after release: ${atRelease} -> ${afterGlide}`,
+  );
+  checks.push("a flick keeps gliding after the pointer is released");
+
+  // Minimap: visible, clickable and hideable.
+  await expect(page.locator(".tl-minimap")).toBeVisible();
+  await page.locator(".tl-scroll").evaluate((el) => {
+    el.scrollLeft = 0;
+  });
+  await page.waitForTimeout(80);
+  await page.locator(".tl-scroll").evaluate((el) => {
+    el.scrollTop = 0;
+  });
+  const map = (await page.locator(".tl-minimap").boundingBox())!;
+  await page.mouse.click(map.x + map.width * 0.7, map.y + map.height / 2);
+  await page.waitForTimeout(120);
+  assert((await scrollState()).left > 0, "minimap click must jump the viewport");
+  await page.getByRole("button", { name: "Küçük haritayı aç veya kapat", exact: true }).click();
+  await expect(page.locator(".tl-minimap")).toHaveCount(0);
+  await page.getByRole("button", { name: "Küçük haritayı aç veya kapat", exact: true }).click();
+  await expect(page.locator(".tl-minimap")).toBeVisible();
+  checks.push("the minimap jumps the viewport and can be toggled");
+
   // The scale respects both hard limits.
   await page.locator('input[aria-label="Zaman çizelgesi ölçeği"]').fill("1600");
   await page.waitForTimeout(120);

@@ -775,3 +775,43 @@
 .tl-status { background: #262626; border-top-color: #383838; }
 .tl-toolbar button.is-active { color: #16c4cb; background: #181818; }
 
+
+/* Minimap strip: whole project on one line, click to jump */
+.tl-minimap {
+  position: relative;
+  height: 22px;
+  margin: 0 0 0 0;
+  flex-shrink: 0;
+  background: #1b1c21;
+  border-top: 1px solid #24262c;
+  border-bottom: 1px solid #171717;
+  cursor: pointer;
+  overflow: hidden;
+}
+.tl-minimap-bar {
+  position: absolute;
+  height: 4px;
+  border-radius: 2px;
+  background: #3d6b70;
+  pointer-events: none;
+}
+.tl-minimap-window {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: #42d4c722;
+  border-left: 1px solid #42d4c7;
+  border-right: 1px solid #42d4c7;
+  pointer-events: none;
+}
+.tl-minimap-playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #ff7a7a;
+  pointer-events: none;
+}
+@media (max-height: 760px) {
+  .tl-minimap { height: 18px; }
+}

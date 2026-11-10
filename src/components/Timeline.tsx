@@ -45,6 +45,12 @@ import {
   wheelZoomPps,
   zoomedScrollLeft,
 } from "../core/timelineView";
+import {
+  inertiaStep,
+  minimapGeometry,
+  minimapScrollLeft,
+  pointerVelocity,
+} from "../core/timelineMotion";
 import "./Timeline.css";
 
 export interface TimelineProps {
@@ -270,6 +276,25 @@ export default function Timeline(props: TimelineProps) {
   const bodyWidth = duration * pps;
   const interval = rulerInterval(pps);
   const view = visibleRange(scrollLeft, viewportWidth, GUTTER, pps);
+  const [minimapOpen, setMinimapOpen] = useState(true);
+  const minimap = minimapOpen
+    ? minimapGeometry({
+        duration,
+        pps,
+        scrollLeft,
+        viewportWidth,
+        gutter: GUTTER,
+        playhead,
+        clips: project.clips.map((clip) => ({
+          start: clip.start,
+          duration: clip.duration,
+          track: Math.max(
+            0,
+            project.tracks.findIndex((track) => track.id === clip.trackId),
+          ),
+        })),
+      })
+    : null;
   const ticks = Array.from(
     { length: Math.ceil(duration / interval) + 1 },
     (_, i) => i * interval,
@@ -553,6 +578,43 @@ export default function Timeline(props: TimelineProps) {
     else if (x < el.scrollLeft) el.scrollLeft = x;
   }, [playhead, pps, props.playing]);
 
+  /** Glide after a pan release, using the measured pointer velocity. */
+  const glideRef = useRef<{ frame: number; velocity: number; last: number } | null>(null);
+  const stopGlide = () => {
+    if (glideRef.current) cancelAnimationFrame(glideRef.current.frame);
+    glideRef.current = null;
+  };
+  useEffect(() => stopGlide, []);
+  const glide = (velocity: number) => {
+    stopGlide();
+    const el = scrollRef.current;
+    if (!el || Math.abs(velocity) < 80) return;
+    const step = (now: number) => {
+      const el2 = scrollRef.current;
+      const state = glideRef.current;
+      if (!el2 || !state) return;
+      const deltaMs = Math.max(1, Math.min(100, now - state.last));
+      state.last = now;
+      const next = inertiaStep(state.velocity, deltaMs);
+      const before = el2.scrollLeft;
+      el2.scrollLeft = clampScrollLeft(
+        before + next.offset,
+        el2.scrollWidth,
+        el2.clientWidth,
+      );
+      setScrollLeft(el2.scrollLeft);
+      state.velocity = next.velocity;
+      const atEdge = el2.scrollLeft === before && Math.abs(next.offset) > 0.5;
+      if (next.done || atEdge) {
+        glideRef.current = null;
+        return;
+      }
+      state.frame = requestAnimationFrame(step);
+    };
+    glideRef.current = { frame: 0, velocity, last: performance.now() };
+    glideRef.current.frame = requestAnimationFrame(step);
+  };
+
   /** Middle-button drag (and Alt+drag over empty space) pans freely. */
   const startPan = (event: ReactPointerEvent<HTMLDivElement>) => {
     const middle = event.button === 1;
@@ -568,13 +630,21 @@ export default function Timeline(props: TimelineProps) {
     const el = scrollRef.current;
     if (!el) return;
     event.preventDefault();
+    stopGlide();
     const startX = event.clientX,
       startY = event.clientY,
       originLeft = el.scrollLeft,
       originTop = el.scrollTop;
+    let previous = { x: event.clientX, time: performance.now() };
+    let velocity = 0;
     setPanning(true);
     listenForGesture(
       (move) => {
+        velocity = pointerVelocity(previous, {
+          x: move.clientX,
+          time: performance.now(),
+        });
+        previous = { x: move.clientX, time: performance.now() };
         el.scrollLeft = clampScrollLeft(
           originLeft - (move.clientX - startX),
           el.scrollWidth,
@@ -583,7 +653,11 @@ export default function Timeline(props: TimelineProps) {
         el.scrollTop = Math.max(0, originTop - (move.clientY - startY));
         setScrollLeft(el.scrollLeft);
       },
-      () => setPanning(false),
+      () => {
+        setPanning(false);
+        // Only horizontal motion glides; vertical stays where it was dropped.
+        glide(-velocity);
+      },
     );
   };
 
@@ -940,6 +1014,15 @@ export default function Timeline(props: TimelineProps) {
             适配
           </button>
           <button
+            className={`tl-fit ${minimapOpen ? "active" : ""}`}
+            title="Küçük haritayı aç/kapat"
+            aria-label="Küçük haritayı aç veya kapat"
+            aria-pressed={minimapOpen}
+            onClick={() => setMinimapOpen(!minimapOpen)}
+          >
+            Harita
+          </button>
+          <button
             className="tl-fit"
             title="定位到播放头"
             aria-label="定位到播放头"
@@ -959,6 +1042,50 @@ export default function Timeline(props: TimelineProps) {
           </button>
         </div>
       </div>
+      {minimap && (
+        <div
+          className="tl-minimap"
+          role="img"
+          aria-label="Zaman çizelgesi küçük haritası"
+          title="Haritaya tıklayarak zaman çizelgesinde gezinin"
+          onPointerDown={(event) => {
+            const el = scrollRef.current;
+            if (!el) return;
+            const rect = event.currentTarget.getBoundingClientRect();
+            const ratio = (event.clientX - rect.left) / Math.max(1, rect.width);
+            const next = minimapScrollLeft(
+              ratio,
+              duration,
+              pps,
+              el.clientWidth,
+              GUTTER,
+            );
+            stopGlide();
+            el.scrollLeft = clampScrollLeft(next, el.scrollWidth, el.clientWidth);
+            setScrollLeft(el.scrollLeft);
+          }}
+        >
+          {minimap.bars.map((bar, index) => (
+            <span
+              key={index}
+              className="tl-minimap-bar"
+              style={{
+                left: `${bar.start * 100}%`,
+                width: `${bar.width * 100}%`,
+                top: `${2 + (bar.track % 3) * 5}px`,
+              }}
+            />
+          ))}
+          <span
+            className="tl-minimap-window"
+            style={{ left: `${minimap.left * 100}%`, width: `${minimap.width * 100}%` }}
+          />
+          <span
+            className="tl-minimap-playhead"
+            style={{ left: `${minimap.playhead * 100}%` }}
+          />
+        </div>
+      )}
       <div
         className={`tl-scroll ${panning ? "is-panning" : ""}`}
         ref={scrollRef}
