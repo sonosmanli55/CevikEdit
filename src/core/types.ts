@@ -68,6 +68,8 @@ export interface Keyframe {
   value: number;
   easing: KeyframeEasing;
   easingWindow?: { start: number; end: number };
+  /** Free cubic-Bézier handles; overrides the named preset when present. */
+  bezier?: { x1: number; y1: number; x2: number; y2: number };
 }
 export interface FadeWindow {
   offset: number;

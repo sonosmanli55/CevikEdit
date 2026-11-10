@@ -27,6 +27,7 @@ import {
   keyframeEasingWindow,
 } from "../src/core/model";
 import { resolveExportRange } from "../src/core/exportRange";
+import { BEZIER_EXPORT_SEGMENTS, bezierTable, type BezierCurve } from "../src/core/bezier";
 import { colorAdjustmentFilters } from "../src/core/color";
 import { applyShapeMask, getCropPixels } from "../src/core/visual";
 import {
@@ -60,6 +61,22 @@ const color = (value: string): string => {
   throw new Error(`不支持的颜色 ${value}，请使用 #RRGGBB 或 #RRGGBBAA。`);
 };
 
+/** Approximate a free Bézier curve with a small linear table inside FFmpeg. */
+function bezierExpression(curve: BezierCurve, progress: string): string {
+  const precision = (value: number) => Number(value.toPrecision(12)).toString();
+  const table = bezierTable(curve, BEZIER_EXPORT_SEGMENTS);
+  const points = [{ x: 0, y: 0 }, ...table, { x: 1, y: 1 }];
+  let expression = "1";
+  for (let index = points.length - 2; index >= 0; index -= 1) {
+    const left = points[index];
+    const right = points[index + 1];
+    const span = right.x - left.x || 1;
+    const segment = `(${precision(left.y)}+(${precision(right.y - left.y)})*((${progress}-${precision(left.x)})/${precision(span)}))`;
+    expression = `if(lt(${progress},${precision(right.x)}),${segment},${expression})`;
+  }
+  return expression;
+}
+
 /** Keyframe time is in clip-local timeline seconds, including after a speed change. */
 export function keyframeExpression(
   clip: Clip,
@@ -78,8 +95,12 @@ export function keyframeExpression(
   for (let i = unique.length - 2; i >= 0; i--) {
     const left = unique[i];
     const right = unique[i + 1];
-    let progress = `((${clock}-${number(left.time)})/${number(right.time - left.time)})`;
-    if (right.easing !== "linear") {
+    const ratio = `((${clock}-${number(left.time)})/${number(right.time - left.time)})`;
+    let progress = ratio;
+    if (right.bezier) {
+      // The table is a pure approximation of the same solver the preview uses.
+      progress = bezierExpression(right.bezier, ratio);
+    } else if (right.easing !== "linear") {
       const { a, b, c, denominator } = keyframeEasingCoefficients(
         right.easing,
         keyframeEasingWindow(right),
@@ -87,7 +108,7 @@ export function keyframeExpression(
       // Keep full precision so tiny sliced windows near 0 or 1 remain exact.
       const precision = (value: number) =>
         Number(value.toPrecision(15)).toString();
-      progress = `(${progress}*(${precision(a)}+${precision(b)}*${progress}+${precision(c)}*${progress}*${progress})/${precision(denominator)})`;
+      progress = `(${ratio}*(${precision(a)}+${precision(b)}*${ratio}+${precision(c)}*${ratio}*${ratio})/${precision(denominator)})`;
     }
     const interpolation = `(${number(left.value)}+(${number(right.value - left.value)})*${progress})`;
     expression = `if(lt(${clock},${number(right.time)}),${interpolation},${expression})`;

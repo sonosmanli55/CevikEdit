@@ -9,11 +9,11 @@ import type {
   FadeWindow,
 } from "./types";
 import {
-  DEFAULT_TRANSFORM,
-  DEFAULT_ADJUSTMENTS,
+  DEFAULT_TRANSFORM,  DEFAULT_ADJUSTMENTS,
   DEFAULT_TEXT,
 } from "./defaults";
 import { t } from "../i18n/locale";
+import { bezierProgress } from "./bezier";
 export const id = () => crypto.randomUUID();
 export const clone = <T>(value: T): T => structuredClone(value);
 export const snapToFrame = (time: number, fps: number) =>
@@ -324,6 +324,23 @@ export function keyframeEasedRatio(
   return Math.max(0, Math.min(1, value));
 }
 
+/**
+ * Easing for one keyframe interval. A free Bézier curve takes precedence over
+ * the named preset; the returned value may overshoot like CSS cubic-bezier.
+ */
+export function keyframeRatio(
+  key: Pick<Keyframe, "easing" | "easingWindow" | "bezier">,
+  ratio: number,
+): number {
+  if (key.bezier) return bezierProgress(key.bezier, ratio);
+  const value = keyframeEasedRatio(
+    key.easing,
+    ratio,
+    keyframeEasingWindow(key),
+  );
+  return value;
+}
+
 /** Each destination key owns the interpolation for the interval ending at it. */
 function orderedKeys(clip: Clip, property: Keyframe["property"]): Keyframe[] {
   const keys = clip.keyframes
@@ -414,10 +431,9 @@ export function evaluateKeyframes(clip: Clip, time: number): Clip {
     else
       for (let i = 0; i < keys.length - 1; i++)
         if (time >= keys[i].time && time <= keys[i + 1].time) {
-          const ratio = keyframeEasedRatio(
-            keys[i + 1].easing,
+          const ratio = keyframeRatio(
+            keys[i + 1],
             (time - keys[i].time) / (keys[i + 1].time - keys[i].time || 1),
-            keyframeEasingWindow(keys[i + 1]),
           );
           value = keys[i].value + (keys[i + 1].value - keys[i].value) * ratio;
           break;
@@ -688,6 +704,15 @@ export function validateProject(input: unknown): Project {
           k.easing === "linear"
         )
           fail("关键帧插值窗口");
+      }
+      if (k.bezier !== undefined) {
+        const curve = object(k.bezier, "关键帧贝塞尔曲线");
+        num(curve.x1, "贝塞尔 X1", 0, 1);
+        num(curve.x2, "贝塞尔 X2", 0, 1);
+        num(curve.y1, "贝塞尔 Y1", -1, 2);
+        num(curve.y2, "贝塞尔 Y2", -1, 2);
+        if ((curve.x1 as number) > (curve.x2 as number))
+          fail("关键帧贝塞尔曲线");
       }
       num(k.time, "关键帧时间", 0, duration);
       choice(

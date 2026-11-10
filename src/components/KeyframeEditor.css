@@ -134,3 +134,54 @@
   }
   .keyframe-detail label:nth-child(3) { grid-column: 1 / 3; }
 }
+
+/* Free cubic-Bézier handle editor */
+.keyframe-bezier {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px;
+  border: 1px solid #2f323a;
+  border-radius: 7px;
+  background: #1b1c21;
+}
+.keyframe-bezier-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #b8bdc7;
+  font-size: 10.5px;
+}
+.keyframe-bezier-presets { display: flex; flex-wrap: wrap; gap: 3px; }
+.keyframe-bezier-presets button {
+  padding: 2px 6px;
+  border: 1px solid #35363d;
+  border-radius: 4px;
+  background: #24252b;
+  color: #c4c9d2;
+  font-size: 9.5px;
+  cursor: pointer;
+}
+.keyframe-bezier-presets button:hover:not(:disabled) { border-color: #42d4c7; color: #fff; }
+.keyframe-bezier-presets button:disabled { opacity: .45; cursor: default; }
+.keyframe-bezier-svg { width: 100%; max-width: 168px; align-self: center; touch-action: none; }
+.keyframe-bezier-bg { fill: #14161b; stroke: #33363f; stroke-width: 1; rx: 3; }
+.keyframe-bezier-guide { stroke: #2d3038; stroke-width: 1; stroke-dasharray: 3 3; }
+.keyframe-bezier-arm { stroke: #4a5563; stroke-width: 1; }
+.keyframe-bezier-path { fill: none; stroke: #42d4c7; stroke-width: 2; }
+.keyframe-bezier-handle { fill: #101015; stroke: #42d4c7; stroke-width: 2; cursor: grab; }
+.keyframe-bezier-handle:active { cursor: grabbing; }
+.keyframe-bezier-values { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.keyframe-bezier-values label { display: flex; flex-direction: column; gap: 3px; color: #8d919d; font-size: 9px; }
+.keyframe-bezier-values input {
+  width: 100%;
+  min-width: 0;
+  background: #202126;
+  border: 1px solid #35363d;
+  border-radius: 4px;
+  color: #e0e1e6;
+  padding: 3px 4px;
+  font: inherit;
+  font-size: 10px;
+}

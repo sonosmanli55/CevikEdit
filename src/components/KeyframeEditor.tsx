@@ -13,6 +13,7 @@ import {
   id,
   snapToFrame,
 } from "../core/model";
+import { DEFAULT_BEZIER, bezierPath, type BezierCurve } from "../core/bezier";
 import { useEditorStore } from "../editor/store";
 import "./KeyframeEditor.css";
 
@@ -42,6 +43,14 @@ const EASING_LABELS: Record<Easing, string> = {
   easeOut: "缓出",
   easeInOut: "缓入缓出",
 };
+/** Pseudo-value for the easing select when a custom Bézier curve is active. */
+const CUSTOM = "custom";
+const BEZIER_PRESETS: Array<{ id: string; label: string; curve: BezierCurve }> = [
+  { id: "soft", label: "Yumuşak", curve: { x1: 0.25, y1: 0.1, x2: 0.25, y2: 1 } },
+  { id: "snappy", label: "Hızlı", curve: { x1: 0.4, y1: 0, x2: 0.2, y2: 1 } },
+  { id: "windup", label: "Geri çek", curve: { x1: 0.6, y1: -0.35, x2: 0.4, y2: 1.35 } },
+  { id: "linear", label: "Doğrusal", curve: { x1: 0.33, y1: 0.33, x2: 0.67, y2: 0.67 } },
+];
 
 const WIDTH = 320;
 const HEIGHT = 170;
@@ -113,6 +122,178 @@ function formatValue(property: Property, value: number): string {
   if (property === "rotation") return `${value.toFixed(0)}°`;
   if (property === "volume") return value.toFixed(2);
   return value.toFixed(0);
+}
+
+const BEZIER_SIZE = 132;
+const BEZIER_PAD = 12;
+const BEZIER_PLOT = BEZIER_SIZE - BEZIER_PAD * 2;
+
+/**
+ * Free cubic-Bézier handle editor. X stays inside 0–1 (monotonic time) while Y
+ * may leave the box to create anticipation or overshoot, like CSS
+ * cubic-bezier. Handles are dragged with the pointer; presets cover common
+ * motion. Every change uses the same one-step undo transaction as other edits.
+ */
+function BezierEditor({
+  curve,
+  locked,
+  onChange,
+}: {
+  curve: BezierCurve;
+  locked: boolean;
+  onChange: (curve: BezierCurve) => void;
+}) {
+  const svg = useRef<SVGSVGElement>(null);
+  const dragging = useRef<1 | 2 | null>(null);
+  const clampX = (value: number) => clamp(value, 0, 1);
+  const clampY = (value: number) => clamp(value, -1, 2);
+  const xFor = (value: number) => BEZIER_PAD + value * BEZIER_PLOT;
+  const yFor = (value: number) => BEZIER_PAD + (1 - value) * BEZIER_PLOT;
+
+  const move = (event: ReactPointerEvent<SVGSVGElement>) => {
+    const which = dragging.current;
+    if (!which || !svg.current) return;
+    const rect = svg.current.getBoundingClientRect();
+    const x =
+      clampX(
+        ((event.clientX - rect.left) / rect.width) * BEZIER_SIZE - BEZIER_PAD,
+      ) / BEZIER_PLOT;
+    const y = clampY(
+      1 -
+        (((event.clientY - rect.top) / rect.height) * BEZIER_SIZE - BEZIER_PAD) /
+          BEZIER_PLOT,
+    );
+    onChange(
+      which === 1
+        ? { ...curve, x1: Math.min(x, curve.x2), y1: y }
+        : { ...curve, x2: Math.max(x, curve.x1), y2: y },
+    );
+  };
+  const release = () => {
+    if (!dragging.current) return;
+    dragging.current = null;
+    useEditorStore.getState().endTransaction();
+  };
+
+  return (
+    <div className="keyframe-bezier">
+      <div className="keyframe-bezier-heading">
+        <span>Bézier eğrisi</span>
+        <div className="keyframe-bezier-presets">
+          {BEZIER_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              disabled={locked}
+              title={preset.label}
+              onClick={() => onChange({ ...preset.curve })}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <svg
+        ref={svg}
+        className="keyframe-bezier-svg"
+        viewBox={`0 0 ${BEZIER_SIZE} ${BEZIER_SIZE}`}
+        role="img"
+        aria-label="Serbest Bézier eğrisi"
+        onPointerMove={move}
+        onPointerUp={release}
+        onPointerCancel={release}
+      >
+        <rect
+          className="keyframe-bezier-bg"
+          x={BEZIER_PAD}
+          y={BEZIER_PAD}
+          width={BEZIER_PLOT}
+          height={BEZIER_PLOT}
+        />
+        <line
+          className="keyframe-bezier-guide"
+          x1={BEZIER_PAD}
+          y1={BEZIER_SIZE - BEZIER_PAD}
+          x2={BEZIER_SIZE - BEZIER_PAD}
+          y2={BEZIER_PAD}
+        />
+        <line
+          className="keyframe-bezier-arm"
+          x1={xFor(0)}
+          y1={yFor(0)}
+          x2={xFor(curve.x1)}
+          y2={yFor(curve.y1)}
+        />
+        <line
+          className="keyframe-bezier-arm"
+          x1={xFor(1)}
+          y1={yFor(1)}
+          x2={xFor(curve.x2)}
+          y2={yFor(curve.y2)}
+        />
+        <path
+          className="keyframe-bezier-path"
+          d={bezierPath(curve, BEZIER_PLOT, BEZIER_PLOT)}
+          transform={`translate(${BEZIER_PAD} ${BEZIER_PAD})`}
+        />
+        <circle
+          className="keyframe-bezier-handle"
+          cx={xFor(curve.x1)}
+          cy={yFor(curve.y1)}
+          r={5}
+          aria-label="Birinci Bézier tutamacı"
+          onPointerDown={(event) => {
+            if (locked) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            useEditorStore.getState().beginTransaction();
+            dragging.current = 1;
+          }}
+        />
+        <circle
+          className="keyframe-bezier-handle"
+          cx={xFor(curve.x2)}
+          cy={yFor(curve.y2)}
+          r={5}
+          aria-label="İkinci Bézier tutamacı"
+          onPointerDown={(event) => {
+            if (locked) return;
+            event.currentTarget.setPointerCapture(event.pointerId);
+            useEditorStore.getState().beginTransaction();
+            dragging.current = 2;
+          }}
+        />
+      </svg>
+      <div className="keyframe-bezier-values">
+        {(["x1", "y1", "x2", "y2"] as const).map((field) => (
+          <label key={field}>
+            {field.toUpperCase()}
+            <input
+              aria-label={`Bézier ${field.toUpperCase()}`}
+              type="number"
+              min={field.startsWith("x") ? 0 : -1}
+              max={field.startsWith("x") ? 1 : 2}
+              step={0.01}
+              value={Number(curve[field].toFixed(2))}
+              disabled={locked}
+              onChange={(event) => {
+                const value = Number(event.target.value);
+                if (!Number.isFinite(value)) return;
+                const next = field.startsWith("x")
+                  ? { ...curve, [field]: clampX(value) }
+                  : { ...curve, [field]: clampY(value) };
+                if (next.x1 > next.x2) return;
+                onChange(next);
+              }}
+            />
+          </label>
+        ))}
+      </div>
+      <p className="field-hint">
+        X 0–1 aralığında kalır; Y taşarak önce geri çekme veya aşma efekti
+        verebilir. Önizleme ve dışa aktarma aynı eğriyi kullanır.
+      </p>
+    </div>
+  );
 }
 
 interface Props {
@@ -541,19 +722,27 @@ export default function KeyframeEditor({
             插值
             <select
               aria-label="关键帧插值"
-              value={selected.easing}
-              onChange={(event) =>
-                updateKey(selected.id, {
-                  easing: event.target.value as Easing,
-                  easingWindow: undefined,
-                })
-              }
+              value={selected.bezier ? CUSTOM : selected.easing}
+              onChange={(event) => {
+                if (event.target.value === CUSTOM) {
+                  updateKey(selected.id, {
+                    bezier: { ...DEFAULT_BEZIER },
+                    easingWindow: undefined,
+                  });
+                } else
+                  updateKey(selected.id, {
+                    easing: event.target.value as Easing,
+                    easingWindow: undefined,
+                    bezier: undefined,
+                  });
+              }}
             >
               {EASINGS.map((easing) => (
                 <option key={easing} value={easing}>
                   {EASING_LABELS[easing]}
                 </option>
               ))}
+              <option value={CUSTOM}>Özel Bézier</option>
             </select>
           </label>
           <button
@@ -576,6 +765,13 @@ export default function KeyframeEditor({
         <p className="keyframe-empty">
           在曲线或列表中选择一个关键帧，或把播放头移到目标时间后添加。
         </p>
+      )}
+      {selected?.bezier && (
+        <BezierEditor
+          curve={selected.bezier}
+          locked={locked}
+          onChange={(curve) => updateKey(selected.id, { bezier: curve })}
+        />
       )}
       <div className="keyframe-add">
         {PROPERTIES.filter((entry) => visual || entry === "volume").map(
