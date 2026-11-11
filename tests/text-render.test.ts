@@ -1,6 +1,19 @@
-import { describe, expect, it } from "vitest";
-import { createCanvas } from "@napi-rs/canvas";
+import { beforeAll, describe, expect, it } from "vitest";
+import { GlobalFonts, createCanvas } from "@napi-rs/canvas";
+import path from "node:path";
 import { DEFAULT_TEXT } from "../src/core/defaults";
+
+/**
+ * The export rasterizer registers the bundled Noto font before drawing. Do the
+ * same here so the test measures the shipped font rather than whatever the CI
+ * host happens to have installed (a bare Linux runner has none).
+ */
+beforeAll(() => {
+  GlobalFonts.registerFromPath(
+    path.resolve("public/fonts/NotoSansSC.ttf"),
+    "Noto Sans SC",
+  );
+});
 import {
   roundedRectPath,
   textFont,

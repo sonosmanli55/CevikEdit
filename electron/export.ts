@@ -792,7 +792,7 @@ async function commitOutput(temporary: string, target: string): Promise<void> {
   }
   throw lastError instanceof Error
     ? lastError
-    : new Error("导出文件无法写入目标位置");
+    : new Error("Dışa aktarılan dosya hedef konuma yazılamadı");
 }
 
 export async function startExport(
