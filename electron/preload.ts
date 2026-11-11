@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, webUtils } from "electron";
 import type {
   EditorAPI,
   ExportProgress,
+  UpdateDownloadProgress,
   ReverseProgress,
   TranscriptionProgress,
 } from "../src/core/types";
@@ -39,6 +40,15 @@ const api: EditorAPI = {
   freezeFrame: (request) => ipcRenderer.invoke("freeze-frame", request),
   analyzeLoudness: (request) => ipcRenderer.invoke("analyze-loudness", request),
   analyzeSpeech: (request) => ipcRenderer.invoke("analyze-speech", request),
+  checkForUpdates: () => ipcRenderer.invoke("check-updates"),
+  downloadUpdate: () => ipcRenderer.invoke("download-update"),
+  installUpdate: (installer) => ipcRenderer.invoke("install-update", installer),
+  openUpdatePage: () => ipcRenderer.invoke("open-update-page"),
+  onUpdateProgress: (callback) => {
+    const listener = (_: unknown, event: UpdateDownloadProgress) => callback(event);
+    ipcRenderer.on("update-progress", listener);
+    return () => ipcRenderer.removeListener("update-progress", listener);
+  },
   listTemplates: () => ipcRenderer.invoke("list-templates"),
   saveTemplate: (template) => ipcRenderer.invoke("save-template", template),
   deleteTemplate: (id) => ipcRenderer.invoke("delete-template", id),

@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import {
   mkdir,
   mkdtemp,
+  copyFile,
   rename,
   rm,
   writeFile,
@@ -760,6 +761,40 @@ export async function createExportArguments(
   return args;
 }
 
+/**
+ * Move the finished file into place, retrying on Windows sharing violations.
+ * Antivirus and the search indexer briefly hold freshly written files, which
+ * surfaces as EPERM/EBUSY on rename even though nothing is wrong with the file.
+ */
+async function commitOutput(temporary: string, target: string): Promise<void> {
+  const delays = [0, 60, 160, 350, 700, 1200];
+  let lastError: unknown;
+  for (const delay of delays) {
+    if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+    try {
+      await rename(temporary, target);
+      return;
+    } catch (error) {
+      lastError = error;
+      const code = (error as NodeJS.ErrnoException).code;
+      if (!["EPERM", "EACCES", "EBUSY", "ENOTEMPTY"].includes(code ?? "")) break;
+    }
+  }
+  // Windows sometimes refuses to rename a file that an antivirus or the indexer
+  // briefly opened. Copying only needs read access to the source, so it is a
+  // safe second path; the target is still replaced as a whole.
+  try {
+    await copyFile(temporary, target);
+    await rm(temporary, { force: true });
+    return;
+  } catch {
+    /* fall through to the original error */
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("导出文件无法写入目标位置");
+}
+
 export async function startExport(
   project: Project,
   options: ExportOptions,
@@ -877,7 +912,7 @@ export async function startExport(
       }
       // Once the atomic replacement starts, cancellation cannot safely undo it.
       job.committing = true;
-      await rename(job.temporaryOutput, options.path);
+      await commitOutput(job.temporaryOutput, options.path);
       emit("complete", 1);
     } catch (error) {
       emit(

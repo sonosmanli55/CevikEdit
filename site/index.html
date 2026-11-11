@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CevikEdit — çevrimdışı video kurgu</title>
+    <meta
+      name="description"
+      content="CevikEdit, dosyalarınızı buluta yüklemeyen masaüstü video editörü. Anahtar kare animasyonu, altyazı, ses düzenleme ve 4K dışa aktarma; tamamı yerel FFmpeg ile."
+    />
+    <meta name="theme-color" content="#050f0d" />
+    <meta property="og:title" content="CevikEdit — çevrimdışı video kurgu" />
+    <meta property="og:description" content="Kurgu bilgisayarınızda kalır. Türkçe, çevrimdışı, tek tıkla kurulum." />
+    <meta property="og:image" content="assets/app-icon.png" />
+    <link rel="icon" href="assets/app-icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#kurulum">Kuruluma geç</a>
+
+    <header class="nav" data-reveal="nav">
+      <div class="nav-inner">
+        <a class="brand" href="#top" aria-label="CevikEdit ana sayfa">
+          <img src="assets/app-icon.png" alt="" width="30" height="30" />
+          <span>CevikEdit</span>
+        </a>
+        <nav class="nav-links" aria-label="Bölümler">
+          <a href="#zaman">Zaman çizelgesi</a>
+          <a href="#egri">Eğri</a>
+          <a href="#altyazi">Altyazı</a>
+          <a href="#ses">Ses</a>
+          <a href="#sinirlar">Sınırlar</a>
+        </nav>
+        <a class="nav-cta" href="#kurulum">İndir<span class="nav-size">200 KB</span></a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- HERO ------------------------------------------------------------ -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-field" aria-hidden="true">
+          <span class="orb orb-a"></span>
+          <span class="orb orb-b"></span>
+          <span class="grain"></span>
+        </div>
+
+        <div class="hero-copy">
+          <h1 id="hero-title">
+            Kurgu <em>bilgisayarınızda</em> kalır.
+          </h1>
+          <p class="hero-sub">
+            CevikEdit; kesme, animasyon, altyazı ve ses düzenlemeyi tek bir masaüstü
+            penceresinde toplar. Medyanız yüklenmez, hesap açmanız gerekmez. Tek
+            gereken yerel FFmpeg — uygulamayla birlikte gelir.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#kurulum" data-bootstrap>
+              Kurucuyu indir
+              <span>200 KB</span>
+            </a>
+            <a
+              class="button button-quiet"
+              href="https://github.com/sonosanli55/CevikEdit/releases/latest/download/CevikEdit%20Setup%200.7.0.exe"
+              data-installer
+            >
+              Doğrudan kurulum · 130 MB
+            </a>
+          </div>
+          <dl class="hero-facts">
+            <div><dt>Platform</dt><dd>Windows x64 · macOS*</dd></div>
+            <div><dt>Dil</dt><dd>Türkçe arayüz</dd></div>
+            <div><dt>Lisans</dt><dd>MIT kaynak</dd></div>
+          </dl>
+        </div>
+
+        <figure class="hero-screen" aria-label="CevikEdit düzenleyicisi">
+          <div class="screen-glass">
+            <img
+              src="assets/editor.png"
+              width="1400"
+              height="738"
+              alt="CevikEdit düzenleyicisi: medya kitaplığı, oynatıcı, özellik paneli ve zaman çizelgesi"
+            />
+          </div>
+          <figcaption class="screen-note">
+            Gerçek uygulama, 1920×1080 proje · Türkçe arayüz
+          </figcaption>
+          <span class="chip chip-a" aria-hidden="true">
+            <strong>2–1600</strong> px/s ölçek
+          </span>
+          <span class="chip chip-b" aria-hidden="true">
+            <strong>Milimetrik</strong> kare hizalama
+          </span>
+        </figure>
+      </section>
+
+      <!-- STATEMENT ------------------------------------------------------- -->
+      <section class="statement" aria-label="Yaklaşım">
+        <p class="statement-lead">
+          Video düzenlemek için bulut hesabı şart değil. CevikEdit, tüm kurguyu
+          kendi makinenizde tutan bir araç: dosya okuma, çözme, efekt ve kodlama
+          yerel süreçlerde çalışır.
+        </p>
+        <div class="statement-notes">
+          <p>
+            <strong>Ağ yok.</strong> Uygulama açıkken tek dış istek, siz
+            istediğinizde yapılan güncelleme denetimidir. Proje, medya ve ses
+            hiçbir sunucuya gitmez.
+          </p>
+          <p>
+            <strong>Kilitli format yok.</strong> Proje dosyası okunabilir JSON’dur
+            (<code>.cevikedit</code>). Şablonlar ve taşınabilir paketler de açık
+            biçimde; on yıl sonra da açabilirsiniz.
+          </p>
+          <p>
+            <strong>Abartı yok.</strong> Ne yaptığını ve ne yapmadığını bu sayfada
+            aynı netlikte yazıyoruz. Sınırlar bölümü aşağıda.
+          </p>
+        </div>
+      </section>
+
+      <!-- TIMELINE -------------------------------------------------------- -->
+      <section class="feature" id="zaman" aria-labelledby="zaman-title">
+        <div class="feature-copy" data-reveal>
+          <h2 id="zaman-title">Zaman çizelgesi,<br />eli altında gibi.</h2>
+          <p>
+            Klibi tuttuğunuz yerden kaydırın; imlecin altındaki saniye hiç
+            kaymaz. <kbd>Ctrl</kbd> + tekerlek yakınlaştırır, <kbd>Shift</kbd> +
+            tekerlek yatay gezer, orta tuşla bıraktığınızda atalet devam eder.
+          </p>
+          <ul class="feature-list">
+            <li><b>Araya ekle / kapla</b> — bölme ve kaydırma tek adımda geri alınır.</li>
+            <li><b>Bağlı ses</b> — ayrılan ses, video ile birlikte taşınır, kırpılır, silinir.</li>
+            <li><b>Mini harita</b> — tüm proje tek şeritte; tıklayın, oraya gidin.</li>
+            <li><b>Görünür dilim</b> — 400+ klipte yalnızca ekrandaki çizilir.</li>
+          </ul>
+          <p class="measure">
+            401 klipli 4K proje: <b>978 ms</b> açılış, <b>14</b> klip çizimi,
+            <b>260 ms</b> yakınlaştırma.
+          </p>
+        </div>
+        <figure class="feature-visual" data-reveal>
+          <img
+            src="assets/timeline.png"
+            width="1000"
+            height="500"
+            loading="lazy"
+            alt="Zaman çizelgesi: çoklu kanal, kırpma tutamaçları ve mini harita"
+          />
+        </figure>
+      </section>
+
+      <!-- BEZIER (signature interaction) ---------------------------------- -->
+      <section class="curve" id="egri" aria-labelledby="egri-title">
+        <div class="curve-copy" data-reveal>
+          <h2 id="egri-title">Eğriyi elinizle çizin.</h2>
+          <p>
+            Hazır yumuşatma yeterli olmadığında iki tutamacı sürükleyin. Y ekseni
+            0–1 aralığının dışına çıkabilir; böylece başlık önce geri çekilir,
+            sonra yerine oturur. Önizleme ve dışa aktarma aynı çözücüyü kullanır —
+            ekranda gördüğünüz, dosyaya yazılanın ta kendisidir.
+          </p>
+          <p class="curve-readout" aria-live="polite">
+            <span>cubic-bezier(<b id="curve-values">0.42, 0, 0.58, 1</b>)</span>
+            <span class="curve-note">Tutun ve sürükleyin</span>
+          </p>
+          <div class="curve-presets" role="group" aria-label="Hazır eğriler">
+            <button type="button" data-curve="soft">Yumuşak</button>
+            <button type="button" data-curve="snappy">Hızlı</button>
+            <button type="button" data-curve="windup">Geri çek</button>
+            <button type="button" data-curve="linear">Doğrusal</button>
+          </div>
+        </div>
+
+        <div class="curve-stage" data-reveal>
+          <div class="curve-preview" aria-hidden="true">
+            <span class="preview-line" id="curve-caption">Her an bir hikâye</span>
+          </div>
+          <svg
+            class="curve-board"
+            viewBox="0 0 320 320"
+            role="application"
+            aria-label="Bézier eğrisi düzenleyici"
+          >
+            <defs>
+              <linearGradient id="curve-fill" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stop-color="#5fe6cf" stop-opacity="0" />
+                <stop offset="1" stop-color="#5fe6cf" stop-opacity="0.22" />
+              </linearGradient>
+            </defs>
+            <rect class="board-bg" x="0" y="0" width="320" height="320" rx="18" />
+            <g class="board-grid">
+              <line x1="24" y1="296" x2="296" y2="296" />
+              <line x1="24" y1="24" x2="24" y2="296" />
+              <line x1="24" y1="296" x2="296" y2="24" />
+            </g>
+            <path class="board-fill" id="curve-fill-path" d="" />
+            <path class="board-path" id="curve-path" d="" />
+            <line class="board-arm" id="arm-1" x1="24" y1="296" x2="24" y2="296" />
+            <line class="board-arm" id="arm-2" x1="296" y1="24" x2="296" y2="24" />
+            <circle class="board-handle" id="handle-1" cx="24" cy="296" r="9" tabindex="0" role="slider" aria-label="Birinci kontrol noktası" />
+            <circle class="board-handle" id="handle-2" cx="296" cy="24" r="9" tabindex="0" role="slider" aria-label="İkinci kontrol noktası" />
+            <circle class="board-dot" id="curve-dot" cx="24" cy="296" r="4" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- SUBTITLES ------------------------------------------------------- -->
+      <section class="feature feature-reverse" id="altyazi" aria-labelledby="altyazi-title">
+        <figure class="feature-visual" data-reveal>
+          <img
+            src="assets/subtitles.png"
+            width="1000"
+            height="500"
+            loading="lazy"
+            alt="Altyazı paneli: böl/birleştir, toplu stil ve giriş-bekleme-çıkış animasyonu"
+          />
+        </figure>
+        <div class="feature-copy" data-reveal>
+          <h2 id="altyazi-title">Altyazı, toplu düzeltilir.</h2>
+          <p>
+            SRT veya WebVTT’yi içe alın; oynatma konumunda bölün, bitişik
+            altyazıları tek satırda birleştirin, tümüne aynı stili ve aynı
+            giriş–bekleme–çıkış hareketini uygulayın. Metin bölünürken yakındaki
+            noktalama ve boşluk tercih edilir, kelime ortasından kesilmez.
+          </p>
+          <ul class="feature-list">
+            <li><b>Toplu stil</b> — yazı tipi, boyut, renk, kontur, satır aralığı, köşe.</li>
+            <li><b>Hareket</b> — yukarı kay, ölçek, nefes; kısa altyazıda otomatik kısalır.</li>
+            <li><b>Tek adım</b> — bölme, birleştirme, stil ve hareket ayrı ayrı geri alınır.</li>
+          </ul>
+          <p class="measure">
+            SRT yalnızca zaman ve metin taşır. Stil ve hareket kalsın istiyorsanız
+            videoyu dışa aktarın — arayüz bunu her seferinde söyler.
+          </p>
+        </div>
+      </section>
+
+      <!-- AUDIO ----------------------------------------------------------- -->
+      <section class="feature" id="ses" aria-labelledby="ses-title">
+        <div class="feature-copy" data-reveal>
+          <h2 id="ses-title">Konuşma varken<br />müzik kısılır.</h2>
+          <p>
+            CevikEdit önce müziğin ses düzeyini ölçer, sonra konuşmayı arar.
+            Algılama tamamen yerel: 20 ms’lik enerji pencereleri, gürültü tabanı ve
+            histerezis ile gerçek cümle aralıkları bulunur. Müzik yalnızca o
+            aralıklarda iner, cümle bitince geri gelir.
+          </p>
+          <ul class="feature-list">
+            <li><b>LUFS ölçümü</b> — EBU R128, −1 dBTP tavanıyla normalleştirme.</li>
+            <li><b>Konuşma aralıkları</b> — bulunamazsa uydurmaz; açıkça söyler.</li>
+            <li><b>Anahtar kare</b> — sonuç sıradan ses anahtar kareleri; sonradan düzenlenir.</li>
+          </ul>
+          <p class="measure">
+            Sentetik kabul kaydı: üç konuşma bloğu ±150 ms içinde bulundu; sessizlik
+            yanlışlıkla kısılmadı.
+          </p>
+        </div>
+        <figure class="feature-visual" data-reveal>
+          <img
+            src="assets/audio.png"
+            width="1000"
+            height="500"
+            loading="lazy"
+            alt="Ses araçları paneli: ses düzeyi ölçümü, normalleştirme ve konuşma algılama"
+          />
+        </figure>
+      </section>
+
+      <!-- SHOWCASE -------------------------------------------------------- -->
+      <section class="showcase" aria-labelledby="showcase-title">
+        <div class="showcase-copy" data-reveal>
+          <h2 id="showcase-title">Otuz saniye,<br />tek proje.</h2>
+          <p>
+            Aşağıdaki film CevikEdit ile üretildi: üç sahne, anahtar kareli
+            yakınlaşma, beş Türkçe altyazı, ölçülmüş ve normalleştirilmiş müzik,
+            konuşma altında kısılan ses. Proje dosyası ve şablonu da indirilebilir.
+          </p>
+          <a
+            class="button button-quiet"
+            href="https://github.com/sonosanli55/CevikEdit/raw/main/docs/media/hafta-demosu.mp4"
+            >Videoyu indir · 2,3 MB</a
+          >
+        </div>
+        <div class="showcase-strip" data-reveal>
+          <figure><img src="assets/demo-01.png" width="960" height="540" loading="lazy" alt="Demo filmi, açılış sahnesi" /><figcaption>00:01 · açılış</figcaption></figure>
+          <figure><img src="assets/demo-03.png" width="960" height="540" loading="lazy" alt="Demo filmi, üçüncü sahne" /><figcaption>00:17 · gün batımı</figcaption></figure>
+          <figure><img src="assets/demo-05.png" width="960" height="540" loading="lazy" alt="Demo filmi, kapanış sahnesi" /><figcaption>00:28 · kapanış</figcaption></figure>
+        </div>
+      </section>
+
+      <!-- NUMBERS --------------------------------------------------------- -->
+      <section class="numbers" aria-labelledby="numbers-title">
+        <h2 id="numbers-title" class="visually-hidden">Ölçülen değerler</h2>
+        <dl class="numbers-grid" data-reveal>
+          <div><dt>Test</dt><dd>458</dd><span>452 geçti · 0 başarısız</span></div>
+          <div><dt>Demo süresi</dt><dd>30,0<span class="unit">sn</span></dd><span>1280×720 · H.264</span></div>
+          <div><dt>Kurucu</dt><dd>200<span class="unit">KB</span></dd><span>en son sürümü indirir</span></div>
+          <div><dt>Hazır içerik</dt><dd>64</dd><span>özgün sticker, arka plan, ses</span></div>
+        </dl>
+      </section>
+
+      <!-- INSTALL --------------------------------------------------------- -->
+      <section class="install" id="kurulum" aria-labelledby="kurulum-title">
+        <div class="install-head" data-reveal>
+          <h2 id="kurulum-title">Kurulum, tek tık.</h2>
+          <p>
+            Küçük kurucu GitHub’daki en son sürümü bulur, indirir ve kurulumu
+            başlatır. Arkadaşınıza 130 MB dosya göndermeniz gerekmez; 200 KB’lık
+            bağlantı yeter.
+          </p>
+        </div>
+
+        <div class="install-grid" data-reveal>
+          <article class="install-card">
+            <h3>1 · Kurucuyu indir</h3>
+            <p>Tek dosya, 200 KB. Yönetici izni istemez.</p>
+            <a
+              class="button button-primary"
+              href="https://github.com/sonosanli55/CevikEdit/releases/latest/download/CevikEdit-Kurucu.exe"
+              data-bootstrap
+              >CevikEdit-Kurucu.exe</a
+            >
+            <p class="install-meta">SHA-256 ve sürüm notları sürüm sayfasında.</p>
+          </article>
+          <article class="install-card">
+            <h3>2 · Çalıştır</h3>
+            <p>
+              Kurucu sürümü sorar, indirmeyi gösterir. Dosya bittiğinde “Kur”
+              butonu görünür. SmartScreen uyarısı çıkarsa “Diğer bilgiler →
+              Yine de çalıştır”.
+            </p>
+          </article>
+          <article class="install-card">
+            <h3>3 · Kurguya başla</h3>
+            <p>
+              FFmpeg uygulama ile birlikte gelir. İlk açılışta proje oluşturun;
+              güncellemeler sağ üstteki bildirimden gelir.
+            </p>
+            <a class="button button-quiet" href="https://github.com/sonosanli55/CevikEdit">Kaynak kodu</a>
+          </article>
+        </div>
+
+        <p class="install-wall" data-reveal>
+          macOS paketi bu sürümde doğrulanmadı. Doğrulanmamış bir DMG yayınlamak
+          yerine yalnızca Windows x64 yayınlıyoruz.
+        </p>
+      </section>
+
+      <!-- LIMITS ---------------------------------------------------------- -->
+      <section class="limits" id="sinirlar" aria-labelledby="limits-title">
+        <div class="limits-head" data-reveal>
+          <h2 id="limits-title">Yapmadıkları</h2>
+          <p>
+            Bir aracı seçerken sınırlarını bilmek, özelliklerini bilmek kadar
+            önemli. Aşağıdakiler bilinçli olarak dışarıda:
+          </p>
+        </div>
+        <ul class="limits-list" data-reveal>
+          <li><b>HDR çıktısı yok.</b> HDR kaynaklar SDR BT.709’a eşlenir; HDR dosya yazmaz.</li>
+          <li><b>Bulut, hesap, telemetri yok.</b> Ekip iş akışı veya cihazlar arası senkron da yok.</li>
+          <li><b>CapCut’a geri yazmaz.</b> Şifreli taslak deposuna dokunmaz; açık JSON taslak verir.</li>
+          <li><b>macOS/Linux paketi doğrulanmadı.</b> Kod açar, paket yayınlanmadı.</li>
+          <li><b>Kare-hassas çoklu kamera ve eklenti mağazası yok.</b></li>
+          <li><b>İmzalama/notarization yok.</b> Kurulumda SmartScreen uyarısı görebilirsiniz.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div>
+          <img src="assets/app-icon.png" alt="" width="34" height="34" />
+          <p>CevikEdit · MIT lisanslı kaynak<br /><span>Gömülü Noto Sans SC (OFL 1.1)</span></p>
+        </div>
+        <nav aria-label="Bağlantılar">
+          <a href="https://github.com/sonosanli55/CevikEdit">GitHub</a>
+          <a href="https://github.com/sonosanli55/CevikEdit/releases">Sürümler</a>
+          <a href="https://github.com/sonosanli55/CevikEdit/blob/main/docs/USER_GUIDE.md">Kullanım kılavuzu</a>
+          <a href="#kurulum">İndir</a>
+        </nav>
+        <p class="footer-note">Bu sayfa izleme çerezi kullanmaz.</p>
+      </div>
+    </footer>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>

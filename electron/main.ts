@@ -47,6 +47,12 @@ import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, c
 import { setBundledMediaToolsDirectory } from "./mediaTools";
 import { measureLoudness, validateLoudnessRequest } from "./loudness";
 import { analyzeSpeech, validateSpeechRequest } from "./vad";
+import {
+  checkUpdates,
+  downloadUpdate,
+  installUpdate,
+  openUpdatePage,
+} from "./updateService";
 import { loadTemplates, readTemplateFile, removeTemplate, writeTemplate } from "./templates";
 import { serializeTemplate } from "../src/core/templates";
 import {
@@ -677,6 +683,15 @@ function registerIPC() {
     if (!metadata.isFile()) throw new Error("所选素材无效");
     return analyzeSpeech(request);
   });
+  handle("check-updates", () => checkUpdates());
+  handle("download-update", () => {
+    const owner = window?.webContents;
+    return downloadUpdate(userFile("updates"), (progress) => {
+      if (owner && !owner.isDestroyed()) owner.send("update-progress", progress);
+    });
+  });
+  handle("install-update", (installer: unknown) => installUpdate(installer));
+  handle("open-update-page", () => openUpdatePage());
   handle("list-templates", () => loadTemplates(userFile("templates")));
   handle("save-template", async (input: unknown) => {
     await writeTemplate(userFile("templates"), input);

@@ -1,6 +1,7 @@
 import type { AssistantEvent, AssistantMessage, AssistantProvider, AssistantProviderInfo, AssistantRequest } from "./assistantTypes";
 import type { Subtitle } from "./subtitles";
 import type { CevikEditTemplate } from "./templates";
+import type { UpdateInfo } from "./updates";
 export type MediaKind = "video" | "audio" | "image";
 export type TrackKind = MediaKind | "text";
 export interface MediaAsset {
@@ -292,8 +293,25 @@ export interface SpeechAnalysisResult {
 export interface AppSettings {
   ffmpegPath?: string;
   ffprobePath?: string;
-  language: "zh" | "en";
+  language: "tr" | "en";
   autosave: boolean;
+}
+
+/** Result of the in-app update check. */
+export interface UpdateState {
+  currentVersion: string;
+  available: UpdateInfo | null;
+  checkedAt: string;
+  error?: string;
+}
+
+export interface UpdateDownloadProgress {
+  received: number;
+  total: number;
+  percent: number;
+  status: "downloading" | "ready" | "error";
+  path?: string;
+  message?: string;
 }
 export interface RecentProject {
   path: string;
@@ -403,6 +421,13 @@ export interface EditorAPI {
     ffmpegPath?: string;
     ffprobePath?: string;
   }>;
+  checkForUpdates: () => Promise<UpdateState>;
+  downloadUpdate: () => Promise<string>;
+  installUpdate: (installer: string) => Promise<void>;
+  openUpdatePage: () => Promise<void>;
+  onUpdateProgress: (
+    callback: (event: UpdateDownloadProgress) => void,
+  ) => () => void;
   readTextFile: (
     extensions: string[],
   ) => Promise<{ text: string; name: string } | null>;

@@ -1,22 +1,22 @@
 {
-  "format": "reacut-template",
+  "format": "cevikedit-template",
   "version": 1,
-  "id": "52edc903-3de8-466a-9202-b4952e4a393b",
+  "id": "bb3dd8d9-ab5b-4602-8bbe-8d7764a1de39",
   "name": "Hafta demosu",
   "description": "Otuz saniyelik gösterim projesi; medya ve metin yer tutucularıyla.",
   "cover": "",
-  "createdAt": "2026-11-07T23:16:04.582Z",
+  "createdAt": "2026-11-11T12:45:54.990Z",
   "project": {
     "version": 1,
-    "id": "3dfd6062-3e7f-4cf2-8fe7-d768efd55ee5",
-    "name": "ReaCut · hafta demosu",
+    "id": "3ee8f9d5-0b88-44a5-9847-4929bc4b0646",
+    "name": "CevikEdit · hafta demosu",
     "width": 1280,
     "height": 720,
     "fps": 30,
     "background": "#0b1016",
     "assets": [
       {
-        "id": "8f37ccb7-2a41-4a59-bef5-03ff74487878",
+        "id": "72981dce-204e-4be9-b64a-41a87e1c5842",
         "name": "sahne-1.png",
         "path": "template://media/m1",
         "url": "template://media/m1",
@@ -26,10 +26,12 @@
         "height": 720,
         "fps": 0,
         "hasAudio": false,
+        "colorTransfer": "iec61966-2-1",
+        "colorPrimaries": "bt709",
         "missing": false
       },
       {
-        "id": "bf1e7c06-d398-4856-a04a-340e983e5872",
+        "id": "5adb3432-70bb-49c8-b1f7-e221f70c78be",
         "name": "sahne-2.png",
         "path": "template://media/m2",
         "url": "template://media/m2",
@@ -39,10 +41,12 @@
         "height": 720,
         "fps": 0,
         "hasAudio": false,
+        "colorTransfer": "iec61966-2-1",
+        "colorPrimaries": "bt709",
         "missing": false
       },
       {
-        "id": "bb9d0d82-34f9-4d63-8890-8277ddc1e9a6",
+        "id": "1e375ead-0360-41b7-b44f-f55f61fed15d",
         "name": "sahne-3.png",
         "path": "template://media/m3",
         "url": "template://media/m3",
@@ -52,10 +56,12 @@
         "height": 720,
         "fps": 0,
         "hasAudio": false,
+        "colorTransfer": "iec61966-2-1",
+        "colorPrimaries": "bt709",
         "missing": false
       },
       {
-        "id": "ad7c0d48-c05b-4fa0-9a84-7d14cffe6e2c",
+        "id": "5beaf302-5805-4b4f-b489-ea1751394782",
         "name": "anlati.wav",
         "path": "template://media/m4",
         "url": "template://media/m4",
@@ -68,7 +74,7 @@
         "missing": false
       },
       {
-        "id": "e048afcf-c846-4995-85bc-3abdf4534e96",
+        "id": "b912c7ae-8a58-47d9-af6a-6cdc35b2daaf",
         "name": "muzik.wav",
         "path": "template://media/m5",
         "url": "template://media/m5",
@@ -83,7 +89,7 @@
     ],
     "tracks": [
       {
-        "id": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "kind": "text",
         "name": "Altyazılar",
         "muted": false,
@@ -91,7 +97,7 @@
         "locked": false
       },
       {
-        "id": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "id": "bcebcffe-307e-4b09-93ac-2169e56cb343",
         "kind": "text",
         "name": "Başlıklar",
         "muted": false,
@@ -99,7 +105,7 @@
         "locked": false
       },
       {
-        "id": "51f251c2-3526-4c65-99f6-f963941f6ddf",
+        "id": "62ee7b0b-8598-46fe-8348-3575e41f1ec7",
         "kind": "video",
         "name": "视频 1",
         "muted": false,
@@ -107,7 +113,7 @@
         "locked": false
       },
       {
-        "id": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
+        "id": "586dc7c3-e346-47ea-a2d5-7c379006a08c",
         "kind": "audio",
         "name": "音频 1",
         "muted": false,
@@ -117,9 +123,9 @@
     ],
     "clips": [
       {
-        "id": "6ab5b714-ce49-4bc6-bcf1-06b279ea0a8f",
-        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
-        "name": "ReaCut",
+        "id": "b85e74a7-d0b4-42d4-899b-9b2f482e007c",
+        "trackId": "bcebcffe-307e-4b09-93ac-2169e56cb343",
+        "name": "CevikEdit",
         "start": 0.5,
         "duration": 3.6,
         "sourceIn": 0,
@@ -143,7 +149,7 @@
           "blur": 0
         },
         "text": {
-          "text": "ReaCut",
+          "text": "CevikEdit",
           "fontSize": 132,
           "fontFamily": "Noto Sans SC",
           "color": "#ffffff",
@@ -168,14 +174,14 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "0a9030fc-d53a-423a-bd5c-44fdfcaeb1c4",
+            "id": "0be1a84e-003f-4cb3-a275-f64a20018a39",
             "time": 0,
             "property": "y",
             "value": -27.6,
             "easing": "linear"
           },
           {
-            "id": "9ca74682-b7af-4960-9629-bfee342277bd",
+            "id": "e693655c-f298-44ee-a0c6-a69dd015155c",
             "time": 0.8,
             "property": "y",
             "value": -60,
@@ -184,9 +190,9 @@
         ]
       },
       {
-        "id": "95fc0432-dc26-46c1-bdb2-9e0aa92958b8",
-        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
-        "assetId": "8f37ccb7-2a41-4a59-bef5-03ff74487878",
+        "id": "d9614c7f-d8f2-4dfc-a30c-81d3bc49e3ee",
+        "trackId": "62ee7b0b-8598-46fe-8348-3575e41f1ec7",
+        "assetId": "72981dce-204e-4be9-b64a-41a87e1c5842",
         "name": "Sabah ışığı",
         "start": 0,
         "duration": 8,
@@ -216,14 +222,14 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "87c72a98-2bb7-4c5a-a5ec-416e197dbe76",
+            "id": "9669ecd6-f936-4c79-ba8e-36eede64bca8",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "b9ebecaa-d1df-470a-afd2-e5b3a707775e",
+            "id": "5978b73f-5989-45a4-933c-154fa7750220",
             "time": 8,
             "property": "scale",
             "value": 1.07,
@@ -232,8 +238,8 @@
         ]
       },
       {
-        "id": "ce8aa296-ede2-4338-9230-b85826c2eace",
-        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "id": "66f53d7d-e73d-4eb5-bbfd-aac72c77fc22",
+        "trackId": "bcebcffe-307e-4b09-93ac-2169e56cb343",
         "name": "Sabah ışığı",
         "start": 0.2,
         "duration": 4.4,
@@ -284,9 +290,9 @@
         "keyframes": []
       },
       {
-        "id": "dcfd274e-5476-420a-926f-3fe397adc3f5",
-        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
-        "assetId": "bf1e7c06-d398-4856-a04a-340e983e5872",
+        "id": "bf783289-e1bb-4ac1-9891-b504b8a3ebba",
+        "trackId": "62ee7b0b-8598-46fe-8348-3575e41f1ec7",
+        "assetId": "5adb3432-70bb-49c8-b1f7-e221f70c78be",
         "name": "Açık su",
         "start": 8,
         "duration": 8,
@@ -316,14 +322,14 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "2c28eee6-556f-4dfb-b073-20c7588b77cd",
+            "id": "84b4d25b-7cf2-4e19-9d41-2adb19d83e7c",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "9d316a83-14d7-4179-899e-9715e3262194",
+            "id": "461891a8-4eef-4d7b-a418-3506891e7188",
             "time": 8,
             "property": "scale",
             "value": 1.07,
@@ -332,8 +338,8 @@
         ]
       },
       {
-        "id": "9790ea00-33f8-4997-adf6-fed813047d5a",
-        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "id": "0c031bb4-6c1c-4bbd-a371-acadf65f9d3a",
+        "trackId": "bcebcffe-307e-4b09-93ac-2169e56cb343",
         "name": "Açık su",
         "start": 8.2,
         "duration": 4.4,
@@ -384,9 +390,9 @@
         "keyframes": []
       },
       {
-        "id": "e50cf2ec-d890-44f2-a33f-91413af22e7c",
-        "trackId": "51f251c2-3526-4c65-99f6-f963941f6ddf",
-        "assetId": "bb9d0d82-34f9-4d63-8890-8277ddc1e9a6",
+        "id": "6b1a58a9-327a-49dd-846f-35d1ec620c4a",
+        "trackId": "62ee7b0b-8598-46fe-8348-3575e41f1ec7",
+        "assetId": "1e375ead-0360-41b7-b44f-f55f61fed15d",
         "name": "Gün batımı",
         "start": 16,
         "duration": 14,
@@ -416,14 +422,14 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "a8517f1b-f955-42f5-ad13-f70d7a0ee3af",
+            "id": "45182032-a225-40ed-8b25-1ba52ad82854",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "57a8af9d-59ac-4ef3-850e-a69b3d6a2196",
+            "id": "dd1f26cf-f95b-4aec-a803-d8d404ff51e9",
             "time": 14,
             "property": "scale",
             "value": 1.07,
@@ -432,8 +438,8 @@
         ]
       },
       {
-        "id": "efc60a76-7b70-4675-971f-7b9a16dd686f",
-        "trackId": "1353d511-8add-4f5e-90c0-4174478d8431",
+        "id": "ad7932bf-eadd-4d3a-a1dc-af054025494b",
+        "trackId": "bcebcffe-307e-4b09-93ac-2169e56cb343",
         "name": "Gün batımı",
         "start": 16.2,
         "duration": 4.4,
@@ -484,8 +490,8 @@
         "keyframes": []
       },
       {
-        "id": "486c1ab9-2a73-4125-86f0-be61ea951942",
-        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "e00db915-b9c1-40d4-97c4-96b474e5e818",
+        "trackId": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "name": "Her şey bu bilgisayarda kalır",
         "start": 1.2,
         "duration": 4,
@@ -535,35 +541,35 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "a6fe3e46-d8ed-4d60-a5ae-c23b7f928300",
+            "id": "976b91b4-a555-4107-bbf9-6b8a97b082d0",
             "time": 0,
             "property": "y",
             "value": 323.2,
             "easing": "linear"
           },
           {
-            "id": "81460e4c-a1ef-4009-9a21-77329f0c6535",
+            "id": "5ac0884a-0a12-420f-bcfd-ca404b68ff00",
             "time": 0.5,
             "property": "y",
             "value": 280,
             "easing": "easeOut"
           },
           {
-            "id": "5840bc8d-db7c-4240-8ac3-087299c91cec",
+            "id": "a0eb0925-4d95-496e-9d86-65be13f041e6",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "3b059ea0-c56d-4700-8167-967ef4ecbd7b",
+            "id": "51f0b432-cb58-489a-861e-2ac38ef844e4",
             "time": 2.033333333333333,
             "property": "scale",
             "value": 1.04,
             "easing": "easeInOut"
           },
           {
-            "id": "4403dded-2c8f-425c-9532-b2406adeca2c",
+            "id": "6f52b52d-af90-40d4-8c5e-9901f5fbfb81",
             "time": 3.6,
             "property": "scale",
             "value": 1,
@@ -572,8 +578,8 @@
         ]
       },
       {
-        "id": "502107f8-5e78-43c6-9e27-6351d99281c9",
-        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "4e011879-e2be-4a33-8152-d7190076cd66",
+        "trackId": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "name": "Kes, böl,\nyerleştir",
         "start": 8.4,
         "duration": 5,
@@ -623,14 +629,14 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "5da94540-8abf-4142-aec6-cfb4b8e23c07",
+            "id": "3d33697a-4c27-4f1d-b606-5155b1f4f852",
             "time": 0,
             "property": "y",
             "value": 323.2,
             "easing": "linear"
           },
           {
-            "id": "61d5187a-3923-41d1-a8b8-9fd3a9636853",
+            "id": "c1811433-4d43-416f-8b14-d91c31dc2855",
             "time": 0.5,
             "property": "y",
             "value": 280,
@@ -641,21 +647,21 @@
             }
           },
           {
-            "id": "ea0bcf96-7d95-4e1f-8c53-43f267c83545",
+            "id": "881d3fb5-2a67-4dc6-be62-ce6c42673015",
             "time": 2.5,
             "property": "y",
             "value": 280,
             "easing": "linear"
           },
           {
-            "id": "da341e56-1ed0-42e1-8905-f670e1be2475",
+            "id": "5ebb9e8b-f6ed-4782-b58d-2fe51eb6bbef",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "40bf805e-c794-495e-b114-c37617642b2f",
+            "id": "48092336-ac7c-4bb7-a9a5-1828ec9f02c0",
             "time": 2.5,
             "property": "scale",
             "value": 1.0399204438671465,
@@ -668,8 +674,8 @@
         ]
       },
       {
-        "id": "d76873a7-dcee-4dca-93d8-a66710acfd83",
-        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "3b6a29a6-8ef9-440c-9799-adf7afdd6f5d",
+        "trackId": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "name": "Anahtar karelerle hareket",
         "start": 15.6,
         "duration": 4.799999999999999,
@@ -719,35 +725,35 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "07620cea-42b6-44c6-a0e2-3fbf6d57dce6",
+            "id": "618f2aa0-2523-4992-bb82-c809e465345a",
             "time": 0,
             "property": "y",
             "value": 323.2,
             "easing": "linear"
           },
           {
-            "id": "46b84c88-a748-4a54-8533-34dda11a8faf",
+            "id": "ac7933d8-5548-4674-a1ae-f443efefcc42",
             "time": 0.5,
             "property": "y",
             "value": 280,
             "easing": "easeOut"
           },
           {
-            "id": "32b1279f-01b4-4e1d-afd4-8768e25d61d6",
+            "id": "9e157103-9a59-40f2-8f44-82e647773be8",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "c610f064-f2b3-428a-8a8c-4455b3cc2902",
+            "id": "390fb731-6176-4870-bb8c-0c16f6ab840d",
             "time": 2.433333333333333,
             "property": "scale",
             "value": 1.04,
             "easing": "easeInOut"
           },
           {
-            "id": "90874894-0c73-4f97-b78c-7d66776c30a1",
+            "id": "c3766abf-38dc-4110-96a2-c52f2c79744e",
             "time": 4.4,
             "property": "scale",
             "value": 1,
@@ -756,8 +762,8 @@
         ]
       },
       {
-        "id": "3b721dec-4e0f-47ff-bed2-4f8afe12c4a6",
-        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "1d03b608-3ccb-47ba-a52b-d3b41c9c2840",
+        "trackId": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "name": "Konuşurken müzik kısılır",
         "start": 21.6,
         "duration": 4.399999999999999,
@@ -807,35 +813,35 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "f412179b-85e1-4988-8bae-2ea2dcba324e",
+            "id": "c85d752b-28c3-45fd-8c6c-623cd25bc980",
             "time": 0,
             "property": "y",
             "value": 323.2,
             "easing": "linear"
           },
           {
-            "id": "eefacc21-5c23-49b5-b8e7-c736a69be440",
+            "id": "a4b08e34-d36c-48e4-920c-42798e8d0bf0",
             "time": 0.5,
             "property": "y",
             "value": 280,
             "easing": "easeOut"
           },
           {
-            "id": "f09921db-e481-478a-a9d7-6685482f0371",
+            "id": "a1633f77-6a15-4001-9393-6e5393cdc044",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "f6f665ba-c14e-4821-b98b-f71f142880d4",
+            "id": "a2c49bbe-e8bd-4adb-beee-7d94ba0718d1",
             "time": 2.2333333333333334,
             "property": "scale",
             "value": 1.04,
             "easing": "easeInOut"
           },
           {
-            "id": "0b04d9bf-9a23-46f8-9be9-e5cd2e5ef612",
+            "id": "cd16c649-dfe0-46ff-acc1-bb2f66fc6fea",
             "time": 4,
             "property": "scale",
             "value": 1,
@@ -844,8 +850,8 @@
         ]
       },
       {
-        "id": "44ba2750-5bf2-4538-8ba4-cedd23d0d05c",
-        "trackId": "ee4a00d0-607c-4add-9ed6-0abf2b566118",
+        "id": "38e1520b-a4c6-4059-a30e-98356521751b",
+        "trackId": "402137c2-20ba-4fe0-a07d-1ee94ccf48d6",
         "name": "Şablonla saniyeler içinde başla",
         "start": 26.4,
         "duration": 3.6000000000000014,
@@ -895,35 +901,35 @@
         "audioFadeOut": 0,
         "keyframes": [
           {
-            "id": "0560719f-b9ef-4eb9-83de-9c715b824175",
+            "id": "14facef1-8214-4800-a425-a26dae119114",
             "time": 0,
             "property": "y",
             "value": 323.2,
             "easing": "linear"
           },
           {
-            "id": "8711ef7c-317f-4486-9912-e87ebe4b0b99",
+            "id": "369b2394-ec47-4685-8569-fb4a3b86d7ef",
             "time": 0.5,
             "property": "y",
             "value": 280,
             "easing": "easeOut"
           },
           {
-            "id": "d984fc4f-9ceb-463d-9187-be15f8793907",
+            "id": "0312d155-bcbd-4504-ac81-dc7c07a8b278",
             "time": 0,
             "property": "scale",
             "value": 1,
             "easing": "linear"
           },
           {
-            "id": "c103a42c-4c90-4309-9917-5ed844b874c2",
+            "id": "ebe5bce1-3094-413f-aa0d-61a46b05e1c1",
             "time": 1.8666666666666667,
             "property": "scale",
             "value": 1.04,
             "easing": "easeInOut"
           },
           {
-            "id": "9f45681f-5edb-4d8f-9552-8f05a15dbb3c",
+            "id": "0033ea83-a7d6-4517-a084-f971227e2233",
             "time": 3.2,
             "property": "scale",
             "value": 1,
@@ -932,9 +938,9 @@
         ]
       },
       {
-        "id": "3c703dbf-a6c2-4ea2-b2b4-ddbddec94af1",
-        "trackId": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
-        "assetId": "ad7c0d48-c05b-4fa0-9a84-7d14cffe6e2c",
+        "id": "cc05d0f2-f526-404e-8839-83a92401c7ef",
+        "trackId": "586dc7c3-e346-47ea-a2d5-7c379006a08c",
+        "assetId": "5beaf302-5805-4b4f-b489-ea1751394782",
         "name": "anlatı",
         "start": 0,
         "duration": 30,
@@ -965,9 +971,9 @@
         "keyframes": []
       },
       {
-        "id": "0d62a4f5-64bb-42ca-95d8-030b127bd42f",
-        "trackId": "ef72061a-0c66-48b0-bb95-725734d5fa0e",
-        "assetId": "e048afcf-c846-4995-85bc-3abdf4534e96",
+        "id": "f97f8ff1-09c6-4ca7-9354-9217dd5a5640",
+        "trackId": "586dc7c3-e346-47ea-a2d5-7c379006a08c",
+        "assetId": "b912c7ae-8a58-47d9-af6a-6cdc35b2daaf",
         "name": "müzik",
         "start": 0,
         "duration": 30,
@@ -997,14 +1003,14 @@
         "audioFadeOut": 1.6,
         "keyframes": [
           {
-            "id": "7ffdc499-3df9-4be8-bd4c-9b7f7f602862",
+            "id": "6b13c339-3fc4-4cc8-b0d3-6aaed8b6a282",
             "time": 0,
             "property": "volume",
             "value": 0.4026892205995334,
             "easing": "linear"
           },
           {
-            "id": "ef2dc36b-33e8-4355-95fe-9e7133060c63",
+            "id": "ca4d50ec-287d-44ae-83b0-aca06ebe494a",
             "time": 30,
             "property": "volume",
             "value": 0.4026892205995334,
@@ -1013,8 +1019,8 @@
         ]
       }
     ],
-    "createdAt": "2026-11-07T23:16:03.939Z",
-    "updatedAt": "2026-11-07T23:16:03.939Z"
+    "createdAt": "2026-11-11T12:45:53.934Z",
+    "updatedAt": "2026-11-11T12:45:53.934Z"
   },
   "media": [
     {
@@ -1060,63 +1066,63 @@
   ],
   "texts": [
     {
-      "key": "6ab5b714-ce49-4bc6-bcf1-06b279ea0a8f",
+      "key": "b85e74a7-d0b4-42d4-899b-9b2f482e007c",
       "label": "Metin 1",
-      "text": "ReaCut",
+      "text": "CevikEdit",
       "start": 0.5,
       "duration": 3.6
     },
     {
-      "key": "ce8aa296-ede2-4338-9230-b85826c2eace",
+      "key": "66f53d7d-e73d-4eb5-bbfd-aac72c77fc22",
       "label": "Metin 2",
       "text": "Sabah ışığı",
       "start": 0.2,
       "duration": 4.4
     },
     {
-      "key": "9790ea00-33f8-4997-adf6-fed813047d5a",
+      "key": "0c031bb4-6c1c-4bbd-a371-acadf65f9d3a",
       "label": "Metin 3",
       "text": "Açık su",
       "start": 8.2,
       "duration": 4.4
     },
     {
-      "key": "efc60a76-7b70-4675-971f-7b9a16dd686f",
+      "key": "ad7932bf-eadd-4d3a-a1dc-af054025494b",
       "label": "Metin 4",
       "text": "Gün batımı",
       "start": 16.2,
       "duration": 4.4
     },
     {
-      "key": "486c1ab9-2a73-4125-86f0-be61ea951942",
+      "key": "e00db915-b9c1-40d4-97c4-96b474e5e818",
       "label": "Metin 5",
       "text": "Her şey bu bilgisayarda kalır",
       "start": 1.2,
       "duration": 4
     },
     {
-      "key": "502107f8-5e78-43c6-9e27-6351d99281c9",
+      "key": "4e011879-e2be-4a33-8152-d7190076cd66",
       "label": "Metin 6",
       "text": "Kes, böl,\nyerleştir",
       "start": 8.4,
       "duration": 5
     },
     {
-      "key": "d76873a7-dcee-4dca-93d8-a66710acfd83",
+      "key": "3b6a29a6-8ef9-440c-9799-adf7afdd6f5d",
       "label": "Metin 7",
       "text": "Anahtar karelerle hareket",
       "start": 15.6,
       "duration": 4.799999999999999
     },
     {
-      "key": "3b721dec-4e0f-47ff-bed2-4f8afe12c4a6",
+      "key": "1d03b608-3ccb-47ba-a52b-d3b41c9c2840",
       "label": "Metin 8",
       "text": "Konuşurken müzik kısılır",
       "start": 21.6,
       "duration": 4.399999999999999
     },
     {
-      "key": "44ba2750-5bf2-4538-8ba4-cedd23d0d05c",
+      "key": "38e1520b-a4c6-4059-a30e-98356521751b",
       "label": "Metin 9",
       "text": "Şablonla saniyeler içinde başla",
       "start": 26.4,

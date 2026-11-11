@@ -59,6 +59,7 @@ import { describeColor, hdrWarnings } from "./core/colorManagement";
 import { importCapcutDraft } from "./core/capcutImport";
 import SubtitlePanel from "./components/SubtitlePanel";
 import TemplatesLibrary from "./components/TemplatesLibrary";
+import { UpdateBanner, UpdateSettings, useUpdater } from "./components/UpdateCenter";
 import type { PlacementMode } from "./core/placement";
 import AudioTools from "./components/AudioTools";
 import PackageDialog from "./components/PackageDialog";
@@ -531,6 +532,7 @@ async function browserAssets(files: File[]): Promise<MediaAsset[]> {
 }
 export default function App() {
   const s = useEditorStore();
+  const updater = useUpdater(!!window.editorAPI);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [sourceAssetId, setSourceAssetId] = useState<string | null>(null);
   const sourceAsset = s.project.assets.find(asset => asset.id === sourceAssetId);
@@ -1623,6 +1625,7 @@ export default function App() {
           </button>
         </div>
       </footer>
+      <UpdateBanner updater={updater} />
       {toast && (
         <div role="status" className="toast">
           <Info size={16} />
@@ -1775,8 +1778,8 @@ export default function App() {
                 选择 FFprobe
               </button>
             </div>
-            <h3>最近项目</h3>
-            {recent.length === 0 ? (
+            <UpdateSettings updater={updater} />
+            <h3>最近项目</h3>            {recent.length === 0 ? (
               <p className="muted small">保存或打开项目后会出现在这里。</p>
             ) : (
               <div className="recent-list">
