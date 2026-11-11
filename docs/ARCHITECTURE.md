@@ -67,6 +67,11 @@ renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程
 - audioMix 是纯计划层：`loudnorm` 的 stderr 汇总由主进程解析，增益与真峰值钳制、语音/音乐阈值与音量关键帧包络都在核心计算；写入沿用普通片段音量字段，因此预览与导出无需新的音频路径。
 - templates 定义 `.reacut-template`：模板工程只保存 `template://media/<slot>` 占位与槽位清单，保存时丢弃未使用素材和缓存，实例化时重建全部 ID、把媒体重置到源 0 并按可用长度裁剪；`electron/templates.ts` 负责原子读写与逐文件校验，损坏文件只产生警告。
 - timelineView 把时间线的比例、光标锚定缩放、可见区间、适配比例与平移边界做成纯函数；Timeline 只负责读取滚动容器并把结果同步回状态。缩放和平移属于视图状态，不进入工程或撤销栈。
+- bezier 提供自由 cubic-Bézier：Newton 求根 + 二分回退，Y 允许过冲；预览用精确解，导出用 24 段折线表。keyframeRatio 统一优先使用曲线，其次具名预设。
+- timelineMotion 负责惯性、指针速度与迷你地图几何；limits 负责大工程阈值、可视切片与导出内存估算；二者都是纯函数，视图状态不进入工程。
+- vad 在核心层做离线语音检测（能量帧、噪声底、迟滞、合句），主进程只负责解码为 16 kHz 单声道 PCM；Ducking 接受可选检测区间。
+- colorManagement 依据 FFprobe 元数据判定 PQ/HLG，导出对 HDR 图层插入 zscale + hable 链并显式输出 bt709 标记；项目本身保持 SDR。
+- draftExchange 生成开放的纯文本草稿 JSON（微秒时间范围 + 完整工程侧信道），不写入第三方加密存储。
 - portableProject 定义版本化 reacut-portable 封装。仅接受受限 media/UUID.ext 相对路径，解析时校验 realpath 边界；绝对媒体路径仍经现有授权协议提供给 renderer。流式复制到临时文件夹，失败/取消清理，完成后 rename；保存保留相对引用。首次 SHA-256 清单是历史记录。
 - exportRange 校验时间边界和一帧下限；合成保留原时间轴，最终 trim/atrim 并重置时间戳，保持动画和淡化相位。完全在区间外的素材不进入渲染输入。
 

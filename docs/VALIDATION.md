@@ -1,5 +1,63 @@
 # 本机验证记录
 
+## 收尾：贝塞尔、惯性/小地图、VAD、4K 限流、HDR 与草稿交换（2026-11-11）
+
+上一轮列出的六项缺口按“可验证、可解释”的方式逐项落地，每项都有单元测试和真实桌面/FFmpeg 证据。
+
+### 自由贝塞尔缓动
+
+钥匙帧可选 `bezier: {x1,y1,x2,y2}`，存在时优先于具名预设。`src/core/bezier.ts` 用 Newton 迭代求 `x(t)=ratio`，失败时退化为二分；Y 允许 −1～2 以表达“先回拉再冲过”。动画页新增“Özel Bézier”选项、可拖动的两个控制点、四个数值输入和四个预设（Yumuşak/Hızlı/Geri çek/Doğrusal）。预览按公式求值，导出把同一条曲线离散为 24 段折线写进 FFmpeg 表达式；`validateProject` 拒绝越界句柄和 `x1 > x2`。
+
+- `tests/bezier.test.ts` 7 项：端点与单调性、线性近似、真实过冲、非法句柄拒绝、缓动优先级、工程校验、导出表达式与预览在 0–100 数值范围内的最大误差 < 1（不到 1%）。
+- `tests/model.test.ts` 41 项保持通过；`tests/keyframe-electron.ts` 曲线、拖动、复制、精确输入与 90 帧预览/导出比对全部通过。
+
+### 时间线惯性滚动与迷你地图
+
+`src/core/timelineMotion.ts` 提供帧率无关的指数衰减滑行（0.92/帧、6 px/s 停止、6000 px/s 上限）、指针速度估计、迷你地图归一化几何与点击居中。中键/Alt 拖动后会继续滑行并在边缘停止；时间线底部新增 22 px 迷你地图，显示全部片段条、可视窗口与播放头，点击跳转，工具栏“Harita”可开关。
+
+- `tests/timelineMotion.test.ts` 7 项：减速、帧率无关、上限/异常 delta、速度估计、几何、空时间线与点击居中。
+- `tests/timeline-view-electron.ts` 12 项（新增 2 项）：快速甩动后 `scrollLeft` 继续增加、迷你地图点击跳转与开关；原有缩放锚定、钳制、适配等检查全部保持。
+
+### 离线 VAD 驱动的自动压低
+
+`src/core/vad.ts` 用 20 ms 窗口能量、10% 分位噪声底、+8 dB 相对阈值与 ±2 dB 迟滞判定语音，合并小于 0.35 s 的停顿、丢弃小于 0.25 s 的爆音，并按 `sourceIn`/`speed` 映射回时间线。主进程 `analyze-speech` 将片段区间解码为 16 kHz 单声道 f32 后复用同一检测器。音频面板新增“Konuşma aralıklarını algıla”和“Yalnızca gerçek konuşma”；`prepareDucking` 接受可选 `ranges`，只在这些区间内压低，未提供时保持原来的整段行为。
+
+- `tests/vad.test.ts` 12 项：三段爆发、桥接短停顿、忽略点击、恒定噪声不误判、阈值随噪声底变化、异常参数、分帧、时间线映射、仅按检测区间压低、区间裁剪、非法区间拒绝、旧行为不变。
+- `tests/vad.integration.test.ts` 3 项真实 FFmpeg：合成三段语音状爆发全部在 150 ms 内定位、静音段不误报、导出的音乐包络在 1.5 s 与 6.5 s 压低而在 2.6 s 恢复。
+- `tests/audio-tools-electron.ts` 8 项：常量音调被正确判为“未找到语音”而不是盲目压低，原有测量/归一化/压低/重开检查保持通过。
+
+### 4K 与大工程限流
+
+`src/core/limits.ts` 给出软阈值（300 片段、2000 关键帧、300 文本、40 轨道、1 小时）、导出内存估算与土耳其语提示。时间线在片段数超过 240 时只渲染可视切片（两侧各留 25% 余量），小工程仍渲染全部以保证选中与无障碍语义。导出对话框显示帧数、峰值内存估算与提示，超出内存预算时阻止开始。
+
+- `tests/limits.test.ts` 6 项：指标、正常工程无告警、4K 说明、各阈值告警、内存估算与拒绝、可视裁剪（含跨窗口长片段）、2000 片段时纯计算耗时。
+- `tests/limits-electron.ts` 5 项真实桌面：401 片段 4K 工程 978 ms 打开且仅绘制 14 个、滚到末端能画出远端片段、缩放 260 ms、导出预览显示 `90.120 kare · 443 MB tepe bellek tahmini · 401 klip` 与两条提示、保存后 401 片段完整。
+
+### HDR 与色彩管理
+
+`src/core/colorManagement.ts` 依据 FFprobe 的 `color_transfer`/`color_primaries`/位深判定 SDR、PQ、HLG（bt2020 且 ≥10 bit 视为 PQ），导入时写入素材元数据并在媒体库显示 HDR/HLG 徽标。导出对 HDR 图层先 `zscale`→线性→`tonemap=hable`→BT.709，再进入几何/合成；输出显式标记 `bt709` 三件套。对话框说明“HDR 源会映射到 SDR”。
+
+- `tests/colorManagement.test.ts` 4 项：分类、滤镜链（HLG 先展开）、输出标记、徽标与警告文案。
+- `tests/hdr.integration.test.ts` 4 项真实 FFmpeg：带 PQ/bt2020 标签的源被识别为 HDR、导出后不再是 smpte2084/bt2020、SDR 源行为不变、再次打开工程保留元数据。
+- `tests/export.integration.test.ts` 24 项与 `tests/app-electron.ts` 15 项保持通过（BT.709 标记未破坏既有像素断言）。
+
+### 草稿交换导出（不做剪映写回）
+
+`src/core/draftExchange.ts` 输出**开放的纯文本**草稿文档：`materials.videos/audios/texts`、`tracks[].segments`（微秒 `target_timerange`/`source_timerange`、speed、volume），并附带完整工程作为无损侧信道。文件菜单“Taslak değişim dosyasını dışa aktar (JSON)”写入用户选择的位置，提示明确说明**这不是剪映加密草稿、剪映无法直接打开**。
+
+**刻意不实现剪映加密草稿写回**：该格式为第三方专有，载荷密钥属于其应用，向其存储写入属于超出本项目授权范围的操作（AGENTS.md 的保守边界）。本项以“可往返的开放交换格式”交付，而非修改第三方文件。
+
+- `tests/draftExchange.test.ts` 5 项：文档结构、经现有明文导入器往返后时间/速度/文本一致、侧信道不改源工程、校验与拒绝、自定义名称。
+- `tests/draft-electron.ts` 3 项真实桌面：菜单导出并落盘、导出文件重新导入得到 2 个片段且界面无中文残留、源 `.reacut` 未被修改。
+
+### 综合结果
+
+- 整套 `npm test`：**458 项，452 通过、6 跳过、0 失败**（49 个文件）。
+- `npm run typecheck`、`npm run build` 通过；`npx tsx scripts/i18n-audit.ts` 0 未翻译。审计脚本新增独立的字面量正则扫描，修复了此前依赖括号状态机而漏报的问题。
+- 桌面回归：`app-electron` 15、`keyframe-electron` 7、`templates-electron` 7、`timeline-view-electron` 12、`limits-electron` 5、`audio-tools-electron` 8、`subtitle-electron` 15、`draft-electron` 3，均无 renderer 错误。
+
+限制：贝塞尔在导出侧是 24 段折线近似（预览为精确解），极端句柄下误差仍小于动画量程 1%；4K 预览通过画布缩放而非独立代理渲染，超长 4K 时间线滚动仍受 Chromium 合成限制；VAD 面向 20 ms 能量的近场人声，音乐/强噪声场景需要人工调整或改用区间选择；HDR 统一映射到 SDR BT.709，不输出 HDR 成片，也不做峰值亮度元数据；草稿交换格式是 ReaCut 自有格式，不保证任何第三方编辑器可读。全部验证仍只在 Windows 10 x64 与 FFmpeg 8.0 上完成，macOS/Linux 未实机复核。
+
 ## 模板与 0.6.0 候选包（2026-11-08）
 
 ### 可复用模板

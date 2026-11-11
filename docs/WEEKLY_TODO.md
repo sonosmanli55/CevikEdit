@@ -93,3 +93,4 @@
 | 2026-10-26 | 30 秒端到端影片（模板+关键帧+字幕动画+响度/压低）、Windows 0.6.0 候选包与打包冒烟 | `showcase` 1 项、打包 `ReaCut.exe` 5 项 | 0.6.0；`docs/media/hafta-demosu.mp4` | macOS DMG/ZIP 未构建（无 macOS 环境） |
 | 2026-11-07 | 修复 Windows 上 CLI 脚本启动（shebang 解释器）、主进程 181 条中文错误本地化、助手土耳其语提示词与回复、可搬移包土耳其语文件名与说明 | 整套测试首次全绿：398 项，392 通过、6 跳过、0 失败；`mainLocale` 3 项、助手桌面 13 项、portable 6 项 | 见本次提交 | Windows 仍不支持 `.cmd/.bat/.ps1`；macOS/Linux 未实机复核 |
 | 2026-11-08 | 可复用模板（保存/新建/批量替换/导入导出 + 3 套内置）、30 秒端到端演示、0.6.0 Windows 候选包 | `templates` 11 项 + 桌面 7 项、`showcase` 1 项（30.0 秒 720p 实际导出）、打包 `ReaCut.exe` 5 项 | 0.6.0 提交；`release/ReaCut Setup 0.6.0.exe`；`docs/media/hafta-demosu.mp4` | macOS DMG/ZIP 未构建（无 macOS 环境）；Linux 未验证 |
+| 2026-11-11 | 自由贝塞尔缓动、时间线惯性+迷你地图、离线 VAD 自动压低、4K/大工程限流、HDR→SDR BT.709、开放草稿交换导出 | `bezier` 7、`timelineMotion` 7、`vad` 12+3、`limits` 6+桌面 5、`colorManagement` 4+4、`draftExchange` 5+桌面 3；整套 458 项 452 通过 6 跳过 0 失败 | 见本次提交 | 不写回剪映加密草稿（授权边界）；不输出 HDR 成片；macOS/Linux 未实机复核 |
