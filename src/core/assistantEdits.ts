@@ -174,7 +174,7 @@ export function previewAssistantEdits(input: Project, actions: unknown): Assista
 }
 
 const safeName = (value: string, max = 120) => value
-  .replace(/(?:[a-z][a-z\d+.-]*:\/\/|reacut-media:|[A-Za-z]:[\\/]|\\\\|\/)[^\s]*/gi, "[本地内容]")
+  .replace(/(?:[a-z][a-z\d+.-]*:\/\/|cevikedit-media:|[A-Za-z]:[\\/]|\\\\|\/)[^\s]*/gi, "[本地内容]")
   .replace(/\0/g, "").slice(0, max);
 const safeId = (value: string) => value.length <= 256 && !/[\0\s/\\:]/.test(value);
 

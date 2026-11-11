@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-const key = 'reacut-panel-widths-v1';
+const key = 'cevikedit-panel-widths-v1';
 type Widths = [number, number];
 function read(): Widths | null {
   try { const value: unknown = JSON.parse(localStorage.getItem(key) ?? 'null'); return Array.isArray(value) && value.length === 2 && value.every(n => typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 1) ? value as Widths : null; } catch { return null; }

@@ -19,7 +19,7 @@ const width = 160,
   seconds = 3,
   frames = fps * seconds,
   source = path.join(output, "reverse-source.mp4"),
-  saved = path.join(output, "clip-tools.reacut"),
+  saved = path.join(output, "clip-tools.cevikedit"),
   exported = path.join(output, "clip-tools.mp4");
 const frameDirectory = path.join(output, "frames");
 await mkdir(frameDirectory, { recursive: true });
@@ -70,11 +70,11 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,

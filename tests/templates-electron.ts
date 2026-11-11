@@ -40,8 +40,8 @@ title.duration = 3;
 title.text!.text = "Şablon başlığı";
 project.clips = [visual, title];
 
-const original = path.join(output, "kaynak.reacut");
-const exported = path.join(output, "ihrac.reacut-template");
+const original = path.join(output, "kaynak.cevikedit");
+const exported = path.join(output, "ihrac.cevikedit-template");
 await writeFile(original, JSON.stringify(project));
 
 const env: Record<string, string> = Object.fromEntries(
@@ -49,10 +49,10 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-delete env.REACUT_LOCALE;
+delete env.CEVIKEDIT_LOCALE;
 
 const app = await electron.launch({
   args: [path.join(root, "dist-electron/main.cjs")],
@@ -76,7 +76,7 @@ try {
       };
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
-        filePath: args.at(-1)?.defaultPath?.endsWith(".reacut-template")
+        filePath: args.at(-1)?.defaultPath?.endsWith(".cevikedit-template")
           ? files.exported
           : files.saved,
       });
@@ -91,10 +91,10 @@ try {
   await page.getByRole("button", { name: "Proje aç", exact: false }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(2);
 
-  const templateDir = path.join(env.REACUT_USER_DATA, "templates");
+  const templateDir = path.join(env.CEVIKEDIT_USER_DATA, "templates");
   const templateFiles = async () =>
     (await readdir(templateDir).catch(() => [])).filter((name) =>
-      name.endsWith(".reacut-template"),
+      name.endsWith(".cevikedit-template"),
     );
 
   await page.getByRole("button", { name: "Şablonlar", exact: true }).click();
@@ -142,7 +142,7 @@ try {
   await page.getByRole("button", { name: "Medya", exact: true }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(2);
   const instantiated = await page.evaluate(() => {
-    const state = (window as any).__reacutStore;
+    const state = (window as any).__cevikeditStore;
     return state ? state.getState().project : null;
   });
   checks.push("a template creates a new project, replacing the media slot and text");
@@ -152,7 +152,7 @@ try {
   await page.getByRole("button", { name: "Şablonu dışa aktar: Benim şablonum", exact: true }).click();
   await expect(page.locator(".templates-notice")).toContainText("Şablon dosyası kaydedildi");
   const exportedText = await readFile(exported, "utf8");
-  assert(exportedText.includes("\"format\": \"reacut-template\""));
+  assert(exportedText.includes("\"format\": \"cevikedit-template\""));
   checks.push("export writes a portable template file");
 
   await page.getByRole("button", { name: "Şablonu sil: Benim şablonum", exact: true }).click();

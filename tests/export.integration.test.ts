@@ -234,7 +234,7 @@ async function frequencyEnergy(
 }
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(tmpdir(), "reacut-integration-"));
+  directory = await mkdtemp(path.join(tmpdir(), "cevikedit-integration-"));
   const fixture = await generateFixtures(directory);
   assets = await importAssets(
     [fixture.video, fixture.audio, fixture.image],
@@ -270,7 +270,7 @@ describe("real local media and FFmpeg export", () => {
     expect(new URL(assets[0].url).searchParams.get("path")).toBe(
       assets[0].path,
     );
-    expect(assets[0].thumbnail).toContain("reacut-media://asset?path=");
+    expect(assets[0].thumbnail).toContain("cevikedit-media://asset?path=");
     expect(assets[1].waveform?.length).toBeGreaterThan(0);
     expect(Math.min(...assets[1].waveform!.slice(4, -4))).toBeGreaterThan(0.9);
     expect(assets[2]).toMatchObject({
@@ -1274,7 +1274,7 @@ describe("real local media and FFmpeg export", () => {
     expect((await readFile(options.path)).toString()).toBe("keep existing");
     await cancelAllExports();
     expect(
-      (await readdir(directory)).filter((file) => file.startsWith(".reacut-")),
+      (await readdir(directory)).filter((file) => file.startsWith(".cevikedit-")),
     ).toEqual([]);
   }, 60_000);
 });

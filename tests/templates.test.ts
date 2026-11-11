@@ -18,7 +18,7 @@ const VIDEO: MediaAsset = {
   id: "asset-video",
   name: "çekim.mp4",
   path: "C:\\media\\çekim.mp4",
-  url: "reacut-media://asset?path=x",
+  url: "cevikedit-media://asset?path=x",
   kind: "video",
   duration: 4,
   width: 640,
@@ -30,7 +30,7 @@ const IMAGE: MediaAsset = {
   id: "asset-image",
   name: "kapak.png",
   path: "C:\\media\\kapak.png",
-  url: "reacut-media://asset?path=y",
+  url: "cevikedit-media://asset?path=y",
   kind: "image",
   duration: 0,
   width: 800,
@@ -42,7 +42,7 @@ const AUDIO: MediaAsset = {
   id: "asset-audio",
   name: "müzik.wav",
   path: "C:\\media\\müzik.wav",
-  url: "reacut-media://asset?path=z",
+  url: "cevikedit-media://asset?path=z",
   kind: "audio",
   duration: 30,
   width: 0,
@@ -166,7 +166,7 @@ describe("project templates", () => {
     expect(template.project.assets).toHaveLength(2);
     expect(template.project.assets.every((asset) => asset.path.startsWith("template://media/"))).toBe(true);
     expect(JSON.stringify(template)).not.toContain("C:\\\\media");
-    expect(JSON.stringify(template)).not.toContain("reacut-media://");
+    expect(JSON.stringify(template)).not.toContain("cevikedit-media://");
     expect(template.media).toHaveLength(2);
     expect(template.texts).toHaveLength(1);
     expect(template.texts[0].text).toBe("Başlık");

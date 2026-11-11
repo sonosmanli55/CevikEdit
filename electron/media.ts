@@ -27,7 +27,7 @@ const developmentFont = path.resolve(
 if (existsSync(developmentFont)) registerBundledFont(developmentFont);
 
 export function mediaURL(file: string): string {
-  return `reacut-media://asset?path=${encodeURIComponent(path.resolve(file))}`;
+  return `cevikedit-media://asset?path=${encodeURIComponent(path.resolve(file))}`;
 }
 
 /** Available native fonts are shared by the inspector and export rasterizer. */

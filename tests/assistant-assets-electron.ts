@@ -12,27 +12,27 @@ const root = process.cwd(), output = path.join(root, ".test-output/assistant-ass
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const exported = path.join(output, "原创素材与助手.mp4");
-const saved = path.join(output, "原创素材与助手.reacut"), fixture = path.join(output, "synthetic CLI.cjs"), invocations = path.join(output, "invocations.jsonl");
+const saved = path.join(output, "原创素材与助手.cevikedit"), fixture = path.join(output, "synthetic CLI.cjs"), invocations = path.join(output, "invocations.jsonl");
 await writeFile(fixture, `#!${process.execPath}
 const fs=require('node:fs');const args=process.argv.slice(2);
-if(args.includes('--version')){console.log('ReaCut synthetic fixture 1.0');process.exit(0)}
+if(args.includes('--version')){console.log('CevikEdit synthetic fixture 1.0');process.exit(0)}
 if(args.includes('--help')){console.log('--ignore-user-config --ephemeral --output-schema --sandbox --tools --strict-mcp-config --setting-sources --no-session-persistence --json-schema');process.exit(0)}
 let prompt='';process.stdin.setEncoding('utf8');process.stdin.on('data',d=>prompt+=d);process.stdin.on('end',()=>{
 const current=prompt.includes('Bu istek:')?prompt.split('Bu istek:').at(-1):prompt.split('本次用户请求：').at(-1);fs.appendFileSync(${JSON.stringify(invocations)},JSON.stringify({args,cwd:process.cwd(),prompt,current,pid:process.pid})+'\\n');
 const event=value=>process.stdout.write(JSON.stringify(value)+'\\n');
 if(current.includes('CASE_CANCEL')){setInterval(()=>{},1000);return;}
-const response={reply:args[0]==='exec'?'Codex 合成回复：请确认两项修改。':'Claude 合成回复：请确认两项修改。',actions:[{type:'addText',text:'原创片头·你好映刻',start:0,duration:2,fontSize:32,color:'#ffffff',x:null,y:null},{type:'setProject',name:null,width:null,height:null,fps:null,background:'#172b3c'}]};
+const response={reply:args[0]==='exec'?'Codex 合成回复：请确认两项修改。':'Claude 合成回复：请确认两项修改。',actions:[{type:'addText',text:'原创片头·你好CevikEdit',start:0,duration:2,fontSize:32,color:'#ffffff',x:null,y:null},{type:'setProject',name:null,width:null,height:null,fps:null,background:'#172b3c'}]};
 setTimeout(()=>{if(args[0]==='exec'){event({type:'item.completed',item:{type:'agent_message',text:JSON.stringify(response)}});event({type:'turn.completed'});}else{event({type:'result',subtype:'success',is_error:false,structured_output:response});}},120);
 });
 `);
 await chmod(fixture, 0o755);
-const packaged = process.env.REACUT_TEST_APP;
+const packaged = process.env.CEVIKEDIT_TEST_APP;
 const env = Object.fromEntries(Object.entries(process.env).filter((entry): entry is [string,string] => entry[1] !== undefined));
-env.REACUT_USER_DATA = path.join(output,"user-data");
-delete env.ELECTRON_RUN_AS_NODE; delete env.VITE_DEV_SERVER_URL; delete env.REACUT_FFMPEG; delete env.REACUT_FFPROBE;
+env.CEVIKEDIT_USER_DATA = path.join(output,"user-data");
+delete env.ELECTRON_RUN_AS_NODE; delete env.VITE_DEV_SERVER_URL; delete env.CEVIKEDIT_FFMPEG; delete env.CEVIKEDIT_FFPROBE;
 if(packaged) env.PATH="";
-env.REACUT_LOCALE = "zh";
-const app = await electron.launch({...(packaged ? { executablePath:path.join(path.resolve(packaged),"Contents/MacOS/ReaCut"),args:[],cwd:output } : {args:[path.join(root,"dist-electron/main.cjs")]}),env});
+env.CEVIKEDIT_LOCALE = "zh";
+const app = await electron.launch({...(packaged ? { executablePath:path.join(path.resolve(packaged),"Contents/MacOS/CevikEdit"),args:[],cwd:output } : {args:[path.join(root,"dist-electron/main.cjs")]}),env});
 let page: Page | undefined;
 const errors: string[] = [], failedMedia: string[] = [], checks: string[] = [];
 try {
@@ -43,7 +43,7 @@ try {
  },{fixture,saved,exported});
  page = await app.firstWindow();
  page.on("pageerror",error=>errors.push(error.message));
- page.on("response",response=>{if(response.url().startsWith("reacut-media:")&&response.status()>=400)failedMedia.push(`${response.status()} ${response.url().split("?")[0]}`);});
+ page.on("response",response=>{if(response.url().startsWith("cevikedit-media:")&&response.status()>=400)failedMedia.push(`${response.status()} ${response.url().split("?")[0]}`);});
  await page.waitForSelector(".app-shell");
  await page.evaluate(()=>{window.confirm=()=>true;});
  await page.locator(".project-title input").fill("离线素材与助手验收");
@@ -81,7 +81,7 @@ try {
  let project = await save();
  assert.equal(project.assets.length,3); assert.equal(project.clips.length,3);
  assert.deepEqual(project.assets.map(a=>a.kind).sort(),["audio","image","image"]);
- assert(project.assets.every(a=>a.path.startsWith(env.REACUT_USER_DATA+path.sep+"builtin-assets"+path.sep)));
+ assert(project.assets.every(a=>a.path.startsWith(env.CEVIKEDIT_USER_DATA+path.sep+"builtin-assets"+path.sep)));
  assert.equal(project.clips.find(c=>c.name==="四角星光")?.transform.scale,.35);
  const audio=project.assets.find(a=>a.kind==="audio")!;
  assert(audio.waveform?.some(v=>v>.02),"WAV imported with nonzero waveform");
@@ -100,7 +100,7 @@ try {
  await page.getByRole("button",{name:"剪辑助手",exact:true}).click();
  const panel=page.getByRole("complementary",{name:"剪辑助手"});
  await panel.getByRole("button",{name:"选择 CLI",exact:true}).click();
- await expect(panel.locator(".assistant-provider-status")).toContainText("ReaCut synthetic fixture 1.0",{timeout:20000});
+ await expect(panel.locator(".assistant-provider-status")).toContainText("CevikEdit synthetic fixture 1.0",{timeout:20000});
  const send=async(message:string)=>{await panel.getByRole("textbox",{name:"助手消息"}).fill(message);await panel.getByRole("button",{name:"发送",exact:true}).click();};
  await send("CASE_CODEX 添加片头与背景");
  await expect(panel.getByRole("button",{name:"应用 2 项修改",exact:true})).toBeEnabled({timeout:20000});
@@ -108,7 +108,7 @@ try {
  assert.equal((await save()).clips.length,3,"Proposal must not edit until Apply");
  await panel.getByRole("button",{name:"应用 2 项修改",exact:true}).click();
  project=await save(); assert.equal(project.clips.length,4);assert.equal(project.background,"#172b3c");
- assert(project.clips.some(c=>c.text?.text==="原创片头·你好映刻"));
+ assert(project.clips.some(c=>c.text?.text==="原创片头·你好CevikEdit"));
  await page.getByRole("button",{name:"撤销",exact:true}).click();
  project=await save();assert.equal(project.clips.length,3);assert.equal(project.background,beforeAssistant.background);
  checks.push("selected Codex fixture responds through subprocess, typed proposal preview, apply and one-step undo");
@@ -119,7 +119,7 @@ try {
  checks.push("project-scoped chat history survives panel reopen");
  await panel.getByRole("combobox",{name:"助手后端"}).selectOption("claude");
  await panel.getByRole("button",{name:"选择 CLI",exact:true}).click();
- await expect(panel.locator(".assistant-provider-status")).toContainText("ReaCut synthetic fixture 1.0",{timeout:20000});
+ await expect(panel.locator(".assistant-provider-status")).toContainText("CevikEdit synthetic fixture 1.0",{timeout:20000});
  await send("CASE_CLAUDE 添加片头与背景");
  await expect(panel.getByRole("button",{name:"应用 2 项修改",exact:true})).toBeEnabled({timeout:20000});
  await expect(panel.locator(".assistant-message.assistant").last()).toContainText("Claude 合成回复");
@@ -141,7 +141,7 @@ try {
  checks.push("new request succeeds after cancellation");
  const calls=(await readFile(invocations,"utf8")).trim().split("\n").map(line=>JSON.parse(line));
  assert(calls.some(c=>c.args[0]==="exec")&&calls.some(c=>c.args[0]!=="exec"));
- assert(calls.every(c=>!c.prompt.includes(env.REACUT_USER_DATA)&&!c.prompt.includes("reacut-media:")));
+ assert(calls.every(c=>!c.prompt.includes(env.CEVIKEDIT_USER_DATA)&&!c.prompt.includes("cevikedit-media:")));
  assert(calls.every(c=>c.cwd!==root&&c.cwd.includes("assistant-runs")));
  for(const call of calls){let alive=false;try{process.kill(call.pid,0);alive=true;}catch{}assert(!alive,"fixture child must have exited");}
  checks.push("CLI receives path-free summary in isolated folder; child processes exit");

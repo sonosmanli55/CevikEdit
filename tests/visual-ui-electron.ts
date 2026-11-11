@@ -23,17 +23,17 @@ context.fillRect(0, 0, 160, 90);
 context.fillStyle = "#ff0000";
 context.fillRect(60, 20, 40, 50);
 await writeFile(keyFile, image.toBuffer("image/png"));
-const projectPath = path.join(directory, "visual-tools.reacut");
+const projectPath = path.join(directory, "visual-tools.cevikedit");
 let renderIndex = 0;
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(directory, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(directory, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,

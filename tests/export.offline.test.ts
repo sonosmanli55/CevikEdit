@@ -16,7 +16,7 @@ it("never fetches network segments embedded in a local imported playlist", async
   const address = server.address();
   if (!address || typeof address === "string")
     throw new Error("Test server did not bind");
-  const directory = await mkdtemp(path.join(tmpdir(), "reacut-offline-"));
+  const directory = await mkdtemp(path.join(tmpdir(), "cevikedit-offline-"));
   try {
     const file = path.join(directory, "local.m3u8");
     await writeFile(

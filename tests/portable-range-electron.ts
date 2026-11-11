@@ -12,14 +12,14 @@ const originals=path.join(output,'originals'),files=await generateFixtures(origi
 const assets=await importAssets([files.temporal,files.image],path.join(output,'cache'));
 const project=createProject('素材收集与区间验收');project.width=160;project.height=90;project.assets=[...assets,{...assets[0],id:'shared-audio',kind:'audio',width:0,height:0,thumbnail:undefined}];
 project.clips=[createClip(assets[0],project.tracks.find(t=>t.kind==='video')!.id,0,30)];
-const projectFile=path.join(output,'source.reacut'),exported=path.join(output,'range.mp4'),packages=path.join(output,'packages');
+const projectFile=path.join(output,'source.cevikedit'),exported=path.join(output,'range.mp4'),packages=path.join(output,'packages');
 await writeFile(projectFile,JSON.stringify(project));await mkdir(packages);
-const appPath=process.env.REACUT_TEST_APP;
+const appPath=process.env.CEVIKEDIT_TEST_APP;
 const env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));
-env.REACUT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;
-if(appPath){env.PATH='';delete env.REACUT_FFMPEG;delete env.REACUT_FFPROBE;}
-env.REACUT_LOCALE = "zh";
-const app=await electron.launch({...appPath?{executablePath:path.join(path.resolve(appPath),'Contents/MacOS/ReaCut'),args:[projectFile],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),projectFile]},env});
+env.CEVIKEDIT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;
+if(appPath){env.PATH='';delete env.CEVIKEDIT_FFMPEG;delete env.CEVIKEDIT_FFPROBE;}
+env.CEVIKEDIT_LOCALE = "zh";
+const app=await electron.launch({...appPath?{executablePath:path.join(path.resolve(appPath),'Contents/MacOS/CevikEdit'),args:[projectFile],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),projectFile]},env});
 const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 try {
  await app.evaluate(({dialog},paths)=>{
@@ -39,19 +39,19 @@ try {
  await pack.getByRole('button',{name:'完成',exact:true}).click();
  const names=await readdir(packages);assert.equal(names.length,1);const folder=path.join(packages,names[0]);
  assert.equal((await readdir(path.join(folder,'media'))).length,2,'shared audio/video source copied only once');
- const packed=JSON.parse(await readFile(path.join(folder,'proje.reacut'),'utf8'));assert.equal(packed.format,'reacut-portable');
+ const packed=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));assert.equal(packed.format,'cevikedit-portable');
  assert(!JSON.stringify(packed).includes(originals));checks.push('UI collects portable project; shared references deduplicate; source paths and proxy caches omitted');
  const moved=path.join(output,'搬移后的完整项目');await rename(folder,moved);await rename(originals,path.join(output,'originals-unavailable'));
- await app.evaluate(({dialog},file)=>{(dialog as any).showOpenDialog=async()=>({canceled:false,filePaths:[file]});},path.join(moved,'proje.reacut'));
+ await app.evaluate(({dialog},file)=>{(dialog as any).showOpenDialog=async()=>({canceled:false,filePaths:[file]});},path.join(moved,'proje.cevikedit'));
  await page.getByRole('button',{name:'文件菜单'}).click();await page.getByRole('button',{name:/^打开项目/}).click();
- await expect.poll(()=>page.evaluate(async()=>{const p=await window.editorAPI!.getRecentProjects();return p[0]?.path;}),{timeout:20000}).toBe(path.join(moved,'proje.reacut'));
+ await expect.poll(()=>page.evaluate(async()=>{const p=await window.editorAPI!.getRecentProjects();return p[0]?.path;}),{timeout:20000}).toBe(path.join(moved,'proje.cevikedit'));
  await expect(page.locator('.tl-clip')).toHaveCount(1);
  await expect.poll(()=>page.evaluate(()=>{const c=document.querySelector<HTMLCanvasElement>('.player-panel canvas')!;return c.getContext('2d')!.getImageData(c.width/2,c.height/2,1,1).data[0];}),{timeout:15000}).toBeGreaterThan(180);
  checks.push('after moving entire folder and making original sources unavailable, UI opens and decodes collected video');
  await page.locator('.project-title input').fill('搬移后继续编辑');await page.locator('.project-title input').blur();
  await page.getByRole('button',{name:'保存项目',exact:true}).click();
- await expect.poll(async()=>JSON.parse(await readFile(path.join(moved,'proje.reacut'),'utf8')).project?.name,{timeout:15000}).toBe('搬移后继续编辑');
- const saved=JSON.parse(await readFile(path.join(moved,'proje.reacut'),'utf8'));assert.equal(saved.format,'reacut-portable');assert(saved.project.assets.every((a:any)=>a.path.startsWith('media/')));
+ await expect.poll(async()=>JSON.parse(await readFile(path.join(moved,'proje.cevikedit'),'utf8')).project?.name,{timeout:15000}).toBe('搬移后继续编辑');
+ const saved=JSON.parse(await readFile(path.join(moved,'proje.cevikedit'),'utf8'));assert.equal(saved.format,'cevikedit-portable');assert(saved.project.assets.every((a:any)=>a.path.startsWith('media/')));
  checks.push('normal Save preserves portable relative references after editing');
  await page.getByRole('button',{name:'导出',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'导出视频'});await dialog.getByRole('combobox',{name:'导出范围',exact:true}).selectOption('custom');
@@ -71,7 +71,7 @@ try {
  await page.getByRole('button',{name:'文件菜单'}).click();await page.getByRole('button',{name:/^打开项目/}).click();
  await expect(page.locator('[data-asset-id].is-missing')).toHaveCount(1);
  await page.locator('.project-title input').fill('素材丢失仍可保存');await page.locator('.project-title input').blur();await page.getByRole('button',{name:'保存项目',exact:true}).click();
- await expect.poll(async()=>JSON.parse(await readFile(path.join(moved,'proje.reacut'),'utf8')).project?.name).toBe('素材丢失仍可保存');
+ await expect.poll(async()=>JSON.parse(await readFile(path.join(moved,'proje.cevikedit'),'utf8')).project?.name).toBe('素材丢失仍可保存');
  checks.push('actual reopened package can save other edits with a missing media reference retained for relinking');
  assert.deepEqual(errors,[]);
  await writeFile(path.join(output,'evidence.json'),JSON.stringify({at:new Date().toISOString(),packaged:!!appPath,checks,duration:Number(metadata.format.duration),pixel:[...frame.subarray(at,at+3)],errors},null,2));

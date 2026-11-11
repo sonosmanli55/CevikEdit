@@ -364,7 +364,7 @@ export async function generateDemo(directory = path.resolve(".demo")) {
   music.audioFadeOut = 1.2;
   project.clips.push(music);
   validateProject(project);
-  const projectPath = path.join(directory, "demo.reacut");
+  const projectPath = path.join(directory, "demo.cevikedit");
   await writeFile(projectPath, JSON.stringify(project, null, 2));
   const output = path.join(directory, "demo.mp4");
   await new Promise<void>((resolve, reject) => {

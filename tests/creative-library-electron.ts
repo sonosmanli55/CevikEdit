@@ -24,31 +24,31 @@ project.clips = project.assets.map((a, i) => ({
   ...createClip(a, project.tracks[1].id, i * 2, 24),
   duration: 2,
 }));
-const source = path.join(output, "before.reacut"),
-  saved = path.join(output, "saved.reacut"),
+const source = path.join(output, "before.cevikedit"),
+  saved = path.join(output, "saved.cevikedit"),
   exported = path.join(output, "creative.mp4");
 await writeFile(source, JSON.stringify(project));
-const packaged = process.env.REACUT_TEST_APP,
+const packaged = process.env.CEVIKEDIT_TEST_APP,
   env = Object.fromEntries(
     Object.entries(process.env).filter(
       (e): e is [string, string] => e[1] !== undefined,
     ),
   );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 if (packaged) {
   env.PATH = "";
-  delete env.REACUT_FFMPEG;
-  delete env.REACUT_FFPROBE;
+  delete env.CEVIKEDIT_FFMPEG;
+  delete env.CEVIKEDIT_FFPROBE;
 }
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   ...(packaged
     ? {
         executablePath: path.join(
           path.resolve(packaged),
-          "Contents/MacOS/ReaCut",
+          "Contents/MacOS/CevikEdit",
         ),
         args: [source],
         cwd: output,
@@ -198,8 +198,8 @@ try {
   });
   const info = await page.evaluate(() => window.editorAPI!.getSystemInfo());
   if (packaged) {
-    process.env.REACUT_FFMPEG = info.ffmpegPath;
-    process.env.REACUT_FFPROBE = info.ffprobePath;
+    process.env.CEVIKEDIT_FFMPEG = info.ffmpegPath;
+    process.env.CEVIKEDIT_FFPROBE = info.ffprobePath;
   }
   const probe = await probeFile(exported);
   assert.equal(Number(probe.format.duration), 5);

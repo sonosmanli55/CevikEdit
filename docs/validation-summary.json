@@ -7,19 +7,19 @@
     "testsPassed": 270,
     "skipped": 1,
     "skipReason": "libx265 fixture encoder not bundled; HEVC decode/proxy separately verified",
-    "command": "npm test with REACUT_FFMPEG and REACUT_FFPROBE set to bundled tools",
+    "command": "npm test with CEVIKEDIT_FFMPEG and CEVIKEDIT_FFPROBE set to bundled tools",
     "typecheck": true,
     "productionBuild": true
   },
   "desktop": {
     "package-electron": {
       "passedAt": "2026-10-13T06:33:42.142Z",
-      "app": "<workspace>/.test-output/v040-final-installed/ReaCut.app",
-      "appPath": "<workspace>/.test-output/v040-final-installed/ReaCut.app/Contents/Resources/app.asar",
+      "app": "<workspace>/.test-output/v040-final-installed/CevikEdit.app",
+      "appPath": "<workspace>/.test-output/v040-final-installed/CevikEdit.app/Contents/Resources/app.asar",
       "packaged": true,
       "bundledMedia": {
-        "ffmpeg": "<workspace>/.test-output/v040-final-installed/ReaCut.app/Contents/Resources/media-tools/ffmpeg",
-        "ffprobe": "<workspace>/.test-output/v040-final-installed/ReaCut.app/Contents/Resources/media-tools/ffprobe",
+        "ffmpeg": "<workspace>/.test-output/v040-final-installed/CevikEdit.app/Contents/Resources/media-tools/ffmpeg",
+        "ffprobe": "<workspace>/.test-output/v040-final-installed/CevikEdit.app/Contents/Resources/media-tools/ffprobe",
         "version": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers",
         "emptyPath": true
       },
@@ -39,7 +39,7 @@
         "bundled FFmpeg and FFprobe selected with empty PATH and no overrides",
         "native canvas and bundled font",
         "isolated sandbox bridge",
-        "startup .reacut argument",
+        "startup .cevikedit argument",
         "real landscape preview and thumbnails",
         "UI export with Chinese titles and mixed audio"
       ],
@@ -106,8 +106,8 @@
         "version": "0.4.0",
         "platform": "darwin",
         "ffmpeg": true,
-        "ffmpegPath": "<workspace>/.test-output/v040-final-installed/ReaCut.app/Contents/Resources/media-tools/ffmpeg",
-        "ffprobePath": "<workspace>/.test-output/v040-final-installed/ReaCut.app/Contents/Resources/media-tools/ffprobe",
+        "ffmpegPath": "<workspace>/.test-output/v040-final-installed/CevikEdit.app/Contents/Resources/media-tools/ffmpeg",
+        "ffprobePath": "<workspace>/.test-output/v040-final-installed/CevikEdit.app/Contents/Resources/media-tools/ffprobe",
         "ffmpegVersion": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
       },
       "export": {
@@ -301,12 +301,12 @@
     "signing": "ad-hoc; not notarized",
     "artifacts": [
       {
-        "path": "release/ReaCut-0.4.0-arm64.dmg",
+        "path": "release/CevikEdit-0.4.0-arm64.dmg",
         "bytes": 193184506,
         "sha256": "ae577f3403d8d938ec689e50922b7dcf1c9dc0d741159ef7f34f308a6420e74c"
       },
       {
-        "path": "release/ReaCut-0.4.0-arm64-mac.zip",
+        "path": "release/CevikEdit-0.4.0-arm64-mac.zip",
         "bytes": 192999702,
         "sha256": "c17d23ef3f65151dda8fba167fbe4e5f049b972e6a29c3b63136bf955001e7d9"
       }
@@ -377,17 +377,17 @@
     "codesignStrict": true,
     "artifacts": [
       {
-        "path": "release/ReaCut-0.2.0-arm64.dmg",
+        "path": "release/CevikEdit-0.2.0-arm64.dmg",
         "bytes": 156902982,
         "sha256": "a3d18dfba8b2abf5bc393cdb5eb90c2e9a91cfbfc3f665f7c031c88fa9089e2b"
       },
       {
-        "path": "release/ReaCut-0.2.0-arm64-mac.zip",
+        "path": "release/CevikEdit-0.2.0-arm64-mac.zip",
         "bytes": 156453784,
         "sha256": "f67ce443ebe5965587ea1f6364de0559909d211d92d2fedb59a6a411344f05c2"
       },
       {
-        "path": "release/mac-arm64/ReaCut.app/Contents/Resources/app.asar",
+        "path": "release/mac-arm64/CevikEdit.app/Contents/Resources/app.asar",
         "bytes": 52014289,
         "sha256": "551bd5cf9f6706542574c861574f4de3a044efa5ab8e24b6eb8a388590db3333"
       }
@@ -457,12 +457,12 @@
     ],
     "artifacts": [
       {
-        "path": "release/ReaCut-0.2.1-arm64.dmg",
+        "path": "release/CevikEdit-0.2.1-arm64.dmg",
         "bytes": 192668253,
         "sha256": "e47d0472da3f78cf82684226579278109ee87d432b59328499b6aff270ac9a47"
       },
       {
-        "path": "release/ReaCut-0.2.1-arm64-mac.zip",
+        "path": "release/CevikEdit-0.2.1-arm64-mac.zip",
         "bytes": 192236273,
         "sha256": "f986bd2f3340243baa179b73a8dffeea1e3be174c20b3d5d9a66af15c03b7f41"
       }
@@ -549,8 +549,8 @@
         "version": "0.3.0",
         "platform": "darwin",
         "ffmpeg": true,
-        "ffmpegPath": "<workspace>/.test-output/v030-installed/ReaCut.app/Contents/Resources/media-tools/ffmpeg",
-        "ffprobePath": "<workspace>/.test-output/v030-installed/ReaCut.app/Contents/Resources/media-tools/ffprobe",
+        "ffmpegPath": "<workspace>/.test-output/v030-installed/CevikEdit.app/Contents/Resources/media-tools/ffmpeg",
+        "ffprobePath": "<workspace>/.test-output/v030-installed/CevikEdit.app/Contents/Resources/media-tools/ffprobe",
         "ffmpegVersion": "ffmpeg version 9.0.2 Copyright (c) 2000-2026 the FFmpeg developers"
       },
       "export": {
@@ -566,7 +566,7 @@
       "failedMedia": []
     },
     "installer": {
-      "dmg": "ReaCut-0.3.0-arm64.dmg",
+      "dmg": "CevikEdit-0.3.0-arm64.dmg",
       "sha256": "9abe83a5b630e3bc7952dd50f9976d1923e7a7068edb3cd2b675a79c247cb662",
       "dmgVerify": true,
       "strictAdhocSignature": true,
@@ -583,7 +583,7 @@
       "testsPassed": 159,
       "skipped": 1,
       "skipReason": "libx265 fixture encoder not bundled; HEVC decode/proxy separately verified",
-      "command": "npm run check with REACUT_FFMPEG and REACUT_FFPROBE set to newly built tools",
+      "command": "npm run check with CEVIKEDIT_FFMPEG and CEVIKEDIT_FFPROBE set to newly built tools",
       "typecheck": true,
       "productionBuild": true
     },
@@ -757,7 +757,7 @@
           "bundled FFmpeg and FFprobe selected with empty PATH and no overrides",
           "native canvas and bundled font",
           "isolated sandbox bridge",
-          "startup .reacut argument",
+          "startup .cevikedit argument",
           "real landscape preview and thumbnails",
           "UI export with Chinese titles and mixed audio"
         ],
@@ -772,12 +772,12 @@
       "codesignStrict": true,
       "artifacts": [
         {
-          "path": "release/ReaCut-0.2.1-arm64.dmg",
+          "path": "release/CevikEdit-0.2.1-arm64.dmg",
           "bytes": 192668253,
           "sha256": "e47d0472da3f78cf82684226579278109ee87d432b59328499b6aff270ac9a47"
         },
         {
-          "path": "release/ReaCut-0.2.1-arm64-mac.zip",
+          "path": "release/CevikEdit-0.2.1-arm64-mac.zip",
           "bytes": 192236273,
           "sha256": "f986bd2f3340243baa179b73a8dffeea1e3be174c20b3d5d9a66af15c03b7f41"
         }
@@ -805,7 +805,7 @@
       "testsPassed": 270,
       "skipped": 1,
       "skipReason": "libx265 fixture encoder not bundled; HEVC decode/proxy separately verified",
-      "command": "npm test with REACUT_FFMPEG and REACUT_FFPROBE set to bundled tools",
+      "command": "npm test with CEVIKEDIT_FFMPEG and CEVIKEDIT_FFPROBE set to bundled tools",
       "typecheck": true,
       "productionBuild": true
     },
@@ -828,12 +828,12 @@
       "signing": "ad-hoc; not notarized",
       "artifacts": [
         {
-          "path": "release/ReaCut-0.4.0-arm64.dmg",
+          "path": "release/CevikEdit-0.4.0-arm64.dmg",
           "bytes": 193184506,
           "sha256": "ae577f3403d8d938ec689e50922b7dcf1c9dc0d741159ef7f34f308a6420e74c"
         },
         {
-          "path": "release/ReaCut-0.4.0-arm64-mac.zip",
+          "path": "release/CevikEdit-0.4.0-arm64-mac.zip",
           "bytes": 192999702,
           "sha256": "c17d23ef3f65151dda8fba167fbe4e5f049b972e6a29c3b63136bf955001e7d9"
         }

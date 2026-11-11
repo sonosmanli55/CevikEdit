@@ -20,7 +20,7 @@ export async function resolveMediaTool(
 ): Promise<string> {
   const env = options.env ?? process.env;
   const platform = options.platform ?? process.platform;
-  const override = env[name === "ffmpeg" ? "REACUT_FFMPEG" : "REACUT_FFPROBE"];
+  const override = env[name === "ffmpeg" ? "CEVIKEDIT_FFMPEG" : "CEVIKEDIT_FFPROBE"];
   const executable = platform === "win32" ? `${name}.exe` : name;
   const candidates = override
     ? [override]

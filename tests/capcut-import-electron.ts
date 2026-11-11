@@ -19,7 +19,7 @@ const mainFile = path.join(projectFolder, "Timelines", "main", "draft_info.json"
 const rootFile = path.join(projectFolder, "draft_info.json");
 const opaqueFile = path.join(output, "opaque", "draft_info.json");
 const tamperedFile = path.join(output, "tampered", "draft_info.json");
-const saved = path.join(output, "imported.reacut");
+const saved = path.join(output, "imported.cevikedit");
 
 /** Independent synthetic carrier generation. No real draft or device metadata. */
 function syntheticEnvelope(text: string): string {
@@ -97,14 +97,14 @@ const before = await fingerprint();
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-const packagedApp = process.env.REACUT_TEST_APP;
-env.REACUT_LOCALE = "zh";
+const packagedApp = process.env.CEVIKEDIT_TEST_APP;
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   ...(packagedApp ? {
-    executablePath: path.join(path.resolve(packagedApp), "Contents", "MacOS", "ReaCut"),
+    executablePath: path.join(path.resolve(packagedApp), "Contents", "MacOS", "CevikEdit"),
     args: [], cwd: output,
   } : { args: [path.join(root, "dist-electron", "main.cjs")] }),
   env,

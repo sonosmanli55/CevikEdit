@@ -6,10 +6,10 @@ import assert from 'node:assert/strict';
 import { createProject, createClip } from '../src/core/model';
 const root=process.cwd(),output=path.join(root,'.test-output/workspace-electron');await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 const p=createProject('三栏布局验收');const clip=createClip(undefined,p.tracks[0].id,0,30);clip.text!.text='熟悉的剪辑空间';p.clips=[clip];
-const file=path.join(output,'layout.reacut');await writeFile(file,JSON.stringify(p));
-const packaged=process.env.REACUT_TEST_APP,env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.REACUT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;if(packaged){env.PATH='';delete env.REACUT_FFMPEG;delete env.REACUT_FFPROBE;}
-env.REACUT_LOCALE = "zh";
-const launch=()=>electron.launch({...packaged?{executablePath:path.join(path.resolve(packaged),'Contents/MacOS/ReaCut'),args:[file],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),file]},env});
+const file=path.join(output,'layout.cevikedit');await writeFile(file,JSON.stringify(p));
+const packaged=process.env.CEVIKEDIT_TEST_APP,env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.CEVIKEDIT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;if(packaged){env.PATH='';delete env.CEVIKEDIT_FFMPEG;delete env.CEVIKEDIT_FFPROBE;}
+env.CEVIKEDIT_LOCALE = "zh";
+const launch=()=>electron.launch({...packaged?{executablePath:path.join(path.resolve(packaged),'Contents/MacOS/CevikEdit'),args:[file],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),file]},env});
 let app=await launch(),page=await app.firstWindow();const errors:string[]=[],checks:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 const geometry=()=>page.locator('.editor-workspace').evaluate(el=>{const panels=Array.from(el.children).filter(c=>!c.classList.contains('workspace-divider'));return {left:panels[0].getBoundingClientRect().width,center:panels[1].getBoundingClientRect().width,right:panels[2].getBoundingClientRect().width,total:el.getBoundingClientRect().width,document:document.documentElement.scrollWidth,window:window.innerWidth};});
 try{
@@ -28,7 +28,7 @@ try{
  await expect.poll(async()=>Math.round((await geometry()).center)).toBe(320);
  const controls=await page.locator('.player-controls').evaluate(el=>{const parent=el.getBoundingClientRect();return [...el.querySelectorAll('button')].every(b=>{const r=b.getBoundingClientRect();return r.left>=parent.left&&r.right<=parent.right;});});assert(controls,'all player controls remain within their panel at maximum resource width');checks.push('maximum-width clamp preserves the complete player control row');
  await page.screenshot({path:path.join(output,'workspace-small.png')});await page.getByRole('button',{name:'剪辑助手',exact:true}).click();
- const reset=page.getByRole('separator',{name:'调整素材区宽度'});await reset.dblclick();await expect.poll(()=>page.evaluate(()=>localStorage.getItem('reacut-panel-widths-v1'))).toBeNull();
+ const reset=page.getByRole('separator',{name:'调整素材区宽度'});await reset.dblclick();await expect.poll(()=>page.evaluate(()=>localStorage.getItem('cevikedit-panel-widths-v1'))).toBeNull();
  await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1470,834));await expect.poll(async()=>Math.round((await geometry()).left)).toBe(Math.round(original.left));checks.push('double click resets preferences and restores responsive default widths');
  assert.deepEqual(errors,[]);await writeFile(path.join(output,'evidence.json'),JSON.stringify({at:new Date().toISOString(),packaged:!!packaged,checks,original,adjusted,small,errors},null,2));console.log(`Workspace: ${checks.length} checks passed (packaged=${!!packaged})`);
 }catch(e){await page.screenshot({path:path.join(output,'failure.png')}).catch(()=>{});throw e;}finally{await app.close();}

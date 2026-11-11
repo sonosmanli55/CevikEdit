@@ -78,7 +78,7 @@ async function source(fps: number, kind: SourceKind = "lossless"): Promise<Frame
 }
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(tmpdir(), "reacut-source-sampling-"));
+  directory = await mkdtemp(path.join(tmpdir(), "cevikedit-source-sampling-"));
 });
 afterAll(async () => {
   await rm(directory, { recursive: true, force: true });

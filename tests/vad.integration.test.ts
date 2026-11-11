@@ -29,7 +29,7 @@ const BURSTS: Array<[number, number]> = [
 ];
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(tmpdir(), "reacut-vad-"));
+  directory = await mkdtemp(path.join(tmpdir(), "cevikedit-vad-"));
   file = path.join(directory, "konusma.wav");
   const burst =
     "aevalsrc=0.35*(0.6*sin(2*PI*180*t)+0.4*sin(2*PI*360*t))*(0.7+0.3*sin(2*PI*7*t)):s=16000:d=DURATION";
@@ -105,7 +105,7 @@ describe("real speech detection and ducking", () => {
       id: "asset-voice",
       name: "konuşma.wav",
       path: file,
-      url: "reacut-media://asset?path=voice",
+      url: "cevikedit-media://asset?path=voice",
       kind: "audio",
       duration: 8,
       width: 0,

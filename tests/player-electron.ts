@@ -28,17 +28,17 @@ clip.keyframes = [
 project.assets = [asset];
 project.tracks = [track];
 project.clips = [clip];
-const saved = path.join(output, "player.reacut");
+const saved = path.join(output, "player.cevikedit");
 await writeFile(saved, JSON.stringify(project));
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs"), saved],
   env,

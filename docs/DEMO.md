@@ -1,6 +1,6 @@
 # 原创演示工程
 
-在项目目录执行 `npx tsx scripts/generate-demo.ts`，然后在 ReaCut 选择「打开项目」，打开 `.demo/demo.reacut`。也可直接播放 `.demo/demo.mp4`。需要本机 FFmpeg / FFprobe 和已安装的 npm 依赖。
+在项目目录执行 `npx tsx scripts/generate-demo.ts`，然后在 CevikEdit 选择「打开项目」，打开 `.demo/demo.cevikedit`。也可直接播放 `.demo/demo.mp4`。需要本机 FFmpeg / FFprobe 和已安装的 npm 依赖。
 
 示例为 1280×720、30 fps、9 秒的完整本地工程，包含三个原创山水片段、持续的合成和弦、中文标题、字幕、标签、位置与缩放关键帧、调色、画面及声音淡入淡出。素材路径指向生成时的本机目录；换机器后重新执行生成命令即可。
 

@@ -1,10 +1,10 @@
 # 内置媒体工具
 
-macOS v0.2.1 安装包自带 FFmpeg 与 FFprobe，无需 Homebrew、系统 FFmpeg 或剪映。它们位于应用的 `Contents/Resources/media-tools/`，作为独立子进程运行。设置中选择的自定义工具或 `REACUT_FFMPEG` / `REACUT_FFPROBE` 环境变量优先；没有覆盖时使用内置工具。内置文件缺失会明确报错，不悄悄使用开发机环境。
+macOS v0.2.1 安装包自带 FFmpeg 与 FFprobe，无需 Homebrew、系统 FFmpeg 或剪映。它们位于应用的 `Contents/Resources/media-tools/`，作为独立子进程运行。设置中选择的自定义工具或 `CEVIKEDIT_FFMPEG` / `CEVIKEDIT_FFPROBE` 环境变量优先；没有覆盖时使用内置工具。内置文件缺失会明确报错，不悄悄使用开发机环境。
 
 ## 来源和许可
 
-固定使用 FFmpeg 9.0.2 与 x264 `b35605ace3ddf7c1a5d67a2eb553f034aef41d55` 的官方源码，不修改上游源码。通过 `--enable-gpl --enable-libx264` 构建，所以媒体工具采用 GPL-2.0-or-later；对应源码、原始许可、构建脚本和清单随每个安装包一起提供。ReaCut 自行编写的代码保留 MIT 许可。详情见 [第三方声明](../THIRD_PARTY_NOTICES.md) 和 [FFmpeg 上游许可说明](https://ffmpeg.org/legal.html)。
+固定使用 FFmpeg 9.0.2 与 x264 `b35605ace3ddf7c1a5d67a2eb553f034aef41d55` 的官方源码，不修改上游源码。通过 `--enable-gpl --enable-libx264` 构建，所以媒体工具采用 GPL-2.0-or-later；对应源码、原始许可、构建脚本和清单随每个安装包一起提供。CevikEdit 自行编写的代码保留 MIT 许可。详情见 [第三方声明](../THIRD_PARTY_NOTICES.md) 和 [FFmpeg 上游许可说明](https://ffmpeg.org/legal.html)。
 
 构建没有启用 `nonfree`。第三方编解码库静态链接，运行依赖仅为 macOS 系统库/框架。网络协议在内置构建中关闭；应用原有的本地文件协议限制仍保留。支持当前 H.264/AAC 导出与经测试的本地媒体处理；未包含 x265 编码器，但已实际验证 HEVC 解码和 H.264 代理生成。
 

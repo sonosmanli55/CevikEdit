@@ -16,9 +16,9 @@ import type { Clip, MediaAsset, Project } from "./types";
  * never points at the author's disk, and importing an untrusted file can only
  * ever create a new project: paths are rewritten, sized and validated first.
  */
-export const TEMPLATE_FORMAT = "reacut-template";
+export const TEMPLATE_FORMAT = "cevikedit-template";
 export const TEMPLATE_VERSION = 1;
-export const TEMPLATE_EXTENSION = "reacut-template";
+export const TEMPLATE_EXTENSION = "cevikedit-template";
 export const TEMPLATE_MEDIA_LIMIT = 100;
 export const TEMPLATE_TEXT_LIMIT = 200;
 export const TEMPLATE_COVER_LIMIT = 400_000;
@@ -48,7 +48,7 @@ export interface TemplateTextSlot {
   duration: number;
 }
 
-export interface ReacutTemplate {
+export interface CevikEditTemplate {
   format: typeof TEMPLATE_FORMAT;
   version: typeof TEMPLATE_VERSION;
   id: string;
@@ -135,7 +135,7 @@ export function projectDuration(project: Project): number {
   );
 }
 
-export function templateSummary(template: ReacutTemplate, builtin = false): TemplateSummary {
+export function templateSummary(template: CevikEditTemplate, builtin = false): TemplateSummary {
   return {
     id: template.id,
     name: template.name,
@@ -152,7 +152,7 @@ export function templateSummary(template: ReacutTemplate, builtin = false): Temp
   };
 }
 
-export function validateTemplate(input: unknown): ReacutTemplate {
+export function validateTemplate(input: unknown): CevikEditTemplate {
   const raw = record(input, "Şablon");
   if (raw.format !== TEMPLATE_FORMAT) throw new Error("Şablon biçimi tanınmadı");
   if (raw.version !== TEMPLATE_VERSION)
@@ -241,11 +241,11 @@ export function validateTemplate(input: unknown): ReacutTemplate {
   };
 }
 
-export function serializeTemplate(template: ReacutTemplate): string {
+export function serializeTemplate(template: CevikEditTemplate): string {
   return JSON.stringify(validateTemplate(template), null, 2);
 }
 
-export function parseTemplate(source: string): ReacutTemplate {
+export function parseTemplate(source: string): CevikEditTemplate {
   if (typeof source !== "string" || source.length > 8 * 1024 * 1024)
     throw new Error("Şablon dosyası çok büyük");
   let value: unknown;
@@ -271,7 +271,7 @@ export interface SaveTemplateOptions {
 export function templateFromProject(
   input: Project,
   options: SaveTemplateOptions,
-): ReacutTemplate {
+): CevikEditTemplate {
   const project = validateProject(clone(input));
   const name = text(options.name, "Şablon adı", 120, false).trim();
   const usedAssets = project.assets.filter((asset) =>
@@ -355,7 +355,7 @@ export function templateCover(project: Project, name: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#15343a"/><stop offset="1" stop-color="#2a2f45"/></linearGradient></defs><rect width="480" height="270" fill="url(#g)"/><circle cx="404" cy="56" r="92" fill="#42d4c7" opacity=".16"/><text x="32" y="152" font-family="Segoe UI,sans-serif" font-size="30" font-weight="600" fill="#e8ecef">${safe || "ReaCut"}</text><text x="32" y="184" font-family="Segoe UI,sans-serif" font-size="14" fill="#8fa3a8">ReaCut şablonu</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="270"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#15343a"/><stop offset="1" stop-color="#2a2f45"/></linearGradient></defs><rect width="480" height="270" fill="url(#g)"/><circle cx="404" cy="56" r="92" fill="#42d4c7" opacity=".16"/><text x="32" y="152" font-family="Segoe UI,sans-serif" font-size="30" font-weight="600" fill="#e8ecef">${safe || "CevikEdit"}</text><text x="32" y="184" font-family="Segoe UI,sans-serif" font-size="14" fill="#8fa3a8">CevikEdit şablonu</text></svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
@@ -419,7 +419,7 @@ function fitClip(
  * and are reported instead of failing the whole instantiation.
  */
 export function instantiateTemplate(
-  template: ReacutTemplate,
+  template: CevikEditTemplate,
   options: InstantiateOptions,
 ): InstantiatedTemplate {
   const source = validateTemplate(template);

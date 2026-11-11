@@ -1,5 +1,5 @@
 {
-  "name": "reacut",
+  "name": "cevikedit",
   "version": "0.6.1",
   "private": true,
   "description": "An open source offline desktop video editor informed by REA research",
@@ -21,7 +21,7 @@
     "test:clip-tools": "npm run build && tsx tests/clip-tools-electron.ts",
     "test:keyframes": "npm run build && tsx tests/keyframe-electron.ts",
     "test:timeline": "tsx tests/timeline-browser.ts",
-    "icons": "tsx scripts/generate-icon.ts",
+    "icons": "node scripts/build-icon.mjs",
     "demo": "tsx scripts/generate-demo.ts",
     "licenses": "tsx scripts/licenses.ts",
     "check": "npm run typecheck && npm test && npm run build",
@@ -55,7 +55,8 @@
     "plugin:pack": "node scripts/package-plugin.mjs",
     "test:plugin": "tsx tests/plugin-electron.ts",
     "test:plugin:launcher": "python3 tests/plugin-launcher.py",
-    "clean": "node scripts/clean-artifacts.mjs"
+    "clean": "node scripts/clean-artifacts.mjs",
+    "rebrand": "node scripts/rebrand.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.11",
@@ -81,8 +82,8 @@
     "vitest": "^5.0.4"
   },
   "build": {
-    "appId": "org.reacut.editor",
-    "productName": "ReaCut",
+    "appId": "org.cevikedit.editor",
+    "productName": "CevikEdit",
     "files": [
       "dist/**",
       "dist-electron/**",
@@ -134,8 +135,8 @@
     ],
     "fileAssociations": [
       {
-        "ext": "reacut",
-        "name": "ReaCut Project",
+        "ext": "cevikedit",
+        "name": "CevikEdit Project",
         "role": "Editor"
       }
     ],
@@ -144,7 +145,7 @@
   "engines": {
     "node": "^24.11.0 || >=26.0.0"
   },
-  "author": "ReaCut contributors",
+  "author": "CevikEdit contributors",
   "allowScripts": {
     "esbuild@0.28.2": true,
     "esbuild@0.25.12": true,

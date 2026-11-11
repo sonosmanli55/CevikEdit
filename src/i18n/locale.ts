@@ -10,7 +10,7 @@ export function activeLocale(): string {
   if (typeof window === "undefined") return "tr";
   const fromQuery = new URLSearchParams(window.location.search).get("locale");
   if (fromQuery) return fromQuery;
-  return window.reacutLocale ?? "tr";
+  return window.cevikeditLocale ?? "tr";
 }
 
 /**

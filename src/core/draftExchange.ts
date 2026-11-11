@@ -1,7 +1,7 @@
 /**
  * Draft exchange export.
  *
- * This writes a **plain-text, openly documented** draft document that ReaCut can
+ * This writes a **plain-text, openly documented** draft document that CevikEdit can
  * read back and that other tools can inspect. It deliberately does NOT write
  * into CapCut's encrypted draft store: that format is proprietary, its payload
  * keys belong to the application, and modifying another app's files is outside
@@ -12,15 +12,15 @@
 import { clone } from "./model";
 import type { Clip, Project } from "./types";
 
-export const DRAFT_EXCHANGE_FORMAT = "reacut-exchange-draft";
+export const DRAFT_EXCHANGE_FORMAT = "cevikedit-exchange-draft";
 export const DRAFT_EXCHANGE_VERSION = 1;
-export const DRAFT_EXCHANGE_EXTENSION = "reacut-draft.json";
+export const DRAFT_EXCHANGE_EXTENSION = "cevikedit-draft.json";
 export const DRAFT_LIMITS = { clips: 10_000, materials: 10_000, tracks: 1_000 } as const;
 
 export interface DraftExchangeDocument {
   format: typeof DRAFT_EXCHANGE_FORMAT;
   version: typeof DRAFT_EXCHANGE_VERSION;
-  generator: "ReaCut";
+  generator: "CevikEdit";
   /** Compatibility hint only; the document is not a CapCut draft. */
   layout: "plaintext-draft";
   id: string;
@@ -34,7 +34,7 @@ export interface DraftExchangeDocument {
     texts: Array<Record<string, unknown>>;
   };
   tracks: Array<Record<string, unknown>>;
-  /** ReaCut can round-trip the full project in this side channel. */
+  /** CevikEdit can round-trip the full project in this side channel. */
   project: Project;
 }
 
@@ -106,7 +106,7 @@ export function exportDraft(
       segments,
     });
   }
-  // Stable visual layering: earlier ReaCut tracks are drawn on top.
+  // Stable visual layering: earlier CevikEdit tracks are drawn on top.
   for (const track of tracks) {
     const layer = Math.max(
       0,
@@ -123,7 +123,7 @@ export function exportDraft(
   return {
     format: DRAFT_EXCHANGE_FORMAT,
     version: DRAFT_EXCHANGE_VERSION,
-    generator: "ReaCut",
+    generator: "CevikEdit",
     layout: "plaintext-draft",
     id: `draft-${project.id}`,
     name: options.name?.trim() || project.name,

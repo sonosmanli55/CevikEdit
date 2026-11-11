@@ -1,5 +1,5 @@
 /**
- * Turkish language pack for ReaCut.
+ * Turkish language pack for CevikEdit.
  *
  * Keys are the original Simplified Chinese UI strings used as source strings.
  * The runtime in `src/i18n/index.ts` translates rendered text nodes and the
@@ -26,9 +26,9 @@ export const tr: Record<string, string> = {
   "确定": "Tamam",
   "完成": "Tamam",
   "关于": "Hakkında",
-  "映刻": "ReaCut",
-  "ReaCut · 映刻": "ReaCut",
-  "ReaCut 图标": "ReaCut simgesi",
+  "CevikEdit": "CevikEdit",
+  "CevikEdit · CevikEdit": "CevikEdit",
+  "CevikEdit 图标": "CevikEdit simgesi",
 
   // ------------------------------------------------------------- Export dialog
   "导出失败": "Dışa aktarma başarısız",
@@ -134,7 +134,7 @@ export const tr: Record<string, string> = {
   "正在导入…": "İçe aktarılıyor…",
   "导入所选时间线": "Seçili zaman çizelgesini içe aktar",
   "键盘快捷键": "Klavye kısayolları",
-  "关于 ReaCut": "ReaCut hakkında",
+  "关于 CevikEdit": "CevikEdit hakkında",
 
   // ---------------------------------------------------------------- Settings
   "设置与最近项目": "Ayarlar ve son projeler",
@@ -482,8 +482,8 @@ export const tr: Record<string, string> = {
   "非等比缩放导入为统一缩放，画面可能改变。":
     "Orantısız ölçek, tek tip ölçek olarak içe aktarıldı; görüntü değişebilir.",
   "无法解析文字内容的片段已跳过。": "Metin içeriği ayrıştırılamayan klipler atlandı.",
-  "文字内容已保留；剪映字体、花字、样式和排版未映射，使用 ReaCut 默认样式。":
-    "Metin içeriği korundu; CapCut yazı tipi, süslü yazı, stil ve dizgi eşlenmedi, ReaCut varsayılan stili kullanıldı.",
+  "文字内容已保留；剪映字体、花字、样式和排版未映射，使用 CevikEdit 默认样式。":
+    "Metin içeriği korundu; CapCut yazı tipi, süslü yazı, stil ve dizgi eşlenmedi, CevikEdit varsayılan stili kullanıldı.",
   "倒放未支持，该片段按正向播放。": "Ters oynatma desteklenmiyor; bu klip normal yönde oynatılır.",
   "剪映关键帧未映射，保留片段的静态参数。":
     "CapCut anahtar kareleri eşlenmedi; klibin statik parametreleri korundu.",
@@ -560,7 +560,7 @@ export const tr: Record<string, string> = {
   "短视频开场": "Kısa video açılışı",
   "这个你绝对不知道": "BUNU BİLİYOR MUYDUNUZ?",
   "关注提示": "Takip çağrısı",
-  "关注 → @reacut": "Takip et → @reacut",
+  "关注 → @cevikedit": "Takip et → @cevikedit",
   "倒计时数字": "Geri sayım",
 
   // -------------------------------------------------------- Camera animations
@@ -624,8 +624,8 @@ export const tr: Record<string, string> = {
   "导入剪映项目文件夹": "CapCut proje klasörü içe aktar",
   "媒体文件": "Medya dosyaları",
   "所有文件": "Tüm dosyalar",
-  "打开 ReaCut 项目": "ReaCut projesi aç",
-  "ReaCut 项目": "ReaCut projesi",
+  "打开 CevikEdit 项目": "CevikEdit projesi aç",
+  "CevikEdit 项目": "CevikEdit projesi",
   "选择素材包保存位置": "Medya paketi kayıt konumunu seç",
   "文本文件": "Metin dosyaları",
   "选择剪映草稿文件": "CapCut taslak dosyasını seç",
@@ -1714,8 +1714,8 @@ export const tr: Record<string, string> = {
   "所选模型不可用，请重新选择": "Seçili model kullanılamıyor; yeniden seçin",
   "所选 Whisper 不可用，请重新选择可执行文件。":
     "Seçili Whisper kullanılamıyor; çalıştırılabilir dosyayı yeniden seçin.",
-  "环境变量 REACUT_WHISPER 指向的程序不可用。":
-    "REACUT_WHISPER ortam değişkeninin gösterdiği program kullanılamıyor.",
+  "环境变量 CEVIKEDIT_WHISPER 指向的程序不可用。":
+    "CEVIKEDIT_WHISPER ortam değişkeninin gösterdiği program kullanılamıyor.",
   "Whisper 结果无法解析": "Whisper sonucu çözümlenemedi",
   "Whisper 输出超过安全限制。": "Whisper çıktısı güvenlik sınırını aşıyor.",
   "Whisper 未生成结果文件。": "Whisper sonuç dosyası oluşturmadı.",

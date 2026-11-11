@@ -37,6 +37,6 @@ npx tsx scripts/generate-assets.ts
 npx vitest run tests/builtinAssets.test.ts
 ```
 
-图标按用户指定的剪映左右镜像方向重新绘制矢量几何：交叉带端点朝左，薄荷青渐变配石墨黑圆角底，折角采用短曲线过渡。源文件为 `public/icons/reacut.svg`，由自主坐标路径生成，不嵌入第三方图标位图；视觉方向参考不构成品牌权利或法律审查结论。重建图标使用 `npm run icons`，生成 macOS ICNS、Windows ICO、Linux PNG 和界面图标 `public/icons/reacut.png`。
+图标按用户指定的剪映左右镜像方向重新绘制矢量几何：交叉带端点朝左，薄荷青渐变配石墨黑圆角底，折角采用短曲线过渡。源文件为 `public/icons/cevikedit.svg`，由自主坐标路径生成，不嵌入第三方图标位图；视觉方向参考不构成品牌权利或法律审查结论。重建图标使用 `npm run icons`，生成 macOS ICNS、Windows ICO、Linux PNG 和界面图标 `public/icons/cevikedit.png`。
 
 素材资源随 Vite 公共文件复制进入构建。桌面添加只允许固定清单内的 ID，由主进程解析本地安装资源后进入普通媒体素材流程；项目保存和导出仍使用正常的授权本地素材路径。

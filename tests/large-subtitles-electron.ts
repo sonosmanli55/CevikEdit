@@ -6,10 +6,10 @@ import assert from 'node:assert/strict';
 import { createProject, createClip } from '../src/core/model';
 const root=process.cwd(),output=path.join(root,'.test-output/large-subtitles-electron');await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 const project=createProject('十五分钟字幕验收');project.tracks[0].name='字幕';project.clips=Array.from({length:300},(_,i)=>{const c=createClip(undefined,project.tracks[0].id,i*3,30);c.duration=3;c.text!.text=`第 ${String(i+1).padStart(3,'0')} 条合成字幕`;return c;});
-const file=path.join(output,'large.reacut');await writeFile(file,JSON.stringify(project));
-const packaged=process.env.REACUT_TEST_APP,env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.REACUT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;if(packaged){env.PATH='';delete env.REACUT_FFMPEG;delete env.REACUT_FFPROBE;}
-env.REACUT_LOCALE = "zh";
-const begin=performance.now();const app=await electron.launch({...packaged?{executablePath:path.join(path.resolve(packaged),'Contents/MacOS/ReaCut'),args:[file],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),file]},env});const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];const timings:Record<string,number>={};page.on('pageerror',e=>errors.push(e.message));
+const file=path.join(output,'large.cevikedit');await writeFile(file,JSON.stringify(project));
+const packaged=process.env.CEVIKEDIT_TEST_APP,env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.CEVIKEDIT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;if(packaged){env.PATH='';delete env.CEVIKEDIT_FFMPEG;delete env.CEVIKEDIT_FFPROBE;}
+env.CEVIKEDIT_LOCALE = "zh";
+const begin=performance.now();const app=await electron.launch({...packaged?{executablePath:path.join(path.resolve(packaged),'Contents/MacOS/CevikEdit'),args:[file],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),file]},env});const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];const timings:Record<string,number>={};page.on('pageerror',e=>errors.push(e.message));
 try{
  await expect(page.locator('.tl-clip')).toHaveCount(300,{timeout:30000});timings.launchToTimelineMs=Math.round(performance.now()-begin);
  await app.evaluate(({dialog})=>{(dialog as any).showMessageBox=async()=>({response:2});});

@@ -11,13 +11,13 @@ import type { ExportOptions, Project } from "../src/core/types";
 const folders: string[] = [];
 afterEach(async () => { await Promise.all(folders.splice(0).map(folder => rm(folder, { recursive: true, force: true }))); });
 async function fixture() {
-  const root = await mkdtemp(path.join(os.tmpdir(), "reacut-workflow-review-")); folders.push(root);
+  const root = await mkdtemp(path.join(os.tmpdir(), "cevikedit-workflow-review-")); folders.push(root);
   const source = path.join(root, "source.png"); await writeFile(source, "synthetic image bytes");
   const parent = path.join(root, "packages"); await mkdir(parent);
   const project = createProject("搬移回归");
   project.assets = [{ id: "asset", name: "自造图片", kind: "image", path: source, url: "file://" + source, duration: 0, width: 160, height: 90, fps: 0, hasAudio: false }];
   project.clips = [createClip(project.assets[0], project.tracks[1].id, 0, 30)];
-  const folder = await collectPortableProject(project, parent, new AbortController().signal, () => {}), file = path.join(folder, "proje.reacut");
+  const folder = await collectPortableProject(project, parent, new AbortController().signal, () => {}), file = path.join(folder, "proje.cevikedit");
   const opened = await resolvePortableDocument(JSON.parse(await readFile(file, "utf8")), file);
   return { root, folder, file, opened };
 }
@@ -39,7 +39,7 @@ describe("independent workflow review", () => {
     expect((await readFile(restored.assets[1].path)).toString()).toBe("new synthetic image");
   });
   it("starts a 30fps range on its exact requested frame even when seconds round upward", async () => {
-    const root = await mkdtemp(path.join(os.tmpdir(), "reacut-review-range-")); folders.push(root);
+    const root = await mkdtemp(path.join(os.tmpdir(), "cevikedit-review-range-")); folders.push(root);
     const source = path.join(root, "frames.mkv");
     await runMediaTool("ffmpeg", ["-v", "error", "-y", "-f", "lavfi", "-i", "nullsrc=s=160x90:r=30:d=1,format=gbrp,geq=r='mod(N*70,240)':g='20':b='20'", "-c:v", "ffv1", source]);
     const [asset] = await importAssets([source], path.join(root, "cache"));

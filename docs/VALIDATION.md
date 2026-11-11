@@ -48,39 +48,39 @@
 **刻意不实现剪映加密草稿写回**：该格式为第三方专有，载荷密钥属于其应用，向其存储写入属于超出本项目授权范围的操作（AGENTS.md 的保守边界）。本项以“可往返的开放交换格式”交付，而非修改第三方文件。
 
 - `tests/draftExchange.test.ts` 5 项：文档结构、经现有明文导入器往返后时间/速度/文本一致、侧信道不改源工程、校验与拒绝、自定义名称。
-- `tests/draft-electron.ts` 3 项真实桌面：菜单导出并落盘、导出文件重新导入得到 2 个片段且界面无中文残留、源 `.reacut` 未被修改。
+- `tests/draft-electron.ts` 3 项真实桌面：菜单导出并落盘、导出文件重新导入得到 2 个片段且界面无中文残留、源 `.cevikedit` 未被修改。
 
 ### 综合结果
 
 - 整套 `npm test`：**458 项，452 通过、6 跳过、0 失败**（49 个文件）。
 - `npm run typecheck`、`npm run build` 通过；`npx tsx scripts/i18n-audit.ts` 0 未翻译。审计脚本新增独立的字面量正则扫描，修复了此前依赖括号状态机而漏报的问题。
-- Windows 打包候选升级为 **0.6.1**：`release/ReaCut Setup 0.6.1.exe` 已构建；`tests/package-win-electron.ts` 直接启动打包后的 `ReaCut.exe`，确认版本号、八个资源页仅土耳其语、模板建工程、保存与 1920×1080 H.264 导出，5 项通过。
+- Windows 打包候选升级为 **0.6.1**：`release/CevikEdit Setup 0.6.1.exe` 已构建；`tests/package-win-electron.ts` 直接启动打包后的 `CevikEdit.exe`，确认版本号、八个资源页仅土耳其语、模板建工程、保存与 1920×1080 H.264 导出，5 项通过。
 - 桌面回归：`app-electron` 15、`keyframe-electron` 7、`templates-electron` 7、`timeline-view-electron` 12、`limits-electron` 5、`audio-tools-electron` 8、`subtitle-electron` 15、`draft-electron` 3，均无 renderer 错误。
 
-限制：贝塞尔在导出侧是 24 段折线近似（预览为精确解），极端句柄下误差仍小于动画量程 1%；4K 预览通过画布缩放而非独立代理渲染，超长 4K 时间线滚动仍受 Chromium 合成限制；VAD 面向 20 ms 能量的近场人声，音乐/强噪声场景需要人工调整或改用区间选择；HDR 统一映射到 SDR BT.709，不输出 HDR 成片，也不做峰值亮度元数据；草稿交换格式是 ReaCut 自有格式，不保证任何第三方编辑器可读。全部验证仍只在 Windows 10 x64 与 FFmpeg 8.0 上完成，macOS/Linux 未实机复核。
+限制：贝塞尔在导出侧是 24 段折线近似（预览为精确解），极端句柄下误差仍小于动画量程 1%；4K 预览通过画布缩放而非独立代理渲染，超长 4K 时间线滚动仍受 Chromium 合成限制；VAD 面向 20 ms 能量的近场人声，音乐/强噪声场景需要人工调整或改用区间选择；HDR 统一映射到 SDR BT.709，不输出 HDR 成片，也不做峰值亮度元数据；草稿交换格式是 CevikEdit 自有格式，不保证任何第三方编辑器可读。全部验证仍只在 Windows 10 x64 与 FFmpeg 8.0 上完成，macOS/Linux 未实机复核。
 
 ## 模板与 0.6.0 候选包（2026-11-08）
 
 ### 可复用模板
 
-新增 `src/core/templates.ts`（纯模型）与 `electron/templates.ts`（存储）、`TemplatesLibrary` 面板与“模板”资源页。**保存为模板**会把当前工程的画布、轨道、样式、动画和时间原样保留，但把每个被使用的素材替换为 `template://media/<slot>` 哨兵并登记为“媒体占位”；未被任何片段引用的素材直接丢弃，缩略图、预览地址、缓存字段全部清除。**从模板新建**会重新生成工程、轨道、片段和关键帧 ID，媒体从源 0 开始并按可用长度裁短（同时裁剪关键帧与淡化），文本占位按用户输入替换。缺失的可选占位只移除相关片段并在界面上给出警告，必需占位缺失则明确拒绝。模板可以导出为 `.reacut-template` 文件再导入；导入时先解析和校验，任何指向本机路径、越界 `template://` 路径、类型不符的占位、重复键、超过 100 个媒体/200 个文本占位、非图片封面都会被拒绝。
+新增 `src/core/templates.ts`（纯模型）与 `electron/templates.ts`（存储）、`TemplatesLibrary` 面板与“模板”资源页。**保存为模板**会把当前工程的画布、轨道、样式、动画和时间原样保留，但把每个被使用的素材替换为 `template://media/<slot>` 哨兵并登记为“媒体占位”；未被任何片段引用的素材直接丢弃，缩略图、预览地址、缓存字段全部清除。**从模板新建**会重新生成工程、轨道、片段和关键帧 ID，媒体从源 0 开始并按可用长度裁短（同时裁剪关键帧与淡化），文本占位按用户输入替换。缺失的可选占位只移除相关片段并在界面上给出警告，必需占位缺失则明确拒绝。模板可以导出为 `.cevikedit-template` 文件再导入；导入时先解析和校验，任何指向本机路径、越界 `template://` 路径、类型不符的占位、重复键、超过 100 个媒体/200 个文本占位、非图片封面都会被拒绝。
 
 随包提供三套自主生成的示例模板（`src/core/builtinTemplates.ts`）：**Açılış kartı**（1920×1080，6 秒）、**Dikey sosyal video**（1080×1920，8 秒）、**Altyazı bloğu**（1920×1080，12 秒，三条顺序字幕）。三者各自带有封面、媒体占位、默认内置素材与文本占位，并复用本周的淡入淡出、x/y 关键帧与文字动画数据。
 
 - `tests/templates.test.ts` 11 项：内置模板校验/摘要、从模板实例化并保留时长、可选占位跳过并警告、必需占位与错误媒体类型拒绝、媒体短于片段时按帧裁短并裁剪关键帧、工程转模板不泄漏本机路径且不修改源工程、JSON 往返、被篡改的路径/封面/占位清单拒绝、100 个上限与重复键、两次实例化不共用 ID、摘要字段。
-- `npx tsx tests/templates-electron.ts` 7 项真实桌面检查：模板页列出三套土耳其语内置模板；保存当前工程后写入一个不含本机路径的 `.reacut-template`；重开编辑器后库仍在；选中用户模板、替换媒体与文本后生成新工程（3 个片段）；导出模板文件；删除后文件消失、再导入恢复；把导出文件里的素材路径改成 `C:\gizli\video.mp4` 后再导入会被拒绝并显示土耳其语错误。renderer 无错误。
+- `npx tsx tests/templates-electron.ts` 7 项真实桌面检查：模板页列出三套土耳其语内置模板；保存当前工程后写入一个不含本机路径的 `.cevikedit-template`；重开编辑器后库仍在；选中用户模板、替换媒体与文本后生成新工程（3 个片段）；导出模板文件；删除后文件消失、再导入恢复；把导出文件里的素材路径改成 `C:\gizli\video.mp4` 后再导入会被拒绝并显示土耳其语错误。renderer 无错误。
 
 ### 30 秒端到端演示
 
 `scripts/generate-showcase.ts` 用同一套核心模型拼出 30 秒 1280×720 影片：三幕合成风景（渐变、太阳、四层山脊、颗粒线）各带缓慢推近的 `easeInOut` 缩放、标题与淡入淡出；五条土耳其语字幕经 `prepareSubtitleEdit` 统一应用“上滑 + 呼吸 + 淡出”，其中一条先按播放头拆分再合并，验证拆分/合并规则；音轨由合成“人声”和“音乐”组成，先对音乐做真实 `loudnorm` 测量（本机测得 −29.1 LUFS / −18.5 dBTP），按 −20 LUFS 归一化，再用 `prepareDucking` 在 30 秒人声全程把音乐压低 11 dB、过渡 0.5 秒；开头标题复用内置“Açılış kartı”模板实例化后的样式与动画。最后用真实导出管线渲染，并把这个工程本身再存成模板，验证往返。
 
-结果：`showcase.mp4` 1280×720、恰好 30.0 秒、H.264 + AAC；导出的音轨不是静音（首 2 秒 PCM RMS > 0.005）；工程里 6 个文本片段与 5 个媒体占位全部通过 `validateProject`；同名模板中的素材全部为占位路径。产物已复制到 `docs/media/hafta-demosu.mp4`（2.3 MB）、`hafta-demosu.reacut`、`hafta-demosu.reacut-template` 与三张预览帧，来源说明见 `docs/media/KAYNAK.txt`。
+结果：`showcase.mp4` 1280×720、恰好 30.0 秒、H.264 + AAC；导出的音轨不是静音（首 2 秒 PCM RMS > 0.005）；工程里 6 个文本片段与 5 个媒体占位全部通过 `validateProject`；同名模板中的素材全部为占位路径。产物已复制到 `docs/media/hafta-demosu.mp4`（2.3 MB）、`hafta-demosu.cevikedit`、`hafta-demosu.cevikedit-template` 与三张预览帧，来源说明见 `docs/media/KAYNAK.txt`。
 
 - `tests/showcase.test.ts` 1 项（约 32 秒）：完整生成、导出、探针校验分辨率/时长/音视频流、PCM 能量、文本与关键帧数量、模板占位路径与产物大小。
 
 ### Windows 0.6.0 候选包
 
-`package.json`/`package-lock.json` 升到 **0.6.0**，`npm run dist` 生成 `release/ReaCut Setup 0.6.0.exe`（129 MB，NSIS，x64）与 `release/win-unpacked`。新增 `tests/package-win-electron.ts` 直接驱动打包后的 `ReaCut.exe`（隔离用户目录、默认土耳其语、无 `REACUT_LOCALE` 覆盖）：确认 `getSystemInfo()` 返回 0.6.0 / win32、八个资源页无任何中日韩字符、用内置模板与随包素材创建工程（3 个片段）、保存为 `.reacut`、通过原生对话框导出，并用 FFprobe 核对 1920×1080 H.264、6.0 秒。renderer 无错误。
+`package.json`/`package-lock.json` 升到 **0.6.0**，`npm run dist` 生成 `release/CevikEdit Setup 0.6.0.exe`（129 MB，NSIS，x64）与 `release/win-unpacked`。新增 `tests/package-win-electron.ts` 直接驱动打包后的 `CevikEdit.exe`（隔离用户目录、默认土耳其语、无 `CEVIKEDIT_LOCALE` 覆盖）：确认 `getSystemInfo()` 返回 0.6.0 / win32、八个资源页无任何中日韩字符、用内置模板与随包素材创建工程（3 个片段）、保存为 `.cevikedit`、通过原生对话框导出，并用 FFprobe 核对 1920×1080 H.264、6.0 秒。renderer 无错误。
 
 限制（**必须如实说明**）：本轮只在 Windows 10 x64 上构建和启动候选包。本机没有 macOS 环境，`dist:mac`/DMG 未构建、未签名、未运行；因此不能声称 macOS 候选包已完成或“真实机器已验证”。macOS 侧仍沿用 2026-10-13 的 v0.5.0 包记录，与本周功能不一致。
 
@@ -95,7 +95,7 @@
 
 结果：`npm test` **398 项，392 通过、6 跳过、0 失败**（首次全绿）。此前记录的 `assistantBackend` 12、`portableProject` 2、`mediaTools` 1 全部消失，且没有任何测试被跳过或断言被削弱。
 
-主进程本地化：桌面版默认土耳其语后，渲染层字典只覆盖 `src/`，主进程 `electron/*.ts` 的 181 条中文错误仍可能经 IPC 显示为中文。本次新增 150 余条词条与约 40 个运行时模式，覆盖助手校验、CapCut 导入、导出校验、文件桥接、可搬移项目、媒体工具与转写错误；`tests/mainLocale.test.ts` 会扫描 `electron/` 中所有中文字面量，只允许 4 个内部模板（提示词包装、派生素材名、进度计数）例外。助手提示词本身也改为土耳其语，模型现在被要求用土耳其语回答。可搬移包内的 `KULLANIM.txt` 与 `<ad>-medya-paketi-<id>` 文件夹名改为土耳其语，项目入口文件统一为 `proje.reacut`。
+主进程本地化：桌面版默认土耳其语后，渲染层字典只覆盖 `src/`，主进程 `electron/*.ts` 的 181 条中文错误仍可能经 IPC 显示为中文。本次新增 150 余条词条与约 40 个运行时模式，覆盖助手校验、CapCut 导入、导出校验、文件桥接、可搬移项目、媒体工具与转写错误；`tests/mainLocale.test.ts` 会扫描 `electron/` 中所有中文字面量，只允许 4 个内部模板（提示词包装、派生素材名、进度计数）例外。助手提示词本身也改为土耳其语，模型现在被要求用土耳其语回答。可搬移包内的 `KULLANIM.txt` 与 `<ad>-medya-paketi-<id>` 文件夹名改为土耳其语，项目入口文件统一为 `proje.cevikedit`。
 
 - `tests/mainLocale.test.ts` 3 项：扫描主进程词条、验证组合错误（片段/素材/FFmpeg/CLI/CapCut）均可翻译为无中文的土耳其语、确认助手提示词为土耳其语且保留 JSON 契约。
 - `npx tsx tests/assistant-assets-electron.ts` 13 项通过：内置素材导入、Codex/Claude 合成 CLI 协议、参数篡改拦截、真实子进程取消、导出带音频与中文标题成片。
@@ -124,7 +124,7 @@
 限制：浏览器 QA 脚本 `tests/timeline-browser.ts` 需要本机 Playwright Chromium；该机器未安装浏览器二进制，按离线范围不自动下载，因此本次未运行该脚本，改用真实 Electron 桌面用例覆盖同一交互。触控板双指缩放依赖操作系统的 Ctrl+滚轮映射；未实现惯性滑动、滚动条内嵌小地图或按关键帧密度自适应缩放。
 
 ## 界面语言（2026-11-06）
-桌面版默认使用土耳其语，不再依赖安装包判断：`resolveLocale` 在开发和打包环境都返回 `tr`，主进程菜单、IPC 错误与渲染层默认文案统一走同一语言包；`REACUT_LOCALE=zh` 仅保留给以简体中文为断言的既有回归脚本。`tests/locale.test.ts` 4 项覆盖默认语言、中文回退开关、新增音频/字幕文案与运行时拼接消息；`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。真实桌面音频流程还会逐个切换 Medya / Ses / Metin / Çıkartma / Efekt / Geçiş / Altyazı，断言页面正文不含任何中日韩字符。
+桌面版默认使用土耳其语，不再依赖安装包判断：`resolveLocale` 在开发和打包环境都返回 `tr`，主进程菜单、IPC 错误与渲染层默认文案统一走同一语言包；`CEVIKEDIT_LOCALE=zh` 仅保留给以简体中文为断言的既有回归脚本。`tests/locale.test.ts` 4 项覆盖默认语言、中文回退开关、新增音频/字幕文案与运行时拼接消息；`npx tsx scripts/i18n-audit.ts` 报告 0 条未翻译字面量与 0 条 JSX 文本。真实桌面音频流程还会逐个切换 Medya / Ses / Metin / Çıkartma / Efekt / Geçiş / Altyazı，断言页面正文不含任何中日韩字符。
 
 ## 时间线插入/覆盖与音视频关联（2026-11-06）
 
@@ -228,7 +228,7 @@
 
 ## v0.5.1 插件重复启动修复（2026-10-19）
 
-用户报告仍有 ReaCut 短暂弹出。进程证据确认已运行此前 Dock 修复版，但每次 MCP 连接仍无条件创建 Electron 子进程；同一宿主短时间内建立多个连接。此前只在应用 JavaScript 中隐藏 Dock 的修复未覆盖连接前的应用启动阶段。
+用户报告仍有 CevikEdit 短暂弹出。进程证据确认已运行此前 Dock 修复版，但每次 MCP 连接仍无条件创建 Electron 子进程；同一宿主短时间内建立多个连接。此前只在应用 JavaScript 中隐藏 Dock 的修复未覆盖连接前的应用启动阶段。
 
 - Python 启动器改为按需代理：initialize、ping、tools/list、resources/list、resources/templates/list 和固定 UI 资源读取均不执行应用。首次实际 tools/call 才启动一个子进程；异常退出后不自动重启或重放操作。
 - macOS 应用声明 `LSUIElement=true`，普通桌面启动显式设置 regular 策略；插件保持 accessory。签名严格校验通过。
@@ -236,7 +236,7 @@
 - 实际 0.5.1 打包应用通过新启动器执行完整插件协议、导入、编辑、冲突拒绝、撤销重做、截图与断连保存回归。空 PATH 的桌面启动、Dock 图标显示、字体/预览及 9 秒含中文文字与音频的视频导出通过；renderer errors 为空。生产构建与类型检查通过。
 - Dock 生命周期专项通过，包括连续 20 次截图不显示窗口或 Dock。本机插件已更新到 0.5.1，旧版缓存入口同步换为按需启动器，旧实例已请求正常退出并保留恢复数据。
 
-本机应用：`release/v0.5.1-lazy/mac-arm64/ReaCut.app`。这是本地修复，未替换 GitHub v0.5.0 的已发布附件。Windows / Linux 尚未实机验证。
+本机应用：`release/v0.5.1-lazy/mac-arm64/CevikEdit.app`。这是本地修复，未替换 GitHub v0.5.0 的已发布附件。Windows / Linux 尚未实机验证。
 
 ## v0.5.0 GitHub 预览版安装包（2026-10-13）
 
@@ -252,15 +252,15 @@
 
 | 文件 | SHA-256 |
 | --- | --- |
-| `ReaCut-0.5.0-arm64.dmg` | `ee23ae803a064d34e79ba68282959188fc7ff9b48649fee21b1aa0c0a8344849` |
-| `ReaCut-0.5.0-arm64-mac.zip` | `2586d1e187a9af0780ee8dc7a69a8a958b793fb6a0fc9926596db64de1f1c9ff` |
-| `ReaCut-plugin-0.5.0.zip` | `05abdeb012d46a44c3a2df5a0a3a59421634248b826673ea83ae2af77b324e8a` |
+| `CevikEdit-0.5.0-arm64.dmg` | `ee23ae803a064d34e79ba68282959188fc7ff9b48649fee21b1aa0c0a8344849` |
+| `CevikEdit-0.5.0-arm64-mac.zip` | `2586d1e187a9af0780ee8dc7a69a8a958b793fb6a0fc9926596db64de1f1c9ff` |
+| `CevikEdit-plugin-0.5.0.zip` | `05abdeb012d46a44c3a2df5a0a3a59421634248b826673ea83ae2af77b324e8a` |
 
 本机证据：`.test-output/package-electron/evidence.json`、`.test-output/plugin-electron/evidence.json`。
 
 ## macOS 插件 Dock 修复（2026-10-13）
 
-后台插件改用 accessory 激活策略；显示桌面窗口时切回 regular，关闭窗口后隐藏 Dock 图标并保留编辑器。`tests/plugin-dock-electron.ts` 在隔离目录内验证上述三种状态及连续 20 次画面刷新均不显示窗口或 Dock 图标；类型检查与生产构建通过。修复应用位于 `release/plugin-dock-fix/mac-arm64/ReaCut.app`，打包后的插件协议、素材导入、编辑、撤销重做、截图及断连保存回归通过，严格签名检查通过。本机插件配置已指向修复应用。后续确认旧连接仍在使用原应用，核对空项目无未保存修改后正常退出；需重连插件加载修复应用，尚未取得修复版在 Codex 宿主内的最终确认。下文此前生成的 DMG 不含这次修复。
+后台插件改用 accessory 激活策略；显示桌面窗口时切回 regular，关闭窗口后隐藏 Dock 图标并保留编辑器。`tests/plugin-dock-electron.ts` 在隔离目录内验证上述三种状态及连续 20 次画面刷新均不显示窗口或 Dock 图标；类型检查与生产构建通过。修复应用位于 `release/plugin-dock-fix/mac-arm64/CevikEdit.app`，打包后的插件协议、素材导入、编辑、撤销重做、截图及断连保存回归通过，严格签名检查通过。本机插件配置已指向修复应用。后续确认旧连接仍在使用原应用，核对空项目无未保存修改后正常退出；需重连插件加载修复应用，尚未取得修复版在 Codex 宿主内的最终确认。下文此前生成的 DMG 不含这次修复。
 
 ## v0.5.0 Codex 插件（2026-10-13）
 
@@ -268,13 +268,13 @@
 
 - 类型检查与生产构建通过。现有 24 个测试文件 **293 项通过、1 项缺少 libx265 跳过**。
 - 实际 v0.5.0 macOS arm64 安装包在空 `PATH`、隔离用户目录下通过插件协议测试：initialize、9 个工具、fullscreen resource、app-only 帧权限、项目读取、原创素材导入、时间线插入、版本冲突、非法操作整批回滚、撤销/重做、无效路径和输入拒绝、真实画面与导出窗口。
-- 断开 stdio 后核对最新项目已写入 autosave.reacut，编辑器正常退出。实际安装缓存中的 Python 启动器通过 MCP 通信；同时启动两个连接，恢复目录不同；EOF 与 SIGTERM 均刷新恢复数据并退出。
+- 断开 stdio 后核对最新项目已写入 autosave.cevikedit，编辑器正常退出。实际安装缓存中的 Python 启动器通过 MCP 通信；同时启动两个连接，恢复目录不同；EOF 与 SIGTERM 均刷新恢复数据并退出。
 - 用 MCP Apps SDK 的独立本地验证宿主，通过 Computer Use 操作真实插件 UI，验证中文输入、全选替换、缩放坐标、片段拖动、快捷键撤销、系统保存对话框和真实导出。输出 H.264、640×360、5 秒 MP4，FFprobe 核对通过。发现并修复隐藏窗口的全选行为、CSS 缩放后的输入坐标以及离屏窗口无法切回桌面的问题。
 - 改用可显示的隐藏窗口后，再次核对 MCP 截图与原生桌面界面；原有 renderer 隔离、CSP 和媒体授权保持启用。关闭插件的桌面窗口会收回到后台，不销毁侧栏编辑会话。
 - Skill 校验、Python / shell 语法检查和 Git diff 空白检查通过。新增 MCP Apps SDK 及其实际打包依赖的原始许可声明；许可收集 122 条、无未解决项。
 - 最终应用 `codesign --verify --deep --strict` 通过，DMG 的 `hdiutil verify` 为 VALID。仍为本地 ad-hoc 签名，未 Apple 公证。Windows / Linux 未实机验收。
 
-安装包：`release/codex-plugin-final/ReaCut-0.5.0-arm64.dmg`，SHA-256：`d54b16d6c6eb6221a133d3af8d3106156fd61b966bf9250c821e57d1605fde0f`。插件包：`release/ReaCut-plugin-0.5.0.zip`。
+安装包：`release/codex-plugin-final/CevikEdit-0.5.0-arm64.dmg`，SHA-256：`d54b16d6c6eb6221a133d3af8d3106156fd61b966bf9250c821e57d1605fde0f`。插件包：`release/CevikEdit-plugin-0.5.0.zip`。
 
 本机证据：`.test-output/plugin-electron/evidence.json`、`.test-output/plugin-launcher.json`、`.test-output/plugin-harness/plugin-ui-export.mp4`、`.test-output/plugin-regression.log`。界面截图见 [插件说明](CODEX_PLUGIN.md#本地交互验收截图)。
 
@@ -290,7 +290,7 @@
 - 卡片布局随素材面板宽度自动调整列数。实际界面截图在本节所链接的素材文档中，均使用本项目生成的背景，没有用户视频。
 - `codesign --verify --deep --strict` 通过，`hdiutil verify` 结果 VALID。仍为本地 ad-hoc 签名，未公证；Windows / Linux 未实机验收。
 
-安装包：`release/creative-library/ReaCut-0.4.2-arm64.dmg`；SHA-256：`6e8861664176d5838f077cb9e453449bea90c10784248184b51ec6d3eea005e8`。
+安装包：`release/creative-library/CevikEdit-0.4.2-arm64.dmg`；SHA-256：`6e8861664176d5838f077cb9e453449bea90c10784248184b51ec6d3eea005e8`。
 
 原始本机证据：`.test-output/creative-final-tests.log`、`.test-output/creative-library-electron/evidence.json`、`.test-output/transition-electron/evidence.json`。安装包验证不代表全部第三方媒体组合均已覆盖。
 
@@ -303,7 +303,7 @@
 - `npm run build` 含 TypeScript 检查与生产构建通过。macOS arm64 新打包应用在空 `PATH`、隔离用户目录下运行 `tests/assistant-assets-electron.ts`，13 项检查通过。验证新相机 / 姓名牌的本机导入与撤销，极光背景 / 星点音效保存，透明图层预览，以及内置 FFmpeg 实际导出 640×360、5 秒有声视频。首秒音频 RMS 约 0.08951，首帧背景、贴纸与文字像素检查通过；renderer errors、failedMedia 均为空。助手环节使用合成 CLI，不调用真实账号。
 - 包内 64 个媒体文件全部匹配 manifest 指纹。`codesign --verify --deep --strict` 通过，DMG 经 `hdiutil verify` 为 VALID；签名仍为本地 ad-hoc，未公证。Windows / Linux 未新增实机验证。
 
-安装包：`release/assets-expanded/ReaCut-0.4.1-arm64.dmg`。SHA-256：`8a4dfd26a1ebbb159d3d9d1e4612f430a85ef9527420963841a063df02a12434`。原始本机记录位于被忽略的 `.test-output/builtin-assets/`、`.test-output/assistant-assets-electron/`、`.test-output/assets-expansion/`。
+安装包：`release/assets-expanded/CevikEdit-0.4.1-arm64.dmg`。SHA-256：`8a4dfd26a1ebbb159d3d9d1e4612f430a85ef9527420963841a063df02a12434`。原始本机记录位于被忽略的 `.test-output/builtin-assets/`、`.test-output/assistant-assets-electron/`、`.test-output/assets-expansion/`。
 
 ## 提交准备复核（2026-10-13）
 
@@ -315,7 +315,7 @@
 
 按用户要求重新绘制左向交叉带矢量图标，生成 PNG、SVG、ICNS 和 ICO。`npm run icons` 与 `npm run build`（含类型检查）通过。实际启动新打包应用，确认标题栏图标加载，包内 PNG / ICNS 与源产物字节一致，renderer errors 为空；应用严格深度签名校验和 DMG 校验通过。本轮为图标变更，未重复完整媒体回归。
 
-新安装包：`release/icon-refresh/ReaCut-0.4.0-arm64.dmg`；SHA-256：`076053f5a303dba6eace0b13921c0ab49ded74f9ba3e1cbfd64a60b08ba359cd`。下方原 v0.4.0 安装包及验收记录保留。新包仍为 macOS arm64、本地 ad-hoc 签名、未公证。图标专项证据：`.test-output/icon-refresh/verification.json`。
+新安装包：`release/icon-refresh/CevikEdit-0.4.0-arm64.dmg`；SHA-256：`076053f5a303dba6eace0b13921c0ab49ded74f9ba3e1cbfd64a60b08ba359cd`。下方原 v0.4.0 安装包及验收记录保留。新包仍为 macOS arm64、本地 ad-hoc 签名、未公证。图标专项证据：`.test-output/icon-refresh/verification.json`。
 
 ## v0.4.0 界面与工作流安装包验收（2026-10-13）
 
@@ -331,8 +331,8 @@ DMG 的 hdiutil 校验为 VALID，ZIP 无错误，复制应用通过严格深度
 
 | 产物 | SHA-256 |
 | --- | --- |
-| ReaCut-0.4.0-arm64.dmg | ae577f3403d8d938ec689e50922b7dcf1c9dc0d741159ef7f34f308a6420e74c |
-| ReaCut-0.4.0-arm64-mac.zip | c17d23ef3f65151dda8fba167fbe4e5f049b972e6a29c3b63136bf955001e7d9 |
+| CevikEdit-0.4.0-arm64.dmg | ae577f3403d8d938ec689e50922b7dcf1c9dc0d741159ef7f34f308a6420e74c |
+| CevikEdit-0.4.0-arm64-mac.zip | c17d23ef3f65151dda8fba167fbe4e5f049b972e6a29c3b63136bf955001e7d9 |
 
 本机证据目录：package-electron、assistant-assets-electron、subtitle-electron、portable-range-electron、source-preview-electron、workspace-electron、large-subtitles-electron，均位于 gitignored .test-output 中。此前八套原有桌面回归也全部通过；播放器在最终布局变更后另行回归。Windows/Linux 和商业剪映完整行为对等不在本轮证明范围。
 
@@ -350,11 +350,11 @@ CLI 合成进程测试不等于在线服务验证。真实 Codex 另已通过“
 
 | 安装包 | SHA-256 |
 | --- | --- |
-| ReaCut-0.3.0-arm64.dmg | `9abe83a5b630e3bc7952dd50f9976d1923e7a7068edb3cd2b675a79c247cb662` |
-| ReaCut-0.3.0-arm64-mac.zip | `c27e36e1251a7095335cce36f2047da6afd29b7e12e4588cd18c621a739ff22a` |
+| CevikEdit-0.3.0-arm64.dmg | `9abe83a5b630e3bc7952dd50f9976d1923e7a7068edb3cd2b675a79c247cb662` |
+| CevikEdit-0.3.0-arm64-mac.zip | `c27e36e1251a7095335cce36f2047da6afd29b7e12e4588cd18c621a739ff22a` |
 
 
-日期：2026-10-13，Asia/Shanghai。本记录只描述 ReaCut 独立实现的本机证据，不证明与商业剪映完整对等，也不把剪映静态字符串、测试脚本或构建配置当成已执行的功能。
+日期：2026-10-13，Asia/Shanghai。本记录只描述 CevikEdit 独立实现的本机证据，不证明与商业剪映完整对等，也不把剪映静态字符串、测试脚本或构建配置当成已执行的功能。
 
 ## v0.2.1：内置 FFmpeg 的安装包
 
@@ -366,8 +366,8 @@ CLI 合成进程测试不等于在线服务验证。真实 Codex 另已通过“
 
 | 产物 | 字节数 | SHA-256 |
 | --- | ---: | --- |
-| `ReaCut-0.2.1-arm64.dmg` | 192668253 | `e47d0472da3f78cf82684226579278109ee87d432b59328499b6aff270ac9a47` |
-| `ReaCut-0.2.1-arm64-mac.zip` | 192236273 | `f986bd2f3340243baa179b73a8dffeea1e3be174c20b3d5d9a66af15c03b7f41` |
+| `CevikEdit-0.2.1-arm64.dmg` | 192668253 | `e47d0472da3f78cf82684226579278109ee87d432b59328499b6aff270ac9a47` |
+| `CevikEdit-0.2.1-arm64-mac.zip` | 192236273 | `f986bd2f3340243baa179b73a8dffeea1e3be174c20b3d5d9a66af15c03b7f41` |
 
 [内置工具与重建说明](MEDIA_TOOLS.md) · [构建来源清单](media-tools-build.json)
 
@@ -392,18 +392,18 @@ v0.2 安装包的 `hdiutil verify`、ZIP 校验及严格代码签名检查通过
 
 | 本地产物 | SHA-256 |
 | --- | --- |
-| `ReaCut-0.2.0-arm64.dmg` | `a3d18dfba8b2abf5bc393cdb5eb90c2e9a91cfbfc3f665f7c031c88fa9089e2b` |
-| `ReaCut-0.2.0-arm64-mac.zip` | `f67ce443ebe5965587ea1f6364de0559909d211d92d2fedb59a6a411344f05c2` |
+| `CevikEdit-0.2.0-arm64.dmg` | `a3d18dfba8b2abf5bc393cdb5eb90c2e9a91cfbfc3f665f7c031c88fa9089e2b` |
+| `CevikEdit-0.2.0-arm64-mac.zip` | `f67ce443ebe5965587ea1f6364de0559909d211d92d2fedb59a6a411344f05c2` |
 | `app.asar`（构建与 DMG 复制一致） | `551bd5cf9f6706542574c861574f4de3a044efa5ab8e24b6eb8a388590db3333` |
 
-[时间线选择截图](screenshots/draft-timeline-choice.png) · [受控草稿导入后的 ReaCut](screenshots/draft-import-editor.png)
+[时间线选择截图](screenshots/draft-timeline-choice.png) · [受控草稿导入后的 CevikEdit](screenshots/draft-import-editor.png)
 
 
 ## 首轮 v0.1 环境与执行记录（历史）
 
 本机为 macOS arm64；Node.js `26.11.1`、Electron `44.7.0`、Vitest `5.0.4`、electron-builder `26.15.3`。系统 FFmpeg 为 `9.0.2`，独立进程调用，不随应用分发。应用源码统一格式化后，在本机通过 TypeScript 检查与 Vite/Electron 编译；最新完整测试记录为 05:28:34。独立 `.test-output/fresh-install/` 执行 `npm ci` 安装 405 个包成功，并实际检查 native canvas、esbuild 与 Electron 可用，不能只以原有 node_modules 成功代替干净安装。
 
-当前 Vitest 配置只收集 `tests/**/*.test.ts`，排除 `.research/` 与构建目录。首轮记录的 `npm test` 结果为 **104 项通过、9 个测试文件通过**；本机 Vitest 缓存中对应九个 `tests/` 文件也均为未失败。旧缓存可能保留更早扫描研究工具时的条目，这些条目不属于当前 ReaCut 测试范围。
+当前 Vitest 配置只收集 `tests/**/*.test.ts`，排除 `.research/` 与构建目录。首轮记录的 `npm test` 结果为 **104 项通过、9 个测试文件通过**；本机 Vitest 缓存中对应九个 `tests/` 文件也均为未失败。旧缓存可能保留更早扫描研究工具时的条目，这些条目不属于当前 CevikEdit 测试范围。
 
 ## 核心及真实渲染
 
@@ -422,7 +422,7 @@ v0.2 安装包的 `hdiutil verify`、ZIP 校验及严格代码签名检查通过
 
 ## 编译后桌面工作流
 
-`tests/app-electron.ts` 启动当前编译的 Electron 主进程，使用独立 `REACUT_USER_DATA` 和自行生成的媒体。文件对话框只在测试专用 Electron 进程内替换，编辑通过实际页面控件及快捷键完成。
+`tests/app-electron.ts` 启动当前编译的 Electron 主进程，使用独立 `CEVIKEDIT_USER_DATA` 和自行生成的媒体。文件对话框只在测试专用 Electron 进程内替换，编辑通过实际页面控件及快捷键完成。
 
 本地证据 `.test-output/app-electron/evidence.json` 当前记录 **2026-10-13 05:33:12（Asia/Shanghai）通过**，`errors` 与 `mediaFailures` 均为空。覆盖实际红/蓝缩略图像素、播放器解码与播放推进、时间线分割源入点、撤销、桌面复制粘贴快捷键、音频属性选择、文字持久化、调色/速度/关键帧、SRT 导入、项目保存及重新打开、媒体载入、画布尺寸和 UI 发起的真实视频导出。输出经 FFprobe 核实为 **320×180、5 秒**的视频。
 
@@ -469,11 +469,11 @@ v0.2 安装包的 `hdiutil verify`、ZIP 校验及严格代码签名检查通过
 
 最终 macOS 安装包验收已完成：
 
-- 生成 `release/ReaCut-0.1.0-arm64.dmg` 与 `release/ReaCut-0.1.0-arm64-mac.zip`。`hdiutil verify` 为 VALID；镜像以只读方式挂载并验证 CRC；`unzip -tq` 无错误。
-- 从最终 DMG 复制 `.app` 到 `.test-output/dmg-installed/ReaCut.app`，严格签名校验 exit 0。本地签名为 **ad-hoc**，不是 Apple Developer ID，也未公证。
+- 生成 `release/CevikEdit-0.1.0-arm64.dmg` 与 `release/CevikEdit-0.1.0-arm64-mac.zip`。`hdiutil verify` 为 VALID；镜像以只读方式挂载并验证 CRC；`unzip -tq` 无错误。
+- 从最终 DMG 复制 `.app` 到 `.test-output/dmg-installed/CevikEdit.app`，严格签名校验 exit 0。本地签名为 **ad-hoc**，不是 Apple Developer ID，也未公证。
 - 源 `.app` 与 DMG 复制版本的 `app.asar` SHA-256 完全一致：`6081e40acda576b6172a9ca36ea8f62c24ac00035985c51234c4c26faa80094b`。ASAR 包清单有 4,023 项；六份预期 notices 资源存在，未含 `.research`、测试、demo 私有路径或 electron-builder 开发构建文件。
-- `.test-output/package-electron/evidence.json` 最新为 **05:39:11 通过**，`errors=[]`，`packaged=true`。测试执行最终 DMG 复制的真正可执行文件，并使用独立 cwd/用户目录，验证 Noto 浏览器真实加载与原生注册、native canvas、隔离桥接、启动 `.reacut` 参数、13 个片段、景观/缩略图预览和 UI 发起的 **1280×720、九秒、含 AAC 混音与中文标题**导出。
-- 根代理另验证八步键盘调整时间线高度、右侧属性仍在 viewport 内，并检查最终 [演示编辑器截图](screenshots/demo-editor.png) 的四轨与三栏完整可见。文件关联测试在此只宣称启动 `.reacut` 参数实际生效，没有扩展为所有 Finder 注册状态已覆盖。
+- `.test-output/package-electron/evidence.json` 最新为 **05:39:11 通过**，`errors=[]`，`packaged=true`。测试执行最终 DMG 复制的真正可执行文件，并使用独立 cwd/用户目录，验证 Noto 浏览器真实加载与原生注册、native canvas、隔离桥接、启动 `.cevikedit` 参数、13 个片段、景观/缩略图预览和 UI 发起的 **1280×720、九秒、含 AAC 混音与中文标题**导出。
+- 根代理另验证八步键盘调整时间线高度、右侧属性仍在 viewport 内，并检查最终 [演示编辑器截图](screenshots/demo-editor.png) 的四轨与三栏完整可见。文件关联测试在此只宣称启动 `.cevikedit` 参数实际生效，没有扩展为所有 Finder 注册状态已覆盖。
 
 以下边界仍保留：
 - **Windows/Linux 未实测**：代码及 CI matrix 已准备，但本机 macOS 成功不等于这些系统的运行、打包或字体结果。

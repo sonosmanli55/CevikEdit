@@ -25,7 +25,7 @@ const [video, audio, image] = await importAssets(
 video.name = "stüdyo.mp4";
 audio.name = "müzik.wav";
 image.name = "logo.png";
-const project = createProject("ReaCut tanıtım");
+const project = createProject("CevikEdit tanıtım");
 project.fps = 30;
 project.assets = [video, audio, image];
 const videoTrack = project.tracks.find((item) => item.kind === "video")!;
@@ -49,7 +49,7 @@ title.duration = 3;
 title.text!.text = "Her an bir hikâye";
 project.clips = [clip, music, title];
 
-const file = path.join(output, "tanitim.reacut");
+const file = path.join(output, "tanitim.cevikedit");
 await writeFile(file, JSON.stringify(project));
 
 const env: Record<string, string> = Object.fromEntries(
@@ -57,10 +57,10 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-delete env.REACUT_LOCALE;
+delete env.CEVIKEDIT_LOCALE;
 
 const app = await electron.launch({
   args: [path.join(root, "dist-electron/main.cjs")],

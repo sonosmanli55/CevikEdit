@@ -870,7 +870,7 @@ export default function App() {
         url = URL.createObjectURL(blob),
         a = document.createElement("a");
       a.href = url;
-      a.download = s.project.name + ".reacut";
+      a.download = s.project.name + ".cevikedit";
       a.click();
       URL.revokeObjectURL(url);
       notify("已下载项目 JSON。浏览器素材链接不支持跨会话恢复。");
@@ -1188,7 +1188,7 @@ export default function App() {
           loaded.push({
             ...asset,
             missing: true,
-            url: `reacut-media://asset?path=${encodeURIComponent(asset.path)}`,
+            url: `cevikedit-media://asset?path=${encodeURIComponent(asset.path)}`,
           });
         }
       }
@@ -1320,10 +1320,9 @@ export default function App() {
       <header className="titlebar">
         <div className="brand">
           <span className="brand-icon">
-            <img src="./icons/reacut.png" alt="" />
+            <img src="./icons/cevikedit.png" alt="" />
           </span>
-          <strong>ReaCut</strong>
-          <span className="brand-cn">映刻</span>
+          <strong>CevikEdit</strong>
         </div>
         <div className="titlebar-menus">
           <div className="file-menu-container">
@@ -1712,12 +1711,12 @@ export default function App() {
         </ModalShell>
       )}
       {modal === "about" && (
-        <ModalShell title="关于 ReaCut" onClose={() => setModal(null)}>
+        <ModalShell title="关于 CevikEdit" onClose={() => setModal(null)}>
           <div className="about-body">
             <div className="about-logo">
-              <img src="./icons/reacut.png" width="58" height="58" alt="ReaCut 图标" />
+              <img src="./icons/cevikedit.png" width="58" height="58" alt="CevikEdit 图标" />
             </div>
-            <h2>ReaCut · 映刻</h2>
+            <h2>CevikEdit</h2>
             <span>{appVersion} · 独立开源桌面视频编辑器</span>
             <p>
               利用 REA

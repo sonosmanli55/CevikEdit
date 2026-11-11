@@ -35,8 +35,8 @@ title.duration = 2;
 title.text!.text = "Taslak başlığı";
 project.clips = [visual, title];
 
-const original = path.join(output, "kaynak.reacut");
-const draftFile = path.join(output, "taslak.reacut-draft.json");
+const original = path.join(output, "kaynak.cevikedit");
+const draftFile = path.join(output, "taslak.cevikedit-draft.json");
 await writeFile(original, JSON.stringify(project));
 
 const env: Record<string, string> = Object.fromEntries(
@@ -44,10 +44,10 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-delete env.REACUT_LOCALE;
+delete env.CEVIKEDIT_LOCALE;
 
 const app = await electron.launch({
   args: [path.join(root, "dist-electron/main.cjs")],

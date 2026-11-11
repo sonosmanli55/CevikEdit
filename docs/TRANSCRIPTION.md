@@ -1,6 +1,6 @@
 # 本地 Whisper 自动字幕
 
-ReaCut 的自动字幕完全在本机运行：先用本机 FFmpeg 把所选片段的声音提取为 16 kHz 单声道 WAV，再调用本地的 [whisper.cpp](https://github.com/ggml-org/whisper.cpp) 命令行程序和 GGML 模型，最后把结果写成时间线文字片段。音频不会上传，也不会自动下载程序或模型。
+CevikEdit 的自动字幕完全在本机运行：先用本机 FFmpeg 把所选片段的声音提取为 16 kHz 单声道 WAV，再调用本地的 [whisper.cpp](https://github.com/ggml-org/whisper.cpp) 命令行程序和 GGML 模型，最后把结果写成时间线文字片段。音频不会上传，也不会自动下载程序或模型。
 
 这是独立实现，不包含剪映的代码、模型、字体或模板，也不把剪映的语音识别结果当作输入。
 
@@ -22,7 +22,7 @@ Whisper 程序按以下顺序查找；前一项明确存在时不会向后回退
 **Whisper 可执行文件**
 
 1. 字幕面板中手动选择并保存的路径（用户数据目录的 `transcription-tools.json`）
-2. 环境变量 `REACUT_WHISPER`
+2. 环境变量 `CEVIKEDIT_WHISPER`
 3. 内置媒体工具目录：
    - `media-tools/whisper-cli.exe` / `media-tools/whisper-cli`
    - `media-tools/whisper/whisper-cli.exe`、`media-tools/whisper/whisper.exe`、`media-tools/whisper/main.exe`（macOS / Linux 对应无 `.exe` 的名字）
@@ -33,7 +33,7 @@ Whisper 程序按以下顺序查找；前一项明确存在时不会向后回退
 **GGML 模型**
 
 1. 字幕面板中手动选择并保存的 `.bin` 路径
-2. 环境变量 `REACUT_WHISPER_MODEL`
+2. 环境变量 `CEVIKEDIT_WHISPER_MODEL`
 3. 内置目录 `media-tools/models/*.bin`、`media-tools/whisper/models/*.bin`
 4. 用户数据目录的 `whisper-models/*.bin`
 
@@ -41,8 +41,8 @@ Whisper 程序按以下顺序查找；前一项明确存在时不会向后回退
 
 可选环境变量：
 
-- `REACUT_WHISPER_DIR`：额外扫描一个媒体工具目录，适合开发时把 `whisper-cli` 和模型放在仓库外。
-- `REACUT_WHISPER` / `REACUT_WHISPER_MODEL`：显式指定程序或模型；手动选择保存后，保存路径优先。
+- `CEVIKEDIT_WHISPER_DIR`：额外扫描一个媒体工具目录，适合开发时把 `whisper-cli` 和模型放在仓库外。
+- `CEVIKEDIT_WHISPER` / `CEVIKEDIT_WHISPER_MODEL`：显式指定程序或模型；手动选择保存后，保存路径优先。
 
 ## 在界面中使用
 
@@ -85,7 +85,7 @@ Whisper 程序按以下顺序查找；前一项明确存在时不会向后回退
 
 | 现象 | 处理 |
 | --- | --- |
-| “找不到 Whisper” | 选择 `whisper-cli`，或设置 `REACUT_WHISPER`；确认文件有执行权限 |
+| “找不到 Whisper” | 选择 `whisper-cli`，或设置 `CEVIKEDIT_WHISPER`；确认文件有执行权限 |
 | “所选 Whisper 不可用” | 重新选择程序；检查路径是否被移动 |
 | “Whisper 执行失败” | 确认不是 OpenAI Python `whisper`；查看错误摘要中的参数/模型提示 |
 | “Whisper 没有识别到语音” | 确认片段有声音、没有静音；尝试更大模型或明确语言 |

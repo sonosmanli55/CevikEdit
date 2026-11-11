@@ -92,7 +92,7 @@ const mean = (buffer: Buffer) => {
 };
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(tmpdir(), "reacut-hdr-"));
+  directory = await mkdtemp(path.join(tmpdir(), "cevikedit-hdr-"));
   const filters = await runMediaTool("ffmpeg", ["-hide_banner", "-filters"]);
   zscale = filters.toString().includes("zscale");
   hdrFile = path.join(directory, "hdr-kaynak.mp4");
@@ -165,7 +165,7 @@ describe("real HDR import and export", () => {
     expect(mean(hdr)).toBeGreaterThan(20);
   }, 120_000);
   it("writes a project with colour metadata back unchanged", async () => {
-    const file = path.join(directory, "hdr.reacut");
+    const file = path.join(directory, "hdr.cevikedit");
     const saved = project(hdrAsset);
     await writeFile(file, JSON.stringify(saved));
     const reopened = JSON.parse(await readFile(file, "utf8")) as Project;

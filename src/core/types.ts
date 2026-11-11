@@ -1,6 +1,6 @@
 import type { AssistantEvent, AssistantMessage, AssistantProvider, AssistantProviderInfo, AssistantRequest } from "./assistantTypes";
 import type { Subtitle } from "./subtitles";
-import type { ReacutTemplate } from "./templates";
+import type { CevikEditTemplate } from "./templates";
 export type MediaKind = "video" | "audio" | "image";
 export type TrackKind = MediaKind | "text";
 export interface MediaAsset {
@@ -329,7 +329,7 @@ export interface TemplateSummary {
 }
 
 export interface TemplateStore {
-  templates: ReacutTemplate[];
+  templates: CevikEditTemplate[];
   warnings: string[];
 }
 
@@ -353,7 +353,7 @@ export interface EditorAPI {
   onReverseProgress: (callback: (event: ReverseProgress) => void) => () => void;
   freezeFrame: (request: FreezeFrameRequest) => Promise<MediaAsset>;
   listTemplates: () => Promise<TemplateStore>;
-  saveTemplate: (template: ReacutTemplate) => Promise<TemplateStore>;
+  saveTemplate: (template: CevikEditTemplate) => Promise<TemplateStore>;
   deleteTemplate: (id: string) => Promise<TemplateStore>;
   importTemplate: () => Promise<TemplateStore | null>;
   exportTemplate: (id: string) => Promise<string | null>;
@@ -421,6 +421,6 @@ export interface EditorAPI {
 declare global {
   interface Window {
     editorAPI?: EditorAPI;
-    reacutLocale?: string;
+    cevikeditLocale?: string;
   }
 }

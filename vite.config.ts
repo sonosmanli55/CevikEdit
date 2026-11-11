@@ -4,12 +4,12 @@ import electron from "vite-plugin-electron/simple";
 export default defineConfig(({ command }) => ({
   plugins: [
     {
-      name: "reacut-csp",
+      name: "cevikedit-csp",
       transformIndexHtml: (html: string) =>
         command === "build"
           ? html.replace(
               "<head>",
-              "<head><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: reacut-media:; media-src 'self' blob: reacut-media:; connect-src 'self' reacut-media:; object-src 'none'; base-uri 'self'; form-action 'none'\">",
+              "<head><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: cevikedit-media:; media-src 'self' blob: cevikedit-media:; connect-src 'self' cevikedit-media:; object-src 'none'; base-uri 'self'; form-action 'none'\">",
             )
           : html,
     },

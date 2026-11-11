@@ -14,7 +14,7 @@ describe("weekly showcase film", () => {
   it(
     "renders a 30-second 720p film with audio and a reusable template",
     async () => {
-      const directory = await mkdtemp(path.join(tmpdir(), "reacut-showcase-"));
+      const directory = await mkdtemp(path.join(tmpdir(), "cevikedit-showcase-"));
       try {
         const result = await generateShowcase(directory);
         expect(result.width).toBe(1280);
@@ -52,7 +52,7 @@ describe("weekly showcase film", () => {
         const template = JSON.parse(
           await readFile(result.templatePath, "utf8"),
         ) as { format: string; media: unknown[]; project: { assets: Array<{ path: string }> } };
-        expect(template.format).toBe("reacut-template");
+        expect(template.format).toBe("cevikedit-template");
         expect(template.media.length).toBe(5);
         expect(
           template.project.assets.every((asset) =>

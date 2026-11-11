@@ -49,7 +49,7 @@
 
 ## 来源和验证
 
-配方在 `src/core/creativePresets.ts`，调色在 `src/components/EffectsPanel.tsx`；预览使用相同的关键帧插值与透明度包络，最终导出使用现有 FFmpeg 图层合成。所有预设保存为普通 `.reacut` 字段，保存、重新打开、裁剪与导出无需额外模板文件。
+配方在 `src/core/creativePresets.ts`，调色在 `src/components/EffectsPanel.tsx`；预览使用相同的关键帧插值与透明度包络，最终导出使用现有 FFmpeg 图层合成。所有预设保存为普通 `.cevikedit` 字段，保存、重新打开、裁剪与导出无需额外模板文件。
 
 素材“公开可访问”不等于可再分发，也不等于公有领域。本库使用明确的 MIT 许可；源码或配方再分发时保留版权与许可文本。详细验证见 [VALIDATION.md](VALIDATION.md)。
 

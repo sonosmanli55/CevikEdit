@@ -63,7 +63,7 @@ jobs:
       - run: npm run dist:mac:installer
       - uses: actions/upload-artifact@v7
         with:
-          name: ReaCut-macOS
+          name: CevikEdit-macOS
           path: |
-            release/ReaCut*.dmg
-            release/ReaCut*mac.zip
+            release/CevikEdit*.dmg
+            release/CevikEdit*mac.zip

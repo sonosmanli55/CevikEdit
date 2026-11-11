@@ -59,7 +59,7 @@ function nearest(sourceFrames: Buffer[], frame: Buffer): number {
 }
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(os.tmpdir(), "reacut-clip-media-"));
+  directory = await mkdtemp(path.join(os.tmpdir(), "cevikedit-clip-media-"));
   source = path.join(directory, "source.mp4");
   reversed = path.join(directory, "reversed.mp4");
   freeze = path.join(directory, "freeze.png");

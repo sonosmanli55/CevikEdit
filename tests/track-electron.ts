@@ -29,18 +29,18 @@ project.clips = [
   { ...createClip(assets[0], project.tracks[0].id, 1, 30), duration: 2 },
   createClip(assets[1], project.tracks[2].id, 0, 30),
 ];
-const original = path.join(output, "fixture.reacut"),
-  saved = path.join(output, "edited.reacut");
+const original = path.join(output, "fixture.cevikedit"),
+  saved = path.join(output, "edited.cevikedit");
 await writeFile(original, JSON.stringify(project));
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,

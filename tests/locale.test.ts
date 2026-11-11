@@ -6,8 +6,8 @@ describe("shipped Turkish locale", () => {
   it("uses Turkish in development and packaged builds unless the QA harness asks for Chinese", () => {
     expect(resolveLocale(false, {})).toBe("tr");
     expect(resolveLocale(true, {})).toBe("tr");
-    expect(resolveLocale(true, { REACUT_LOCALE: "tr" })).toBe("tr");
-    expect(resolveLocale(true, { REACUT_LOCALE: "zh" })).toBe("zh");
+    expect(resolveLocale(true, { CEVIKEDIT_LOCALE: "tr" })).toBe("tr");
+    expect(resolveLocale(true, { CEVIKEDIT_LOCALE: "zh" })).toBe("zh");
   });
   it("translates the audio-tools and subtitle labels that users see", () => {
     for (const [source, expected] of [

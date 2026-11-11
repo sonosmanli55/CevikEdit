@@ -106,7 +106,7 @@ for(const asset of BUILTIN_ASSETS) {
   manifest.push({...asset,source:asset.kind==="image"?`${asset.id}.svg`:"../../scripts/generate-assets.ts",provenance:"original-programmatic",license:"MIT",sha256:createHash("sha256").update(bytes).digest("hex")});
 }
 await writeFile(path.join(out,"manifest.json"),JSON.stringify({schema:1,generator:"scripts/generate-assets.ts",assets:manifest},null,2)+"\n");
-await writeFile(path.join(out,"LICENSE.txt"),`Original ReaCut illustrations and synthesized sounds\nCopyright (c) 2026 ReaCut contributors\n\nThese original assets are provided under the MIT License (see the repository LICENSE).\nYou may use, modify and redistribute them, including in exported commercial videos.\nThe asset SVGs and sounds use no external media, fonts, recordings or third-party artwork.\nSVG sources and PNG renders are included; sounds are deterministic 48 kHz mono PCM synthesis.\nNo likeness, endorsement or ownership of another application's branding is claimed.\n\n${await readFile(path.resolve("LICENSE"), "utf8")}`);
+await writeFile(path.join(out,"LICENSE.txt"),`Original CevikEdit illustrations and synthesized sounds\nCopyright (c) 2026 CevikEdit contributors\n\nThese original assets are provided under the MIT License (see the repository LICENSE).\nYou may use, modify and redistribute them, including in exported commercial videos.\nThe asset SVGs and sounds use no external media, fonts, recordings or third-party artwork.\nSVG sources and PNG renders are included; sounds are deterministic 48 kHz mono PCM synthesis.\nNo likeness, endorsement or ownership of another application's branding is claimed.\n\n${await readFile(path.resolve("LICENSE"), "utf8")}`);
 console.log(`Generated ${manifest.length} original assets in public/builtin-assets/`);
 
 // Documentation previews are generated from the same shipped assets.
@@ -147,5 +147,5 @@ async function contactSheet(assets: readonly BuiltinAsset[], name: string, headi
   await mkdir(path.resolve("docs/screenshots"), { recursive: true });
   await writeFile(path.resolve("docs/screenshots", name), canvas.toBuffer("image/png"));
 }
-await contactSheet(BUILTIN_ASSETS, "original-assets-contact.png", "ReaCut · 离线素材库");
-await contactSheet(BUILTIN_ASSETS.slice(34), "new-assets-contact.png", "ReaCut · 新增灵感素材");
+await contactSheet(BUILTIN_ASSETS, "original-assets-contact.png", "CevikEdit · 离线素材库");
+await contactSheet(BUILTIN_ASSETS.slice(34), "new-assets-contact.png", "CevikEdit · 新增灵感素材");

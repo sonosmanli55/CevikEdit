@@ -102,18 +102,18 @@ const api: EditorAPI = {
 contextBridge.exposeInMainWorld("editorAPI", api);
 
 // Locale negotiated by the main process. The application ships in Turkish;
-// `--reacut-locale=zh` is kept for the Chinese-source regression harnesses.
+// `--cevikedit-locale=zh` is kept for the Chinese-source regression harnesses.
 const localeArgument = process.argv.find((argument) =>
-  argument.startsWith("--reacut-locale="),
+  argument.startsWith("--cevikedit-locale="),
 );
 contextBridge.exposeInMainWorld(
-  "reacutLocale",
-  localeArgument ? localeArgument.slice("--reacut-locale=".length) : "tr",
+  "cevikeditLocale",
+  localeArgument ? localeArgument.slice("--cevikedit-locale=".length) : "tr",
 );
 
 // Present only in the dedicated plugin process, never in a normal desktop window.
-if (process.argv.includes("--reacut-plugin")) {
-  contextBridge.exposeInMainWorld("reacutPlugin", {
+if (process.argv.includes("--cevikedit-plugin")) {
+  contextBridge.exposeInMainWorld("cevikeditPlugin", {
     onCommand: (callback: (request: { action: string; args: unknown }) => Promise<unknown>) => {
       ipcRenderer.on("plugin-command", async (_, request) => {
         try { ipcRenderer.send("plugin-result", { id: request.id, result: await callback(request) }); }

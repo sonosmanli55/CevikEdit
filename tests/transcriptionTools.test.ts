@@ -17,7 +17,7 @@ let selected: string;
 let generic: string;
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(os.tmpdir(), "reacut-whisper-"));
+  directory = await mkdtemp(path.join(os.tmpdir(), "cevikedit-whisper-"));
   bundled = path.join(directory, "media-tools");
   system = path.join(directory, "system");
   selected = path.join(directory, "selected");
@@ -53,7 +53,7 @@ describe("whisper executable discovery", () => {
     expect(
       await resolveWhisperExecutable({
         platform,
-        env: { PATH: system, REACUT_WHISPER: path.join(system, tool) },
+        env: { PATH: system, CEVIKEDIT_WHISPER: path.join(system, tool) },
         bundledDirectories: [bundled],
         savedExecutable: executable,
       }),
@@ -65,7 +65,7 @@ describe("whisper executable discovery", () => {
     expect(
       await resolveWhisperExecutable({
         platform,
-        env: { PATH: "", REACUT_WHISPER: executable },
+        env: { PATH: "", CEVIKEDIT_WHISPER: executable },
         bundledDirectories: [bundled],
       }),
     ).toBe(executable);

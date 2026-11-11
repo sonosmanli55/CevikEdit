@@ -15,7 +15,7 @@ const VIDEO: MediaAsset = {
   id: "asset-video",
   name: "klip",
   path: "C:\\media\\video.mp4",
-  url: "reacut-media://asset?path=video",
+  url: "cevikedit-media://asset?path=video",
   kind: "video",
   duration: 60,
   width: 640,

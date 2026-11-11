@@ -12,16 +12,16 @@ import assert from "node:assert/strict";
 import { probeFile } from "../electron/media";
 
 const root = process.cwd();
-const executable = process.env.REACUT_PACKAGED_APP
-  ? path.resolve(process.env.REACUT_PACKAGED_APP)
-  : path.join(root, "release", "win-unpacked", "ReaCut.exe");
+const executable = process.env.CEVIKEDIT_PACKAGED_APP
+  ? path.resolve(process.env.CEVIKEDIT_PACKAGED_APP)
+  : path.join(root, "release", "win-unpacked", "CevikEdit.exe");
 await stat(executable).catch(() => {
   throw new Error(`Paketlenmiş uygulama bulunamadı: ${executable}`);
 });
 const output = path.join(root, ".test-output", "package-win-electron");
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-const saved = path.join(output, "paket-projesi.reacut");
+const saved = path.join(output, "paket-projesi.cevikedit");
 const exported = path.join(output, "paket-render.mp4");
 
 const env: Record<string, string> = Object.fromEntries(
@@ -29,10 +29,10 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-delete env.REACUT_LOCALE;
+delete env.CEVIKEDIT_LOCALE;
 
 const app = await electron.launch({
   executablePath: executable,

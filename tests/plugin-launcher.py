@@ -17,10 +17,10 @@ LAUNCHER = ROOT / 'plugin/scripts/launch.py'
 
 class LazyLauncher(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix='reacut-launcher-test-')
+        self.temp = tempfile.TemporaryDirectory(prefix='cevikedit-launcher-test-')
         self.root = Path(self.temp.name)
-        self.bundle = self.root / 'ReaCut.app'
-        executable = self.bundle / 'Contents/MacOS/ReaCut'
+        self.bundle = self.root / 'CevikEdit.app'
+        executable = self.bundle / 'Contents/MacOS/CevikEdit'
         executable.parent.mkdir(parents=True)
         (self.bundle / 'Contents/Info.plist').write_bytes(plistlib.dumps({'CFBundleShortVersionString': '0.5.1'}))
         self.starts = self.root / 'starts'
@@ -45,7 +45,7 @@ Path(os.environ['STARTS']+'.closed').write_text('flushed')
         self.archive = resources / 'app.asar'
         self.archive.write_bytes(struct.pack('<II', 4, len(header_pickle)) + header_pickle + html)
         self.proc = subprocess.Popen([sys.executable, str(LAUNCHER)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE, env={**os.environ, 'REACUT_APP': str(self.bundle), 'STARTS': str(self.starts)})
+            stderr=subprocess.PIPE, env={**os.environ, 'CEVIKEDIT_APP': str(self.bundle), 'STARTS': str(self.starts)})
         self.counter = 0
 
     def tearDown(self):
@@ -71,15 +71,15 @@ Path(os.environ['STARTS']+'.closed').write_text('flushed')
         for _ in range(3):
             for method in ['initialize','ping','tools/list','resources/list','resources/templates/list']:
                 self.assertIn('result', self.rpc(method))
-        resource = self.rpc('resources/read', {'uri':'ui://reacut/editor-v1.html'})
+        resource = self.rpc('resources/read', {'uri':'ui://cevikedit/editor-v1.html'})
         self.assertEqual(resource['result']['contents'][0]['text'], '<html>bundled editor</html>')
         self.assertIn('error',self.rpc('tools/call',{'name':'not_a_tool'}))
         self.assertFalse(self.starts.exists())
 
     def test_first_tool_starts_once_and_disconnect_flushes(self):
         self.rpc('initialize')
-        first=self.rpc('tools/call',{'name':'reacut_state'})
-        second=self.rpc('tools/call',{'name':'reacut_state'})
+        first=self.rpc('tools/call',{'name':'cevikedit_state'})
+        second=self.rpc('tools/call',{'name':'cevikedit_state'})
         self.assertEqual(first['result']['pid'],second['result']['pid'])
         self.assertEqual(self.starts.read_text(),'started\n')
         self.proc.stdin.close()
@@ -87,25 +87,25 @@ Path(os.environ['STARTS']+'.closed').write_text('flushed')
         self.assertEqual(Path(str(self.starts)+'.closed').read_text(),'flushed')
 
     def test_sigterm_flushes_child(self):
-        self.rpc('tools/call',{'name':'reacut_state'})
+        self.rpc('tools/call',{'name':'cevikedit_state'})
         self.proc.send_signal(signal.SIGTERM)
         self.assertEqual(self.proc.wait(timeout=10),0)
         self.assertEqual(Path(str(self.starts)+'.closed').read_text(),'flushed')
 
     def test_failed_child_is_not_restarted(self):
-        self.assertIn('error',self.rpc('tools/call',{'name':'reacut_state','arguments':{'exit':True}}))
-        self.assertIn('error',self.rpc('tools/call',{'name':'reacut_state'}))
+        self.assertIn('error',self.rpc('tools/call',{'name':'cevikedit_state','arguments':{'exit':True}}))
+        self.assertIn('error',self.rpc('tools/call',{'name':'cevikedit_state'}))
         self.assertEqual(self.starts.read_text(),'started\n')
 
     def test_malformed_resource_is_rejected_without_start(self):
         self.archive.write_bytes(b'invalid archive')
-        self.assertIn('error',self.rpc('resources/read',{'uri':'ui://reacut/editor-v1.html'}))
+        self.assertIn('error',self.rpc('resources/read',{'uri':'ui://cevikedit/editor-v1.html'}))
         self.assertFalse(self.starts.exists())
 
     def test_missing_app_does_not_break_discovery(self):
-        (self.bundle / 'Contents/MacOS/ReaCut').unlink()
+        (self.bundle / 'Contents/MacOS/CevikEdit').unlink()
         self.assertEqual(len(self.rpc('tools/list')['result']['tools']),9)
-        self.assertIn('error',self.rpc('tools/call',{'name':'reacut_open'}))
+        self.assertIn('error',self.rpc('tools/call',{'name':'cevikedit_open'}))
         self.assertFalse(self.starts.exists())
 
 

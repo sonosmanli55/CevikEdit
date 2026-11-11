@@ -110,7 +110,7 @@ export default function MediaLibrary({
         onDragStart={(event) => {
           event.dataTransfer.setData(ASSET_DRAG_TYPE, asset.id);
           event.dataTransfer.setData(
-            `application/x-reacut-kind-${asset.kind}`,
+            `application/x-cevikedit-kind-${asset.kind}`,
             asset.kind,
           );
           event.dataTransfer.effectAllowed = "copy";

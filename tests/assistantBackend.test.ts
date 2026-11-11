@@ -7,7 +7,7 @@ import type { AssistantEvent, AssistantProvider, AssistantRequest } from "../src
 
 let folder: string, fixture: string;
 beforeAll(async () => {
-  folder = await mkdtemp(path.join(os.tmpdir(), "reacut-assistant-tests-"));
+  folder = await mkdtemp(path.join(os.tmpdir(), "cevikedit-assistant-tests-"));
   fixture = path.join(folder, "cli fixture");
   await writeFile(fixture, `#!${process.execPath}
 const fs = require('node:fs');
@@ -25,7 +25,7 @@ let prompt='';process.stdin.setEncoding('utf8');process.stdin.on('data',d=>promp
   if(prompt.includes('CASE_TOOL')) { event({type:'item.started',item:{type:'command_execution',command:'do not execute'}});setInterval(()=>{},1000);return; }
   if(prompt.includes('CASE_NOFINISH')) { event({type:'thread.started'});return; }
   if(prompt.includes('CASE_POLICY')) { event({type:'error',message:'cyber_policy'});return; }
-  const response = {reply:'建议添加中文标题，等待确认。',actions:[{type:'addText',text:'你好映刻',start:0,duration:2,fontSize:null,color:null,x:null,y:null}]};
+  const response = {reply:'建议添加中文标题，等待确认。',actions:[{type:'addText',text:'你好CevikEdit',start:0,duration:2,fontSize:null,color:null,x:null,y:null}]};
   if(args[0]==='exec') {
     const bytes=Buffer.from(JSON.stringify({type:'item.completed',item:{type:'agent_message',text:JSON.stringify(response)}})+'\\n');
     const index=bytes.indexOf(Buffer.from('中文'))+1;
@@ -62,14 +62,14 @@ describe("assistant CLI isolation and protocol", () => {
     const input = request(provider);
     const events = await run(provider, input.prompt);
     const complete = events.find(e => e.type === "complete");
-    expect(complete).toMatchObject({ requestId: input.requestId, type: "complete", response: { reply: "建议添加中文标题，等待确认。", actions: [{ type: "addText", text: "你好映刻", start: 0, duration: 2 }] } });
+    expect(complete).toMatchObject({ requestId: input.requestId, type: "complete", response: { reply: "建议添加中文标题，等待确认。", actions: [{ type: "addText", text: "你好CevikEdit", start: 0, duration: 2 }] } });
     expect(events.some(e => e.type === "text")).toBe(true);
     const invocation = JSON.parse(await readFile(path.join(folder, "last-invocation.json"), "utf8"));
     expect(invocation.prompt).toContain(input.prompt);
     expect(invocation.args).not.toContain(input.prompt);
     expect(invocation.cwd).not.toBe(process.cwd());
     expect(await realpath(path.dirname(invocation.cwd))).toBe(await realpath(folder));
-    expect((await readdir(folder)).filter(name => name.startsWith("reacut-assistant-"))).toEqual([]);
+    expect((await readdir(folder)).filter(name => name.startsWith("cevikedit-assistant-"))).toEqual([]);
   });
   it("uses provider tool restrictions without permission bypass", () => {
     const codex = assistantCommand("codex", "/tmp/session");
@@ -104,7 +104,7 @@ describe("assistant CLI isolation and protocol", () => {
 describe("assistant input and response boundaries", () => {
   it("allows source timing, and rejects private paths or media fields", () => {
     expect(() => validateAssistantRequest(request())).not.toThrow();
-    for (const context of [{ path: "/fake" }, { clips: [{ name: "/Users/private/video.mp4" }] }, { url: "reacut-media://secret" }, []])
+    for (const context of [{ path: "/fake" }, { clips: [{ name: "/Users/private/video.mp4" }] }, { url: "cevikedit-media://secret" }, []])
       expect(() => validateAssistantRequest({ ...request(), context: JSON.stringify(context) })).toThrow();
   });
   it("bounds requests and roles", () => {

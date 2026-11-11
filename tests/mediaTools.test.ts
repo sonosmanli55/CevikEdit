@@ -8,7 +8,7 @@ let directory: string, bundledDirectory: string, system: string;
 const suffix = process.platform === "win32" ? ".exe" : "";
 const tool = (name: "ffmpeg" | "ffprobe") => `${name}${suffix}`;
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(os.tmpdir(), "reacut-tools-"));
+  directory = await mkdtemp(path.join(os.tmpdir(), "cevikedit-tools-"));
   bundledDirectory = path.join(directory, "App with spaces.app", "media-tools");
   system = path.join(directory, "system");
   for (const folder of [bundledDirectory, system]) {
@@ -37,7 +37,7 @@ it("keeps an explicit user override ahead of the bundled tool", async () => {
     await resolveMediaTool("ffmpeg", {
       platform: process.platform,
       bundledDirectory,
-      env: { REACUT_FFMPEG: override },
+      env: { CEVIKEDIT_FFMPEG: override },
     }),
   ).toBe(override);
 });
@@ -55,7 +55,7 @@ it("does not hide a stale explicit override with the bundled tool", async () => 
     resolveMediaTool("ffmpeg", {
       platform: process.platform,
       bundledDirectory,
-      env: { REACUT_FFMPEG: directory },
+      env: { CEVIKEDIT_FFMPEG: directory },
     }),
   ).rejects.toThrow("所选 ffmpeg");
 });

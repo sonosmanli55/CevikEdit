@@ -8,7 +8,7 @@ import { installPluginBridge } from "./editor/pluginBridge";
 if (activeLocale() === "tr") {
   installI18n();
   document.documentElement.lang = "tr";
-  document.title = "ReaCut · Video Düzenleyici";
+  document.title = "CevikEdit · Video Düzenleyici";
 }
 installPluginBridge();
 void document.fonts

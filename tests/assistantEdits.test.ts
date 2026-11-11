@@ -7,7 +7,7 @@ import type { Project } from "../src/core/types";
 
 function fixture(): Project {
   const p = createProject("合成项目");
-  p.assets = [{ id: "asset", name: "合成视频", path: "/tmp/private-synthetic.mp4", url: "reacut-media://private", kind: "video", duration: 20, width: 640, height: 360, fps: 30, hasAudio: true }];
+  p.assets = [{ id: "asset", name: "合成视频", path: "/tmp/private-synthetic.mp4", url: "cevikedit-media://private", kind: "video", duration: 20, width: 640, height: 360, fps: 30, hasAudio: true }];
   const c = createClip(p.assets[0], p.tracks[1].id, 2, p.fps);
   c.id = "clip"; c.duration = 8; c.sourceIn = 2; c.speed = 2;
   c.fadeIn = 2; c.fadeOut = 3; c.audioFadeIn = 1; c.audioFadeOut = 2;
@@ -130,7 +130,7 @@ describe("assistant project summary privacy and bounds", () => {
     const context = assistantProjectContext(p, ["clip"], 3), summary = JSON.parse(context);
     expect(summary.clips[0]).toMatchObject({ id: "clip", sourceIn: 2, speed: 2 });
     expect(summary.selectedIds).toEqual(["clip"]);
-    for (const secret of ["/Users", "C:\\", "private-synthetic", "reacut-media", "thumbnail", "waveform", "privateField", "sensitive"])
+    for (const secret of ["/Users", "C:\\", "private-synthetic", "cevikedit-media", "thumbnail", "waveform", "privateField", "sensitive"])
       expect(context).not.toContain(secret);
     expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "给建议", history: [], context })).not.toThrow();
   });

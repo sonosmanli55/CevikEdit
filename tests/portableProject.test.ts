@@ -9,7 +9,7 @@ import type { MediaAsset, Project } from "../src/core/types";
 const roots: string[] = [];
 afterEach(async () => { await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))); });
 async function setup() {
- const root=await mkdtemp(path.join(os.tmpdir(),'reacut-portable-')); roots.push(root);
+ const root=await mkdtemp(path.join(os.tmpdir(),'cevikedit-portable-')); roots.push(root);
  const source=path.join(root,'original.png'); await writeFile(source, Buffer.from('synthetic source bytes'));
  const destination=path.join(root,'packages');await mkdir(destination);
  const project=createProject('可搬移项目');
@@ -17,14 +17,14 @@ async function setup() {
  project.assets=[asset];project.clips=[createClip(asset,project.tracks.find(t=>t.kind==='video')!.id,0,30)];
  return {root,source,destination,project};
 }
-async function load(folder:string){const file=path.join(folder,'proje.reacut');return resolvePortableDocument(JSON.parse(await readFile(file,'utf8')),file);}
+async function load(folder:string){const file=path.join(folder,'proje.cevikedit');return resolvePortableDocument(JSON.parse(await readFile(file,'utf8')),file);}
 describe('portable project collection',()=>{
  it('copies original bytes once for shared references, removes caches, survives a move and missing original',async()=>{
   const {project,source,destination,root}=await setup();const original=JSON.stringify(project);
   project.assets.push({...project.assets[0],id:'asset-2',name:'共享引用'});
   const before=JSON.stringify(project);
   const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
-  const document=JSON.parse(await readFile(path.join(folder,'proje.reacut'),'utf8'));
+  const document=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));
   expect(document.project.assets[0].path).toBe(document.project.assets[1].path);
   expect(document.project.assets[0].thumbnail).toBeUndefined();expect(document.project.assets[0].previewUrl).toBeUndefined();
   const manifest=JSON.parse(await readFile(path.join(folder,'manifest.json'),'utf8'));
@@ -40,9 +40,9 @@ describe('portable project collection',()=>{
   const {project,destination,root}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
   const opened=await load(folder);const newFile=path.join(root,'new.png');await writeFile(newFile,'new bytes');
   opened.assets.push({...opened.assets[0],id:'asset-new',path:newFile,url:'file://'+newFile});opened.name='修改后的便携项目';
-  await savePortableDocument(opened,path.join(folder,'proje.reacut'));
+  await savePortableDocument(opened,path.join(folder,'proje.cevikedit'));
   expect(await readdir(path.join(folder,'media'))).toHaveLength(2);
-  await savePortableDocument(opened,path.join(folder,'proje.reacut'));
+  await savePortableDocument(opened,path.join(folder,'proje.cevikedit'));
   expect(await readdir(path.join(folder,'media'))).toHaveLength(2);
   const moved=path.join(root,'再次移动');await rename(folder,moved);await rm(newFile);
   const result=await load(moved);expect(result.name).toBe(opened.name);expect(result.assets).toHaveLength(2);expect((await readFile(result.assets[1].path)).toString()).toBe('new bytes');
@@ -60,19 +60,19 @@ describe('portable project collection',()=>{
  });
  it.each(['../outside.png','/etc/passwd','media/../../outside.png','media\\file.png'])('rejects path traversal %s',async invalid=>{
   const {project,destination}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
-  const document=JSON.parse(await readFile(path.join(folder,'proje.reacut'),'utf8'));document.project.assets[0].path=invalid;
-  await expect(resolvePortableDocument(document,path.join(folder,'proje.reacut'))).rejects.toThrow('相对路径');
+  const document=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));document.project.assets[0].path=invalid;
+  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('相对路径');
  });
  it('rejects a file symlink that escapes the chosen package',async()=>{
   const {root,project,source,destination}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
-  const document=JSON.parse(await readFile(path.join(folder,'proje.reacut'),'utf8'));const target=path.join(folder,document.project.assets[0].path);
+  const document=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));const target=path.join(folder,document.project.assets[0].path);
   await rm(target);
   if(process.platform==='win32'){
     // File symlinks need Developer Mode; a directory junction exercises the same
     // realpath boundary without requiring elevation.
     const outside=path.join(root,'outside');await mkdir(outside);await symlink(outside,target,'junction');
   }else await symlink(source,target);
-  await expect(resolvePortableDocument(document,path.join(folder,'proje.reacut'))).rejects.toThrow('包外文件');
+  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('包外文件');
  });
  it('cancellation event is terminal and package output remains absent',async()=>{
   const {project,destination}=await setup();const events:string[]=[];

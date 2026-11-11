@@ -29,7 +29,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <path d="${ribbon}" fill="url(#ribbon)" fill-rule="evenodd"/>
 </svg>
 `;
-await writeFile(path.resolve("public/icons/reacut.svg"), svg);
+await writeFile(path.resolve("public/icons/cevikedit.svg"), svg);
 function icon(size: number): Buffer {
   const canvas = createCanvas(size, size), ctx = canvas.getContext("2d");
   ctx.scale(size / 1024, size / 1024);
@@ -45,7 +45,7 @@ for (const size of [16, 32, 64, 128, 256, 512, 1024]) {
   const bytes = icon(size);
   if (size === 512) {
     await writeFile(path.join(root, "icon.png"), bytes);
-    await writeFile(path.resolve("public/icons/reacut.png"), bytes);
+    await writeFile(path.resolve("public/icons/cevikedit.png"), bytes);
   }
   if (size <= 512) {
     await writeFile(
@@ -94,4 +94,4 @@ if (process.platform === "darwin") {
   );
   if (result.status !== 0) throw new Error("iconutil failed");
 }
-console.log("Generated left-facing ReaCut icons in build/ and public/icons/");
+console.log("Generated left-facing CevikEdit icons in build/ and public/icons/");

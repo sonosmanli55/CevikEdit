@@ -39,7 +39,7 @@
 
 ## 项目目标与代码结构
 
-ReaCut（映刻）是独立实现的离线桌面视频编辑器，采用 Electron、React、TypeScript、Zustand、Vite 和 Vitest，媒体探测与导出使用本地 FFprobe / FFmpeg。剪映研究用于了解行为和本地格式，运行产品不依赖 REA、Ghidra 或剪映。
+CevikEdit是独立实现的离线桌面视频编辑器，采用 Electron、React、TypeScript、Zustand、Vite 和 Vitest，媒体探测与导出使用本地 FFprobe / FFmpeg。剪映研究用于了解行为和本地格式，运行产品不依赖 REA、Ghidra 或剪映。
 
 - `src/core/`：项目验证、时间线、动画、字幕、画面处理与草稿转换。
 - `src/editor/`：编辑状态、撤销重做与预览图层。

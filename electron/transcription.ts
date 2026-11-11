@@ -98,10 +98,10 @@ export async function resolveWhisperExecutable(
       return path.resolve(options.savedExecutable);
     throw new Error("所选 Whisper 不可用，请重新选择可执行文件。");
   }
-  if (env.REACUT_WHISPER) {
-    if (await usableFile(env.REACUT_WHISPER, platform))
-      return path.resolve(env.REACUT_WHISPER);
-    throw new Error("环境变量 REACUT_WHISPER 指向的程序不可用。");
+  if (env.CEVIKEDIT_WHISPER) {
+    if (await usableFile(env.CEVIKEDIT_WHISPER, platform))
+      return path.resolve(env.CEVIKEDIT_WHISPER);
+    throw new Error("环境变量 CEVIKEDIT_WHISPER 指向的程序不可用。");
   }
 
   const bundledNames = bundledExecutableNames(platform);
@@ -152,7 +152,7 @@ export async function discoverWhisperModels(
     if (!candidates.includes(resolved)) candidates.push(resolved);
   };
   add(options.savedModel);
-  add(env.REACUT_WHISPER_MODEL);
+  add(env.CEVIKEDIT_WHISPER_MODEL);
 
   const directories = new Set<string>();
   for (const base of options.bundledDirectories ?? []) {
@@ -193,7 +193,7 @@ export async function whisperStatus(
 ): Promise<TranscriptionStatus> {
   const models = await discoverWhisperModels(options);
   const env = options.env ?? process.env;
-  const preferred = [options.savedModel, env.REACUT_WHISPER_MODEL]
+  const preferred = [options.savedModel, env.CEVIKEDIT_WHISPER_MODEL]
     .filter((value): value is string => typeof value === "string" && value.length > 0)
     .map((value) => path.resolve(value))
     .find((value) => models.some((model) => path.resolve(model.path) === value));

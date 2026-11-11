@@ -1,5 +1,5 @@
 import { App } from '@modelcontextprotocol/ext-apps';
-const app = new App({ name: 'ReaCut', version: '0.5.0' }, { availableDisplayModes: ['fullscreen'] }, { autoResize: false });
+const app = new App({ name: 'CevikEdit', version: '0.5.0' }, { availableDisplayModes: ['fullscreen'] }, { autoResize: false });
 const screen = document.querySelector<HTMLImageElement>('#screen')!;
 const status = document.querySelector<HTMLElement>('#status')!;
 const stage = document.querySelector<HTMLElement>('#stage')!;
@@ -12,14 +12,14 @@ async function call(name: string, args: Record<string, unknown> = {}) {
   return result.structuredContent as Record<string, any>;
 }
 function input(args: Record<string, unknown>) {
-  queue = queue.then(async () => { await call('reacut_input', args); }).catch(e => { status.textContent = String(e.message); });
+  queue = queue.then(async () => { await call('cevikedit_input', args); }).catch(e => { status.textContent = String(e.message); });
   return queue;
 }
 async function poll() {
   if (stopped) return;
   if (!document.hidden) {
     try {
-      const frame = await call('reacut_frame');
+      const frame = await call('cevikedit_frame');
       if (frame.data) { screen.src = `data:image/jpeg;base64,${frame.data}`; screen.width = frame.width; screen.height = frame.height; }
       status.textContent = '本地连接 · 实时画面';
     } catch (e) { status.textContent = `连接中断 · ${e instanceof Error ? e.message : e}`; }

@@ -5,7 +5,7 @@ import { BUILTIN_ASSETS } from '../core/builtinAssets';
 
 /** A narrow bridge shared by the MCP tools and the editor. Never evaluates code. */
 export function installPluginBridge() {
-  if (!window.reacutPlugin) return;
+  if (!window.cevikeditPlugin) return;
   let revision = 0;
   useEditorStore.subscribe((state, previous) => {
     if (state.project !== previous.project) revision++;
@@ -19,7 +19,7 @@ export function installPluginBridge() {
       assets: s.project.assets.map(({ id, name, kind, duration, width, height, missing }) =>
         ({ id, name, kind, duration, width, height, missing })) };
   };
-  window.reacutPlugin.onCommand(async (request) => {
+  window.cevikeditPlugin.onCommand(async (request) => {
     const s = useEditorStore.getState();
     const a = request.args;
     if (request.action === 'selectInput') {
@@ -63,7 +63,7 @@ export function installPluginBridge() {
 
 declare global {
   interface Window {
-    reacutPlugin?: {
+    cevikeditPlugin?: {
       onCommand: (callback: (request: { action: string; args: Record<string, any> }) => Promise<unknown>) => void;
     };
   }

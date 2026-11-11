@@ -88,7 +88,7 @@ export interface TimelineProps {
 const GUTTER = 158;
 const ROW = 70;
 const RULER = 30;
-export const ASSET_DRAG_TYPE = "application/x-reacut-asset";
+export const ASSET_DRAG_TYPE = "application/x-cevikedit-asset";
 export function formatTimelineTime(seconds: number, fps = 30) {
   const frames = Math.max(0, Math.round(seconds * fps));
   const secs = Math.floor(frames / fps);
@@ -1295,7 +1295,7 @@ export default function Timeline(props: TimelineProps) {
                     ["audio", "video", "image"] as const
                   ).find((kind) =>
                     event.dataTransfer.types.includes(
-                      `application/x-reacut-kind-${kind}`,
+                      `application/x-cevikedit-kind-${kind}`,
                     ),
                   );
                   if (

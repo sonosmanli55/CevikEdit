@@ -77,19 +77,19 @@ import type {
   TranscriptionRequest,
 } from "../src/core/types";
 
-const pluginMode = process.argv.includes("--reacut-plugin");
+const pluginMode = process.argv.includes("--cevikedit-plugin");
 setMainLocale(resolveLocale(app.isPackaged));
 // A connected MCP server is a background app until its desktop window is shown.
 if (process.platform === "darwin") app.setActivationPolicy(pluginMode ? "accessory" : "regular");
-if (pluginMode && !process.env.REACUT_USER_DATA)
-  app.setPath("userData", path.join(app.getPath("appData"), "ReaCut-Plugin", "sessions", randomUUID()));
+if (pluginMode && !process.env.CEVIKEDIT_USER_DATA)
+  app.setPath("userData", path.join(app.getPath("appData"), "CevikEdit-Plugin", "sessions", randomUUID()));
 if (app.isPackaged && process.platform === "darwin")
   setBundledMediaToolsDirectory(path.join(process.resourcesPath, "media-tools"));
-if (process.env.REACUT_USER_DATA)
-  app.setPath("userData", path.resolve(process.env.REACUT_USER_DATA));
+if (process.env.CEVIKEDIT_USER_DATA)
+  app.setPath("userData", path.resolve(process.env.CEVIKEDIT_USER_DATA));
 protocol.registerSchemesAsPrivileged([
   {
-    scheme: "reacut-media",
+    scheme: "cevikedit-media",
     privileges: {
       standard: true,
       secure: true,
@@ -122,7 +122,7 @@ function cleanAssistantMessages(value: unknown): AssistantMessage[] {
   return messages;
 }
 let pendingProject = process.argv.find(
-  (argument) => path.isAbsolute(argument) && /\.reacut$/i.test(argument),
+  (argument) => path.isAbsolute(argument) && /\.cevikedit$/i.test(argument),
 );
 app.on("open-file", (event, file) => {
   event.preventDefault();
@@ -167,8 +167,8 @@ function transcriptionToolDirectories(): string[] {
       : []),
     path.join(app.getAppPath(), "media-tools"),
     path.join(path.dirname(app.getPath("exe")), "media-tools"),
-    ...(process.env.REACUT_WHISPER_DIR
-      ? [path.resolve(process.env.REACUT_WHISPER_DIR)]
+    ...(process.env.CEVIKEDIT_WHISPER_DIR
+      ? [path.resolve(process.env.CEVIKEDIT_WHISPER_DIR)]
       : []),
   ];
   return [...new Set(directories)];
@@ -218,7 +218,7 @@ async function remember(project: Project, file: string) {
 function authorizeAsset(asset: MediaAsset) {
   allowedMedia.add(path.resolve(asset.path));
   for (const cachedURL of [asset.thumbnail, asset.previewUrl])
-    if (cachedURL?.startsWith("reacut-media:")) {
+    if (cachedURL?.startsWith("cevikedit-media:")) {
       try {
         const thumbnail = new URL(cachedURL).searchParams.get("path");
         if (thumbnail && path.dirname(path.resolve(thumbnail)) === cacheDir())
@@ -278,7 +278,7 @@ async function readProject(file: string) {
     throw new Error("项目文件过大（最大 30MB）");
   const input = JSON.parse(await readFile(file, "utf8"));
   const project = await hydrateProject(await resolvePortableDocument(input, file));
-  if (input?.format === "reacut-portable") portablePaths.add(path.resolve(file));
+  if (input?.format === "cevikedit-portable") portablePaths.add(path.resolve(file));
   return project;
 }
 function handle(name: string, callback: (...args: any[]) => unknown) {
@@ -690,7 +690,7 @@ function registerIPC() {
     const result = await dialog.showOpenDialog(window!, {
       title: tr("Şablon içe aktar"),
       properties: ["openFile"],
-      filters: [{ name: tr("ReaCut şablonu"), extensions: ["reacut-template"] }],
+      filters: [{ name: tr("CevikEdit şablonu"), extensions: ["cevikedit-template"] }],
     });
     if (result.canceled || !result.filePaths[0]) return null;
     const template = await readTemplateFile(result.filePaths[0]);
@@ -703,8 +703,8 @@ function registerIPC() {
     if (!template) throw new Error("Şablon bulunamadı");
     const result = await dialog.showSaveDialog(window!, {
       title: tr("Şablonu dışa aktar"),
-      defaultPath: `${template.name}.reacut-template`,
-      filters: [{ name: tr("ReaCut şablonu"), extensions: ["reacut-template"] }],
+      defaultPath: `${template.name}.cevikedit-template`,
+      filters: [{ name: tr("CevikEdit şablonu"), extensions: ["cevikedit-template"] }],
     });
     if (result.canceled || !result.filePath) return null;
     await writeFile(result.filePath, serializeTemplate(template), "utf8");
@@ -742,9 +742,9 @@ function registerIPC() {
   });
   handle("open-project", async () => {
     const result = await dialog.showOpenDialog(window!, {
-      title: tr("打开 ReaCut 项目"),
+      title: tr("打开 CevikEdit 项目"),
       properties: ["openFile"],
-      filters: [{ name: tr("ReaCut 项目"), extensions: ["reacut", "json"] }],
+      filters: [{ name: tr("CevikEdit 项目"), extensions: ["cevikedit", "json"] }],
     });
     if (result.canceled) return null;
     const file = result.filePaths[0],
@@ -769,8 +769,8 @@ function registerIPC() {
     if (!file) {
       const result = await dialog.showSaveDialog(window!, {
         title: tr("保存项目"),
-        defaultPath: project.name + ".reacut",
-        filters: [{ name: tr("ReaCut 项目"), extensions: ["reacut"] }],
+        defaultPath: project.name + ".cevikedit",
+        filters: [{ name: tr("CevikEdit 项目"), extensions: ["cevikedit"] }],
       });
       if (result.canceled || !result.filePath) return null;
       file = result.filePath;
@@ -799,12 +799,12 @@ function registerIPC() {
     const serialized = JSON.stringify(project);
     writeQueue = writeQueue
       .catch(() => {})
-      .then(() => atomicWrite(userFile("autosave.reacut"), serialized));
+      .then(() => atomicWrite(userFile("autosave.cevikedit"), serialized));
     return writeQueue;
   });
   handle("get-autosave", async () => {
     try {
-      return await readProject(userFile("autosave.reacut"));
+      return await readProject(userFile("autosave.cevikedit"));
     } catch {
       return null;
     }
@@ -956,10 +956,10 @@ function registerIPC() {
     });
     if (result.canceled) return null;
     const file = result.filePaths[0];
-    process.env[name === "ffmpeg" ? "REACUT_FFMPEG" : "REACUT_FFPROBE"] = file;
+    process.env[name === "ffmpeg" ? "CEVIKEDIT_FFMPEG" : "CEVIKEDIT_FFPROBE"] = file;
     const settings = {
-      ffmpeg: process.env.REACUT_FFMPEG,
-      ffprobe: process.env.REACUT_FFPROBE,
+      ffmpeg: process.env.CEVIKEDIT_FFMPEG,
+      ffprobe: process.env.CEVIKEDIT_FFPROBE,
     };
     await atomicWrite(userFile("media-tools.json"), JSON.stringify(settings));
     return file;
@@ -1128,7 +1128,7 @@ function createWindow() {
     show: !pluginMode,
     minWidth: 1060,
     minHeight: 680,
-    title: tr("ReaCut · 映刻"),
+    title: tr("CevikEdit · CevikEdit"),
     backgroundColor: "#141518",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 17 },
@@ -1139,8 +1139,8 @@ function createWindow() {
       sandbox: true,
       backgroundThrottling: !pluginMode,
       additionalArguments: [
-        ...(pluginMode ? ["--reacut-plugin"] : []),
-        `--reacut-locale=${getMainLocale()}`,
+        ...(pluginMode ? ["--cevikedit-plugin"] : []),
+        `--cevikedit-locale=${getMainLocale()}`,
       ],
     },
   });
@@ -1227,20 +1227,20 @@ void app.whenReady().then(async () => {
     const settings = JSON.parse(
       await readFile(userFile("media-tools.json"), "utf8"),
     );
-    if (settings.ffmpeg && !process.env.REACUT_FFMPEG)
-      process.env.REACUT_FFMPEG = settings.ffmpeg;
-    if (settings.ffprobe && !process.env.REACUT_FFPROBE)
-      process.env.REACUT_FFPROBE = settings.ffprobe;
+    if (settings.ffmpeg && !process.env.CEVIKEDIT_FFMPEG)
+      process.env.CEVIKEDIT_FFMPEG = settings.ffmpeg;
+    if (settings.ffprobe && !process.env.CEVIKEDIT_FFPROBE)
+      process.env.CEVIKEDIT_FFPROBE = settings.ffprobe;
   } catch {
     /* system defaults */
   }
-  protocol.handle("reacut-media", serveMedia);
+  protocol.handle("cevikedit-media", serveMedia);
   registerIPC();
   const template: Electron.MenuItemConstructorOptions[] = [
     ...(process.platform === "darwin"
       ? [
           {
-            label: "ReaCut",
+            label: "CevikEdit",
             submenu: [
               { role: "about" as const },
               { type: "separator" as const },
@@ -1330,7 +1330,7 @@ void app.whenReady().then(async () => {
       label: "帮助",
       submenu: [
         { label: "快捷键", click: () => menuAction("shortcuts") },
-        { label: "关于 ReaCut", click: () => menuAction("about") },
+        { label: "关于 CevikEdit", click: () => menuAction("about") },
       ],
     },
   ];

@@ -13,7 +13,7 @@ const VIDEO: MediaAsset = {
   id: "asset-video",
   name: "çekim.mp4",
   path: "C:\\media\\çekim.mp4",
-  url: "reacut-media://asset?path=v",
+  url: "cevikedit-media://asset?path=v",
   kind: "video",
   duration: 20,
   width: 1920,
@@ -81,7 +81,7 @@ describe("draft exchange export", () => {
     const project = fixture();
     const draft = exportDraft(project);
     expect(draft.format).toBe(DRAFT_EXCHANGE_FORMAT);
-    expect(draft.generator).toBe("ReaCut");
+    expect(draft.generator).toBe("CevikEdit");
     expect(draft.canvas_config).toMatchObject({ width: 1920, height: 1080, ratio: "16:9" });
     expect(draft.materials.videos).toHaveLength(2);
     expect(draft.materials.audios).toHaveLength(1);

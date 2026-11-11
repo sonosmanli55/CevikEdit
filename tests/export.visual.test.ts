@@ -18,7 +18,7 @@ let directory: string;
 let asset: MediaAsset;
 let source: Uint8ClampedArray;
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(tmpdir(), "reacut-visual-"));
+  directory = await mkdtemp(path.join(tmpdir(), "cevikedit-visual-"));
   const canvas = createCanvas(32, 32);
   const context = canvas.getContext("2d");
   const pixels = context.createImageData(32, 32);

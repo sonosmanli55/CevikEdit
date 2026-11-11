@@ -16,7 +16,7 @@ const root = process.cwd(),
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const fixture = await generateFixtures(path.join(output, "media"));
-const saved = path.join(output, "desktop-project.reacut"),
+const saved = path.join(output, "desktop-project.cevikedit"),
   exported = path.join(output, "desktop-render.mp4");
 const subtitles = path.join(output, "captions.srt");
 await writeFile(subtitles, "1\n00:00:00,500 --> 00:00:01,800\n本地字幕验收\n");
@@ -25,10 +25,10 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,
@@ -47,7 +47,7 @@ try {
           filePaths:
             options.title === "导入素材"
               ? [p.video, p.audio, p.image]
-              : options.title === "打开 ReaCut 项目"
+              : options.title === "打开 CevikEdit 项目"
                 ? [p.saved]
                 : [p.subtitles],
         };
@@ -69,7 +69,7 @@ try {
   page = await app.firstWindow();
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("response", (response) => {
-    if (response.url().startsWith("reacut-media:") && response.status() >= 400)
+    if (response.url().startsWith("cevikedit-media:") && response.status() >= 400)
       mediaFailures.push(`${response.status()} ${response.url()}`);
   });
   await page.waitForSelector(".app-shell");

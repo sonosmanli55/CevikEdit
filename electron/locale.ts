@@ -8,10 +8,10 @@ let mainLocale: Locale = "tr";
 /**
  * The desktop app is Turkish by default. Simplified Chinese remains available
  * as the authoring source locale for the existing UI regression harnesses via
- * `REACUT_LOCALE=zh`; users never need to switch the app to Chinese.
+ * `CEVIKEDIT_LOCALE=zh`; users never need to switch the app to Chinese.
  */
 export function resolveLocale(_isPackaged: boolean, env: NodeJS.ProcessEnv = process.env): Locale {
-  return env.REACUT_LOCALE === "zh" ? "zh" : "tr";
+  return env.CEVIKEDIT_LOCALE === "zh" ? "zh" : "tr";
 }
 
 export function setMainLocale(locale: Locale): void {

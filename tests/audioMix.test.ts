@@ -22,7 +22,7 @@ const TONE: MediaAsset = {
   id: "asset-tone",
   name: "müzik",
   path: "C:\\media\\tone.wav",
-  url: "reacut-media://asset?path=tone",
+  url: "cevikedit-media://asset?path=tone",
   kind: "audio",
   duration: 30,
   width: 0,

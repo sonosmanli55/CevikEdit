@@ -16,7 +16,7 @@ import { importAssets, runMediaTool } from "../electron/media";
 import type { MediaAsset, Project } from "../src/core/types";
 let dir: string, assets: MediaAsset[];
 beforeAll(async () => {
-  dir = await mkdtemp(path.join(tmpdir(), "reacut-recipes-"));
+  dir = await mkdtemp(path.join(tmpdir(), "cevikedit-recipes-"));
   const files = [];
   for (const [index, color] of ["#ff0000", "#0000ff"].entries()) {
     const c = createCanvas(160, 90),

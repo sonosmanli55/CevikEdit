@@ -29,14 +29,14 @@ await runMediaTool("ffmpeg", [
   "copy",
   source,
 ]);
-const saved = path.join(output, "audio-project.reacut");
+const saved = path.join(output, "audio-project.cevikedit");
 const exported = path.join(output, "audio-project.mp4");
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 let app!: ElectronApplication;
@@ -98,7 +98,7 @@ const audioLevels = () =>
   });
 
 try {
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
   app = await electron.launch({
     args: [path.join(root, "dist-electron", "main.cjs")],
     env,
@@ -111,7 +111,7 @@ env.REACUT_LOCALE = "zh";
         const file =
           options.title === "导入素材"
             ? files.source
-            : options.title === "打开 ReaCut 项目"
+            : options.title === "打开 CevikEdit 项目"
               ? files.saved
               : files.replacement;
         return { canceled: false, filePaths: [file] };

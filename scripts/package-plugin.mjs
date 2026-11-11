@@ -1,7 +1,7 @@
 import { cp, mkdir, readFile, rm } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 const { version } = JSON.parse(await readFile('plugin/plugin.json', 'utf8'));
-const stage = `release/plugin-package/reacut-plugin-${version}`;
+const stage = `release/plugin-package/cevikedit-plugin-${version}`;
 await rm(stage, { recursive: true, force: true });
 await mkdir(`${stage}/scripts`, { recursive: true });
 await mkdir(`${stage}/.agents/plugins`, { recursive: true });
@@ -12,7 +12,7 @@ await cp('.agents/plugins/marketplace.json', `${stage}/.agents/plugins/marketpla
 await cp('docs/CODEX_PLUGIN.md', `${stage}/README.md`);
 await mkdir(`${stage}/screenshots`, { recursive: true });
 await cp('docs/screenshots/codex-plugin-local-host.jpg', `${stage}/screenshots/codex-plugin-local-host.jpg`);
-const zip = `release/ReaCut-plugin-${version}.zip`;
+const zip = `release/CevikEdit-plugin-${version}.zip`;
 await rm(zip, { force: true });
 const result = spawnSync('/usr/bin/ditto', ['-c','-k','--sequesterRsrc','--keepParent',stage,zip], { stdio: 'inherit' });
 if (result.status !== 0) throw new Error('Plugin ZIP failed');

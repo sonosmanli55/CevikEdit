@@ -18,7 +18,7 @@ let userData: string;
 let previousFfmpeg: string | undefined;
 
 beforeAll(async () => {
-  directory = await mkdtemp(path.join(os.tmpdir(), "reacut-whisper-run-"));
+  directory = await mkdtemp(path.join(os.tmpdir(), "cevikedit-whisper-run-"));
   ffmpeg = path.join(directory, "ffmpeg");
   whisper = path.join(directory, "whisper-cli");
   slowWhisper = path.join(directory, "whisper-slow");
@@ -48,12 +48,12 @@ beforeAll(async () => {
   await chmod(ffmpeg, 0o755);
   await chmod(whisper, 0o755);
   await chmod(slowWhisper, 0o755);
-  previousFfmpeg = process.env.REACUT_FFMPEG;
-  process.env.REACUT_FFMPEG = ffmpeg;
+  previousFfmpeg = process.env.CEVIKEDIT_FFMPEG;
+  process.env.CEVIKEDIT_FFMPEG = ffmpeg;
 });
 afterAll(async () => {
-  if (previousFfmpeg === undefined) delete process.env.REACUT_FFMPEG;
-  else process.env.REACUT_FFMPEG = previousFfmpeg;
+  if (previousFfmpeg === undefined) delete process.env.CEVIKEDIT_FFMPEG;
+  else process.env.CEVIKEDIT_FFMPEG = previousFfmpeg;
   await rm(directory, { recursive: true, force: true });
 });
 

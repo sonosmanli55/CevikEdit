@@ -6,15 +6,15 @@ import path from "node:path";
 import type { ExportProgress, Project } from "../src/core/types";
 import { validateProject } from "../src/core/model";
 
-export interface PortableDocument { format: "reacut-portable"; version: 1; project: Project }
+export interface PortableDocument { format: "cevikedit-portable"; version: 1; project: Project }
 const savedCopies = new Map<string, { size: number; mtime: number; relative: string }>();
 const tasks = new Map<string, { controller: AbortController; done: Promise<void> }>();
 const inside = (root: string, file: string) => { const relative = path.relative(root, file); return relative !== "" && !relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative); };
 const abort = (signal: AbortSignal) => { if (signal.aborted) throw new Error("已取消项目打包"); };
 
-/** Resolve only the format we write; ordinary .reacut projects remain unchanged. */
+/** Resolve only the format we write; ordinary .cevikedit projects remain unchanged. */
 export async function resolvePortableDocument(input: unknown, projectFile: string): Promise<Project> {
-  if (!input || typeof input !== "object" || (input as any).format !== "reacut-portable") return validateProject(input);
+  if (!input || typeof input !== "object" || (input as any).format !== "cevikedit-portable") return validateProject(input);
   const document = input as PortableDocument;
   if (document.version !== 1) throw new Error("不支持的素材包版本");
   const project = validateProject(document.project);
@@ -54,7 +54,7 @@ export async function collectPortableProject(input: Project, parent: string, sig
     const entry = unique.get(resolved)!; entry.ids.push(asset.id); assetPaths.set(asset.id, entry.destination);
   }
   abort(signal);
-  const temporary = await mkdtemp(path.join(parent, ".reacut-collect-"));
+  const temporary = await mkdtemp(path.join(parent, ".cevikedit-collect-"));
   let completedBytes = 0, count = 0, lastUpdate = 0;
   const manifest: { file: string; bytes: number; sha256: string; assetIds: string[] }[] = [];
   try {
@@ -75,12 +75,12 @@ export async function collectPortableProject(input: Project, parent: string, sig
     }
     abort(signal);
     project.assets = project.assets.map(asset => ({ id: asset.id, name: asset.name, kind: asset.kind, path: assetPaths.get(asset.id)!, url: assetPaths.get(asset.id)!, duration: asset.duration, width: asset.width, height: asset.height, fps: asset.fps, hasAudio: asset.hasAudio }));
-    const document: PortableDocument = { format: "reacut-portable", version: 1, project };
-    await writeFile(path.join(temporary, "proje.reacut"), JSON.stringify(document, null, 2), { mode: 0o600 });
-    await writeFile(path.join(temporary, "manifest.json"), JSON.stringify({ format: "reacut-media-manifest", version: 1, files: manifest }, null, 2), { mode: 0o600 });
-    await writeFile(path.join(temporary, "KULLANIM.txt"), "Tüm klasörü taşıyın ve media alt klasörünü koruyun. Projeyi düzenlemeye devam etmek için proje.reacut dosyasını ReaCut ile açın.\nBu, projenin ve özgün medyanın bir kopyasıdır; asıl projeyi değiştirmez. Yazı tipleri hedef bilgisayarın ve uygulamanın yerleşik yazı tiplerine göre görünür.\nmanifest.json ilk toplama sırasındaki dosya doğrulama değerlerini kaydeder; sonraki kayıtlar bu geçmiş listeyi güncellemez.\n");
+    const document: PortableDocument = { format: "cevikedit-portable", version: 1, project };
+    await writeFile(path.join(temporary, "proje.cevikedit"), JSON.stringify(document, null, 2), { mode: 0o600 });
+    await writeFile(path.join(temporary, "manifest.json"), JSON.stringify({ format: "cevikedit-media-manifest", version: 1, files: manifest }, null, 2), { mode: 0o600 });
+    await writeFile(path.join(temporary, "KULLANIM.txt"), "Tüm klasörü taşıyın ve media alt klasörünü koruyun. Projeyi düzenlemeye devam etmek için proje.cevikedit dosyasını CevikEdit ile açın.\nBu, projenin ve özgün medyanın bir kopyasıdır; asıl projeyi değiştirmez. Yazı tipleri hedef bilgisayarın ve uygulamanın yerleşik yazı tiplerine göre görünür.\nmanifest.json ilk toplama sırasındaki dosya doğrulama değerlerini kaydeder; sonraki kayıtlar bu geçmiş listeyi güncellemez.\n");
     abort(signal);
-    const name = project.name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").slice(0, 60).replace(/[. ]+$/, "") || "ReaCut projesi";
+    const name = project.name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").slice(0, 60).replace(/[. ]+$/, "") || "CevikEdit projesi";
     const destination = path.join(parent, `${name}-medya-paketi-${randomUUID().slice(0, 8)}`);
     await rename(temporary, destination);
     return destination;
@@ -155,7 +155,7 @@ export async function savePortableDocument(input: Project, file: string): Promis
       asset.path = relative; asset.url = relative;
       delete asset.thumbnail; delete asset.previewUrl; delete asset.previewError; delete asset.waveform; delete asset.missing;
     }
-    await writeFile(temporaryFile, JSON.stringify({ format: "reacut-portable", version: 1, project }, null, 2), { mode: 0o600 });
+    await writeFile(temporaryFile, JSON.stringify({ format: "cevikedit-portable", version: 1, project }, null, 2), { mode: 0o600 });
     await rename(temporaryFile, file);
     pendingCache.forEach((value, key) => savedCopies.set(key, value));
     while (savedCopies.size > 20000) savedCopies.delete(savedCopies.keys().next().value!);

@@ -783,7 +783,7 @@ export async function startExport(
   await mkdir(path.dirname(options.path), { recursive: true });
   if (exportsShuttingDown) throw new Error("应用正在关闭。");
   const jobId = randomUUID();
-  const directory = await mkdtemp(path.join(tmpdir(), "reacut-export-"));
+  const directory = await mkdtemp(path.join(tmpdir(), "cevikedit-export-"));
   if (exportsShuttingDown) {
     await rm(directory, { recursive: true, force: true });
     throw new Error("应用正在关闭。");
@@ -799,7 +799,7 @@ export async function startExport(
     directory,
     temporaryOutput: path.join(
       path.dirname(options.path),
-      `.reacut-${jobId}.${options.format}`,
+      `.cevikedit-${jobId}.${options.format}`,
     ),
     finished,
   };

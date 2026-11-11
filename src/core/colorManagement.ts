@@ -1,7 +1,7 @@
 /**
  * Colour management for HDR sources.
  *
- * ReaCut previews and exports SDR BT.709. A PQ/HLG source (HDR10, HLG) must be
+ * CevikEdit previews and exports SDR BT.709. A PQ/HLG source (HDR10, HLG) must be
  * tone mapped, otherwise it looks washed out and over-bright. Detection uses
  * the stream metadata FFprobe reports; the filter chain is generated here so the
  * same code can be unit tested, and the export applies it per layer.

@@ -7,13 +7,13 @@ import assert from 'node:assert/strict';
 
 if (process.platform !== 'darwin') throw new Error('This check requires macOS');
 const root = process.cwd();
-const output = await mkdtemp(path.join(os.tmpdir(), 'reacut-dock-test-'));
+const output = await mkdtemp(path.join(os.tmpdir(), 'cevikedit-dock-test-'));
 const entry = path.join(output, 'check.cjs');
 await writeFile(entry, `
 const { app, BrowserWindow } = require('electron');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-process.argv.push('--reacut-plugin');
+process.argv.push('--cevikedit-plugin');
 require(${JSON.stringify(path.join(root, 'dist-electron/main.cjs'))});
 const delay = ms => new Promise(r => setTimeout(r, ms));
 app.whenReady().then(async () => {
@@ -48,7 +48,7 @@ app.whenReady().then(async () => {
   } catch (e) { console.error(e); app.exit(1); }
 });
 `);
-const env = { ...process.env, REACUT_USER_DATA: path.join(output, 'user-data'), VITE_DEV_SERVER_URL: '' } as NodeJS.ProcessEnv;
+const env = { ...process.env, CEVIKEDIT_USER_DATA: path.join(output, 'user-data'), VITE_DEV_SERVER_URL: '' } as NodeJS.ProcessEnv;
 delete env.ELECTRON_RUN_AS_NODE;
 const child = spawn(path.join(root, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'), [entry], { env, stdio: ['pipe', 'pipe', 'pipe'] });
 let errors = '';

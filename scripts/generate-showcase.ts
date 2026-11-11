@@ -171,7 +171,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
   );
   const [first, second, third, narration, music] = assets as MediaAsset[];
 
-  const project = createProject("ReaCut · hafta demosu");
+  const project = createProject("CevikEdit · hafta demosu");
   project.width = WIDTH;
   project.height = HEIGHT;
   project.fps = FPS;
@@ -189,7 +189,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
   const template = instantiateTemplate(BUILTIN_TEMPLATES[0], {
     name: "Açılış",
     media: { m1: first },
-    texts: { [BUILTIN_TEMPLATES[0].texts[0].key]: "ReaCut" },
+    texts: { [BUILTIN_TEMPLATES[0].texts[0].key]: "CevikEdit" },
   });
   validateProject(template.project);
   const templateTitle = template.project.clips.find(
@@ -202,7 +202,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
   opening.duration = 3.6;
   opening.text = {
     ...templateTitle.text!,
-    text: "ReaCut",
+    text: "CevikEdit",
     fontSize: 132,
   };
   opening.transform.y = -140;
@@ -213,7 +213,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
     id: id(),
     time: Math.min(key.time, opening.duration),
   }));
-  opening.name = "ReaCut";
+  opening.name = "CevikEdit";
   project.clips.push(opening);
   for (let index = 0; index < 3; index++) {
     const start = index * SCENE;
@@ -327,7 +327,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
   project.clips = ducked.project.clips;
 
   validateProject(project);
-  const projectPath = path.join(directory, "showcase.reacut");
+  const projectPath = path.join(directory, "showcase.cevikedit");
   await writeFile(projectPath, JSON.stringify(project, null, 2));
 
   // Also save the film project itself as a reusable template (round trip).
@@ -336,7 +336,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
     description: "Otuz saniyelik gösterim projesi; medya ve metin yer tutucularıyla.",
   });
   await writeFile(
-    path.join(directory, "hafta-demosu.reacut-template"),
+    path.join(directory, "hafta-demosu.cevikedit-template"),
     JSON.stringify(savedTemplate, null, 2),
   );
 
@@ -384,7 +384,7 @@ export async function generateShowcase(directory = path.resolve(".demo")) {
   );
   return {
     projectPath,
-    templatePath: path.join(directory, "hafta-demosu.reacut-template"),
+    templatePath: path.join(directory, "hafta-demosu.cevikedit-template"),
     output,
     duration,
     width: videoStream.width,

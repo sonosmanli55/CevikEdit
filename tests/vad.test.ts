@@ -20,7 +20,7 @@ const VOICE: MediaAsset = {
   id: "asset-voice",
   name: "konuşma.wav",
   path: "C:\\media\\voice.wav",
-  url: "reacut-media://asset?path=voice",
+  url: "cevikedit-media://asset?path=voice",
   kind: "audio",
   duration: 30,
   width: 0,

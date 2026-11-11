@@ -15,23 +15,23 @@ MAX_MESSAGE = 1024 * 1024
 
 
 def command():
-    configured = os.environ.get('REACUT_APP')
-    config = Path.home() / '.config' / 'reacut' / 'plugin.json'
+    configured = os.environ.get('CEVIKEDIT_APP')
+    config = Path.home() / '.config' / 'cevikedit' / 'plugin.json'
     if not configured and config.is_file():
         configured = json.loads(config.read_text()).get('app')
     candidates = [Path(configured).expanduser()] if configured else [
-        Path('/Applications/ReaCut.app'), Path.home() / 'Applications/ReaCut.app']
+        Path('/Applications/CevikEdit.app'), Path.home() / 'Applications/CevikEdit.app']
     for candidate in candidates:
-        binary = candidate / 'Contents/MacOS/ReaCut' if candidate.suffix == '.app' else candidate
+        binary = candidate / 'Contents/MacOS/CevikEdit' if candidate.suffix == '.app' else candidate
         if binary.is_file() and os.access(binary, os.X_OK):
             if candidate.suffix == '.app':
                 import plistlib
                 with (candidate / 'Contents/Info.plist').open('rb') as f:
                     version = plistlib.load(f).get('CFBundleShortVersionString', '0')
                 if tuple(int(v) for v in version.split('.')[:2]) < (0, 5):
-                    raise RuntimeError('ReaCut 0.5.0 or newer is required. Install the matching DMG first.')
-            return [str(binary), '--reacut-plugin']
-    raise RuntimeError('Install ReaCut 0.5.0+ in /Applications, or run install-plugin.sh --app /absolute/path/ReaCut.app.')
+                    raise RuntimeError('CevikEdit 0.5.0 or newer is required. Install the matching DMG first.')
+            return [str(binary), '--cevikedit-plugin']
+    raise RuntimeError('Install CevikEdit 0.5.0+ in /Applications, or run install-plugin.sh --app /absolute/path/CevikEdit.app.')
 
 
 def editor_html():
@@ -74,7 +74,7 @@ class Proxy:
         self.reader = None
         self.pending = set()
         self.lock = threading.RLock()
-        self.init_id = 'reacut-internal-' + uuid.uuid4().hex
+        self.init_id = 'cevikedit-internal-' + uuid.uuid4().hex
         self.initialization = {}
 
     def send(self, value):
@@ -147,8 +147,8 @@ class Proxy:
             if version not in ('2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'):
                 version = '2025-11-25'
             self.result(request, {'protocolVersion': version, 'capabilities': {'tools': {}, 'resources': {}},
-                'serverInfo': {'name': 'reacut', 'version': self.metadata['version']},
-                'instructions': 'Use reacut_open to open the editor. Discovery does not start ReaCut. Read state before edits. Import only user-selected media.'})
+                'serverInfo': {'name': 'cevikedit', 'version': self.metadata['version']},
+                'instructions': 'Use cevikedit_open to open the editor. Discovery does not start CevikEdit. Read state before edits. Import only user-selected media.'})
         elif method == 'ping':
             self.result(request, {})
         elif method == 'tools/list':
@@ -225,5 +225,5 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as error:
-        print(f'ReaCut plugin: {error}', file=sys.stderr)
+        print(f'CevikEdit plugin: {error}', file=sys.stderr)
         sys.exit(1)

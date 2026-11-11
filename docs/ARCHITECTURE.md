@@ -1,6 +1,6 @@
 # 架构
 
-ReaCut 的编辑模型、预览与导出由独立代码实现。REA 只用于开发阶段记录指定剪映安装包和授权测试项目的观察证据，不参与应用运行。
+CevikEdit 的编辑模型、预览与导出由独立代码实现。REA 只用于开发阶段记录指定剪映安装包和授权测试项目的观察证据，不参与应用运行。
 
 ```mermaid
 flowchart LR
@@ -17,7 +17,7 @@ flowchart LR
 
 ## 项目与编辑内核
 
-`Project.version` 为 1。项目包含画布、帧率、背景、素材、轨道和片段；素材记录本机路径和媒体元数据，片段引用素材与轨道 ID。项目以 JSON 写入 `.reacut` 文件，不嵌入媒体。秒是统一时间单位，交互边缘通常按项目帧率取整。
+`Project.version` 为 1。项目包含画布、帧率、背景、素材、轨道和片段；素材记录本机路径和媒体元数据，片段引用素材与轨道 ID。项目以 JSON 写入 `.cevikedit` 文件，不嵌入媒体。秒是统一时间单位，交互边缘通常按项目帧率取整。
 
 `sourceIn` 是源素材入点；时间线局部时间 `t` 对应 `sourceIn + t * speed`。`duration` 是时间线时长，变速保持源范围并调整时长。视频、图片和文字按轨道次序合成；同轨重叠片段按时间次序绘制。同轨叠化通过片段重叠和后片段透明度淡入实现，暂未建立独立转场对象。
 
@@ -41,7 +41,7 @@ source-space 裁剪、RGB 色度抠像和矩形/椭圆蒙版采用可选项目�
 
 ## 文件桥接与导出
 
-renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程校验调用来自主窗口及主 frame。`reacut-media` scheme 提供已授权本地媒体，支持 range 请求。生产 HTML 使用 CSP；外部窗口和应用页面导航被限制。
+renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程校验调用来自主窗口及主 frame。`cevikedit-media` scheme 提供已授权本地媒体，支持 range 请求。生产 HTML 使用 CSP；外部窗口和应用页面导航被限制。
 
 项目和最近列表通过同目录临时文件与 rename 保存。自动保存写入串行队列。导出将源裁剪、变速、画面处理、文字图层、关键帧、淡化和混音编译为 FFmpeg filter graph，使用独立进程，不启用 shell 拼接执行。关键帧表达式使用共享缓动系数；同时启用动态缩放和透明度时，先在稳定尺寸的输入上应用 alpha，再执行逐帧缩放，避免 `alphamerge` 在帧尺寸变化时失败。
 
@@ -57,7 +57,7 @@ renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程
 
 ## 语言与本地化
 
-桌面版默认土耳其语：`electron/locale.ts` 的 `resolveLocale` 不再依据是否打包，统一返回 `tr`；渲染层 `activeLocale` 同样默认 `tr`。主进程菜单、原生对话框与 IPC 错误经 `tr()`/`translateText` 翻译，renderer 由 `installI18n` 在 DOM 变更时翻译中文源文案。`tr.ts` 保存精确词条，`tr-patterns.ts` 处理计数、名称与范围等运行时拼接；`scripts/i18n-audit.ts` 静态扫描所有可进入 DOM 的中文字面量与 JSX 文本。`REACUT_LOCALE=zh` 仅供既有中文断言脚本使用，不面向用户。
+桌面版默认土耳其语：`electron/locale.ts` 的 `resolveLocale` 不再依据是否打包，统一返回 `tr`；渲染层 `activeLocale` 同样默认 `tr`。主进程菜单、原生对话框与 IPC 错误经 `tr()`/`translateText` 翻译，renderer 由 `installI18n` 在 DOM 变更时翻译中文源文案。`tr.ts` 保存精确词条，`tr-patterns.ts` 处理计数、名称与范围等运行时拼接；`scripts/i18n-audit.ts` 静态扫描所有可进入 DOM 的中文字面量与 JSX 文本。`CEVIKEDIT_LOCALE=zh` 仅供既有中文断言脚本使用，不面向用户。
 
 ## v0.4 本地工作流
 
@@ -65,18 +65,18 @@ renderer 没有 Node.js 权限。preload 只暴露编辑所需方法；主进程
 - subtitleEdits 是纯计划/应用层，字幕面板提交整项目原子修改；提案绑定创建时状态，避免覆盖随后编辑。拆分/合并、可编辑样式和统一动画都走同一计划路径：拆分复用 `splitClip` 并检查两侧至少一帧，合并只接受同轨连续且相接/重叠的条目，动画由 `textAnimation` 生成现有淡化与 x/y/缩放/透明度关键帧，预览和导出共用 `evaluateFade`/`evaluateKeyframes`。
 - placement 定义源区间入轨方式：追加取轨道末尾，插入在播放头处切开跨点片段并右移后续片段，覆盖按两端切分后裁掉占用区间；结果作为整个工程一次提交。`Clip.linkId` 关联分离出的音视频，store 的移动、裁剪、分割、删除、复制/粘贴与重复按 linkId 展开，解除关联只移除该字段。
 - audioMix 是纯计划层：`loudnorm` 的 stderr 汇总由主进程解析，增益与真峰值钳制、语音/音乐阈值与音量关键帧包络都在核心计算；写入沿用普通片段音量字段，因此预览与导出无需新的音频路径。
-- templates 定义 `.reacut-template`：模板工程只保存 `template://media/<slot>` 占位与槽位清单，保存时丢弃未使用素材和缓存，实例化时重建全部 ID、把媒体重置到源 0 并按可用长度裁剪；`electron/templates.ts` 负责原子读写与逐文件校验，损坏文件只产生警告。
+- templates 定义 `.cevikedit-template`：模板工程只保存 `template://media/<slot>` 占位与槽位清单，保存时丢弃未使用素材和缓存，实例化时重建全部 ID、把媒体重置到源 0 并按可用长度裁剪；`electron/templates.ts` 负责原子读写与逐文件校验，损坏文件只产生警告。
 - timelineView 把时间线的比例、光标锚定缩放、可见区间、适配比例与平移边界做成纯函数；Timeline 只负责读取滚动容器并把结果同步回状态。缩放和平移属于视图状态，不进入工程或撤销栈。
 - bezier 提供自由 cubic-Bézier：Newton 求根 + 二分回退，Y 允许过冲；预览用精确解，导出用 24 段折线表。keyframeRatio 统一优先使用曲线，其次具名预设。
 - timelineMotion 负责惯性、指针速度与迷你地图几何；limits 负责大工程阈值、可视切片与导出内存估算；二者都是纯函数，视图状态不进入工程。
 - vad 在核心层做离线语音检测（能量帧、噪声底、迟滞、合句），主进程只负责解码为 16 kHz 单声道 PCM；Ducking 接受可选检测区间。
 - colorManagement 依据 FFprobe 元数据判定 PQ/HLG，导出对 HDR 图层插入 zscale + hable 链并显式输出 bt709 标记；项目本身保持 SDR。
 - draftExchange 生成开放的纯文本草稿 JSON（微秒时间范围 + 完整工程侧信道），不写入第三方加密存储。
-- portableProject 定义版本化 reacut-portable 封装。仅接受受限 media/UUID.ext 相对路径，解析时校验 realpath 边界；绝对媒体路径仍经现有授权协议提供给 renderer。流式复制到临时文件夹，失败/取消清理，完成后 rename；保存保留相对引用。首次 SHA-256 清单是历史记录。
+- portableProject 定义版本化 cevikedit-portable 封装。仅接受受限 media/UUID.ext 相对路径，解析时校验 realpath 边界；绝对媒体路径仍经现有授权协议提供给 renderer。流式复制到临时文件夹，失败/取消清理，完成后 rename；保存保留相对引用。首次 SHA-256 清单是历史记录。
 - exportRange 校验时间边界和一帧下限；合成保留原时间轴，最终 trim/atrim 并重置时间戳，保持动画和淡化相位。完全在区间外的素材不进入渲染输入。
 
 ## Codex 插件
 
-`plugin/` 包含标准与兼容 manifest、操作 skill 和 Python 启动器。0.5.1 的启动器在本地处理 MCP 初始化、工具/资源发现与固定 UI 资源读取，不启动 Electron；工具定义由 `electron/pluginProtocol.ts` 生成到 `plugin/protocol.json`，只有实际工具调用才创建一个应用子进程。子进程退出后不自动重启或重放编辑。macOS 包使用 `LSUIElement` 避免 JavaScript 执行前的 Dock 闪现，普通桌面启动显式恢复 regular 激活策略。启动已安装应用的 `--reacut-plugin` 模式后，`electron/pluginHost.ts` 提供 stdio MCP；不启动网络服务。MCP App UI 自包含在 `dist/plugin.html`，通过 SDK 的 app-only 工具拉取当前编辑器 JPEG 并发送受限输入。隐藏窗口仍保留原来的 renderer 隔离、CSP、文件授权和 FFmpeg 引擎，必要时可显示为桌面窗口。
+`plugin/` 包含标准与兼容 manifest、操作 skill 和 Python 启动器。0.5.1 的启动器在本地处理 MCP 初始化、工具/资源发现与固定 UI 资源读取，不启动 Electron；工具定义由 `electron/pluginProtocol.ts` 生成到 `plugin/protocol.json`，只有实际工具调用才创建一个应用子进程。子进程退出后不自动重启或重放编辑。macOS 包使用 `LSUIElement` 避免 JavaScript 执行前的 Dock 闪现，普通桌面启动显式恢复 regular 激活策略。启动已安装应用的 `--cevikedit-plugin` 模式后，`electron/pluginHost.ts` 提供 stdio MCP；不启动网络服务。MCP App UI 自包含在 `dist/plugin.html`，通过 SDK 的 app-only 工具拉取当前编辑器 JPEG 并发送受限输入。隐藏窗口仍保留原来的 renderer 隔离、CSP、文件授权和 FFmpeg 引擎，必要时可显示为桌面窗口。
 
 `src/editor/pluginBridge.ts` 提供状态摘要与白名单编辑，复用 `previewAssistantEdits`，提交时校验当前 revision 和编辑事务。批量修改原子提交，支持一次撤销。每个插件连接使用独立恢复目录，防止不同聊天覆盖彼此的自动保存；正常断连先刷新自动保存再退出。模型工具不会默认返回媒体帧，显式截图与 app-only 帧分开。详情见 [插件说明](CODEX_PLUGIN.md)。

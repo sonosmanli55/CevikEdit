@@ -9,11 +9,11 @@ const root = process.cwd(),
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const bundle = path.resolve(
-  process.env.REACUT_TEST_APP ??
-    path.join(root, "release", "mac-arm64", "ReaCut.app"),
+  process.env.CEVIKEDIT_TEST_APP ??
+    path.join(root, "release", "mac-arm64", "CevikEdit.app"),
 );
-const executable = path.join(bundle, "Contents", "MacOS", "ReaCut"),
-  demo = path.join(root, ".demo", "demo.reacut"),
+const executable = path.join(bundle, "Contents", "MacOS", "CevikEdit"),
+  demo = path.join(root, ".demo", "demo.cevikedit"),
   exported = path.join(output, "packaged-demo.mp4");
 await stat(executable);
 await stat(demo);
@@ -35,18 +35,18 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-delete env.REACUT_FFMPEG;
-delete env.REACUT_FFPROBE;
+delete env.CEVIKEDIT_FFMPEG;
+delete env.CEVIKEDIT_FFPROBE;
 const emptyPath = path.join(output, "empty-path");
 await mkdir(emptyPath);
 env.PATH = emptyPath;
 const bundledTools = path.join(bundle, "Contents", "Resources", "media-tools");
 // The verification probe also uses the shipped executable, not Homebrew.
-process.env.REACUT_FFPROBE = path.join(bundledTools, "ffprobe");
-env.REACUT_LOCALE = "zh";
+process.env.CEVIKEDIT_FFPROBE = path.join(bundledTools, "ffprobe");
+env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   executablePath: executable,
   args: [demo],
@@ -207,7 +207,7 @@ try {
       "bundled FFmpeg and FFprobe selected with empty PATH and no overrides",
       "native canvas and bundled font",
       "isolated sandbox bridge",
-      "startup .reacut argument",
+      "startup .cevikedit argument",
       "real landscape preview and thumbnails",
       "UI export with Chinese titles and mixed audio",
     ],

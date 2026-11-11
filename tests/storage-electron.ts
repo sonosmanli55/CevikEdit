@@ -16,7 +16,7 @@ const root = process.cwd(),
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const fixture = await generateFixtures(path.join(output, "media"));
-const saved = path.join(output, "storage.reacut"),
+const saved = path.join(output, "storage.cevikedit"),
   backup = path.join(output, "replacement.mp4");
 await copyFile(fixture.video, backup);
 const env: Record<string, string> = Object.fromEntries(
@@ -24,14 +24,14 @@ const env: Record<string, string> = Object.fromEntries(
     (entry): entry is [string, string] => entry[1] !== undefined,
   ),
 );
-env.REACUT_USER_DATA = path.join(output, "user-data");
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 const errors: string[] = [];
 let app!: ElectronApplication;
 let page!: Page;
 const launch = async () => {
-env.REACUT_LOCALE = "zh";
+env.CEVIKEDIT_LOCALE = "zh";
   app = await electron.launch({
     args: [path.join(root, "dist-electron", "main.cjs")],
     env,
@@ -55,7 +55,7 @@ env.REACUT_LOCALE = "zh";
         const file =
           options.title === "导入素材"
             ? p.video
-            : options.title === "打开 ReaCut 项目"
+            : options.title === "打开 CevikEdit 项目"
               ? p.saved
               : p.backup;
         if (g.deferOpen)

@@ -1,11 +1,11 @@
 {
-  "name": "reacut-local",
+  "name": "cevikedit-local",
   "interface": {
-    "displayName": "ReaCut Local"
+    "displayName": "CevikEdit Local"
   },
   "plugins": [
     {
-      "name": "reacut",
+      "name": "cevikedit",
       "source": {
         "source": "local",
         "path": "./plugin"

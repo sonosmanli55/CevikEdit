@@ -8,7 +8,7 @@ import { importAssets, runMediaTool } from "../electron/media";
 import { startExport } from "../electron/export";
 import type { ExportOptions, Project } from "../src/core/types";
 let directory:string;
-beforeAll(async()=>{directory=await mkdtemp(path.join(tmpdir(),'reacut-range-'));});
+beforeAll(async()=>{directory=await mkdtemp(path.join(tmpdir(),'cevikedit-range-'));});
 afterAll(async()=>{await rm(directory,{recursive:true,force:true});});
 const baseProject=()=>{const p=createProject('区间');const c=createClip(undefined,p.tracks[0].id,0,30);c.duration=4;p.clips=[c];return p;};
 describe('export range',()=>{

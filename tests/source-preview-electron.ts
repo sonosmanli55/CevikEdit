@@ -11,12 +11,12 @@ await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true}
 const files=await generateFixtures(path.join(output,'fixtures'));
 const assets=await importAssets([files.temporal],path.join(output,'cache'));
 const project=createProject('源素材选段验收');project.width=160;project.height=90;project.assets=assets;
-const projectFile=path.join(output,'source.reacut'),exported=path.join(output,'selected.mp4');await writeFile(projectFile,JSON.stringify(project));
-const appPath=process.env.REACUT_TEST_APP;
-const env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.REACUT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;
-if(appPath){env.PATH='';delete env.REACUT_FFMPEG;delete env.REACUT_FFPROBE;}
-env.REACUT_LOCALE = "zh";
-const app=await electron.launch({...appPath?{executablePath:path.join(path.resolve(appPath),'Contents/MacOS/ReaCut'),args:[projectFile],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),projectFile]},env});
+const projectFile=path.join(output,'source.cevikedit'),exported=path.join(output,'selected.mp4');await writeFile(projectFile,JSON.stringify(project));
+const appPath=process.env.CEVIKEDIT_TEST_APP;
+const env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.CEVIKEDIT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;
+if(appPath){env.PATH='';delete env.CEVIKEDIT_FFMPEG;delete env.CEVIKEDIT_FFPROBE;}
+env.CEVIKEDIT_LOCALE = "zh";
+const app=await electron.launch({...appPath?{executablePath:path.join(path.resolve(appPath),'Contents/MacOS/CevikEdit'),args:[projectFile],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),projectFile]},env});
 const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 try {
  await app.evaluate(({dialog},exported)=>{(dialog as any).showSaveDialog=async()=>({canceled:false,filePath:exported});(dialog as any).showMessageBox=async()=>({response:2});},exported);

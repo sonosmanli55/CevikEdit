@@ -63,7 +63,7 @@ async function oversized(path: string, limit: number) {
 }
 
 beforeEach(async () => {
-  fixture = await mkdtemp(join(tmpdir(), "reacut-capcut-selection-"));
+  fixture = await mkdtemp(join(tmpdir(), "cevikedit-capcut-selection-"));
   project = join(fixture, "project");
   await mkdir(project);
 });

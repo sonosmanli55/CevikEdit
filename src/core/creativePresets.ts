@@ -142,7 +142,7 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     name: "薄荷标记",
     category: "标记",
     keywords: ["wordmark", "logo", "marka"],
-    style: { text: "REACUT", fontSize: 104, color: "#62ead1", strokeWidth: 0 },
+    style: { text: "CEVIKEDIT", fontSize: 104, color: "#62ead1", strokeWidth: 0 },
   },
   {
     id: "comic",
@@ -356,7 +356,7 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
     motion: "fade",
     y: 0.36,
     style: {
-      text: t("关注 → @reacut"),
+      text: t("关注 → @cevikedit"),
       fontSize: 42,
       color: "#12161a",
       background: "#ffffff",

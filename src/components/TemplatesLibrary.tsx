@@ -7,7 +7,7 @@ import {
   templateCover,
   templateFromProject,
   templateSummary,
-  type ReacutTemplate,
+  type CevikEditTemplate,
   type TemplateSummary,
 } from "../core/templates";
 import type { MediaAsset } from "../core/types";
@@ -30,9 +30,9 @@ const seconds = (value: number) =>
 
 export default function TemplatesLibrary() {
   const project = useEditorStore((state) => state.project);
-  const [userTemplates, setUserTemplates] = useState<ReacutTemplate[]>([]);
+  const [userTemplates, setUserTemplates] = useState<CevikEditTemplate[]>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
-  const [active, setActive] = useState<ReacutTemplate | null>(null);
+  const [active, setActive] = useState<CevikEditTemplate | null>(null);
   const [projectName, setProjectName] = useState("");
   const [mediaChoice, setMediaChoice] = useState<Record<string, string>>({});
   const [texts, setTexts] = useState<Record<string, string>>({});
@@ -152,7 +152,7 @@ export default function TemplatesLibrary() {
     }
   }
 
-  async function remove(template: ReacutTemplate) {
+  async function remove(template: CevikEditTemplate) {
     if (!api) return;
     if (!window.confirm(`“${template.name}” şablonu silinsin mi?`)) return;
     try {
@@ -182,7 +182,7 @@ export default function TemplatesLibrary() {
     }
   }
 
-  async function exportTemplate(template: ReacutTemplate) {
+  async function exportTemplate(template: CevikEditTemplate) {
     if (!api) return;
     try {
       const file = await api.exportTemplate(template.id);

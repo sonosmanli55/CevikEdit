@@ -9,24 +9,24 @@ const root = process.cwd(), output = path.join(root, ".test-output/subtitle-elec
 await rm(output, { recursive: true, force: true }); await mkdir(output, { recursive: true });
 const project = createProject("字幕批量编辑验收");
 const title = createClip(undefined, project.tracks[0].id, 0, 30); title.text!.text = "保留片头标题"; title.duration = 2; project.clips.push(title);
-const original = path.join(output, "fixture.reacut"), saved = path.join(output, "edited.reacut"), subtitles = path.join(output, "captions.srt"), exported = path.join(output, "captions-export.srt");
+const original = path.join(output, "fixture.cevikedit"), saved = path.join(output, "edited.cevikedit"), subtitles = path.join(output, "captions.srt"), exported = path.join(output, "captions-export.srt");
 await writeFile(original, JSON.stringify(project));
 await writeFile(subtitles, "1\n00:00:02,000 --> 00:00:05,000\n第一条 [a].*\n\n2\n00:00:06,000 --> 00:00:09,000\n第二条 [a].*\n\n3\n00:00:09,000 --> 00:00:12,000\n第三条\n");
 const env = Object.fromEntries(Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined));
-env.REACUT_USER_DATA = path.join(output, "user-data"); delete env.ELECTRON_RUN_AS_NODE; delete env.VITE_DEV_SERVER_URL;
-const packaged = process.env.REACUT_TEST_APP;
-if (packaged) { env.PATH = ""; delete env.REACUT_FFMPEG; delete env.REACUT_FFPROBE; }
-env.REACUT_LOCALE = "zh";
-const app = await electron.launch({ ...(packaged ? { executablePath: path.join(path.resolve(packaged), "Contents/MacOS/ReaCut"), args: [], cwd: output } : { args: [path.join(root, "dist-electron/main.cjs")] }), env });
+env.CEVIKEDIT_USER_DATA = path.join(output, "user-data"); delete env.ELECTRON_RUN_AS_NODE; delete env.VITE_DEV_SERVER_URL;
+const packaged = process.env.CEVIKEDIT_TEST_APP;
+if (packaged) { env.PATH = ""; delete env.CEVIKEDIT_FFMPEG; delete env.CEVIKEDIT_FFPROBE; }
+env.CEVIKEDIT_LOCALE = "zh";
+const app = await electron.launch({ ...(packaged ? { executablePath: path.join(path.resolve(packaged), "Contents/MacOS/CevikEdit"), args: [], cwd: output } : { args: [path.join(root, "dist-electron/main.cjs")] }), env });
 let page: Page | undefined; const errors: string[] = [], checks: string[] = [];
 try {
   await app.evaluate(({ dialog }, files) => {
-    const state = globalThis as unknown as { __reacutOpened?: number };
-    state.__reacutOpened = 0;
+    const state = globalThis as unknown as { __cevikeditOpened?: number };
+    state.__cevikeditOpened = 0;
     (dialog as any).showOpenDialog = async (...args: any[]) => {
-      if (args.at(-1).title !== "打开 ReaCut 项目") return { canceled: false, filePaths: [files.subtitles] };
+      if (args.at(-1).title !== "打开 CevikEdit 项目") return { canceled: false, filePaths: [files.subtitles] };
       // The first open loads the fixture, every later open reloads the saved project.
-      return { canceled: false, filePaths: [state.__reacutOpened!++ === 0 ? files.original : files.saved] };
+      return { canceled: false, filePaths: [state.__cevikeditOpened!++ === 0 ? files.original : files.saved] };
     };
     (dialog as any).showSaveDialog = async (...args: any[]) => ({ canceled: false, filePath: args.at(-1).defaultPath?.endsWith(".srt") ? files.exported : files.saved });
     (dialog as any).showMessageBox = async () => ({ response: 2 });

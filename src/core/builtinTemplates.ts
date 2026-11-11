@@ -6,7 +6,7 @@ import {
   templateAssetPath,
   templateCover,
   validateTemplate,
-  type ReacutTemplate,
+  type CevikEditTemplate,
   type TemplateMediaSlot,
 } from "./templates";
 import type { Clip, MediaAsset, Project, TextShadow, TextStyle } from "./types";
@@ -116,7 +116,7 @@ function textClip(
   };
 }
 
-function sceneTemplate(spec: SceneSpec): ReacutTemplate {
+function sceneTemplate(spec: SceneSpec): CevikEditTemplate {
   const project = createProjectShell(spec);
   const videoTrack = createTrack("video", "Görüntü");
   const textTrack = createTrack("text", "Başlık");
@@ -408,7 +408,7 @@ const BLOG = sceneTemplate({
   ],
 });
 
-export const BUILTIN_TEMPLATES: readonly ReacutTemplate[] = [
+export const BUILTIN_TEMPLATES: readonly CevikEditTemplate[] = [
   CARD,
   VERTICAL,
   BLOG,
