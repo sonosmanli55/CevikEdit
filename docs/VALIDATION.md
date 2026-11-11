@@ -54,6 +54,7 @@
 
 - 整套 `npm test`：**458 项，452 通过、6 跳过、0 失败**（49 个文件）。
 - `npm run typecheck`、`npm run build` 通过；`npx tsx scripts/i18n-audit.ts` 0 未翻译。审计脚本新增独立的字面量正则扫描，修复了此前依赖括号状态机而漏报的问题。
+- Windows 打包候选升级为 **0.6.1**：`release/ReaCut Setup 0.6.1.exe` 已构建；`tests/package-win-electron.ts` 直接启动打包后的 `ReaCut.exe`，确认版本号、八个资源页仅土耳其语、模板建工程、保存与 1920×1080 H.264 导出，5 项通过。
 - 桌面回归：`app-electron` 15、`keyframe-electron` 7、`templates-electron` 7、`timeline-view-electron` 12、`limits-electron` 5、`audio-tools-electron` 8、`subtitle-electron` 15、`draft-electron` 3，均无 renderer 错误。
 
 限制：贝塞尔在导出侧是 24 段折线近似（预览为精确解），极端句柄下误差仍小于动画量程 1%；4K 预览通过画布缩放而非独立代理渲染，超长 4K 时间线滚动仍受 Chromium 合成限制；VAD 面向 20 ms 能量的近场人声，音乐/强噪声场景需要人工调整或改用区间选择；HDR 统一映射到 SDR BT.709，不输出 HDR 成片，也不做峰值亮度元数据；草稿交换格式是 ReaCut 自有格式，不保证任何第三方编辑器可读。全部验证仍只在 Windows 10 x64 与 FFmpeg 8.0 上完成，macOS/Linux 未实机复核。

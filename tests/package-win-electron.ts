@@ -63,7 +63,7 @@ try {
   await page.waitForSelector(".app-shell", { timeout: 60_000 });
 
   const info = await page.evaluate(() => window.editorAPI!.getSystemInfo());
-  assert.equal(info.version, "0.6.0", `paket sürümü ${info.version}`);
+  assert.equal(info.version, "0.6.1", `paket sürümü ${info.version}`);
   assert.equal(info.platform, "win32");
   checks.push(`packaged binary reports version ${info.version} on ${info.platform}`);
 
