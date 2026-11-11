@@ -54,7 +54,8 @@
     "test:workspace": "npm run build && tsx tests/workspace-electron.ts",
     "plugin:pack": "node scripts/package-plugin.mjs",
     "test:plugin": "tsx tests/plugin-electron.ts",
-    "test:plugin:launcher": "python3 tests/plugin-launcher.py"
+    "test:plugin:launcher": "python3 tests/plugin-launcher.py",
+    "clean": "node scripts/clean-artifacts.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.11",
