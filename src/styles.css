@@ -1376,3 +1376,29 @@ kbd {
 .editor-workspace {min-width:0;}
 .player-panel {container-type:inline-size;}
 @container(max-width:420px){.player-controls{gap:0;padding-inline:6px}.player-controls .timecode{font-size:9px}.player-controls .transport{position:static;transform:none;margin-left:auto;gap:0}.player-controls .transport button{padding:3px}.player-controls .player-tools button{width:23px}}
+
+/* Export pre-flight estimate and performance notes */
+.export-estimate {
+  margin: 2px 0 6px;
+  padding: 7px 9px;
+  border: 1px solid #2f323a;
+  border-radius: 6px;
+  background: #1b1c21;
+  color: #9aa3ae;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.export-warning {
+  margin: 0 0 6px;
+  color: #f0a0a0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.export-notes {
+  margin: 0 0 8px;
+  padding-left: 16px;
+  color: #8f96a1;
+  font-size: 10.5px;
+  line-height: 1.55;
+}
+.export-notes .is-warning { color: #d8b26a; }

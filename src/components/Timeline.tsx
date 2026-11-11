@@ -51,6 +51,7 @@ import {
   minimapScrollLeft,
   pointerVelocity,
 } from "../core/timelineMotion";
+import { performanceNotes, visibleClips } from "../core/limits";
 import "./Timeline.css";
 
 export interface TimelineProps {
@@ -1325,9 +1326,20 @@ export default function Timeline(props: TimelineProps) {
                 }}
                 onDrop={(event) => onDrop(event, track)}
               >
-                {clips
-                  .filter((c) => c.trackId === track.id)
-                  .map((clip) => {
+                {(() => {
+                  const trackClips = clips.filter((c) => c.trackId === track.id);
+                  // Small projects keep every clip in the DOM (selection, tests,
+                  // accessibility). Very large ones only draw what is on screen.
+                  const draw =
+                    clips.length > 240
+                      ? visibleClips(
+                          trackClips,
+                          { start: view.start, end: view.end },
+                          Math.max(1, view.span * 0.25),
+                        )
+                      : trackClips;
+                  return draw;
+                })().map((clip) => {
                     const original = project.clips.find(
                       (c) => c.id === clip.id,
                     )!;

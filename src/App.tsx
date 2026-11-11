@@ -48,6 +48,7 @@ import type {
   ReverseProgress,
 } from "./core/types";
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
+import { estimateExportBytes, exportMemoryProblem, performanceNotes } from "./core/limits";
 import { importCapcutDraft } from "./core/capcutImport";
 import SubtitlePanel from "./components/SubtitlePanel";
 import TemplatesLibrary from "./components/TemplatesLibrary";
@@ -155,6 +156,21 @@ function ExportDialog({
   const selectedRange = selectedClipRange(project, selectedIds);
   const rangeOptions = scope === "all" ? undefined : scope === "selected" ? selectedRange : { start: Number(rangeStart), end: Number(rangeEnd) };
   const exportDuration = rangeOptions ? Math.max(0, rangeOptions.end - rangeOptions.start) : projectDuration(project);
+  const notes = performanceNotes(project, {
+    width: options.width,
+    height: options.height,
+    fps: options.fps,
+  });
+  const layers = project.clips.filter(
+    (clip) =>
+      clip.start < exportDuration &&
+      (rangeOptions
+        ? clip.start + clip.duration > rangeOptions.start
+        : true),
+  ).length;
+  const memoryProblem = exportMemoryProblem(options, Math.min(12, Math.max(1, layers)));
+  const estimatedBytes = estimateExportBytes(options, Math.min(12, Math.max(1, layers)));
+  const frames = Math.ceil(exportDuration * options.fps);
   const job = useRef<string | null>(null);
   const exporting =
     busy &&
@@ -190,6 +206,7 @@ function ExportDialog({
     }
     try {
       setError("");
+      if (memoryProblem) throw new Error(memoryProblem);
       if (scope === "selected" && !selectedRange) throw new Error("请先选择时间线片段");
       if (scope === "custom" && (!rangeStart.trim() || !rangeEnd.trim())) throw new Error("请填写区间起止时间");
       resolveExportRange(project, { ...options, range: rangeOptions });
@@ -342,6 +359,25 @@ function ExportDialog({
         <p className="field-hint">
           导出原始素材和所有可见画面轨道，按音频设置混音。无需登录或上传。
         </p>
+        <div className="export-estimate" role="status">
+          <span>
+            {frames.toLocaleString("tr-TR")} kare ·{" "}
+            {(estimatedBytes / (1024 * 1024)).toFixed(0)} MB tepe bellek tahmini ·{" "}
+            {layers} klip
+          </span>
+        </div>
+        {memoryProblem && (
+          <p className="export-warning" role="alert">{memoryProblem}</p>
+        )}
+        {notes.length > 0 && (
+          <ul className="export-notes">
+            {notes.map((note) => (
+              <li key={note.id} className={note.level === "warning" ? "is-warning" : ""}>
+                {note.message}
+              </li>
+            ))}
+          </ul>
+        )}
         {progress && (
           <div
             className={`export-progress ${status === "complete" ? "is-complete" : ""}`}
