@@ -158,6 +158,58 @@ try {
   );
   checks.push("ducking is a single undo/redo step and leaves other clips untouched");
 
+  // Speech detection over the decoded clip. The synthetic fixture is a
+  // constant tone, so the correct outcome is either one interval covering it or
+  // an explicit "no speech" refusal — never a crash or a silent failure.
+  await page.getByRole("button", { name: "Konuşma aralıklarını algıla", exact: true }).click();
+  await expect
+    .poll(
+      async () =>
+        (await page!.locator(".audio-notice").count()) +
+        (await page!.locator(".audio-error").count()),
+      { timeout: 90_000 },
+    )
+    .toBeGreaterThan(0);
+  const detected = (await page!.locator(".audio-notice").count()) > 0;
+  if (detected) {
+    await expect(page.locator(".audio-notice")).toContainText("konuşma aralığı algılandı");
+    const speechReading = (await page.locator(".audio-reading").last().innerText()).trim();
+    assert(/\d+ aralık/.test(speechReading), speechReading);
+    await expect(
+      page.getByRole("checkbox", {
+        name: "Algılanan konuşma aralıklarını kullan",
+        exact: true,
+      }),
+    ).toBeChecked();
+    await page.getByRole("button", { name: "Müziği konuşma altında kıs", exact: true }).click();
+    await expect(page.locator(".audio-notice")).toContainText(
+      "algılanan konuşma aralıklarına",
+    );
+    edited = await save();
+    const speechDucked = edited.clips.find((clip) => clip.id === "music")!;
+    assert(
+      speechDucked.keyframes.filter((key) => key.property === "volume").length >= 2,
+    );
+    await page.getByRole("button", { name: "Geri al", exact: true }).click();
+    await save();
+    checks.push("speech detection drives the ducking envelope from real decoded audio");
+  } else {
+    // A constant tone has no speech above the noise floor: the detector must
+    // say so instead of ducking the whole clip.
+    await expect(page.locator(".audio-error")).toContainText("Konuşma bulunamadı");
+    await expect(
+      page.getByRole("checkbox", {
+        name: "Algılanan konuşma aralıklarını kullan",
+        exact: true,
+      }),
+    ).toBeDisabled();
+    await page!.getByRole("button", { name: "Müziği konuşma altında kıs", exact: true }).click();
+    await expect(page!.locator(".audio-notice")).toContainText("ses kısıldı");
+    await page.getByRole("button", { name: "Geri al", exact: true }).click();
+    await save();
+    checks.push("speech detection refuses a constant tone instead of guessing");
+  }
+
   await page.locator(".audio-tools").evaluate((node) => node.scrollTo(0, 0));
   await page.screenshot({ path: path.join(output, "audio-tools.png") });
 

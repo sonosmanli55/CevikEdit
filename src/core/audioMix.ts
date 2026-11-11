@@ -21,6 +21,11 @@ export interface DuckingSettings {
   amountDb: number;
   /** Attack and release time in seconds. */
   fade: number;
+  /**
+   * Optional detected speech intervals per voice clip id, in timeline seconds.
+   * When present, ducking follows real speech instead of the whole clip span.
+   */
+  ranges?: Record<string, Array<{ start: number; end: number }>>;
 }
 
 const MAX_CLIPS = 50;
@@ -229,13 +234,40 @@ export function prepareDucking(
     throw new Error("压低量必须小于 0 dB");
   const voiceClips = voiceIds.map((id) => audioClip(project, id));
   const musicClips = musicIds.map((id) => audioClip(project, id));
+  const ranges = settings.ranges;
+  if (ranges !== undefined) {
+    if (!ranges || typeof ranges !== "object" || Array.isArray(ranges))
+      throw new Error("Konuşma aralıkları geçersiz");
+    for (const [id, list] of Object.entries(ranges)) {
+      if (!voiceIds.includes(id))
+        throw new Error("Konuşma aralığı seçili olmayan bir klibe ait");
+      if (!Array.isArray(list) || list.length > 5000)
+        throw new Error("Konuşma aralıkları geçersiz");
+      for (const item of list) {
+        finite(item?.start, "Konuşma aralığı başlangıcı");
+        finite(item?.end, "Konuşma aralığı bitişi");
+        if (item.start < 0 || item.end <= item.start || item.end > 86400)
+          throw new Error("Konuşma aralığı geçersiz");
+      }
+    }
+  }
+  const spans = ranges
+    ? voiceClips.flatMap((clip) =>
+        (ranges[clip.id] ?? []).map((range) => ({
+          start: Math.max(clip.start, range.start),
+          end: Math.min(clip.start + clip.duration, range.end),
+        })),
+      )
+    : voiceClips.map((clip) => ({
+        start: clip.start,
+        end: clip.start + clip.duration,
+      }));
   const voice = mergeIntervals(
-    voiceClips.map((clip) => ({
-      start: clip.start,
-      end: clip.start + clip.duration,
-    })),
+    spans.filter((span) => span.end > span.start + 1e-9),
     0,
   );
+  if (!voice.length)
+    throw new Error("Seçili konuşma klipinde algılanan konuşma aralığı yok");
   const changed: string[] = [];
   for (const clip of musicClips) {
     const intervals = localIntervals(clip, voice, settings.fade);

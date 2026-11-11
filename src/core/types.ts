@@ -262,6 +262,28 @@ export interface LoudnessRequest {
   speed: number;
 }
 
+export interface SpeechAnalysisRequest {
+  /** Absolute path of an already authorized local media file. */
+  source: string;
+  /** Source in-point in seconds. */
+  sourceIn: number;
+  /** Timeline duration in seconds. */
+  duration: number;
+  /** Playback speed used to derive the analysed source span. */
+  speed: number;
+}
+
+export interface SpeechAnalysisResult {
+  /** Detected speech intervals in source seconds. */
+  intervals: Array<{ start: number; end: number }>;
+  /** Estimated noise floor and the threshold used, in dBFS. */
+  noiseFloor: number;
+  threshold: number;
+  speechSeconds: number;
+  analyzedSeconds: number;
+  sampleRate: number;
+}
+
 export interface AppSettings {
   ffmpegPath?: string;
   ffprobePath?: string;
@@ -333,6 +355,9 @@ export interface EditorAPI {
   analyzeLoudness: (
     request: LoudnessRequest,
   ) => Promise<LoudnessMeasurement>;
+  analyzeSpeech: (
+    request: SpeechAnalysisRequest,
+  ) => Promise<SpeechAnalysisResult>;
   onMenuAction: (callback: (action: string) => void) => () => void;
   setDirty: (dirty: boolean) => void;
   cancelCloseRequest: () => void;

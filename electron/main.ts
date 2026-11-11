@@ -46,6 +46,7 @@ import {
 import { resolvePortableDocument, startPortablePackage, cancelPortablePackage, cancelPortablePackages, savePortableDocument } from "./portableProject";
 import { setBundledMediaToolsDirectory } from "./mediaTools";
 import { measureLoudness, validateLoudnessRequest } from "./loudness";
+import { analyzeSpeech, validateSpeechRequest } from "./vad";
 import { loadTemplates, readTemplateFile, removeTemplate, writeTemplate } from "./templates";
 import { serializeTemplate } from "../src/core/templates";
 import {
@@ -667,6 +668,14 @@ function registerIPC() {
     const metadata = await stat(request.source);
     if (!metadata.isFile()) throw new Error("所选素材无效");
     return measureLoudness(request);
+  });
+  handle("analyze-speech", async (input: unknown) => {
+    const request = validateSpeechRequest(input);
+    if (!allowedMedia.has(request.source))
+      throw new Error("该素材未通过本地访问授权");
+    const metadata = await stat(request.source);
+    if (!metadata.isFile()) throw new Error("所选素材无效");
+    return analyzeSpeech(request);
   });
   handle("list-templates", () => loadTemplates(userFile("templates")));
   handle("save-template", async (input: unknown) => {

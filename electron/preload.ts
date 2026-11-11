@@ -38,6 +38,7 @@ const api: EditorAPI = {
   },
   freezeFrame: (request) => ipcRenderer.invoke("freeze-frame", request),
   analyzeLoudness: (request) => ipcRenderer.invoke("analyze-loudness", request),
+  analyzeSpeech: (request) => ipcRenderer.invoke("analyze-speech", request),
   listTemplates: () => ipcRenderer.invoke("list-templates"),
   saveTemplate: (template) => ipcRenderer.invoke("save-template", template),
   deleteTemplate: (id) => ipcRenderer.invoke("delete-template", id),

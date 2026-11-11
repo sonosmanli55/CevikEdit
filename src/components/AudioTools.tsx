@@ -6,6 +6,7 @@ import {
   prepareAudioNormalization,
   prepareDucking,
 } from "../core/audioMix";
+import { mapIntervalsToTimeline, type SpeechInterval } from "../core/vad";
 import type { Clip, LoudnessMeasurement, Project } from "../core/types";
 import "./AudioTools.css";
 
@@ -49,6 +50,10 @@ export default function AudioTools() {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  /** Detected speech intervals per voice clip, in timeline seconds. */
+  const [speech, setSpeech] = useState<Record<string, SpeechInterval[]>>({});
+  const [detecting, setDetecting] = useState(false);
+  const [useSpeech, setUseSpeech] = useState(true);
   const api = window.editorAPI;
 
   const selected = useMemo(
@@ -72,6 +77,7 @@ export default function AudioTools() {
     setMeasuredClipId("");
     setVoiceIds([]);
     setMusicIds([]);
+    setSpeech({});
     setNotice("");
     setError("");
   }, [project.id]);
@@ -167,12 +173,70 @@ export default function AudioTools() {
     }
   }
 
+  /** Analyze every voice clip and remember the detected speech intervals. */
+  async function detect() {
+    setError("");
+    setNotice("");
+    if (!api) {
+      setError("Konuşma algılama yalnızca masaüstü sürümde kullanılabilir.");
+      return;
+    }
+    if (!voiceIds.length) {
+      setError("Önce konuşma listesine en az bir klip ekleyin.");
+      return;
+    }
+    setDetecting(true);
+    try {
+      const found: Record<string, SpeechInterval[]> = {};
+      let speechSeconds = 0;
+      let analyzed = 0;
+      let floor = 0;
+      let threshold = 0;
+      for (const id of voiceIds) {
+        const clip = project.clips.find((item) => item.id === id);
+        if (!clip) continue;
+        const asset = project.assets.find((item) => item.id === clip.assetId);
+        if (!asset) continue;
+        const result = await api.analyzeSpeech({
+          source: asset.path,
+          sourceIn: clip.sourceIn,
+          duration: clip.duration,
+          speed: clip.speed,
+        });
+        const ranges = mapIntervalsToTimeline(result.intervals, clip);
+        if (!ranges.length) continue;
+        found[id] = ranges;
+        speechSeconds += ranges.reduce((sum, range) => sum + (range.end - range.start), 0);
+        analyzed += result.analyzedSeconds;
+        floor = Math.min(floor, result.noiseFloor);
+        threshold = Math.max(threshold, result.threshold);
+      }
+      const count = Object.values(found).reduce((total, list) => total + list.length, 0);
+      if (!count) {
+        setSpeech({});
+        setError("Konuşma bulunamadı; ses çok kısık olabilir. Klipleri kontrol edip yeniden deneyin.");
+        return;
+      }
+      setSpeech(found);
+      setUseSpeech(true);
+      setNotice(
+        `${count} konuşma aralığı algılandı (${speechSeconds.toFixed(1)} sn / ${analyzed.toFixed(0)} sn). Gürültü tabanı ${floor.toFixed(0)} dBFS, eşik ${threshold.toFixed(0)} dBFS.`,
+      );
+    } catch (caught) {
+      setError(ipcMessage(caught));
+    } finally {
+      setDetecting(false);
+    }
+  }
+
   function duck() {
     setError("");
     setNotice("");
+    const ranges = useSpeech ? speech : undefined;
     const settings = {
       amountDb: Number(amount),
       fade: Number(fade),
+      ...(ranges && Object.keys(ranges).length ? { ranges } : {}),
     };
     try {
       const store = useEditorStore.getState();
@@ -184,7 +248,7 @@ export default function AudioTools() {
       );
       store.commit(applyAudioEdit(store.project, plan));
       setNotice(
-        `${plan.changedIds.length} müzik klibinde konuşma aralıklarına göre ses kısıldı; tek adımda geri alınabilir.`,
+        `${plan.changedIds.length} müzik klibinde ${settings.ranges ? "algılanan konuşma aralıklarına" : "konuşma aralıklarına"} göre ses kısıldı; tek adımda geri alınabilir.`,
       );
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : String(caught));
@@ -306,6 +370,32 @@ export default function AudioTools() {
             ))}
           </div>
         </div>
+        <div className="audio-row">
+          <button
+            className="small-button"
+            disabled={detecting || !voiceIds.length}
+            onClick={() => void detect()}
+          >
+            <Mic2 size={13} />
+            {detecting ? "Konuşma algılanıyor…" : "Konuşma aralıklarını algıla"}
+          </button>
+          <label className="audio-toggle">
+            <input
+              type="checkbox"
+              aria-label="Algılanan konuşma aralıklarını kullan"
+              checked={useSpeech && Object.keys(speech).length > 0}
+              disabled={!Object.keys(speech).length}
+              onChange={(event) => setUseSpeech(event.target.checked)}
+            />
+            Yalnızca gerçek konuşma
+          </label>
+        </div>
+        {Object.keys(speech).length > 0 && (
+          <p className="audio-reading">
+            {Object.values(speech).reduce((total, list) => total + list.length, 0)} aralık
+            algılandı
+          </p>
+        )}
         <div className="audio-grid">
           <label className="audio-field">
             Kısma miktarı (dB)

@@ -26,3 +26,6 @@
 .audio-chip > button:hover { color: #f0a0a0; }
 .audio-error { margin: 0; color: #f0a0a0; font-size: 11px; line-height: 1.5; }
 .audio-notice { margin: 0; color: #7fd9ce; font-size: 11px; line-height: 1.5; }
+
+.audio-toggle { display: inline-flex; align-items: center; gap: 5px; color: #b6b9c2; font-size: 10.5px; white-space: nowrap; }
+.audio-toggle input { accent-color: #42d4c7; }
