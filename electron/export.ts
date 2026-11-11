@@ -28,6 +28,7 @@ import {
 } from "../src/core/model";
 import { resolveExportRange } from "../src/core/exportRange";
 import { BEZIER_EXPORT_SEGMENTS, bezierTable, type BezierCurve } from "../src/core/bezier";
+import { outputColorArguments, tonemapFilters } from "../src/core/colorManagement";
 import { colorAdjustmentFilters } from "../src/core/color";
 import { applyShapeMask, getCropPixels } from "../src/core/visual";
 import {
@@ -493,6 +494,17 @@ export async function createExportArguments(
           `fps=${number(options.fps)}:round=up${keepSeekPredecessor ? ":start_time=0" : ""}`,
           "format=rgba",
         ];
+        // HDR footage is tone mapped before any geometry work so later filters
+        // operate on stable SDR values.
+        if (!still && asset?.hdr)
+          filters.push(
+            ...tonemapFilters({
+              hdr: true,
+              kind: asset.hdrKind === "hlg" ? "hlg" : "pq",
+              ...(asset.colorPrimaries ? { primaries: asset.colorPrimaries } : {}),
+              ...(asset.colorTransfer ? { transfer: asset.colorTransfer } : {}),
+            }),
+          );
         const sourceWidth = text?.width ?? asset!.width;
         const sourceHeight = text?.height ?? asset!.height;
         if (!sourceWidth || !sourceHeight)
@@ -731,6 +743,7 @@ export async function createExportArguments(
         : "22",
     "-pix_fmt",
     "yuv420p",
+    ...outputColorArguments(),
     "-r",
     number(options.fps),
     "-t",

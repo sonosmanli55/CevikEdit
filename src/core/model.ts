@@ -562,6 +562,13 @@ export function validateProject(input: unknown): Project {
     if (a.previewUrl !== undefined) str(a.previewUrl, "素材预览 URL", 32768);
     if (a.previewError !== undefined)
       str(a.previewError, "素材预览错误", 4096, true);
+    if (a.colorPrimaries !== undefined)
+      str(a.colorPrimaries, "素材色彩原色", 64, true);
+    if (a.colorTransfer !== undefined)
+      str(a.colorTransfer, "素材传递函数", 64, true);
+    if (a.hdr !== undefined) bool(a.hdr, "素材 HDR 标记");
+    if (a.hdrKind !== undefined)
+      choice(a.hdrKind, ["pq", "hlg"], "素材 HDR 类型");
     if (a.waveform !== undefined)
       for (const v of list(a.waveform, "音频波形", 100000))
         num(v, "音频波形值", 0, 1);

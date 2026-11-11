@@ -185,6 +185,18 @@ export default function MediaLibrary({
           <span className="media-kind">
             <KindIcon kind={asset.kind} />
           </span>
+          {asset.hdr && (
+            <span
+              className="asset-badge-hdr"
+              title={
+                asset.hdrKind === "hlg"
+                  ? "HLG kaynak: SDR BT.709'a ton eşlenir"
+                  : "HDR kaynak: SDR BT.709'a ton eşlenir"
+              }
+            >
+              {asset.hdrKind === "hlg" ? "HLG" : "HDR"}
+            </span>
+          )}
           <span className="media-time">
             {asset.kind === "image"
               ? "图片"

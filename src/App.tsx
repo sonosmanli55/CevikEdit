@@ -49,6 +49,7 @@ import type {
 } from "./core/types";
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
 import { estimateExportBytes, exportMemoryProblem, performanceNotes } from "./core/limits";
+import { describeColor, hdrWarnings } from "./core/colorManagement";
 import { importCapcutDraft } from "./core/capcutImport";
 import SubtitlePanel from "./components/SubtitlePanel";
 import TemplatesLibrary from "./components/TemplatesLibrary";
@@ -161,6 +162,15 @@ function ExportDialog({
     height: options.height,
     fps: options.fps,
   });
+  const colorNotes = hdrWarnings(
+    project.assets.map((asset) => ({
+      name: asset.name,
+      info: describeColor({
+        colorTransfer: asset.colorTransfer,
+        colorPrimaries: asset.colorPrimaries,
+      }),
+    })),
+  );
   const layers = project.clips.filter(
     (clip) =>
       clip.start < exportDuration &&
@@ -369,11 +379,11 @@ function ExportDialog({
         {memoryProblem && (
           <p className="export-warning" role="alert">{memoryProblem}</p>
         )}
-        {notes.length > 0 && (
+        {(notes.length > 0 || colorNotes.length > 0) && (
           <ul className="export-notes">
-            {notes.map((note) => (
-              <li key={note.id} className={note.level === "warning" ? "is-warning" : ""}>
-                {note.message}
+            {[...colorNotes, ...notes.map((note) => note.message)].map((message) => (
+              <li key={message} className={notes.some((note) => note.message === message && note.level === "warning") ? "is-warning" : ""}>
+                {message}
               </li>
             ))}
           </ul>

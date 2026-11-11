@@ -19,6 +19,11 @@ export interface MediaAsset {
   missing?: boolean;
   previewUrl?: string;
   previewError?: string;
+  /** Colour metadata from FFprobe, used to tone map HDR sources. */
+  colorPrimaries?: string;
+  colorTransfer?: string;
+  hdr?: boolean;
+  hdrKind?: "pq" | "hlg";
 }
 export interface Transform {
   x: number;

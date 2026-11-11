@@ -5,6 +5,7 @@ import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { GlobalFonts } from "@napi-rs/canvas";
 import type { MediaAsset } from "../src/core/types";
+import { describeColor } from "../src/core/colorManagement";
 import { findMediaTool } from "./mediaTools";
 export { findMediaTool } from "./mediaTools";
 
@@ -163,6 +164,10 @@ interface ProbeStream {
   codec_type?: string;
   codec_name?: string;
   pix_fmt?: string;
+  color_transfer?: string;
+  color_primaries?: string;
+  color_space?: string;
+  bits_per_raw_sample?: string;
   width?: number;
   height?: number;
   sample_aspect_ratio?: string;
@@ -381,6 +386,20 @@ export async function importAssets(
       fps: image ? 0 : frameRate(video?.avg_frame_rate ?? video?.r_frame_rate),
       hasAudio: Boolean(audio),
     };
+    if (video) {
+      const color = describeColor({
+        colorTransfer: video.color_transfer,
+        colorPrimaries: video.color_primaries,
+        pixFmt: video.pix_fmt,
+        bitsPerRawSample: Number(video.bits_per_raw_sample) || 0,
+      });
+      if (color.transfer) asset.colorTransfer = color.transfer;
+      if (color.primaries) asset.colorPrimaries = color.primaries;
+      if (color.hdr) {
+        asset.hdr = true;
+        asset.hdrKind = color.kind === "hlg" ? "hlg" : "pq";
+      }
+    }
     const hash = createHash("sha256")
       .update(`${file}:${metadata.size}:${metadata.mtimeMs}`)
       .digest("hex")
