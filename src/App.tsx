@@ -48,6 +48,12 @@ import type {
   ReverseProgress,
 } from "./core/types";
 import { parseSubtitles, stringifySubtitles } from "./core/subtitles";
+import {
+  DRAFT_EXCHANGE_EXTENSION,
+  exportDraft,
+  serializeDraft,
+  validateExchangeDraft,
+} from "./core/draftExchange";
 import { estimateExportBytes, exportMemoryProblem, performanceNotes } from "./core/limits";
 import { describeColor, hdrWarnings } from "./core/colorManagement";
 import { importCapcutDraft } from "./core/capcutImport";
@@ -1108,6 +1114,23 @@ export default function App() {
     s.addSubtitles(cues);
     notify(`已导入 ${cues.length} 条字幕`);
   };
+  const exportDraftFile = async () => {
+    if (!window.editorAPI) {
+      notify("草稿导出需要桌面版。");
+      return;
+    }
+    const draft = validateExchangeDraft(
+      exportDraft(s.project, { name: s.project.name }),
+    );
+    const file = await window.editorAPI.writeTextFile(
+      serializeDraft(draft),
+      `${s.project.name}.${DRAFT_EXCHANGE_EXTENSION}`,
+    );
+    if (file)
+      notify(
+        "草稿交换文件已导出（纯文本 JSON，可重新导入）。这不是剪映加密草稿，剪映无法直接打开。",
+      );
+  };
   const exportSubtitles = async () => {
     const cues = s.project.clips
       .filter((c) => c.text)
@@ -1339,7 +1362,9 @@ export default function App() {
                 >
                   导入剪映项目文件夹<span>实验性</span>
                 </button>
-              </div>
+                <button onClick={() => void safe(() => exportDraftFile())}>
+                  导出草稿交换文件 (JSON)<span>可移植</span>
+                </button>              </div>
             )}
           </div>
           <button onClick={() => setModal("shortcuts")}>快捷键</button>

@@ -967,6 +967,14 @@ export const tr: Record<string, string> = {
   "素材色彩原色": "Medya renk ana bileşenleri",
   "素材传递函数": "Medya transfer işlevi",
   "素材 HDR 类型": "Medya HDR türü",
+  "SRT 已导出；字幕文件只保存时间与文本，不包含样式、位置或动画":
+    "SRT dışa aktarıldı; altyazı dosyası yalnızca zaman ve metni saklar; stil, konum veya animasyon içermez",
+  "草稿导出需要桌面版。":
+    "Taslak dışa aktarma yalnızca masaüstü sürümde kullanılabilir.",
+  "草稿交换文件已导出（纯文本 JSON，可重新导入）。这不是剪映加密草稿，剪映无法直接打开。":
+    "Taslak değişim dosyası dışa aktarıldı (düz metin JSON, yeniden içe aktarılabilir). Bu, CapCut'un şifreli taslağı değildir; CapCut dosyayı doğrudan açamaz.",
+  "导出草稿交换文件 (JSON)": "Taslak değişim dosyasını dışa aktar (JSON)",
+  "可移植": "taşınabilir",
   "此片段与分离出的音频保持关联：移动、裁剪、分割和删除会同时作用于另一条片段。":
     "Bu klip ayrılan sesle bağlantılıdır: taşıma, kırpma, bölme ve silme işlemleri diğer klibe de uygulanır.",
   "解除关联": "Bağlantıyı çöz",

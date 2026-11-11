@@ -161,10 +161,34 @@ const files = (await walk(path.join(root, "src"))).filter(
 const missingLiteral = new Map<string, string[]>();
 const missingJsx = new Map<string, string[]>();
 
+/**
+ * Independent regex pass over single-line string literals. The state machine
+ * above tracks braces and can lose a literal after an unusual JSX run; this
+ * pass is deliberately dumb so a missed string cannot hide from the audit.
+ */
+function quotedLiterals(source: string): Set<string> {
+  const found = new Set<string>();
+  const decode = (value: string) =>
+    value.replace(/\\(u[0-9a-fA-F]{4}|.)/g, (_, escape: string) =>
+      escape.startsWith("u")
+        ? String.fromCharCode(parseInt(escape.slice(1), 16))
+        : ({ n: "\n", t: "\t", r: "\r" } as Record<string, string>)[escape] ?? escape,
+    );
+  for (const match of source.matchAll(/(['"`])((?:(?!\1)[^\\\n]|\\.){2,300})\1/g)) {
+    const raw = match[2];
+    if (raw.includes("${")) continue;
+    const value = decode(raw).trim();
+    if (!value || codeNoise.test(value)) continue;
+    if (translateNeeded(value)) found.add(value);
+  }
+  return found;
+}
+
 for (const file of files) {
   const source = await readFile(file, "utf8");
   const relative = path.relative(root, file);
   const { literals, jsxText } = extract(source);
+  for (const value of quotedLiterals(source)) literals.add(value);
   const candidates = [...jsxText].filter((value) => !codeNoise.test(value));
   // Multi-line JSX runs also produce their own lines; keep only the longest.
   const pruned = candidates.filter(
