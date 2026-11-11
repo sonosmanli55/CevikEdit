@@ -207,11 +207,18 @@ namespace CevikEditSetup
                     if (!(url.IndexOf("github.com", StringComparison.OrdinalIgnoreCase) >= 0 ||
                           url.IndexOf("githubusercontent.com", StringComparison.OrdinalIgnoreCase) >= 0))
                         continue;
-                    if (url.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) candidates.Add(url);
+                    if (!url.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)) continue;
+                    // The release also carries this launcher. Downloading it would
+                    // start the launcher from inside the launcher, so skip it.
+                    if (url.IndexOf("Kurucu", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        url.IndexOf("bootstrap", StringComparison.OrdinalIgnoreCase) >= 0)
+                        continue;
+                    candidates.Add(url);
                 }
                 if (candidates.Count == 0) throw new InvalidOperationException("Bu sürüm için Windows kurulum dosyası bulunamadı.");
                 foreach (string url in candidates)
-                    if (url.IndexOf("Setup", StringComparison.OrdinalIgnoreCase) >= 0) return url;
+                    if (url.IndexOf("Kurulum", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                        url.IndexOf("Setup", StringComparison.OrdinalIgnoreCase) >= 0) return url;
                 return candidates[0];
             }
         }

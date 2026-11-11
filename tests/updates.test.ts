@@ -65,8 +65,7 @@ describe("update selection", () => {
     expect(pickUpdate("0.6.1", releases, "stable")?.version).toBe("0.7.1");
     expect(pickUpdate("0.6.1", releases, "beta")?.version).toBe("0.8.0");
   });
-  it("ignores malformed entries and untrusted download hosts", () => {
-    const releases = [
+  it("ignores malformed entries and untrusted download hosts", () => {    const releases = [
       null,
       {},
       { tag_name: 42 },
@@ -84,6 +83,44 @@ describe("update selection", () => {
     expect(isTrustedAssetUrl("https://github.com.evil.example/x.exe")).toBe(false);
     expect(isTrustedAssetUrl("https://github.com/x.exe")).toBe(true);
     expect(isTrustedAssetUrl("not a url")).toBe(false);
+  });
+  it("never offers the tiny bootstrap launcher as the updater's installer", () => {
+    const releases = [
+      release("v0.8.0", {
+        assets: [
+          {
+            name: "CevikEdit-Kurucu.exe",
+            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurucu.exe",
+            size: 211_000,
+          },
+          {
+            name: "CevikEdit-Kurulum.exe",
+            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurulum.exe",
+            size: 137_000_000,
+          },
+        ],
+      }),
+    ];
+    expect(pickUpdate("0.7.0", releases)?.asset?.name).toBe("CevikEdit-Kurulum.exe");
+
+    // With no named installer, the biggest executable still wins.
+    const unnamed = [
+      release("v0.8.0", {
+        assets: [
+          {
+            name: "helper.exe",
+            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/helper.exe",
+            size: 200_000,
+          },
+          {
+            name: "CevikEdit-0.8.0.exe",
+            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/app.exe",
+            size: 130_000_000,
+          },
+        ],
+      }),
+    ];
+    expect(pickUpdate("0.7.0", unnamed)?.asset?.name).toBe("CevikEdit-0.8.0.exe");
   });
   it("summarizes the update for the banner", () => {
     const update = pickUpdate("0.6.1", [release("v1.0.0")])!;

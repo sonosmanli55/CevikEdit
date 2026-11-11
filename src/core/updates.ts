@@ -153,14 +153,25 @@ function pickAsset(assets: unknown[]): UpdateAsset | undefined {
         : "";
     const size = typeof asset.size === "number" ? asset.size : 0;
     if (!name || !isTrustedAssetUrl(url)) continue;
+    // The release also carries the tiny bootstrap launcher. Downloading that as
+    // an "update" would run a launcher nested inside a launcher, so skip it.
+    if (/kurucu|bootstrap|setup-?launcher/i.test(name)) continue;
     candidates.push({ name, url, size });
   }
   const byExtension = (extensions: string[]) =>
-    candidates.find((asset) =>
+    candidates.filter((asset) =>
       extensions.some((extension) => asset.name.toLowerCase().endsWith(extension)),
     );
+  const installers = byExtension([".exe", ".dmg", ".appimage", ".zip"]);
+  // Prefer the named setup/kurulum artifact when the release offers several.
+  const named = installers.find((asset) => /setup|kurulum|installer/i.test(asset.name));
+  if (named) return named;
+  // Otherwise take the largest: the real bundle dwarfs any helper executable.
+  const sized = [...installers]
+    .filter((asset) => asset.size > 0)
+    .sort((a, b) => b.size - a.size)[0];
   return (
-    byExtension([".exe", ".dmg", ".appimage", ".zip"]) ??
+    sized ??
     candidates.find((asset) => asset.size > 0) ??
     candidates[0]
   );

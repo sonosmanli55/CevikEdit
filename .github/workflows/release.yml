@@ -1,8 +1,9 @@
 name: Release
 
-# Builds the Windows installer and the tiny bootstrap launcher on a tag, then
-# publishes them as release assets. The bootstrap asset name must match the one
-# the landing page and the app's updater expect.
+# Builds the Windows installer and the tiny bootstrap launcher on a tag (or on
+# demand), then publishes them as release assets with stable file names:
+#   CevikEdit-Kurulum.exe  – the real NSIS installer the app/landing page link to
+#   CevikEdit-Kurucu.exe   – the ~200 KB launcher that fetches the installer
 on:
   push:
     tags: ["v*"]
@@ -21,9 +22,18 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      # electron-builder needs icon.ico; it is committed, so no icon build here.
+      # electron-builder needs build/icon.ico; it is committed, so no icon build.
       - run: npm run build
       - run: npx electron-builder --win --publish never
+      - name: Stage stable asset names
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem "release\CevikEdit Setup *.exe" | Where-Object { $_.Name -notmatch "uninstaller" } | Select-Object -First 1
+          if (-not $setup) { throw "installer missing" }
+          Copy-Item $setup.FullName "release\CevikEdit-Kurulum.exe" -Force
+          if (Test-Path "$($setup.FullName).blockmap") {
+            Copy-Item "$($setup.FullName).blockmap" "release\CevikEdit-Kurulum.exe.blockmap" -Force
+          }
       - name: Build bootstrap launcher
         shell: pwsh
         run: |
@@ -37,8 +47,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/CevikEdit Setup*.exe
-            release/CevikEdit Setup*.exe.blockmap
-            release/latest.yml
+            release/CevikEdit-Kurulum.exe
+            release/CevikEdit-Kurulum.exe.blockmap
             release/CevikEdit-Kurucu.exe
           generate_release_notes: true
