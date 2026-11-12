@@ -156,9 +156,17 @@ try {
   await expect(page.locator(".project-title input")).toHaveValue(
     "Kaydetme sırasında düzenlemeye devam",
   );
-  assert(
-    (await save()).clips.some((c) => c.text?.text === "Otomatik kurtarmanın koruduğu içerik"),
-  );
+  // Restoring autosave swaps the whole project into the store; a slow runner can
+  // still be applying it when the dialog closes, so wait for the recovered clip.
+  await expect
+    .poll(
+      async () =>
+        (await save()).clips.some(
+          (c) => c.text?.text === "Otomatik kurtarmanın koruduğu içerik",
+        ),
+      { timeout: 20_000 },
+    )
+    .toBe(true);
   await page
     .locator(".resource-tabs")
     .getByRole("button", { name: "Medya", exact: true })
