@@ -87,6 +87,8 @@ export async function resolveMediaTool(
     bundledDirectory?: string | string[];
     env?: NodeJS.ProcessEnv;
     platform?: NodeJS.Platform;
+    /** Set false to search only explicit paths (used by diagnostics and tests). */
+    systemLocations?: boolean;
   } = {},
 ): Promise<string> {
   const env = options.env ?? process.env;
@@ -119,9 +121,11 @@ export async function resolveMediaTool(
       (directory) => path.join(directory, executable),
     ),
     ...fromPath,
-    ...(await wellKnownDirectories(env, platform)).map((directory) =>
-      path.join(directory, executable),
-    ),
+    ...(options.systemLocations === false
+      ? []
+      : (await wellKnownDirectories(env, platform)).map((directory) =>
+          path.join(directory, executable),
+        )),
   ];
 
   const seen = new Set<string>();

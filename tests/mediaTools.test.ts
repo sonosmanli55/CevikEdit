@@ -91,12 +91,11 @@ it("retains PATH discovery for source development", async () => {
 });
 
 it("explains how to install FFmpeg when nothing is available", async () => {
-  const empty = path.join(directory, "empty-home");
-  await mkdir(empty, { recursive: true });
   await expect(
     resolveMediaTool("ffprobe", {
-      platform: "linux",
-      env: { PATH: "", HOME: empty },
+      platform: process.platform,
+      env: { PATH: "" },
+      systemLocations: false,
     }),
   ).rejects.toThrow(/ffprobe bulunamadı/);
 });
