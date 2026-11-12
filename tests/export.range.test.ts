@@ -40,8 +40,10 @@ describe('export range',()=>{
    let sum=0;for(let i=0;i<bytes;i++)sum+=Math.abs(ref[i]-actual[i]);expect(sum/bytes).toBeLessThan(4);
   }
   const samples=async(file:string,start:string)=>runMediaTool('ffmpeg',['-v','error','-i',file,'-ss',start,'-t','0.5','-vn','-ac','1','-ar','48000','-f','f32le','pipe:1']);
+  // A busy CI runner can return an empty pipe now and then; retry before failing.
+  const sample=async(file:string,start:string)=>{for(let attempt=0;attempt<3;attempt++){const data=await samples(file,start);if(data.length)return data;}throw new Error(`no audio decoded from ${path.basename(file)} at ${start}s`);};
   const rms=(b:Buffer)=>{let sum=0;for(let i=0;i<b.length;i+=4)sum+=b.readFloatLE(i)**2;return Math.sqrt(sum/(b.length/4));};
-  const [af,bf]=await Promise.all([samples(full,'1.7'),samples(part,'0.2')]);
+  const [af,bf]=await Promise.all([sample(full,'1.7'),sample(part,'0.2')]);
   expect(rms(bf)).toBeGreaterThan(.015);expect(Math.abs(rms(af)-rms(bf))).toBeLessThan(.003);
  },30000);
  it('does not require missing media entirely outside the requested interval',async()=>{

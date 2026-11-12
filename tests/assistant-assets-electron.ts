@@ -37,7 +37,7 @@ const errors: string[] = [], failedMedia: string[] = [], checks: string[] = [];
 try {
  await app.evaluate(({dialog}, args) => {
   (dialog as any).showOpenDialog=async()=>({canceled:false,filePaths:[args.fixture]});
-  (dialog as any).showSaveDialog=async(_window: unknown, options: {title?:string})=>({canceled:false,filePath:options?.title?.includes("Dışa aktar")?args.exported:args.saved});
+  (dialog as any).showSaveDialog=async(_window: unknown, options: {title?:string})=>({canceled:false,filePath:options?.title?.toLocaleLowerCase().includes("dışa aktar")?args.exported:args.saved});
   (dialog as any).showMessageBox=async()=>({response:2});
  },{fixture,saved,exported});
  page = await app.firstWindow();
