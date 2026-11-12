@@ -2,6 +2,35 @@
 
 > Tarihsel kayıt notu: bu dosyadaki 2026-11-11 öncesi bölümler, o tarihte yürürlükte olan doğrulama adımlarını olduğu gibi aktarır. 0.7.0 ile çalışma zamanı çeviri katmanı (`src/i18n/`, `electron/locale.ts`, `scripts/i18n-audit.ts`) ve `CEVIKEDIT_LOCALE` anahtarı kaldırıldı; kayıtlarda geçen `npx tsx scripts/i18n-audit.ts` ve `i18n 0 eksik` ifadeleri bugünkü komut setine değil, geçmiş turlara aittir. Güncel kaynak denetimi `tests/turkish-source.test.ts` ile yapılır.
 
+## 0.9.0: gömülü FFmpeg, medya aracı keşfi ve sürükle-bırak (2026-11-13)
+
+**Bildirilen hata**: Windows kurulumunda bir video içe aktarılırken `ffprobe bulunamadı. Geliştirme ortamında FFmpeg kurun veya ayarlardan bir çalıştırılabilir dosya seçin.` uyarısı çıkıyordu.
+
+**Kök neden**: Windows paketi hiç medya aracı taşımıyordu (`extraResources` yalnızca macOS için tanımlıydı) ve `setBundledMediaToolsDirectory` yalnızca `app.isPackaged && darwin` koşulunda çağrılıyordu. Arayüzden başlatılan bir uygulama geliştirici kabuğunun `PATH`'ini devralmadığı için WinGet/Chocolatey ile kurulmuş FFmpeg de görünmüyordu.
+
+**Düzeltme**:
+- `scripts/fetch-media-tools-win.mjs` sabitlenmiş Gyan.dev FFmpeg 8.0 `essentials_build` arşivini indirir (SHA-256 GitHub'ın yayınladığı `digest` ile doğrulanır), yalnızca `ffmpeg.exe` ve `ffprobe.exe` çıkarır ve `media-tools/win32-x64` altına manifest ile yazar. libx264 mevcut.
+- `scripts/prepare-media-tools.cjs` Windows paketlemesinde bu adımı çalıştırır; `package.json` → `build.win.extraResources` araçları `resources/media-tools` içine kopyalar.
+- `electron/mediaTools.ts` keşfi sırayla dener: kayıtlı ayar → gömülü klasörler (birden fazla) → `PATH` → bilinen konumlar. Windows'ta `%LOCALAPPDATA%\Microsoft\WinGet\Packages\*ffmpeg*` (sürüm alt klasörleri dahil), WinGet `Links`, Chocolatey, `C:\ffmpeg\bin`, Program Files, Scoop shims; macOS/Linux'ta Homebrew, `/usr/local/bin`, `/usr/bin`, `/snap/bin`, `~/.local/bin`.
+- Gömülü araç bozuksa çalışan sistem aracına düşülür; önceki davranış hiçbir medyayı içe aktarmayı reddediyordu.
+
+**Sürükle-bırak**:
+- `import-dropped-media` IPC'si eklendi: dosya yolu taşımayan bırakmaların baytları profil klasörüne içerik adresli yazılır (SHA-256, ilk 20 karakter), 100 dosya ve 4 GB sınırı, uzantı beyaz listesi uygulanır, özgün dosya adı geri yazılır.
+- Pencere geneli ve medya kitaplığı aynı `importDropped` akışını kullanır; `getPathForFile` boş dönerse bayt yolu devreye girer.
+- Sürükleme sırasında `drop-overlay` katmanı görünür.
+
+**Doğrulama**:
+
+- `tests/mediaTools.test.ts` 7 test: gömülü önceliği, kullanıcı ayarı önceliği, **bozuk pakette sistem aracına düşme** (hatayı doğuran senaryo), çoklu gömülü dizin sırası, geçersiz ayar reddi, `PATH` keşfi, hiçbir araç yokken Türkçe yönlendirme.
+- `tests/drop-electron.ts` gerçek masaüstü, **tamamen boş `PATH`**: (1) sürükleme sırasında katman görünür, (2) yolu olmayan 2 dosya proje medyasına dönüşür, (3) baytlar profil klasörüne kopyalanır, (4) Türkçe dosya adları korunur, (5) 1920×1080 H.264 + AAC gerçek dışa aktarma. `errors: []`.
+- `tests/package-win-electron.ts` artık `PATH=""`, `CEVIKEDIT_FFMPEG`/`CEVIKEDIT_FFPROBE` yok: paketlenmiş uygulama 0.9.0 sürümüyle şablon projesi oluşturdu, kaydetti ve 6,0 sn 1920×1080 H.264 dışa aktardı; 5 kontrol geçti. Bu, hatanın paket düzeyinde kapandığını gösterir.
+- Tam `npx vitest run`: **470 test, 464 geçti, 6 atlandı, 0 başarısız** (49 dosya).
+- `npm run check:desktop`: 9 betik geçti (düzenleme/dışa aktarma, görsel araçlar, depolama, oynatıcı, ses ayırma, kanal, geçiş, CapCut içe aktarma, anahtar kare).
+- `tests/subtitle-electron.ts` 15 kontrol geçti.
+- Güncelleme akışı canlı doğrulandı: `checkForUpdate("0.8.0")` → `0.9.0` ve `asset: CevikEdit-Kurulum.exe (189 044 095 bayt)`; `checkForUpdate("0.9.0")` → güncelleme yok.
+
+**Sınırlar**: macOS kurulumu bu turda yeniden derlenmedi ve macOS/Linux paketleri medya aracı taşımaz (sistem FFmpeg'i veya ayarlardan seçim gerekir). Windows kurulumu ~180 MB'dir çünkü FFmpeg gömülüdür. Kurulum imzası yerel ad-hoc; resmi kod imzası yok.
+
 ## Kapanış: Béssel geçişi, zaman çizelgesi inişli kayma ve mini harita, VAD, 4K limiti, HDR ve taslak değişimi (2026-11-11)
 
 Önceki turda sıralanan altı eksik, “doğrulanabilir ve açıklanabilir” biçimde ayrı ayrı ele alındı; her biri için birim test ve gerçek masaüstü/FFmpeg kanıtı vardı.
