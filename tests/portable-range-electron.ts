@@ -22,7 +22,7 @@ const app=await electron.launch({...appPath?{executablePath:path.join(path.resol
 const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];page.on('pageerror',e=>errors.push(e.message));
 try {
  await app.evaluate(({dialog},paths)=>{
-  (dialog as any).showOpenDialog=async(_window:unknown,options:{title?:string})=>{if(options.title?.includes('Medya paketini kaydet')) await new Promise<void>(resolve=>{(globalThis as any).releasePackagePicker=resolve;});return {canceled:false,filePaths:[options.title?.includes('Medya paketini kaydet')?paths.packages:paths.open]};};
+  (dialog as any).showOpenDialog=async(_window:unknown,options:{title?:string})=>{if(options.title?.includes('Medya paketi kayıt konumunu seç')) await new Promise<void>(resolve=>{(globalThis as any).releasePackagePicker=resolve;});return {canceled:false,filePaths:[options.title?.includes('Medya paketi kayıt konumunu seç')?paths.packages:paths.open]};};
   (dialog as any).showSaveDialog=async()=>({canceled:false,filePath:paths.exported});
   (dialog as any).showMessageBox=async()=>({response:2});
  },{packages,open:projectFile,exported});

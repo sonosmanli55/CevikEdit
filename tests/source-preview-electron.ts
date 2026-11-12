@@ -27,7 +27,8 @@ try {
  await expect(source.getByLabel('Kaynak medya giriş noktası',{exact:true})).toHaveValue('2');await expect(source.getByLabel('Kaynak medya çıkış noktası',{exact:true})).toHaveValue('3');
  await page.screenshot({path:path.join(output,'source-preview.png')});
  await app.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];w.setMinimumSize(1024,600);w.setSize(1024,720);});
- await expect.poll(()=>page.evaluate(()=>window.innerWidth)).toBe(1024);
+ // Windows reserves frame borders, so the client area can be a few pixels narrower than the OS window.
+  await expect.poll(()=>page.evaluate(()=>window.innerWidth)).toBeGreaterThanOrEqual(1000);
  const geometry=await source.getByRole('button',{name:'Seçili klibi ekle'}).evaluate(el=>{const r=el.getBoundingClientRect(),p=el.closest('.source-preview')!.getBoundingClientRect();return {bottom:r.bottom,panelBottom:p.bottom,right:r.right,panelRight:p.right};});
  assert(geometry.bottom<=geometry.panelBottom+1 && geometry.right<=geometry.panelRight+1,'source add remains inside panel at 1024×720');
  await page.screenshot({path:path.join(output,'source-preview-1024.png')});checks.push('1024×720 source marking and add controls stay within the preview panel');

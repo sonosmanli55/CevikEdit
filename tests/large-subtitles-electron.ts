@@ -10,7 +10,10 @@ const file=path.join(output,'large.cevikedit');await writeFile(file,JSON.stringi
 const packaged=process.env.CEVIKEDIT_TEST_APP,env=Object.fromEntries(Object.entries(process.env).filter((e):e is [string,string]=>e[1]!==undefined));env.CEVIKEDIT_USER_DATA=path.join(output,'user-data');delete env.ELECTRON_RUN_AS_NODE;delete env.VITE_DEV_SERVER_URL;if(packaged){env.PATH='';delete env.CEVIKEDIT_FFMPEG;delete env.CEVIKEDIT_FFPROBE;}
 const begin=performance.now();const app=await electron.launch({...packaged?{executablePath:path.join(path.resolve(packaged),'Contents/MacOS/CevikEdit'),args:[file],cwd:output}:{args:[path.join(root,'dist-electron/main.cjs'),file]},env});const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];const timings:Record<string,number>={};page.on('pageerror',e=>errors.push(e.message));
 try{
- await expect(page.locator('.tl-clip')).toHaveCount(300,{timeout:30000});timings.launchToTimelineMs=Math.round(performance.now()-begin);
+ // Large timelines render only the visible slice, so the DOM never holds 300 nodes.
+ await expect.poll(()=>page.locator('.tl-clip').count(),{timeout:30000}).toBeGreaterThan(0);
+ const renderedClips=await page.locator('.tl-clip').count();assert(renderedClips<300,`expected virtualization, got ${renderedClips} rendered clips`);
+ timings.launchToTimelineMs=Math.round(performance.now()-begin);
  await app.evaluate(({dialog})=>{(dialog as any).showMessageBox=async()=>({response:2});});
  await page.getByRole('button',{name:'Altyazı',exact:true}).click();await expect(page.locator('.subtitle-cue')).toHaveCount(300);
  let start=performance.now();await page.getByLabel('Altyazı ara',{exact:true}).fill('No 300');await expect(page.locator('.subtitle-cue')).toHaveCount(1);timings.searchMs=Math.round(performance.now()-start);

@@ -139,10 +139,10 @@ try {
   assert.equal(trackCues.length, 4);
   assert.equal(trackCues[0].start, 4);
   assert.equal(trackCues[0].duration, 0.5);
-  assert.equal(trackCues[0].text!.text, "Tek tek");
+  assert.equal(trackCues[0].text!.text, "Altyazıları");
   assert.equal(trackCues[1].start, 4.5);
   assert.equal(trackCues[1].duration, 1);
-  assert.equal(trackCues[1].text!.text, "Altyazıyı düzenle");
+  assert.equal(trackCues[1].text!.text, "tek tek düzenle");
   assert.deepEqual(edited.clips.find(c => c.id === title.id), imported.clips.find(c => c.id === title.id));
   await page.getByRole("button", { name: "Geri al", exact: true }).click();
   edited = await save();
@@ -198,7 +198,7 @@ try {
   checks.push("uniform entrance, hold and exit animation is stored as fades and keyframes on the cue");
 
   const brightPixels = () => page!.evaluate(() => {
-    const canvas = document.querySelector('canvas[aria-label="Video önizleme"]') as HTMLCanvasElement;
+    const canvas = document.querySelector('canvas[aria-label="Video önizlemesi"]') as HTMLCanvasElement;
     const context = canvas.getContext("2d")!;
     const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
     let bright = 0;
@@ -231,7 +231,7 @@ try {
 
   await page.getByRole("button", { name: "Tümünü SRT olarak dışa aktar", exact: true }).click();
   await expect(page.locator(".toast")).toContainText("stil, konum veya animasyon içermez");
-  await expect(page.getByText("SRT / WebVTT yalnızca zamanı ve metni kaydeder", { exact: false })).toBeVisible();
+  await expect(page.getByText("SRT / WebVTT yalnızca zaman ve metni saklar", { exact: false })).toBeVisible();
   await expect.poll(() => readFile(exported, "utf8").catch(() => "")).toContain("Altyazıları tek tek düzenle");
   assert(!(await readFile(exported, "utf8")).includes("keyframes"));
   checks.push("SRT export keeps text only and states that styles, position and animation are not saved");
