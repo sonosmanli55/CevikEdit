@@ -106,6 +106,6 @@ export async function installUpdate(installer: unknown): Promise<void> {
 
 export async function openUpdatePage(): Promise<void> {
   await shell.openExternal(
-    lastAvailable?.pageUrl ?? "https://github.com/sonosanli55/CevikEdit/releases",
+    lastAvailable?.pageUrl ?? "https://github.com/sonosmanli55/CevikEdit/releases",
   );
 }

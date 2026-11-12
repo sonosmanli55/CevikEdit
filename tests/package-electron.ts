@@ -46,7 +46,6 @@ env.PATH = emptyPath;
 const bundledTools = path.join(bundle, "Contents", "Resources", "media-tools");
 // The verification probe also uses the shipped executable, not Homebrew.
 process.env.CEVIKEDIT_FFPROBE = path.join(bundledTools, "ffprobe");
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   executablePath: executable,
   args: [demo],
@@ -150,7 +149,7 @@ try {
     )
     .toBe(true);
   const divider = page.getByRole("separator", {
-    name: "调整时间线高度",
+    name: "Zaman çizelgesi yüksekliğini ayarla",
     exact: true,
   });
   await expect(divider).toHaveCount(1);
@@ -173,9 +172,9 @@ try {
   await page.screenshot({
     path: path.join(root, "docs", "screenshots", "demo-editor.png"),
   });
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 120000,
   });
   const rendered = await probeFile(exported);

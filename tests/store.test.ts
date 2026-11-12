@@ -6,7 +6,7 @@ function fixture(): Project {
   const p = createProject();
   const a: MediaAsset = {
     id: "asset",
-    name: "视频",
+    name: "Video",
     path: "/tmp/video.mp4",
     url: "file:///tmp/video.mp4",
     kind: "video",
@@ -74,7 +74,7 @@ describe("editor transactions", () => {
     state().redo();
     expect(state().project.clips[0].transform.x).toBe(30);
     state().undo();
-    state().updateProject({ name: "分支" });
+    state().updateProject({ name: "Dal" });
     expect(state().future).toHaveLength(0);
   });
   it("ignores edits on locked tracks and does not add undo entries for noops", () => {
@@ -121,10 +121,10 @@ describe("editor transactions", () => {
     const c = state().project.clips[0];
     state().select([c.id]);
     state().copy();
-    state().updateClip(c.id, { name: "修改" });
+    state().updateClip(c.id, { name: "Değiştir" });
     state().seek(5);
     state().paste();
-    expect(state().project.clips[1].name).toBe("视频");
+    expect(state().project.clips[1].name).toBe("Video");
     expect(state().project.clips[1].start).toBe(5);
     state().setProject(createProject());
     expect(state().clipboard).toHaveLength(0);
@@ -159,8 +159,8 @@ describe("editor transactions", () => {
   });
   it("adds subframe subtitles with positive duration and ignores invalid cues", () => {
     state().addSubtitles([
-      { start: 1, end: 1.001, text: "短字幕" },
-      { start: NaN, end: 4, text: "坏字幕" },
+      { start: 1, end: 1.001, text: "Kısa altyazı" },
+      { start: NaN, end: 4, text: "Bozuk altyazı" },
     ]);
     expect(state().project.clips).toHaveLength(2);
     expect(state().project.clips[1].duration).toBeCloseTo(1 / 30);
@@ -217,8 +217,8 @@ describe("track management", () => {
   });
   it("trims renamed tracks, rejects empty/locked renames, and still permits unlocking and flags", () => {
     const track = state().project.tracks[1];
-    state().updateTrack(track.id, { name: "  镜头  " });
-    expect(state().project.tracks[1].name).toBe("镜头");
+    state().updateTrack(track.id, { name: "  Kamera  " });
+    expect(state().project.tracks[1].name).toBe("Kamera");
     let before = state().past.length;
     state().updateTrack(track.id, { name: "   " });
     expect(state().past).toHaveLength(before);
@@ -226,7 +226,7 @@ describe("track management", () => {
     before = state().past.length;
     state().updateTrack(track.id, { name: "locked rename" });
     expect(state().past).toHaveLength(before);
-    expect(state().project.tracks[1].name).toBe("镜头");
+    expect(state().project.tracks[1].name).toBe("Kamera");
     state().updateTrack(track.id, { muted: true, locked: false });
     expect(state().project.tracks[1]).toMatchObject({
       muted: true,

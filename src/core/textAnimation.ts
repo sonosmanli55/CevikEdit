@@ -40,15 +40,15 @@ function object(value: unknown): Record<string, unknown> {
     Array.isArray(value) ||
     ![Object.prototype, null].includes(Object.getPrototypeOf(value))
   )
-    throw new Error("文字动画设置无效");
+    throw new Error("Metin animasyonu ayarları geçersiz");
   return value as Record<string, unknown>;
 }
 
 function duration(value: unknown, label: string): number {
   if (typeof value !== "number" || !Number.isFinite(value))
-    throw new Error(`${label}必须是有限数值`);
+    throw new Error(`${label} sonlu bir sayı olmalı`);
   if (value < MIN_ANIMATION_SECONDS || value > MAX_ANIMATION_SECONDS)
-    throw new Error(`${label}须在 0～${MAX_ANIMATION_SECONDS} 秒内`);
+    throw new Error(`${label} 0–${MAX_ANIMATION_SECONDS} sn arasında olmalı`);
   return value;
 }
 
@@ -58,7 +58,7 @@ function choice<T extends string>(
   label: string,
 ): T {
   if (typeof value !== "string" || !choices.includes(value as T))
-    throw new Error(`${label}无效`);
+    throw new Error(`${label} geçersiz`);
   return value as T;
 }
 
@@ -66,15 +66,15 @@ export function validateTextAnimation(
   value: unknown,
 ): TextAnimationSettings {
   const raw = object(value);
-  const entrance = choice(raw.entrance, TEXT_ENTRANCES, "文字入场动画");
-  const hold = choice(raw.hold, TEXT_HOLDS, "文字停留动画");
-  const exit = choice(raw.exit, TEXT_EXITS, "文字出场动画");
-  const inDuration = duration(raw.inDuration, "文字入场时长");
-  const outDuration = duration(raw.outDuration, "文字出场时长");
+  const entrance = choice(raw.entrance, TEXT_ENTRANCES, "Metin giriş animasyonu");
+  const hold = choice(raw.hold, TEXT_HOLDS, "Metin bekleme animasyonu");
+  const exit = choice(raw.exit, TEXT_EXITS, "Metin çıkış animasyonu");
+  const inDuration = duration(raw.inDuration, "Metin giriş süresi");
+  const outDuration = duration(raw.outDuration, "Metin çıkış süresi");
   if (entrance !== "none" && inDuration <= 0)
-    throw new Error("请设置大于 0 的文字入场时长");
+    throw new Error("0'dan büyük bir metin giriş süresi ayarlayın");
   if (exit !== "none" && outDuration <= 0)
-    throw new Error("请设置大于 0 的文字出场时长");
+    throw new Error("0'dan büyük bir metin çıkış süresi ayarlayın");
   return { entrance, hold, exit, inDuration, outDuration };
 }
 
@@ -114,7 +114,7 @@ export function textAnimationPatch(
   const hasExit = animation.exit !== "none";
   const hasHold = animation.hold !== "none";
   if ((hasEntrance || hasExit || hasHold) && duration < minimum * 2 - 1e-9)
-    throw new Error("字幕至少需要两帧才能设置文字动画");
+    throw new Error("Metin animasyonu için altyazı en az iki kare olmalıdır");
 
   const half = duration / 2;
   const limit = (seconds: number): number =>

@@ -12,8 +12,8 @@ async function setup() {
  const root=await mkdtemp(path.join(os.tmpdir(),'cevikedit-portable-')); roots.push(root);
  const source=path.join(root,'original.png'); await writeFile(source, Buffer.from('synthetic source bytes'));
  const destination=path.join(root,'packages');await mkdir(destination);
- const project=createProject('可搬移项目');
- const asset:MediaAsset={id:'asset-1',name:'原始图片',kind:'image',path:source,url:`file://${source}`,width:640,height:360,fps:0,duration:0,hasAudio:false,thumbnail:'file:///private/cache.png',previewUrl:'file:///private/preview.mp4'};
+ const project=createProject('Taşınabilir proje');
+ const asset:MediaAsset={id:'asset-1',name:'Özgün görsel',kind:'image',path:source,url:`file://${source}`,width:640,height:360,fps:0,duration:0,hasAudio:false,thumbnail:'file:///private/cache.png',previewUrl:'file:///private/preview.mp4'};
  project.assets=[asset];project.clips=[createClip(asset,project.tracks.find(t=>t.kind==='video')!.id,0,30)];
  return {root,source,destination,project};
 }
@@ -21,7 +21,7 @@ async function load(folder:string){const file=path.join(folder,'proje.cevikedit'
 describe('portable project collection',()=>{
  it('copies original bytes once for shared references, removes caches, survives a move and missing original',async()=>{
   const {project,source,destination,root}=await setup();const original=JSON.stringify(project);
-  project.assets.push({...project.assets[0],id:'asset-2',name:'共享引用'});
+  project.assets.push({...project.assets[0],id:'asset-2',name:'Paylaşılan referans'});
   const before=JSON.stringify(project);
   const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
   const document=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));
@@ -32,24 +32,24 @@ describe('portable project collection',()=>{
   expect(JSON.parse(JSON.stringify(project)).assets[0].path).toBe(source);
   expect(JSON.parse(JSON.stringify(project))).toEqual(JSON.parse(before));
   expect(original).toContain("original.png");
-  const moved=path.join(root,'移动后的项目');await rename(folder,moved);await rm(source);
+  const moved=path.join(root,'Taşınmış proje');await rename(folder,moved);await rm(source);
   const hydrated=await load(moved);expect(hydrated.assets[0].path.startsWith((await realpath(moved))+path.sep)).toBe(true);
   expect((await readFile(hydrated.assets[0].path)).toString()).toBe('synthetic source bytes');
  });
  it('resaves a moved package with new media then moves again, without repeating unchanged copies',async()=>{
   const {project,destination,root}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
   const opened=await load(folder);const newFile=path.join(root,'new.png');await writeFile(newFile,'new bytes');
-  opened.assets.push({...opened.assets[0],id:'asset-new',path:newFile,url:'file://'+newFile});opened.name='修改后的便携项目';
+  opened.assets.push({...opened.assets[0],id:'asset-new',path:newFile,url:'file://'+newFile});opened.name='Değiştirilmiş taşınabilir proje';
   await savePortableDocument(opened,path.join(folder,'proje.cevikedit'));
   expect(await readdir(path.join(folder,'media'))).toHaveLength(2);
   await savePortableDocument(opened,path.join(folder,'proje.cevikedit'));
   expect(await readdir(path.join(folder,'media'))).toHaveLength(2);
-  const moved=path.join(root,'再次移动');await rename(folder,moved);await rm(newFile);
+  const moved=path.join(root,'Tekrar taşı');await rename(folder,moved);await rm(newFile);
   const result=await load(moved);expect(result.name).toBe(opened.name);expect(result.assets).toHaveLength(2);expect((await readFile(result.assets[1].path)).toString()).toBe('new bytes');
  });
  it('rejects source missing before creating a partial package',async()=>{
   const {project,source,destination}=await setup();await rm(source);
-  await expect(collectPortableProject(project,destination,new AbortController().signal,()=>{})).rejects.toThrow('找不到素材');
+  await expect(collectPortableProject(project,destination,new AbortController().signal,()=>{})).rejects.toThrow('medyası bulunamadı');
   expect(await readdir(destination)).toEqual([]);
  });
  it('cleans temporary files if cancelled mid-copy without changing sources',async()=>{
@@ -61,7 +61,7 @@ describe('portable project collection',()=>{
  it.each(['../outside.png','/etc/passwd','media/../../outside.png','media\\file.png'])('rejects path traversal %s',async invalid=>{
   const {project,destination}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
   const document=JSON.parse(await readFile(path.join(folder,'proje.cevikedit'),'utf8'));document.project.assets[0].path=invalid;
-  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('相对路径');
+  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('göreli yol');
  });
  it('rejects a file symlink that escapes the chosen package',async()=>{
   const {root,project,source,destination}=await setup();const folder=await collectPortableProject(project,destination,new AbortController().signal,()=>{});
@@ -72,7 +72,7 @@ describe('portable project collection',()=>{
     // realpath boundary without requiring elevation.
     const outside=path.join(root,'outside');await mkdir(outside);await symlink(outside,target,'junction');
   }else await symlink(source,target);
-  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('包外文件');
+  await expect(resolvePortableDocument(document,path.join(folder,'proje.cevikedit'))).rejects.toThrow('paket dışındaki');
  });
  it('cancellation event is terminal and package output remains absent',async()=>{
   const {project,destination}=await setup();const events:string[]=[];

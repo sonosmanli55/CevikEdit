@@ -19,7 +19,7 @@ const fixture = await generateFixtures(path.join(output, "media"));
 const saved = path.join(output, "desktop-project.cevikedit"),
   exported = path.join(output, "desktop-render.mp4");
 const subtitles = path.join(output, "captions.srt");
-await writeFile(subtitles, "1\n00:00:00,500 --> 00:00:01,800\n本地字幕验收\n");
+await writeFile(subtitles, "1\n00:00:00,500 --> 00:00:01,800\nYerel altyazı kabulü\n");
 const env: Record<string, string> = Object.fromEntries(
   Object.entries(process.env).filter(
     (entry): entry is [string, string] => entry[1] !== undefined,
@@ -28,7 +28,6 @@ const env: Record<string, string> = Object.fromEntries(
 env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,
@@ -45,9 +44,9 @@ try {
         return {
           canceled: false,
           filePaths:
-            options.title === "导入素材"
+            options.title === "Medya içe aktar"
               ? [p.video, p.audio, p.image]
-              : options.title === "打开 CevikEdit 项目"
+              : options.title === "CevikEdit projesi aç"
                 ? [p.saved]
                 : [p.subtitles],
         };
@@ -56,7 +55,7 @@ try {
         const options = args[args.length - 1];
         return {
           canceled: false,
-          filePath: options.title === "导出视频" ? p.exported : p.saved,
+          filePath: options.title === "Videoyu dışa aktar" ? p.exported : p.saved,
         };
       };
       (dialog as any).showMessageBox = async () => ({
@@ -161,7 +160,7 @@ try {
     const before = await stat(saved)
       .then((s) => s.mtimeMs)
       .catch(() => -1);
-    await page!.getByRole("button", { name: "保存项目", exact: true }).click();
+    await page!.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
     await expect
       .poll(
         async () =>
@@ -209,25 +208,25 @@ try {
       { timeout: 15_000 },
     )
     .toBe(true);
-  await page.getByRole("button", { name: "播放", exact: true }).click();
+  await page.getByRole("button", { name: "Oynat", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "暂停", exact: true }),
+    page.getByRole("button", { name: "Duraklat", exact: true }),
   ).toBeVisible();
   await expect
     .poll(async () => page!.locator(".timecode strong").textContent(), {
       timeout: 5000,
     })
     .not.toBe("00:00:00:00");
-  await page.getByRole("button", { name: "暂停", exact: true }).click();
+  await page.getByRole("button", { name: "Duraklat", exact: true }).click();
   // Seek precisely through a real timeline ruler click to split at one second.
   const ruler = (await page.locator(".tl-ruler-body").boundingBox())!;
   await page.mouse.click(ruler.x + 60, ruler.y + 15);
-  await page.getByRole("button", { name: "分割片段", exact: true }).click();
+  await page.getByRole("button", { name: "Klibi böl", exact: true }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(2);
   project = await saveProject();
   assert.equal(project.clips[0].duration, 1);
   assert.equal(project.clips[1].sourceIn, 1);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(1);
   // Native accelerators must reach clip copy/paste when the timeline has focus.
   await page.locator(".tl-clip").click({ position: { x: 30, y: 26 } });
@@ -235,7 +234,7 @@ try {
   await page.keyboard.press(command + "+C");
   await page.keyboard.press(command + "+V");
   await expect(page.locator(".tl-clip")).toHaveCount(2);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(1);
   // Audio selection must expose audio properties immediately (without a hidden visual tab).
   const audio = project.assets.find((a) => a.kind === "audio")!;
@@ -243,28 +242,28 @@ try {
   await expect(
     page
       .locator(".inspector-tabs")
-      .getByRole("button", { name: "音频", exact: true }),
+      .getByRole("button", { name: "Ses", exact: true }),
   ).toHaveClass(/active/);
   await expect(
-    page.getByRole("spinbutton", { name: "音量", exact: true }),
+    page.getByRole("spinbutton", { name: "Ses düzeyi", exact: true }),
   ).toBeVisible();
   project = await saveProject();
   assert(project.clips.some((c) => c.assetId === audio.id));
   // Text is created and edited through normal controls and persists in the project.
   await page
     .locator(".resource-tabs")
-    .getByRole("button", { name: "文本", exact: true })
+    .getByRole("button", { name: "Metin", exact: true })
     .click();
-  await page.getByRole("button", { name: "添加文本", exact: true }).click();
+  await page.getByRole("button", { name: "Metin ekle", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "文字内容", exact: true })
-    .fill("离线创作\n每一刻都值得记录");
-  await page.getByRole("textbox", { name: "文字内容", exact: true }).blur();
-  await page.getByRole("spinbutton", { name: "字号", exact: true }).fill("24");
-  await page.getByRole("spinbutton", { name: "字号", exact: true }).blur();
+    .getByRole("textbox", { name: "Metin içeriği", exact: true })
+    .fill("Çevrimdışı üretim\nHer an kaydetmeye değer");
+  await page.getByRole("textbox", { name: "Metin içeriği", exact: true }).blur();
+  await page.getByRole("spinbutton", { name: "Yazı boyutu", exact: true }).fill("24");
+  await page.getByRole("spinbutton", { name: "Yazı boyutu", exact: true }).blur();
   project = await saveProject();
   const text = project.clips.find((c) => !!c.text)!;
-  assert.equal(text.text?.text, "离线创作\n每一刻都值得记录");
+  assert.equal(text.text?.text, "Çevrimdışı üretim\nHer an kaydetmeye değer");
   await page
     .locator(
       `[data-clip-id="${project.clips.find((c) => c.assetId === video.id)!.id}"]`,
@@ -272,20 +271,20 @@ try {
     .click({ position: { x: 30, y: 26 } });
   await page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "调色", exact: true })
+    .getByRole("button", { name: "Renk ayarı", exact: true })
     .click();
-  const saturation = page.getByRole("slider", { name: "饱和度", exact: true });
+  const saturation = page.getByRole("slider", { name: "Doygunluk", exact: true });
   await saturation.focus();
   await saturation.press("Home");
   for (let i = 0; i < 50; i++) await saturation.press("ArrowRight");
   await page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "速度", exact: true })
+    .getByRole("button", { name: "Hız", exact: true })
     .click();
   await page
-    .getByRole("spinbutton", { name: "播放速度", exact: true })
+    .getByRole("spinbutton", { name: "Oynatma hızı", exact: true })
     .fill("2");
-  await page.getByRole("spinbutton", { name: "播放速度", exact: true }).blur();
+  await page.getByRole("spinbutton", { name: "Oynatma hızı", exact: true }).blur();
   project = await saveProject();
   let clip = project.clips.find((c) => c.assetId === video.id)!;
   assert.equal(clip.speed, 2);
@@ -293,48 +292,48 @@ try {
   assert.equal(clip.adjustments.saturation, 0.5);
   await page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "动画", exact: true })
+    .getByRole("button", { name: "Animasyon", exact: true })
     .click();
   await page
     .locator(".keyframe-add")
-    .getByRole("button", { name: "位置 X", exact: true })
+    .getByRole("button", { name: "Konum X", exact: true })
     .click();
   project = await saveProject();
   clip = project.clips.find((c) => c.assetId === video.id)!;
   assert.equal(clip.keyframes.length, 1);
   await page
     .locator(".resource-tabs")
-    .getByRole("button", { name: "字幕", exact: true })
+    .getByRole("button", { name: "Altyazı", exact: true })
     .click();
-  await page.getByRole("button", { name: "导入字幕文件", exact: true }).click();
+  await page.getByRole("button", { name: "Altyazı dosyası içe aktar", exact: true }).click();
   project = await saveProject();
-  assert(project.clips.some((c) => c.text?.text === "本地字幕验收"));
+  assert(project.clips.some((c) => c.text?.text === "Yerel altyazı kabulü"));
   // Change a local test project externally so re-opening proves the actual file is read.
   await writeFile(
     saved,
-    JSON.stringify({ ...project, name: "桌面验收 · 重新打开" }, null, 2),
+    JSON.stringify({ ...project, name: "Masaüstü kabulü · yeniden açıldı" }, null, 2),
   );
   // Re-open the actual saved file through the native dialog path and check hydrated media.
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "打开项目", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Proje aç", exact: false }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(project.clips.length);
   await expect(page.locator(".project-title input")).toHaveValue(
-    "桌面验收 · 重新打开",
+    "Masaüstü kabulü · yeniden açıldı",
   );
   await expect
     .poll(pixel, { timeout: 15_000 })
     .toEqual(expect.arrayContaining([255]));
   // Reduce render dimensions through project parameters after clearing selection.
   await page.keyboard.press("Escape");
-  await page.getByRole("spinbutton", { name: "宽度", exact: true }).fill("320");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).fill("180");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).blur();
+  await page.getByRole("spinbutton", { name: "Genişlik", exact: true }).fill("320");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).fill("180");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).blur();
   project = await saveProject();
   assert.equal(project.width, 320);
   assert.equal(project.height, 180);
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 120_000,
   });
   const rendered = await probeFile(exported);
@@ -349,18 +348,18 @@ try {
   await page.screenshot({
     path: path.join(output, "electron-export.png"),
     // Public evidence must not expose the workstation username or local output path.
-    mask: [page.getByLabel("导出位置", { exact: true })],
+    mask: [page.getByLabel("Dışa aktarma konumu", { exact: true })],
     maskColor: "#262626",
   });
-  await page.getByRole("button", { name: "完成", exact: true }).click();
+  await page.getByRole("button", { name: "Tamam", exact: true }).click();
   await page
     .locator(".resource-tabs")
-    .getByRole("button", { name: "素材", exact: true })
+    .getByRole("button", { name: "Medya", exact: true })
     .click();
   await expect(
     page
       .locator(".resource-tabs")
-      .getByRole("button", { name: "素材", exact: true }),
+      .getByRole("button", { name: "Medya", exact: true }),
   ).toHaveClass(/active/);
   await verifyThumbnails();
   const finalGeometry = await verifyEditorViewport(page);

@@ -1,69 +1,69 @@
-# 第二轮：本地草稿格式与独立导入
+# İkinci tur: yerel taslak biçimi ve bağımsız içe aktarma
 
-调查日期：2026-10-13。只使用本次生成的测试素材和专用测试草稿。目标的 `CFBundleShortVersionString` 为 `11.0.12922`，`CFBundleVersion` 为 `11.1.0-beta3`；两个字段含义不同。结论限定这些受控样本及对应二进制，不能外推至所有剪映、CapCut、云草稿或历史版本。
+Araştırma tarihi: 2026-10-13. Yalnızca bu sefer üretilen test malzemeleri ve özel test taslakları kullanıldı. Hedefin `CFBundleShortVersionString` değeri `11.0.12922`, `CFBundleVersion` değeri `11.1.0-beta3`'tür; iki alanın anlamı farklıdır. Sonuçlar bu kontrollü örnekler ve karşılık gelen ikili dosyayla sınırlıdır; tüm CapCut, CapCut sürümleri, bulut taslakları veya geçmiş sürümlere genellenemez.
 
-## 证据与可复核边界
+## Kanıtlar ve denetlenebilir sınırlar
 
-| 证据 | 观察 | 边界 |
+| Kanıt | Gözlem | Sınır |
 | --- | --- | --- |
-| `LOCAL-NATIVE-005` 及后续 LLVM ARM64 静态片段 | 草稿读取、文件 IO、解码调用与常量表；Crypto++ GCM/Rijndael 类型信息 | 静态路径，不是运行时调用跟踪，也不是 REA 伪代码结果 |
-| REA + Ghidra 正式 Evidence（下表） | 默认自动分析完成后，三个目标函数的伪代码与 48 字节常量表均成功返回 | 静态反编译，不是原始源码或运行时执行证据 |
-| `LOCAL-GHIDRA-001` | Ghidra 12.1.4 定点反编译三个函数均成功；常量表和 key/IV 参数与 LLVM 推断一致 | 标准 `-noanalysis` 加定点 disassemble/DecompInterface，补充直接 Ghidra，不是 REA Evidence |
-| `LOCAL-ENVELOPE-001` | 两份受控变体草稿通过 AES-GCM 校验，直接得到 JSON；无压缩步骤 | 活动时间线与空白主时间线 |
-| `LOCAL-WITNESS-002` | 独立复核 32 项语义断言；另两份旧受控载荷也认证成功 | 旧当前文件为空；明确选取的历史 `.bak` 有视频，不能混称当前文件 |
-| `LOCAL-NATIVE-EXPORT-001` | 原应用普通 UI 导出自造样片；H.264 1280×720、30 fps、90 帧、3 秒，AAC 44.1 kHz 双声道 | 原始分辨率菜单交互未成功；实际选择为 720P，测量时归一到 640×360 |
-| 产品验证 | 相同受控活动草稿通过独立产品 decoder/importer、素材探测和 MP4 导出 | 导入器仍是有损转换，字体/复杂效果不保真 |
+| `LOCAL-NATIVE-005` ve sonraki LLVM ARM64 statik parçaları | Taslak okuma, dosya IO, decode çağrıları ve sabit tablosu; Crypto++ GCM/Rijndael tür bilgisi | Statik yol; çalışma zamanı çağrı izlemesi değil, REA sözde kodu sonucu da değil |
+| REA + Ghidra resmî Evidence (aşağıdaki tablo) | Varsayılan otomatik analiz tamamlandıktan sonra üç hedef fonksiyonun sözde kodu ve 48 baytlık sabit tablosu başarıyla döndü | Statik decompile; özgün kaynak kodu veya çalışma zamanı yürütme kanıtı değil |
+| `LOCAL-GHIDRA-001` | Ghidra 12.1.4 ile üç fonksiyonun noktasal decompile işlemi başarılı oldu; sabit tablosu ve key/IV parametreleri LLVM çıkarımıyla tutarlı | Standart `-noanalysis` artı noktasal disassemble/DecompInterface; doğrudan Ghidra tamamlaması, REA Evidence değil |
+| `LOCAL-ENVELOPE-001` | İki kontrollü varyant taslak AES-GCM doğrulamasından geçti ve doğrudan JSON elde edildi; sıkıştırma adımı yok | Etkin zaman çizelgesi ve boş ana zaman çizelgesi |
+| `LOCAL-WITNESS-002` | 32 anlamsal iddia bağımsız olarak doğrulandı; diğer iki eski kontrollü yük de kimlik doğrulamasından geçti | Eski güncel dosya boş; açıkça seçilen geçmiş `.bak` dosyasında video var, bu "güncel dosya" olarak adlandırılamaz |
+| `LOCAL-NATIVE-EXPORT-001` | Özgün uygulamanın normal arayüzüyle kendi ürettiğimiz örnek klip dışa aktarıldı; H.264 1280×720, 30 fps, 90 kare, 3 saniye, AAC 44.1 kHz çift kanal | Özgün çözünürlük menüsü etkileşimi başarılı olmadı; gerçek seçim 720P oldu, ölçümde 640×360'a normalleştirildi |
+| Ürün doğrulaması | Aynı kontrollü etkin taslak, bağımsız ürün decoder/importer'ı, malzeme probu ve MP4 dışa aktarımıyla geçti | İçe aktarıcı hâlâ kayıplı dönüşüm yapar; yazı tipi/karmaşık efektler birebir korunmaz |
 
-原始 dylib SHA-256：`f9de2acbfc1f6187cf7cbce1551cbc8c2d10cdc444f814801f78c1069206d0d7`。只读提取的 ARM64 slice SHA-256：`f96ec6ff6b26155f2f84591d302cf352da3a0fdddd81ebb0bf847235195984d3`。没有修改已安装应用。
+Özgün dylib SHA-256: `f9de2acbfc1f6187cf7cbce1551cbc8c2d10cdc444f814801f78c1069206d0d7`. Salt okunur çıkarılan ARM64 slice SHA-256: `f96ec6ff6b26155f2f84591d302cf352da3a0fdddd81ebb0bf847235195984d3`. Kurulu uygulama değiştirilmedi.
 
-REA 6.4.0 在上述 exact ARM64 slice 上完成 Ghidra 12.1.4 默认自动分析，使用隔离 JDK 21 与本机构建的 ARM64 decompiler。正式结果如下；分析 profile digest 为 `20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c`。
+REA 6.4.0, yukarıdaki exact ARM64 slice üzerinde Ghidra 12.1.4 varsayılan otomatik analizini tamamladı; izole JDK 21 ve yerelde derlenen ARM64 decompiler kullanıldı. Resmî sonuçlar aşağıdadır; analiz profile digest değeri `20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c`'dir.
 
-| 地址 / 操作 | REA Evidence ID |
+| Adres / işlem | REA Evidence ID |
 | --- | --- |
-| `0x3252504` 解码函数伪代码 | `ev_1cd60edbb52cc41d99d6e7df3e5a0510eac2b634cd1427c1bde7753dbbad230c` |
-| `0x31a1b94` 草稿读取入口伪代码 | `ev_e4916e2c23fb6dcbe3f7a246012b30cf64ff6c2e9f4283d00b3923f95ad804ea` |
-| `0x3159bb8` 文件读取伪代码 | `ev_89db773066ca03b85994d1c59abb48b884afa889569f78b577e6168b22b9fb96` |
-| `0x45cbbb8` 常量表读取，48/48 字节 | `ev_ba2ef158da58e36b9e4777db15dcfabb06a1f01df04f00b417b46c9217c5447f` |
+| `0x3252504` decode fonksiyonu sözde kodu | `ev_1cd60edbb52cc41d99d6e7df3e5a0510eac2b634cd1427c1bde7753dbbad230c` |
+| `0x31a1b94` taslak okuma giriş noktası sözde kodu | `ev_e4916e2c23fb6dcbe3f7a246012b30cf64ff6c2e9f4283d00b3923f95ad804ea` |
+| `0x3159bb8` dosya okuma sözde kodu | `ev_89db773066ca03b85994d1c59abb48b884afa889569f78b577e6168b22b9fb96` |
+| `0x45cbbb8` sabit tablosu okuma, 48/48 bayt | `ev_ba2ef158da58e36b9e4777db15dcfabb06a1f01df04f00b417b46c9217c5447f` |
 
-读取入口调用 `DraftIO::createIO` 并通过虚方法读取；文件实现调用 `EncryptUtils::maybeEncrypted/decrypt`；解码函数展示十二次四字节提取、Base64 decoder 和 `SetKeyWithIV` 的 32/16 字节参数。中间 factory/wrapper 链接另有 LLVM 静态证据，不将这三个函数伪代码描述为完整动态调用跟踪。
+Okuma giriş noktası `DraftIO::createIO` çağırır ve sanal yöntem üzerinden okur; dosya uygulaması `EncryptUtils::maybeEncrypted/decrypt` çağırır; decode fonksiyonu on iki kez dört bayt çıkarma, Base64 decoder ve `SetKeyWithIV` için 32/16 baytlık parametreleri gösterir. Ara factory/wrapper bağlantıları için ayrıca LLVM statik kanıtı vardır; bu üç fonksiyonun sözde kodu eksiksiz dinamik çağrı izlemesi olarak tanımlanmaz.
 
-完整四条记录已导出至本机忽略目录 `.research/round2/rea-evidence/round2-ghidra-bundle.json`。首次分析因 30 分钟启动期限未完成，后续延长启动期限成功；没有修改 provider 或目标二进制。Ghidra 全库分析日志有局部分析警告，目标函数均返回伪代码。反编译器的类型、不可返回函数标记和控制流仍可能失真，保留工具原始 limitations。`close_binary` 返回进程清理确认错误（macOS `sysctl_errno_22`）；随后验证本次 JVM 已退出，正常关闭 SDK 并清理仅属于本次会话的残留目录，原始二进制指纹不变。
+Dört kaydın tamamı makinedeki yok sayılan `.research/round2/rea-evidence/round2-ghidra-bundle.json` dizinine aktarıldı. İlk analiz 30 dakikalık başlatma süresi nedeniyle tamamlanmadı; sonrasında başlatma süresi uzatılarak başarıldı; sağlayıcı veya hedef ikili dosya değiştirilmedi. Ghidra tüm kütüphane analiz günlüğünde kısmi analiz uyarıları vardır, hedef fonksiyonların tümü sözde kod döndürdü. Decompiler'ın türleri, dönmeyen fonksiyon işaretlemeleri ve denetim akışı hâlâ bozuk olabilir; aracın özgün limitations ifadeleri korunmuştur. `close_binary` süreç temizliği onay hatası döndürdü (macOS `sysctl_errno_22`); ardından bu JVM'in çıktığı doğrulandı, SDK normal biçimde kapatıldı ve yalnızca bu oturuma ait artık dizinler temizlendi, özgün ikili dosya parmak izi değişmedi.
 
-独立补充 Ghidra 定点反编译也已成功：解码函数 777 条指令、读取入口 63 条、文件读取 865 条，均未超时。它采用标准 `-noanalysis` 加定点 disassemble/DecompInterface；完整输出位于私有 `focused-ghidra/`，与正式 REA Evidence 分开标记。上述静态路径没有执行目标库。
+Bağımsız tamamlayıcı Ghidra noktasal decompile işlemi de başarılı oldu: decode fonksiyonu 777 komut, okuma giriş noktası 63 komut, dosya okuma 865 komut; hiçbiri zaman aşımına uğramadı. Standart `-noanalysis` artı noktasal disassemble/DecompInterface kullanıldı; tam çıktı özel `focused-ghidra/` altında olup resmî REA Evidence'tan ayrı olarak işaretlendi. Yukarıdaki statik yollarda hedef kütüphane çalıştırılmadı.
 
-原始载荷、反汇编、可能含设备字段的解码 JSON、应用截图及工具运行目录只保存在忽略目录 `.research/`。公开源码和测试不包含这些原始数据。
+Ham yükler, disassembly, cihaz alanları içerebilen decode edilmiş JSON, uygulama ekran görüntüleri ve araç çalışma dizinleri yalnızca yok sayılan `.research/` dizininde tutulur. Herkese açık kaynak kodu ve testler bu ham verileri içermez.
 
-## 已验证的载体规则
+## Doğrulanmış taşıyıcı kuralları
 
-整个文件在词法上可能看似 Base64，但不能把完整字符串直接当成单一 Base64 字段。
+Dosyanın tamamı sözcüksel olarak Base64 gibi görünebilir, ancak tam dize doğrudan tek bir Base64 alanı olarak alınamaz.
 
-1. 在原始 ASCII 文本的绝对字符偏移 `0, 7, 20, 33, 40, 47, 59, 66, 76, 89, 99, 127`，各取四个字符。
-2. 按顺序拼接得到 48 个原始 ASCII 字节，前 32 字节用作 AES-256 key，后 16 字节用作 GCM IV。
-3. 从原文去掉这十二段，余下文本是标准 Base64。解码后末尾 16 字节为 GCM tag，前部为 ciphertext。
-4. 无附加 AAD，认证解密后得到 UTF-8 JSON 对象。受控样本不需要压缩解码。
+1. Ham ASCII metnin mutlak karakter ofsetleri `0, 7, 20, 33, 40, 47, 59, 66, 76, 89, 99, 127` konumlarında dörder karakter alınır.
+2. Sırayla birleştirilerek 48 ham ASCII baytı elde edilir; ilk 32 bayt AES-256 key, son 16 bayt GCM IV olarak kullanılır.
+3. Bu on iki parça metinden çıkarılır; kalan metin standart Base64'tür. Decode edildikten sonra son 16 bayt GCM tag, ön kısım ciphertext'tir.
+4. Ek AAD yoktur; kimlik doğrulamalı decode sonrası UTF-8 JSON nesnesi elde edilir. Kontrollü örneklerde sıkıştırma decode'u gerekmez.
 
-这份规则来自静态推断，再由真实受控载荷的认证解码验证。Ghidra 恢复了常量表地址 `0x45cbbb8`、十二次四字节提取和 `SetKeyWithIV` 的 32/16 参数；表内容另从同一 exact carrier 核对。`GCM_Final<Rijndael>` 的类型信息确认算法线索。过滤器构造调用中的 `0x10` 是 flags，不能当作显式 tag 长度；16 字节 tag 由认证实验确认。密钥材料在载荷自身中；不依赖账号、服务端、密码或许可证。GCM 校验用于拒绝不匹配或损坏的载荷，不能证明文件由可信发布者生成。
+Bu kural statik çıkarımdan gelir ve gerçek kontrollü yüklerin kimlik doğrulamalı decode edilmesiyle doğrulanmıştır. Ghidra sabit tablosu adresi `0x45cbbb8`, on iki kez dört bayt çıkarma ve `SetKeyWithIV` için 32/16 parametrelerini geri kazandı; tablo içeriği ayrıca aynı exact carrier üzerinden doğrulandı. `GCM_Final<Rijndael>` tür bilgisi algoritma ipucunu doğrular. Filtre oluşturma çağrısındaki `0x10` flags değeridir, açık tag uzunluğu olarak alınamaz; 16 baytlık tag kimlik doğrulama deneyiyle doğrulanmıştır. Anahtar malzemesi yükün kendisindedir; hesaba, sunucuya, parolaya veya lisansa bağlı değildir. GCM doğrulaması eşleşmeyen veya bozuk yükleri reddetmek için kullanılır; dosyanın güvenilir bir yayıncı tarafından üretildiğini kanıtlamaz.
 
-独立实现见 `electron/capcutCodec.ts`，仅使用标准 Node.js crypto。它限制输入 20 MiB，要求规范 Base64、完整认证、严格 UTF-8 和 JSON 对象，失败不提供未经认证的明文。测试中的固定已知答案及异常载体均自行生成，不是原应用的代码或用户数据。此实现只读导入，不写回剪映格式。
+Bağımsız uygulama `electron/capcutCodec.ts` içindedir ve yalnızca standart Node.js crypto kullanır. Girdiyi 20 MiB ile sınırlar; kurallı Base64, tam kimlik doğrulama, katı UTF-8 ve JSON nesnesi ister; başarısızlıkta kimlik doğrulanmamış açık metin sunmaz. Testlerdeki sabit bilinen yanıtlar ve anormal taşıyıcılar kendi tarafımızdan üretilmiştir; özgün uygulamanın kodu veya kullanıcı verisi değildir. Bu uygulama yalnızca salt okunur içe aktarma yapar, CapCut biçimine geri yazmaz.
 
-## 数据模型及画面验证
+## Veri modeli ve görüntü doğrulaması
 
-- 现代项目的 `Timelines/project.json` 列出主时间线和子时间线；`timeline_layout.json` 的 `activeTimeline` 是推荐项。根目录载荷可能只是空主时间线，不能代替活动时间线。多个时间线时由用户明确选择；不会自动寻找旧备份替代损坏文件。
-- 一个有效的空白时间线可能省略 `tracks`。转换器只对带有效身份、版本、画布、空素材和零/省略时长的此类结构按空轨道处理；其他无 `tracks` 数据仍拒绝。
-- 受控视频源为 640×360、30 fps、3 秒。`source_timerange.duration=3000000`，`target_timerange.duration=2000000` 与 1.5 倍速一致；文字持续 3000000 微秒。因此项目时长为 3 秒，视频在 2 秒结束。
-- 线性音量 `0.6025595664978027` 对应约 −4.4 dB；统一缩放为 0.75，旋转为 30°。
-- 存储位移 `(0.125, -0.125)`，原 UI 显示 `(80, -45)`。原生导出支持画布位移 `(40, +22.5)`，即 `x = raw.x × width / 2`、`y = -raw.y × height / 2`。不能直接把 UI 数字当作渲染像素。
-- 将原生导出归一到 640×360 后，视频左右极端彩色边缘约为 `(86,198–199)` 与 `(633,205–207)`；上述公式预测角点 `(84.65,199.41)` 与 `(635.35,205.59)`，差异在栅格边缘/缩放范围内。另一种全幅坐标解释与导出不符。
-- `track_render_index` 较大的文字轨在视频轨之上。CevikEdit 将其映射为自己的从上到下轨道顺序；同轨片段的层级冲突会警告。没有显式层级时以原轨道数组顺序作回退，不承诺所有自由图层组合保真。
-- 无画布背景的受控导出是黑色；有专用背景配置时尚未映射，会警告。缺少画布尺寸时由首个实际可导入的视觉片段推断，否则明确提示默认尺寸。
-- 文字素材包含嵌套 JSON，其 `text` 被保留。原生 `size=15` 在归一帧中形成约 275×50 像素的字形范围，不能直接等同 15 画布像素。本轮不复制原字体，使用 CevikEdit 的默认字体和样式并提示损失。
+- Modern projelerde `Timelines/project.json` ana zaman çizelgesini ve alt zaman çizelgelerini listeler; `timeline_layout.json` içindeki `activeTimeline` önerilen seçenektir. Kök dizindeki yük yalnızca boş ana zaman çizelgesi olabilir ve etkin zaman çizelgesinin yerine geçmez. Birden çok zaman çizelgesi olduğunda kullanıcı açıkça seçer; bozuk dosyanın yerine eski yedek otomatik aranmaz.
+- Geçerli bir boş zaman çizelgesi `tracks` alanını atlayabilir. Dönüştürücü yalnızca geçerli kimlik, sürüm, tuval, boş malzeme ve sıfır/atlanmış süre taşıyan bu tür yapıları boş track olarak işler; `tracks` içermeyen diğer veriler yine reddedilir.
+- Kontrollü video kaynağı 640×360, 30 fps, 3 saniyedir. `source_timerange.duration=3000000`, `target_timerange.duration=2000000` değerleri 1.5 kat hızla tutarlıdır; metin 3000000 mikrosaniye sürer. Bu nedenle proje süresi 3 saniye, video 2. saniyede biter.
+- Doğrusal ses düzeyi `0.6025595664978027` yaklaşık −4.4 dB'ye karşılık gelir; birleşik ölçek 0.75, döndürme 30°'dir.
+- Saklanan konum kaydırması `(0.125, -0.125)`, özgün arayüzde `(80, -45)` gösterilir. Yerel dışa aktarım tuval kaydırması `(40, +22.5)` destekler, yani `x = raw.x × width / 2`, `y = -raw.y × height / 2`. Arayüzdeki sayılar doğrudan işleme pikseli olarak alınamaz.
+- Yerel dışa aktarım 640×360'a normalleştirildiğinde videonun sol ve sağ uçtaki renkli kenarları yaklaşık `(86,198–199)` ve `(633,205–207)` olur; yukarıdaki formül köşe noktalarını `(84.65,199.41)` ve `(635.35,205.59)` olarak öngörür, fark raster kenarı/ölçekleme aralığındadır. Tam çerçeve koordinat yorumunun diğer biçimi dışa aktarımla uyuşmaz.
+- `track_render_index` değeri daha büyük olan metin track'i video track'inin üzerindedir. CevikEdit bunu kendi yukarıdan aşağıya track sırasına eşler; aynı track'teki kliplerin katman çakışması durumunda uyarı verilir. Açık katman bilgisi yoksa özgün track dizisi sırası yedek olarak kullanılır; tüm serbest katman birleşimlerinin birebir korunacağı taahhüt edilmez.
+- Tuval arka planı olmayan kontrollü dışa aktarım siyahtır; özel arka plan yapılandırması olduğunda henüz eşlenmez ve uyarı verilir. Tuval boyutu yoksa ilk gerçekten içe aktarılabilir görsel klipten çıkarılır; bu da mümkün değilse varsayılan boyut açıkça bildirilir.
+- Metin malzemesi iç içe JSON içerir ve `text` alanı korunur. Yerel `size=15` normalleştirilmiş karede yaklaşık 275×50 piksel glif alanı oluşturur; doğrudan 15 tuval pikseliyle eşitlenemez. Bu turda özgün yazı tipi kopyalanmaz; CevikEdit'in varsayılan yazı tipi ve stili kullanılır ve kayıp bildirilir.
 
-## 尚未覆盖
+## Henüz kapsanmayanlar
 
-复杂效果、关键帧、曲线变速、转场、花字、字体排版、特殊音频处理和画布背景未完整映射；不支持回写、云同步或依赖 API 的 AI。Windows/Linux 文件路径规则有自动化覆盖，实际桌面与打包验收只在本机 macOS arm64 上执行。
+Karmaşık efektler, anahtar kareler, eğrisel hız değişimi, geçişler, süslü metin, yazı tipi dizgisi, özel ses işleme ve tuval arka planı tam olarak eşlenmedi; geri yazma, bulut eşitleme veya API'ye bağlı AI desteklenmez. Windows/Linux dosya yolu kuralları otomasyonla kapsanmıştır, ancak gerçek masaüstü ve paket kabulü yalnızca bu makinede macOS arm64 üzerinde yürütüldü.
 
-### 导出时序回归
+### Dışa aktarma zamanlama regresyonu
 
-原生与初版 CevikEdit 导出均为 90 帧、3 秒，视频在第 60 帧结束；几何凸包 IoU 中位数约 98.44%，栅格边缘差约 1–2 像素。0.2–1.8 秒区间音频 RMS 差约 −0.00257 dB，440 Hz 音高和结束后的静音一致。字体、描边与排版不同仍属于明确的转换损失。
+Yerel ve ilk sürüm CevikEdit dışa aktarımlarının ikisi de 90 kare, 3 saniyedir; video 60. karede biter; geometrik dışbükey örtü IoU medyanı yaklaşık %98.44, raster kenar farkı yaklaşık 1–2 pikseldir. 0.2–1.8 saniye aralığında ses RMS farkı yaklaşık −0.00257 dB, 440 Hz perde ve bitiş sonrası sessizlik tutarlıdır. Yazı tipi, kontur ve dizgi farklılıkları hâlâ açık dönüşüm kaybıdır.
 
-逐帧检查发现 1.5 倍速的半帧位置取帧差异，因此导出器改为向上量化源帧的输出时间戳，使前一源帧保持到下一帧可用。非整帧裁剪会因默认输入 seek 丢弃前驱画面，因此可见视频的非零入点保留关键帧 seek 和负 PTS，再从输出零时刻采样；音频仍按精确入点裁切。十项真实逐帧身份测试覆盖 1.5 倍、0.5 倍、24→30、30→24 fps、对齐及非对齐裁剪、长 GOP/B 帧中后段 seek、VFR 大间隔和不规则采样。另以私有合成实验检查 120 秒源、非零容器起点、音频时刻/音高及变换/动画/淡化，共 24 项通过。覆盖仍限测试中的编解码器、时间戳及容器组合，不能承诺任意损坏或非常规媒体逐帧保真。
+Kare kare inceleme, 1.5 kat hızda yarım kare konumlarında kare seçim farkı olduğunu gösterdi; bu nedenle dışa aktarıcı, kaynak kare çıktı zaman damgalarını yukarı yuvarlayacak biçimde değiştirildi; böylece önceki kaynak kare, sonraki kare kullanılabilir olana kadar korunur. Tam kare olmayan kırpmalarda varsayılan giriş seek'i önceki görüntüyü attığı için, görünür videonun sıfır olmayan giriş noktasında keyframe seek ve negatif PTS korunur, ardından çıktı sıfır anından örneklenir; ses hâlâ kesin giriş noktasına göre kırpılır. On gerçek kare kare kimlik testi 1.5 kat, 0.5 kat, 24→30, 30→24 fps, hizalı ve hizasız kırpmalar, uzun GOP/B karelerde orta-son seek, VFR büyük aralıklar ve düzensiz örneklemeyi kapsar. Ayrıca özel sentetik deneyle 120 saniyelik kaynak, sıfır olmayan kapsayıcı başlangıcı, ses zamanı/perdesi ve dönüşüm/animasyon/solma kontrol edildi; toplam 24 test geçti. Kapsam hâlâ testlerdeki kodek, zaman damgası ve kapsayıcı birleşimleriyle sınırlıdır; keyfî bozuk veya olağan dışı medyada kare kare birebir doğruluk taahhüt edilemez.

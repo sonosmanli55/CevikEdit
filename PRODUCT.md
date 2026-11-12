@@ -41,5 +41,5 @@ Sakin, teknik, abartısız. Sayılar ve sınırlar öne çıkar; "AI destekli" g
 
 - Kurulum: Windows x64 NSIS (`CevikEdit Setup *.exe`), ~130 MB
 - Bootstrap: 200 KB'lık `CevikEdit-Kurucu.exe`, en son sürümü GitHub'dan indirip başlatır
-- Güncelleme API'si: `api.github.com/repos/sonosanli55/CevikEdit/releases`
+- Güncelleme API'si: `api.github.com/repos/sonosmanli55/CevikEdit/releases`
 - Lisans: MIT (kaynak), gömülü Noto Sans SC OFL

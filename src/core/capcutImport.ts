@@ -38,12 +38,12 @@ export function importCapcutDraft(
     const source = input.trim().replace(/^\uFEFF/, "");
     if (!source.startsWith("{"))
       throw new Error(
-        "剪映草稿是不透明载荷，请在桌面客户端中通过剪映草稿导入功能打开。",
+        "CapCut taslağı opak bir yüktür; masaüstü uygulamasında CapCut taslağı içe aktarma özelliğiyle açın.",
       );
     try {
       input = JSON.parse(source);
     } catch {
-      throw new Error("剪映草稿 JSON 无法解析");
+      throw new Error("CapCut taslağı JSON'u ayrıştırılamıyor");
     }
   }
   const draft = object(input);
@@ -65,16 +65,16 @@ export function importCapcutDraft(
     typeof draft.materials !== "object" ||
     Array.isArray(draft.materials)
   )
-    throw new Error("不是支持的剪映草稿：需要 tracks 和 materials，或有效的空白时间线结构。");
-  if (tracks.length > 1000) throw new Error("草稿轨道数量超过导入限制");
+    throw new Error("Desteklenen bir CapCut taslağı değil: tracks ve materials ya da geçerli boş zaman çizelgesi yapısı gerekir.");
+  if (tracks.length > 1000) throw new Error("Taslaktaki kanal sayısı içe aktarma sınırını aşıyor");
   const warnings: string[] = [
-    "实验性导入：仅转换基础时间线，部分效果和文字样式会丢失，请核对预览与导出。",
+    "Deneysel içe aktarma: yalnızca temel zaman çizelgesi dönüştürülür; bazı efektler ve metin stilleri kaybolabilir. Önizlemeyi ve dışa aktarmayı kontrol edin.",
   ];
   const warn = (message: string) => {
     if (!warnings.includes(message)) warnings.push(message);
   };
   const project = createProject(
-    options.name ?? string(draft.name, "剪映导入项目"),
+    options.name ?? string(draft.name, "CapCut içe aktarma projesi"),
   );
   // The controlled native export uses black when no canvas background is set.
   project.background = "#000000";
@@ -87,7 +87,7 @@ export function importCapcutDraft(
   }
   const fps = number(draft.fps, 30);
   project.fps = [24, 25, 30, 50, 60].includes(fps) ? fps : 30;
-  if (fps !== project.fps) warn(`帧率 ${fps} 不受支持，已改为 30 fps。`);
+  if (fps !== project.fps) warn(`Kare hızı ${fps} desteklenmiyor; 30 fps olarak ayarlandı.`);
   project.tracks = [];
   project.assets = [];
   project.clips = [];
@@ -99,7 +99,7 @@ export function importCapcutDraft(
   let materialCount = 0;
   for (const [category, items] of Object.entries(materials))
     for (const item of array(items)) {
-      if (++materialCount > 100000) throw new Error("草稿素材数量超过导入限制");
+      if (++materialCount > 100000) throw new Error("Taslaktaki medya sayısı içe aktarma sınırını aşıyor");
       const data = object(item),
         materialId = string(data.id);
       if (materialId) materialById.set(materialId, { category, data });
@@ -122,7 +122,7 @@ export function importCapcutDraft(
             ? "video"
             : undefined;
     if (!kind) {
-      warn(`素材类型 ${type || category} 不受支持，相关片段已跳过。`);
+      warn(`Medya türü ${type || category} desteklenmiyor; ilgili klipler atlandı.`);
       return undefined;
     }
     const path = string(data.path);
@@ -132,12 +132,12 @@ export function importCapcutDraft(
         path.includes("\0") ||
         path.length > 32768)
     ) {
-      warn("素材路径不是支持的本机绝对路径，相关片段已跳过。");
+      warn("Medya yolu desteklenen bir yerel mutlak yol değil; ilgili klipler atlandı.");
       return undefined;
     }
     if (!path) {
       warn(
-        `素材 ${string(data.material_name, materialId)} 没有本地路径，相关片段已跳过。`,
+        `Medya ${string(data.material_name, materialId)} için yerel yol yok; ilgili klipler atlandı.`,
       );
       return undefined;
     }
@@ -148,7 +148,7 @@ export function importCapcutDraft(
       url: (options.mediaUrl ?? identityUrl)(path),
       name: string(
         data.material_name,
-        string(data.name, path.split(/[\\/]/).pop() ?? "素材"),
+        string(data.name, path.split(/[\\/]/).pop() ?? "Medya"),
       ),
       duration: bounded(seconds(data.duration), 0, 86400 * 8, 0),
       width: bounded(data.width, 0, 100000, 0),
@@ -167,25 +167,25 @@ export function importCapcutDraft(
   const trackLayers = new Map<string, number>();
   const unmappedSettings = new Set<string>();
   const settingNames: Record<string, string> = {
-    canvases: "画布背景", placeholder_infos: "占位设置",
-    sound_channel_mappings: "声道设置", material_colors: "素材颜色",
-    vocal_separations: "人声分离", material_animations: "片段动画",
-    transitions: "转场", video_effects: "视频特效", audio_effects: "音频效果",
-    audio_fades: "声音淡入淡出", masks: "蒙版",
+    canvases: "Tuval arka planı", placeholder_infos: "Yer tutucu ayarı",
+    sound_channel_mappings: "Kanal ayarı", material_colors: "Medya rengi",
+    vocal_separations: "Vokal ayırma", material_animations: "Klip animasyonu",
+    transitions: "Geçiş", video_effects: "Video efekti", audio_effects: "Ses efekti",
+    audio_fades: "Ses yumuşak giriş/çıkışı", masks: "Maske",
   };
   let totalSegments = 0;
   for (const rawTrack of tracks) {
     const sourceTrack = object(rawTrack),
       kind = string(sourceTrack.type);
     if (!["video", "audio", "text"].includes(kind)) {
-      warn(`轨道类型 ${kind || "未知"} 不受支持，已跳过。`);
+      warn(`Kanal türü ${kind || "Bilinmiyor"} desteklenmiyor; atlandı.`);
       continue;
     }
     const track = createTrack(
       kind as TrackKind,
       string(
         sourceTrack.name,
-        { video: "视频", audio: "音频", text: "文字" }[kind],
+        { video: "Video", audio: "Ses", text: "Metin" }[kind],
       ),
     );
     project.tracks.push(track);
@@ -195,14 +195,14 @@ export function importCapcutDraft(
     const uniqueLayers = [...new Set(layers)];
     trackLayers.set(track.id, uniqueLayers[0] ?? project.tracks.length - 1);
     if (uniqueLayers.length > 1)
-      warn("同轨片段的图层顺序不同，已按首个片段的轨道层级导入；请核对遮挡关系。");
+      warn("Aynı kanaldaki kliplerin katman sırası farklı; ilk klibin kanal düzeyine göre içe aktarıldı. Örtüşme ilişkisini kontrol edin.");
     for (const rawSegment of array(sourceTrack.segments)) {
-      if (++totalSegments > 10000) throw new Error("草稿片段数量超过导入限制");
+      if (++totalSegments > 10000) throw new Error("Taslaktaki klip sayısı içe aktarma sınırını aşıyor");
       const segment = object(rawSegment),
         materialId = string(segment.material_id),
         material = materialById.get(materialId);
       if (!material) {
-        warn(`片段引用的素材 ${materialId || "未知"} 不存在，已跳过。`);
+        warn(`Klibin başvurduğu medya ${materialId || "Bilinmiyor"} bulunamadı; atlandı.`);
         continue;
       }
       const target = object(segment.target_timerange),
@@ -217,7 +217,7 @@ export function importCapcutDraft(
         sourceIn < 0 ||
         sourceIn > 86400 * 8
       ) {
-        warn("存在无效时间范围的片段，已跳过。");
+        warn("Geçersiz zaman aralığına sahip klipler atlandı.");
         continue;
       }
       let asset: MediaAsset | undefined;
@@ -226,12 +226,12 @@ export function importCapcutDraft(
           material.category !== "texts" ||
           !["text", "subtitle", ""].includes(string(material.data.type))
         ) {
-          warn("非基础文字素材已跳过。");
+          warn("Temel olmayan metin medyası atlandı.");
           continue;
         }
       } else {
         if (material.category !== (kind === "audio" ? "audios" : "videos")) {
-          warn("素材类型与轨道不一致，已跳过相关片段。");
+          warn("Medya türü kanalla uyuşmuyor; ilgili klipler atlandı.");
           continue;
         }
         asset = makeAsset(materialId, material.category, material.data);
@@ -254,34 +254,34 @@ export function importCapcutDraft(
           : seconds(source.duration) / duration || 1,
       );
       if (speed < 0.1 || speed > 8) {
-        warn(`片段速度 ${speed} 超出 0.1–8 倍范围，已跳过。`);
+        warn(`Klip hızı ${speed} 0.1–8× aralığının dışında; atlandı.`);
         continue;
       }
       if (asset && asset.kind !== "image") {
         const extent = sourceIn + duration * speed;
         if (extent > 86400 * 8) {
-          warn("源素材时间范围超出支持范围，相关片段已跳过。");
+          warn("Kaynak medya zaman aralığı desteklenen aralığın dışında; ilgili klipler atlandı.");
           continue;
         }
         if (inferredDurations.has(asset.id)) {
           asset.duration = Math.max(asset.duration, extent);
           warn(
-            "部分素材缺少时长，已由基础片段推断；请重新链接素材确认真实时长。",
+            "Bazı medyalarda süre eksik; temel kliplerden tahmin edildi. Gerçek süreyi doğrulamak için medyayı yeniden bağlayın.",
           );
         } else if (extent > asset.duration + 0.08) {
-          warn("片段超出记录的源素材时长，已跳过。");
+          warn("Klip, kaydedilen kaynak medya süresini aşıyor; atlandı.");
           continue;
         }
         if (
           seconds(source.duration) > 0 &&
           Math.abs(seconds(source.duration) - duration * speed) > 0.08
         )
-          warn("源/目标时间范围与基础速度存在差异；曲线变速等可能未保留。");
+          warn("Kaynak/hedef zaman aralığı ile temel hız arasında fark var; eğri hız değişimleri korunmamış olabilir.");
       }
       clip.speed = speed;
       clip.volume = bounded(segment.volume, 0, 4, 1);
       if (clip.volume !== number(segment.volume, 1))
-        warn("片段音量超出支持范围，已限制到 0–4 倍；请核对声音。");
+        warn("Klip ses düzeyi desteklenen aralığın dışında; 0–4 katına sınırlandı. Sesi kontrol edin.");
       const transform = object(segment.clip),
         position = object(transform.transform),
         scale = object(transform.scale),
@@ -290,43 +290,43 @@ export function importCapcutDraft(
       clip.transform.rotation = bounded(transform.rotation, -1e9, 1e9, 0);
       clip.transform.opacity = bounded(transform.alpha, 0, 1, 1);
       if (clip.transform.scale !== number(scale.x, 1))
-        warn("片段缩放超出支持范围，已限制到 0.05–10 倍。");
+        warn("Klip ölçeği desteklenen aralığın dışında; 0,05–10 katına sınırlandı.");
       if (clip.transform.opacity !== number(transform.alpha, 1))
-        warn("片段透明度超出支持范围，已限制到 0–1。");
+        warn("Klip opaklığı desteklenen aralığın dışında; 0–1 aralığına sınırlandı.");
       clip.transform.flipX = flip.horizontal === true;
       clip.transform.flipY = flip.vertical === true;
       if (number(scale.y, number(scale.x, 1)) !== number(scale.x, 1))
-        warn("非等比缩放导入为统一缩放，画面可能改变。");
+        warn("Orantısız ölçek, tek tip ölçek olarak içe aktarıldı; görüntü değişebilir.");
       if (kind === "text") {
         const text = parseText(material.data.content);
         if (text === undefined || text.length > 20000) {
-          warn("无法解析文字内容的片段已跳过。");
+          warn("Metin içeriği ayrıştırılamayan klipler atlandı.");
           continue;
         }
         clip.text!.text = text;
-        clip.name = text.slice(0, 30) || "文字";
+        clip.name = text.slice(0, 30) || "Metin";
         warn(
-          "文字内容已保留；剪映字体、花字、样式和排版未映射，使用 CevikEdit 默认样式。",
+          "Metin içeriği korundu; CapCut yazı tipi, süslü yazı, stil ve dizgi eşlenmedi, CevikEdit varsayılan stili kullanıldı.",
         );
       }
-      if (segment.reverse === true) warn("倒放未支持，该片段按正向播放。");
+      if (segment.reverse === true) warn("Ters oynatma desteklenmiyor; bu klip normal yönde oynatılır.");
       if (
         array(segment.common_keyframes).length ||
         Object.keys(object(segment.keyframes)).length
       )
-        warn("剪映关键帧未映射，保留片段的静态参数。");
+        warn("CapCut anahtar kareleri eşlenmedi; klibin statik parametreleri korundu.");
       for (const ref of refs) {
         const extra = materialById.get(ref);
         if (extra && extra.category !== "speeds")
-          unmappedSettings.add(settingNames[extra.category] ?? "其他附加效果");
+          unmappedSettings.add(settingNames[extra.category] ?? "Diğer ek efektler");
         if (
           extra?.category === "speeds" &&
           array(extra.data.curve_speed).length
         )
-          warn("曲线变速未支持，仅保留基础速度。");
+          warn("Eğri hız değişimi desteklenmiyor; yalnızca temel hız korundu.");
       }
       if (Object.keys(object(material.data.crop)).length)
-        warn("剪映裁切信息未映射，使用完整素材画面。");
+        warn("CapCut kırpma bilgisi eşlenmedi; medyanın tam görüntüsü kullanıldı.");
       // Only accepted visual segments may establish an unspecified canvas.
       // Library-only materials and rejected clips must not affect its size.
       if (!hasCanvasDimensions && !originalCanvas && kind === "video" && asset) {
@@ -351,11 +351,11 @@ export function importCapcutDraft(
       project.width = Math.round(bounded(originalCanvas.width, 16, 7680, 1920));
       project.height = Math.round(bounded(originalCanvas.height, 16, 7680, 1080));
       warn(
-        `草稿没有有效画布尺寸，已由首个可导入视觉片段推断为 ${project.width} × ${project.height}；请核对画布比例。`,
+        `Taslakta geçerli tuval boyutu yok; ilk içe aktarılabilir görsel klipten ${project.width} × ${project.height} olarak tahmin edildi. Tuval oranını doğrulayın.`,
       );
     } else {
       warn(
-        "草稿没有有效画布尺寸，也没有可用于推断的视觉片段，已使用默认 1920 × 1080。请核对画布比例。",
+        "Taslakta geçerli tuval boyutu ve tahmin için görsel klip yok; varsayılan 1920 × 1080 kullanıldı. Tuval oranını kontrol edin.",
       );
     }
   }
@@ -367,12 +367,12 @@ export function importCapcutDraft(
   // first track is the top layer; source array order is the fallback.
   project.tracks.sort((a, b) => trackLayers.get(b.id)! - trackLayers.get(a.id)!);
   if (!project.tracks.length) project.tracks = [createTrack("video")];
-  if (!project.clips.length) warn("没有可导入的基础片段。");
+  if (!project.clips.length) warn("İçe aktarılabilir temel klip yok.");
   if (unmappedSettings.size)
-    warn(`未转换的附加设置：${[...unmappedSettings].join("、")}。请核对相关效果。`);
+    warn(`Dönüştürülmeyen ek ayarlar: ${[...unmappedSettings].join(", ")}. İlgili efektleri doğrulayın.`);
   const bg = object(canvas.background);
   if (Object.keys(bg).length)
-    warn("剪映画布背景未映射，使用黑色背景。");
+    warn("CapCut tuval arka planı eşlenmedi; siyah arka plan kullanıldı.");
   return { project: validateProject(project), warnings };
 }
 

@@ -1,146 +1,146 @@
 <p align="center">
-  <img src="public/icons/cevikedit.png" width="96" height="96" alt="CevikEdit 图标" />
+  <img src="public/icons/cevikedit.png" width="96" height="96" alt="CevikEdit simgesi" />
 </p>
-<h1 align="center">CevikEdit · CevikEdit</h1>
-<p align="center"><strong>借助 <a href="https://github.com/morluto/rea">REA</a> 研究剪映 / CapCut，独立重实现的开源视频编辑器。</strong><br />macOS 优先；仅开展授权范围内的研究，不复制剪映专有代码或素材。</p>
-<p align="center">完整视频编辑器的实现工作量很大，项目仍处于早期阶段。<br /><strong>欢迎贡献者一起完善功能、交互、跨平台支持、测试和文档。</strong> <a href="#参与贡献">参与贡献 →</a></p>
+<h1 align="center">CevikEdit</h1>
+<p align="center"><strong><a href="https://github.com/morluto/rea">REA</a> ile CapCut'ı inceleyerek bağımsız olarak yeniden yazılmış açık kaynak video düzenleyici.</strong><br />Masaüstü öncelikli; yalnızca yetkili kapsamda araştırma yapılır, CapCut'un tescilli kodu veya medyası kopyalanmaz.</p>
+<p align="center">Tam bir video düzenleyicisi büyük bir iştir ve proje hâlâ erken aşamadadır.<br /><strong>Katkıda bulunanları özellikler, etkileşim, platform desteği, testler ve belgeler için bekliyoruz.</strong> <a href="#katkıda-bulunma">Katkıda bulunma →</a></p>
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/source_license-MIT-45d6c0" alt="Source license: MIT" /></a>
-  <img src="https://img.shields.io/badge/status-early_development-orange" alt="Status: early development" />
-  <img src="https://img.shields.io/badge/verified-macOS_arm64-333333" alt="Verified platform: macOS arm64" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/source_license-MIT-45d6c0" alt="Kaynak lisansı: MIT" /></a>
+  <img src="https://img.shields.io/badge/status-early_development-orange" alt="Durum: erken geliştirme" />
+  <img src="https://img.shields.io/badge/verified-macOS_arm64-333333" alt="Doğrulanan platform: macOS arm64" />
 </p>
 <p align="center">
-  简体中文 · <a href="README.en.md">English</a><br />
-  <a href="#快速开始">快速开始</a> · <a href="docs/USER_GUIDE.md">使用指南</a> · <a href="docs/WEEKLY_TODO.md">本周功能计划</a> · <a href="CHANGELOG.md">更新记录</a> · <a href="#参与贡献">参与贡献</a>
+  Türkçe · <a href="README.en.md">English</a><br />
+  <a href="#hızlı-başlangıç">Hızlı başlangıç</a> · <a href="docs/USER_GUIDE.md">Kullanım kılavuzu</a> · <a href="docs/WEEKLY_TODO.md">Haftalık özellik planı</a> · <a href="CHANGELOG.md">Değişiklik günlüğü</a> · <a href="#katkıda-bulunma">Katkıda bulunma</a>
 </p>
 
-![CevikEdit 的素材库、播放器、属性面板与多轨时间线](docs/screenshots/ui-parity-editor.png)
+![CevikEdit medya kitaplığı, oynatıcı, özellikler paneli ve çok kanallı zaman çizelgesi](docs/screenshots/ui-parity-editor.png)
 
-CevikEdit 将素材管理、多轨剪辑、字幕和视频导出放在一个熟悉的桌面工作区中。核心编辑流程在本地运行，无需账号或云服务。
+CevikEdit medya yönetimini, çok kanallı kurguyu, altyazıları ve video dışa aktarmayı tanıdık bir masaüstü çalışma alanında birleştirir. Temel kurgu akışı yerel olarak çalışır; hesap veya bulut hizmeti gerekmez.
 
-项目使用 [REA](https://github.com/morluto/rea) 辅助研究剪映的界面行为和本地项目格式，再以 Electron、React、TypeScript 和 FFmpeg 独立实现编辑器。REA 是开发研究工具，运行 CevikEdit 不需要安装 REA、Ghidra 或剪映。
+Proje, CapCut'un arayüz davranışını ve yerel proje biçimini incelemek için [REA](https://github.com/morluto/rea) kullanır; düzenleyicinin kendisi Electron, React, TypeScript ve FFmpeg ile bağımsız olarak yazılmıştır. REA bir geliştirme araştırma aracıdır; CevikEdit'i çalıştırmak için REA, Ghidra veya CapCut kurmak gerekmez.
 
-> **当前源码：v0.6.1 候选，早期开发中。** 本周新增可复用模板、时间线插入/覆盖与关联音频、自由缩放平移（含惯性与迷你地图）、字幕拆分/合并与文字动画、自由贝塞尔缓动、离线语音检测驱动的自动压低、4K/大工程限流、HDR→SDR 色调映射与开放草稿交换导出，界面仅提供土耳其语。已在本机构建并启动 Windows x64 NSIS 候选包；macOS 包尚未随本周功能重新构建，Linux 未验证。已发布的安装包仍见 [v0.5.0 预览版 Release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0)，也可按下方步骤从源码运行。30 秒演示见 [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4)，逐项证据见 [本机验证记录](docs/VALIDATION.md)。
+> **Geçerli sürüm: v0.8.0.** Bu sürümde tek tıkla kurulum için küçük bir başlatıcı, uygulama içi güncelleme akışı, yeniden kullanılabilir şablonlar, zaman çizelgesine ekleme/üzerine yazma ve bağlantılı ses, serbest yakınlaştırma ve kaydırma (atalet ve mini harita ile), altyazı bölme/birleştirme ve metin animasyonu, serbest Bézier yumuşatma, çevrimdışı konuşma algılamayla otomatik kısma, 4K/büyük proje sınırlaması, HDR→SDR ton eşleme ve açık taslak değişimi dışa aktarma bulunur. Arayüz yalnızca Türkçedir; eski çalışma zamanı çeviri katmanı kaldırılmış, kaynak metinler doğrudan Türkçe yazılmıştır. Windows x64 NSIS kurulumu bu makinede derlenmiş ve başlatılmıştır; macOS paketi bu sürümde yeniden derlenmemiştir, Linux doğrulanmamıştır. Sürümler için [GitHub Releases](https://github.com/sonosmanli55/CevikEdit/releases) sayfasına bakın; kaynaktan çalıştırma adımları aşağıdadır. 30 saniyelik demo: [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); kanıtlar: [Yerel doğrulama kaydı](docs/VALIDATION.md).
 
-## 核心功能
+## Temel özellikler
 
-| 能力 | 可以做什么 |
+| Yetenek | Neler yapılabilir |
 | --- | --- |
-| **素材与源预览** | 导入视频、音频和图片，查看缩略图与波形；用 I/O 标记入出点，将选段加入时间线。 |
-| **多轨剪辑** | 拖拽、裁剪、分割、复制、多选、吸附、锁轨、静音，以及撤销与重做。 |
-| **画面与声音** | 变换、裁剪、基础调色、色度抠像、矩形 / 椭圆蒙版、关键帧、音量、淡入淡出和常规变速。 |
-| **文字与字幕** | SRT / 基础 WebVTT 导入、逐句编辑、批量替换、时间偏移、统一样式和 SRT 导出。 |
-| **本地项目** | `.cevikedit` 保存、自动恢复、素材重新链接；收集项目素材为可搬移的文件夹。 |
-| **视频导出** | 导出整条时间线、选中区间或自定义区间，支持 H.264 / AAC 编码的 MP4 与 MOV。 |
-| **文字与效果库** | 16 款可编辑文字模板、16 款调色 / 动效预设、8 款转场，支持动态预览与一次撤销。 |
-| **离线素材** | 内置 64 款原创贴纸、背景、标题底板与合成音效，以及 Noto Sans SC 中文字体。 |
-| **Codex 插件** | 在 Codex 右侧操作完整编辑器；读取项目、导入素材、批量编辑与撤销。 |
-| **可选剪辑助手** | 连接已安装并登录的 Codex CLI / Claude Code，审阅编辑提案后应用，支持一次撤销。 |
+| **Medya ve kaynak önizleme** | Video, ses ve görsel içe aktarın; küçük görselleri ve dalga biçimlerini görün; I/O işaretleriyle giriş/çıkış noktası belirleyip seçimi zaman çizelgesine ekleyin. |
+| **Çok kanallı kurgu** | Sürükleme, kırpma, bölme, çoğaltma, çoklu seçim, yapışma, kanal kilitleme, sessize alma, geri alma ve yineleme. |
+| **Görüntü ve ses** | Dönüştürme, kırpma, temel renk ayarı, kroma key, dikdörtgen / elips maske, anahtar kareler, ses düzeyi, geçişler ve normal hız değişimi. |
+| **Metin ve altyazı** | SRT / temel WebVTT içe aktarma, cümle cümle düzenleme, toplu değiştirme, zaman kaydırma, tek tip stil ve SRT dışa aktarma. |
+| **Yerel proje** | `.cevikedit` kaydetme, otomatik kurtarma, medyayı yeniden bağlama; proje medyasını taşınabilir bir klasörde toplama. |
+| **Video dışa aktarma** | Tüm zaman çizelgesini, seçili aralığı veya özel aralığı H.264 / AAC kodlamalı MP4 ve MOV olarak dışa aktarma. |
+| **Metin ve efekt kitaplığı** | 16 düzenlenebilir metin şablonu, 16 renk / hareket ön ayarı, 8 geçiş; canlı önizleme ve tek geri alma adımı. |
+| **Çevrimdışı medya** | 64 özgün çıkartma, arka plan, başlık zemini ve sentezlenmiş ses efekti ile Noto Sans SC yazı tipi. |
+| **Codex eklentisi** | Codex'in sağ panelinde tam düzenleyiciyi kullanma; projeyi okuma, medya içe aktarma, toplu düzenleme ve geri alma. |
+| **İsteğe bağlı kurgu asistanı** | Kurulu ve oturum açılmış Codex CLI / Claude Code'a bağlanma; önerileri gözden geçirip uygulama, tek adımda geri alma. |
 
-完整支持范围与限制见 [功能矩阵](docs/FEATURE_MATRIX.md)。
+Tam destek kapsamı ve sınırlamalar için [özellik matrisi](docs/FEATURE_MATRIX.md).
 
-## 快速开始
+## Hızlı başlangıç
 
-### 方式一：独立 DMG 桌面版
+### Yol 1: Tek tıkla Windows kurulumu
 
-下载 [CevikEdit 0.5.0 DMG（macOS Apple Silicon）](https://github.com/Xiangyu-CAS/rea-capcut/releases/download/v0.5.0/CevikEdit-0.5.0-arm64.dmg)，打开后将应用拖入“应用程序”，直接启动即可剪辑。安装包自带 FFmpeg / FFprobe，不需要另外安装。当前为预览版，采用 ad-hoc 签名，尚未完成 Apple 公证。
+[GitHub Releases](https://github.com/sonosmanli55/CevikEdit/releases) sayfasından `CevikEdit-Kurucu.exe` dosyasını indirip çalıştırın. Yaklaşık 200 KB'lık başlatıcı, uygulamayı arka planda indirir ve kurar; kurulum yalnızca sizin tıklamanızla başlar, sessizce çalışmaz. Kurulumdan sonra güncellemeleri uygulama içindeki **Güncelleme merkezi** üzerinden denetleyebilirsiniz. Ağ trafiği yalnızca GitHub sürüm dosyaları içindir; proje, medya veya telemetri yüklenmez.
 
-### 方式二：作为 Codex 插件在右侧打开
+### Yol 2: Codex eklentisi olarak sağ panelde açma
 
-先安装 **CevikEdit 0.5.0+** 和 Codex 桌面端，确保终端有 `codex` CLI 与 Python 3。下载 [Codex 插件包](https://github.com/Xiangyu-CAS/rea-capcut/releases/download/v0.5.0/CevikEdit-plugin-0.5.0.zip)，在解压目录或仓库目录运行：
+Önce **CevikEdit 0.8.0+** ve Codex masaüstü uygulamasını kurun; terminalde `codex` CLI ve Python 3 bulunmalıdır. Depodaki eklenti paketini indirip (veya depoyu klonlayıp) şu komutu çalıştırın:
 
 ```sh
 sh scripts/install-plugin.sh
 ```
 
-重连或新开 Codex 聊天，输入 **“用 CevikEdit 在右侧打开视频编辑器”**。可直接在侧栏点击、拖动、输入、保存和导出，也可让 Codex 根据当前项目进行可撤销的批量剪辑。
+Codex sohbetini yeniden bağlayın veya yeni bir sohbet açın ve **"CevikEdit ile video düzenleyiciyi sağda aç"** yazın. Kenar çubuğunda tıklayabilir, sürükleyebilir, yazabilir, kaydedebilir ve dışa aktarabilirsiniz; Codex'ten geçerli projeye göre geri alınabilir toplu kurgu da isteyebilirsiniz.
 
-插件复用本机编辑器；实时画面约 6 fps，文件选择使用系统对话框。应用不在“应用程序”目录时使用 `--app /absolute/path/CevikEdit.app`。完整安装、操作方式与限制见 [Codex 插件说明](docs/CODEX_PLUGIN.md)。
+Eklenti yerel düzenleyiciyi kullanır; canlı görüntü yaklaşık 6 fps'dir ve dosya seçimi sistem iletişim kutularını açar. Uygulama "Applications" klasöründe değilse `--app /absolute/path/CevikEdit.app` kullanın. Kurulum, kullanım ve sınırlamalar için [Codex eklentisi belgesi](docs/CODEX_PLUGIN.md).
 
-### 从源码运行
+### Kaynaktan çalıştırma
 
-将仓库克隆或下载到本机后，在项目目录执行。需要：
+Depoyu klonlayın veya indirin, ardından proje dizininde şunları çalıştırın. Gereksinimler:
 
-- **Node.js 26**，或 Node.js **24.11+ 的 24.x 版本**，以及 npm。
-- **FFmpeg 与 FFprobe**；FFmpeg 需包含 `libx264` 和 AAC 编码支持。
+- **Node.js 26** veya Node.js **24.11+ 24.x** sürümü ve npm.
+- **FFmpeg ve FFprobe**; FFmpeg `libx264` ve AAC kodlama desteği içermelidir.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-这会启动 Electron 桌面编辑器和本地 Vite 开发服务。媒体工具可放在 `PATH` 中，也可在应用设置中指定路径；配置方式见 [媒体工具说明](docs/MEDIA_TOOLS.md)。
+Bu komut Electron masaüstü düzenleyicisini ve yerel Vite geliştirme sunucusunu başlatır. Medya araçları `PATH` içinde olabilir veya uygulama ayarlarından yol belirtilebilir; ayrıntılar [medya araçları belgesinde](docs/MEDIA_TOOLS.md).
 
-想先试用一个完整工程：
+Hazır bir projeyi denemek için:
 
 ```sh
 npm run demo
 ```
 
-然后在 CevikEdit 中打开 `.demo/demo.cevikedit`。它包含程序生成的原创画面、音乐、字幕与关键帧，详见 [演示工程](docs/DEMO.md)。
+Ardından CevikEdit içinde `.demo/demo.cevikedit` dosyasını açın. Programla üretilmiş özgün görüntüler, müzik, altyazılar ve anahtar kareler içerir; ayrıntılar [demo projesi](docs/DEMO.md).
 
-### 构建 macOS 安装包
+### macOS kurulum paketi oluşturma
 
-在原生 macOS 主机上安装 Xcode 命令行工具，然后执行：
+Yerel bir macOS makinesinde Xcode komut satırı araçlarını kurun, ardından:
 
 ```sh
 npm run dist:mac:installer
 ```
 
-DMG 和 ZIP 输出到 `release/`。首次构建会下载并编译内置 FFmpeg / FFprobe；安装包用户无需再安装媒体工具。打开 DMG 后，将 CevikEdit 拖入“应用程序”。
+DMG ve ZIP `release/` dizinine yazılır. İlk derleme gömülü FFmpeg / FFprobe'u indirip derler; paket kullanıcılarının medya araçlarını ayrıca kurması gerekmez. DMG'yi açtıktan sonra CevikEdit'i "Applications" klasörüne sürükleyin.
 
-当前安装包采用本地 ad-hoc 签名，尚未完成 Apple 公证。平台验证与构建细节见 [验证记录](docs/VALIDATION.md) 和 [媒体工具说明](docs/MEDIA_TOOLS.md)。
+Geçerli paket yerel ad-hoc imza kullanır ve Apple noter onayından geçmemiştir. Platform doğrulaması ve derleme ayrıntıları için [doğrulama kaydı](docs/VALIDATION.md) ve [medya araçları belgesi](docs/MEDIA_TOOLS.md).
 
-## 项目与数据
+## Proje ve veriler
 
-- **本地编辑**：媒体处理、预览、项目保存和导出均在本机完成；普通项目引用本地素材，跨机器使用时可收集项目素材或重新链接。
-- **Codex 插件**：媒体处理在本机运行；Codex 可接收工具读取的项目摘要、文字和显式截图。侧栏实时帧仅供界面使用。
-- **可选助手**：仅在用户发送消息时，向所选 CLI 服务发送文字和有限时间线摘要，不附带媒体文件。详情见 [助手说明](docs/ASSISTANT.md)。
-- **实验性剪映导入**：支持已验证格式中的基础片段转换；复杂文字样式、特效与关键帧可能丢失，不支持写回剪映格式。版本范围见 [互通说明](docs/CAPCUT_INTEROP.md)。
+- **Yerel düzenleme**: Medya işleme, önizleme, proje kaydetme ve dışa aktarma tamamen bu makinede yapılır; normal projeler yerel medyaya başvurur, başka makinede kullanmak için medyayı toplayabilir veya yeniden bağlayabilirsiniz.
+- **Codex eklentisi**: Medya işleme yerelde çalışır; Codex araçların döndürdüğü proje özetlerini, metinleri ve açıkça alınan ekran görüntülerini alabilir. Kenar çubuğundaki canlı kareler yalnızca arayüz içindir.
+- **İsteğe bağlı asistan**: Yalnızca kullanıcı mesaj gönderdiğinde seçili CLI hizmetine metin ve sınırlı zaman çizelgesi özeti gönderilir; medya dosyaları eklenmez. Ayrıntılar [asistan belgesinde](docs/ASSISTANT.md).
+- **Deneysel CapCut içe aktarma**: Doğrulanmış biçimlerde temel klip dönüşümü desteklenir; karmaşık metin stilleri, efektler ve anahtar kareler kaybolabilir, CapCut biçimine geri yazma desteklenmez. Sürüm kapsamı için [birlikte çalışabilirlik belgesi](docs/CAPCUT_INTEROP.md).
 
-云同步、SaaS、直接 API AI、自动语音字幕与 AI 人像抠像尚未实现。CevikEdit 是独立项目，与剪映 / CapCut 无隶属关系。
+Bulut eşitleme, SaaS, doğrudan API yapay zekâsı, otomatik sesli altyazı ve yapay zekâ ile kişi maskeleme henüz uygulanmamıştır. CevikEdit bağımsız bir projedir; CapCut ile bağlantılı değildir.
 
-## 开发
+## Geliştirme
 
 ```sh
-npm run check          # 类型检查、单元测试与生产构建
-npm run test:desktop   # 构建并运行桌面基础工作流测试
-npm run check:desktop  # 完整桌面回归
+npm run check          # tür denetimi, birim testleri ve üretim derlemesi
+npm run test:desktop   # derleyip masaüstü temel iş akışı testlerini çalıştırır
+npm run check:desktop  # tam masaüstü regresyonu
 ```
 
-更多专项测试、运行条件和已执行的验收结果见 [验证记录](docs/VALIDATION.md)。
+Diğer özel testler, çalışma koşulları ve yürütülen kabul sonuçları için [doğrulama kaydı](docs/VALIDATION.md).
 
 ```text
-src/components/   编辑器界面
-src/editor/       状态管理、撤销重做与预览
-src/core/         项目模型、时间线、字幕与画面处理
-electron/         本地文件桥接、媒体处理与导出
-scripts/          素材、图标与安装包构建工具
-tests/            核心逻辑、媒体与桌面工作流测试
-docs/             用户文档、架构与研究记录
+src/components/   düzenleyici arayüzü
+src/editor/       durum yönetimi, geri alma/yineleme ve önizleme
+src/core/         proje modeli, zaman çizelgesi, altyazı ve görüntü işleme
+electron/         yerel dosya köprüsü, medya işleme ve dışa aktarma
+scripts/          medya, simge ve kurulum paketi derleme araçları
+tests/            çekirdek mantık, medya ve masaüstü iş akışı testleri
+docs/             kullanıcı belgeleri, mimari ve araştırma kayıtları
 ```
 
-## 参与贡献
+## Katkıda bulunma
 
-欢迎提交问题反馈、改进文档或发起 Pull Request。当前尤其欢迎 Windows / Linux 实机验证、大型项目性能优化，以及剪辑交互和无障碍改进。
+Hata bildirimleri, belge iyileştirmeleri ve Pull Request'ler memnuniyetle karşılanır. Özellikle Windows / Linux gerçek donanım doğrulaması, büyük proje performans iyileştirmeleri, kurgu etkileşimi ve erişilebilirlik katkıları beklenir.
 
-1. 报告问题时附上系统、CevikEdit 版本、复现步骤与预期行为；媒体问题尽量提供可公开的最小样例。
-2. 较大的功能调整先通过 Issue 讨论范围，再提交聚焦的改动。
-3. 代码改动运行 `npm run check`；涉及桌面交互或导出时，补充对应的工作流验证，并在 PR 中说明结果。
+1. Hata bildirirken sistemi, CevikEdit sürümünü, yeniden üretme adımlarını ve beklenen davranışı ekleyin; medya sorunlarında mümkünse herkese açık en küçük örneği paylaşın.
+2. Büyük özellik değişikliklerinde önce bir Issue ile kapsamı tartışın, sonra odaklı bir değişiklik gönderin.
+3. Kod değişikliklerinde `npm run check` çalıştırın; masaüstü etkileşimi veya dışa aktarma söz konusuysa ilgili iş akışı doğrulamasını ekleyip sonucu PR'da belirtin.
 
-请使用自有或可分发的素材，不提交私人项目、缓存、凭据或 `.research/` 原始数据。
+Lütfen kendinize ait veya dağıtılabilir medya kullanın; özel projeleri, önbellekleri, kimlik bilgilerini ya da `.research/` ham verilerini göndermeyin.
 
-## 文档
+## Belgeler
 
-| 面向 | 文档 |
+| Hedef kitle | Belge |
 | --- | --- |
-| 使用与试用 | [使用指南](docs/USER_GUIDE.md) · [演示工程](docs/DEMO.md) · [剪辑助手](docs/ASSISTANT.md) |
-| 能力与进展 | [功能矩阵](docs/FEATURE_MATRIX.md) · [更新记录](CHANGELOG.md) · [验证记录](docs/VALIDATION.md) |
-| 开发与构建 | [架构](docs/ARCHITECTURE.md) · [媒体工具](docs/MEDIA_TOOLS.md) · [离线素材](docs/ORIGINAL_ASSETS.md) |
-| REA 研究与互通 | [REA 研究记录](docs/research/REA_FINDINGS.md) · [界面布局对照](docs/UI_PARITY.md) · [草稿互通](docs/CAPCUT_INTEROP.md) |
+| Kullanım ve deneme | [Kullanım kılavuzu](docs/USER_GUIDE.md) · [Demo projesi](docs/DEMO.md) · [Kurgu asistanı](docs/ASSISTANT.md) |
+| Yetenekler ve ilerleme | [Özellik matrisi](docs/FEATURE_MATRIX.md) · [Değişiklik günlüğü](CHANGELOG.md) · [Doğrulama kaydı](docs/VALIDATION.md) |
+| Geliştirme ve derleme | [Mimari](docs/ARCHITECTURE.md) · [Medya araçları](docs/MEDIA_TOOLS.md) · [Çevrimdışı medya](docs/ORIGINAL_ASSETS.md) |
+| REA araştırması ve birlikte çalışabilirlik | [REA araştırma kaydı](docs/research/REA_FINDINGS.md) · [Arayüz yerleşimi karşılaştırması](docs/UI_PARITY.md) · [Taslak birlikte çalışabilirliği](docs/CAPCUT_INTEROP.md) |
 
-## 许可证与致谢
+## Lisans ve teşekkürler
 
-CevikEdit 自行编写的源码采用 [MIT License](LICENSE)。第三方组件保留各自许可：内置 FFmpeg / x264 使用 GPL，Noto Sans SC 使用 SIL OFL 1.1；对应声明、许可与媒体工具源码随包提供，见 [第三方声明](THIRD_PARTY_NOTICES.md)。
+CevikEdit'in kendi kaynak kodu [MIT License](LICENSE) altındadır. Üçüncü taraf bileşenler kendi lisanslarını korur: gömülü FFmpeg / x264 GPL, Noto Sans SC SIL OFL 1.1. İlgili bildirimler, lisanslar ve medya araçları kaynağı paketle birlikte sağlanır; bkz. [Üçüncü taraf bildirimleri](THIRD_PARTY_NOTICES.md).
 
-感谢 [REA](https://github.com/morluto/rea) 及 Electron、React、FFmpeg、Zustand、Lucide、Noto 等开源项目。
+[REA](https://github.com/morluto/rea) ile Electron, React, FFmpeg, Zustand, Lucide ve Noto gibi açık kaynak projelere teşekkürler.

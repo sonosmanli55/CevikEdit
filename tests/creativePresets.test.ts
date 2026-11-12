@@ -151,16 +151,16 @@ describe("original editing recipes", () => {
     let p = pair();
     p.tracks[1].locked = true;
     expect(() => applyTransition(p, p.clips[0].id, "dissolve", 0.5)).toThrow(
-      "解锁",
+      "kilidini açın",
     );
     p = pair();
     p.clips[1].start = 4;
     expect(() => applyTransition(p, p.clips[0].id, "dissolve", 0.5)).toThrow(
-      "相邻",
+      "bitişik",
     );
     p = pair();
     expect(() => applyTransition(p, p.clips[1].id, "dissolve", 0.5)).toThrow(
-      "相邻",
+      "bitişik",
     );
     for (const value of [NaN, Infinity, 0, -1])
       expect(() =>
@@ -170,12 +170,12 @@ describe("original editing recipes", () => {
     p.clips[0].duration = 1 / 24;
     p.clips[1].start = 1 / 24;
     expect(() => applyTransition(p, p.clips[0].id, "dissolve", 0.5)).toThrow(
-      "太短",
+      "çok kısa",
     );
     p = pair();
     p.clips[1].start = 1.5;
     p.clips.push({ ...p.clips[1], id: "third", start: 3.5 });
-    expect(() => applyTransition(p, p.clips[0].id, "dip", 0.5)).toThrow("后续");
+    expect(() => applyTransition(p, p.clips[0].id, "dip", 0.5)).toThrow("sonraki");
   });
   it("uses project-relative typography without adding a raster image", () => {
     const p = createProject(),

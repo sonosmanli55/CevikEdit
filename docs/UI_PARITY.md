@@ -1,35 +1,33 @@
-# 桌面编辑界面一致性
+# Masaüstü düzenleyici tutarlılığı
 
-日期：2026-10-13，Asia/Shanghai。目标是让熟悉剪映桌面版的用户沿用主要区域与操作分类，不宣称逐像素复刻或完整功能对等。CevikEdit 保留原创图标、品牌和素材，界面由本项目自主实现。
+Tarih: 2026-10-13, Asia/Shanghai. Hedef: tanıdık Jianying masaüstü sürümünün kullanıcıları için temel alan ve işlem sınıflarına uyum; piksel bazlı kopyalama ya da tam işlev eşleşmesi ilan edilmez. CevikEdit orijinal ikon, marka ve malzama kullanır, arayüz bu proje tarafından bağımsız olarak uygulanır.
 
-## 参考与差异分析
+## Referans ve fark analizi
 
-参考为已有授权观察中的空编辑器与自造媒体变换截图：本机剪映 `11.0.12922` / 构建 `11.1.0-beta3`。私有证据路径为 `.research/evidence/rea-native-ui-editor.png`、`.research/round2/variation/transform-final.png`；没有为本轮界面修改读取私人草稿、访问账号或再次操作第三方应用。
+Referans, yetkili gözlemdeki boş düzenleyici ile kendinden üretilen medya dönüşümü ekranlarından gelir: yerel Jianying `11.0.12922` / derleme `11.1.0-beta3`. Özel kanıt yolu `.research/evidence/rea-native-ui-editor.png`, `.research/round2/variation/transform-final.png`; bu tur arayüzünde özel projelere ya da hesaba dayalı okumalara izin verilmedi, üçüncü parti uygulama tekrar çalıştırılmadı.
 
-截图直接可见：素材分类居左、播放器居中、属性居右，时间线横跨底部；项目名称在标题栏居中，导出在右侧；表面以中性深灰分层，青色用于当前类别与操作；资源图标带文字；画面属性采用主类别和基础/抠像/蒙版等二级分类；缩放为滑块加数字输入，位置以 X/Y 分组；所选时间线片段有浅色边框，文字轨为红棕色。以上是截图观察，不能推出没有观察到的交互行为。
+Ekranlarda doğrudan görülenler: malzama kategorileri sola, oynatıcı ortada, özellikler sağda; zaman çizelgesi alt boyutta; proje adı başlık çubuğunda merkezdir, dışa aktarma sağdadır; yüzey nötr koyu gri katmanlı, cyan mevcut kategori ve işlem için kullanılır; kaynak ikonları yazı ile birlikte; görüntü özellikleri birincil ve temel / renk kadranı / maske gibi ikincil kategoriler; ölçek kaydırıcı ve sayısal giriş; seçili zaman çizelgesi parçası açık renk sınırı, metin kanalı kahverengi / kırmızı. Bunlar ekran gözlemünden okunur, görülmemiş etkileşimler çıkarılamaz.
 
-| 差异 | 本轮自主实现 | 仍然不同 |
+| Fark | Bu tur bağımsız uygulama | Hâlâ farklı |
 | --- | --- | --- |
-| 原蓝灰面板、薄弱层级 | 中性深灰、统一 52px 面板标题、44px 应用标题栏、青色强调 | 不追求专有主题精确色值与像素坐标 |
-| 顶部资源类别顺序 | 素材、音频、文本、贴纸、特效、转场、字幕 | 没有复制云素材、会员入口、智能包装、商业模板 |
-| 本地素材类型横排 | 宽素材面板使用左侧类别栏，搜索与媒体卡片在右；窄面板保留横排以保证可用空间 | 类别对应真实本地媒体类型，未伪造未实现的资源服务 |
-| 画面工具全部平铺一级、需横向滚动 | 画面/音频/变速/动画/调整主分类；画面下基础/裁剪/抠像/蒙版 | 文字与音频类别按实际支持能力显示；不展示 AI 美颜等空功能 |
-| 单列位置与纯数字缩放 | 缩放滑块与数字同步；宽面板 X/Y 并排，窄面板回到单列；关键帧菱形保留 | 当前是等比缩放，没有独立 X/Y 比例或画面圆角 |
-| 时间线颜色与选框 | 中性轨道背景、白色选中边框、红棕文字轨、较紧凑工具栏 | 轨道高度与剪辑模型沿用 CevikEdit；多时间线标签、封面轨尚未实现 |
-| 素材直接添加、没有源选段流程 | 单击源预览，I/O 标记后插入；双击保持整段添加，点击时间线返回项目预览 | 新增行为为自主设计与验收，未宣称原生快捷键完全一致 |
-| 三栏固定比例 | 分隔线拖动、键盘微调、跨启动记忆、双击/Home 恢复默认；小窗口保持最低可用宽度 | 默认比例兼顾 CevikEdit 工具密度，允许用户按习惯调整 |
-| 小窗口助手底部遮挡 | 1024×720 下输入框及发送按钮可见 | 最短窗口的对话区域空间有限，可拖低时间线增加高度 |
+| Orijinal mavi-gri panel, zayıf katman | Nötr koyu gri, ortak 52px panel başlığı, 44px uygulama başlık çubuğu, cyan vurgu | Özel tema renkleri ve piksel koordinatları hedeflenmez |
+| Üst kaynak kategori sırası | Malzama, ses, metin, sticker, etki, geçiş, altyazı | Bulut malzama, üyelik girişi, akıllı paketleme, ticari şablon kopyanmadı |
+| Yerel malzama türü yatay | Geniş malzama panelinde sol kategori çubuğu, arama ve medya kartı sağda; dar panel yatay tutuldu | Kategori gerçek yerel medya türünü temsil eder, hayal edilmiş kaynak servisi üretilmedi |
+| Görüntü araçları tek seviyede yatay kaydırma | Görüntü / ses / değiştirme oranı / animasyon / ayar ana kategorileri; görüntü altı temel / kırpma / renk kadranı / maske | Metin ve ses kategorileri gerçek destek kapasitesine göre; boş AI güzelleştirme gibi işlev gösterilmez |
+| Tek sütun konum ve saf sayısal ölçek | Kaydırıcı ve sayı salgısal senkron; geniş panel X/Y yan yana, dar panel geri tek sütun; kritik kare kareli | Şu an orantılı ölçek, bağımsız X/Y oranı ya da görüntü köşesi yok |
+| Zaman çizelgesi rengi ve seçim | Nötr kanal arka planı, beyaz seçim sınırı, kahverengi metin kanalı, daha sıkı araç çubuğu | Kanal yüksekliği ve kurgu modeli CevikEdit'e; çok zaman çizelgesi etiketleri, kapak kanalı henüz yok |
+| Doğrudan malzama ekleme, kaynak seçim akışı yok | Kaynak ön izlemede tıklama, I/O işaretleri sonrası ekleme; çift tıklama tam parça, zaman çizelgesine tıklama proje önizlemesine dönüş | Yeni davranış bağımsız tasarım ve kabul, saf kısayol eşleşmesi ilan edilmedi |
+| Üç sütun sabit oran | Ayraç sürüklenme, klavye mikro ayar, başlangıçta hatırlama, çift tıklama / Home kurtarma; küçük pencere en az kullanılabilir genişliği | Varsayılan oran CevikEdit araç yoğunluğunu dengeler, kullanıcı tercihine izin verir |
+| Küçük pencere asistan alt sınırı | 1024×720'de giriş ve gönder düğmesi görünür | Konuşma bölgesi alanı sınırlı, zaman çizelgesini düşürülerek yükseklik artırılabilir |
 
-## 验证范围
+## Doğrulama kapsamı
 
-- `npm run typecheck`、`npm run build` 通过。
-- 源预览组件在 React StrictMode 中通过 8 组浏览器媒体检查；实际 Electron App 验证 I/O 插入、保存的 sourceIn/duration、单次撤销、1024×720 控件可见，以及一秒蓝色画面和可听音频导出。桌面测试主动降低最小窗口宽度来覆盖 1024px，正常应用最小宽度仍为 1060px。
-- 浏览器真实渲染检查：1440×900 与 1024×720，自造图片/文字项目；切换基础、蒙版、变速；编辑缩放与位置值，确认项目状态变化；真实拖动缩放滑块产生多次输入，但仅增加一条撤销记录，撤销恢复原缩放；无 renderer errors。
-- 1024×720 主编辑器三列宽度为 280 / 434 / 280px，右边界 1016px，无横向页面溢出。开启助手后播放器 404px，助手右边界仍为 1016px。
-- 空项目助手发送按钮底部为 367px，面板底部 374px，按钮位于可见面板内。几何验收与截图保存在 `.test-output/ui-parity/`。
-- `tests/visual-ui-electron.ts` 通过：实际桌面裁剪、色度抠像、蒙版、锁轨与三次真实媒体导出；无 renderer errors。
-- `tests/app-electron.ts` 通过：真实导入、播放、分割撤销、文本属性、调整、变速、关键帧、字幕导入、保存重开与 5 秒视频导出；无 renderer errors 或媒体失败。
+- `npm run typecheck`, `npm run build` geçti.
+- Kaynak ön izleme bileşeni React StrictMode'da 8 grup tarayıcı medya kontrolünden geçti; gerçek Electron App doğrulaması I/O ekleme, kaydedilen sourceIn/duration, tek geri alma, 1024×720 kontrol görünürlüğü, bir saniyelik mavi görüntü ve duyulabilen sesli dışa aktarma içerdi. Masaüstü testleri 1024px'i kapsamak için asıl kontrol minimum genişliğini düşürdü; normal uygulama minimum genişliği hâlâ 1060px.
+- Gerçek tarayıcı render kontrolü: 1440×900 ve 1024×720; kendinden üretilen görüntü / metin projeleri; temel, renk kadranı, değiştirme oranı geçişi; ölçek ve konum değerlerini düzenle, proje durumu değişti; gerçek kaydırıcı ile ölçek kaydırıcı çoklu giriş üretti, tek geri alma yalnızca bir kayıt üretti, geri alma orijinali getirdi; renderer hataları yok.
+- 1024×720 ana düzenleyici üç sütun genişliği 280 / 434 / 280px, sağ sınır 1016px, yatay taşma yok. Asistan açıkken oynatıcı 404px, asistan sağ sınırı hâlâ 1016px.
+- Boş proje asistanı gönder düğümü alt sınırı 367px, panel alt sınırı 374px, düğüm görünür panel içinde. Geometri doğrulaması ve ekran görüntüleri `.test-output/ui-parity/` altında saklandı.
+- `tests/visual-ui-electron.ts` geçti: gerçek masaüstü kırpma, renk kadranı, maske, kanal kilidi ve üç gerçek medya dışa aktarması; renderer hataları yok.
+- `tests/app-electron.ts` geçti: gerçek içe aktarma, oynatma, bölme geri al, metin özellikleri, ayar, değiştirme oranı, kritik kare, altyazı içe aktarma, kaydetme yeniden açma ve 5 saniyelik video dışa aktarması; renderer hataları ya da medya hataları yok.
 
-这些检查证明本轮改动下的 CevikEdit 界面布局及已有编辑功能可用，不是与剪映的逐像素/行为一致性认证，也不证明 Windows / Linux 已验证。数值属性保留原有 `aria-label` 与自动化定位：显示“变速”仍以“速度”为兼容可访问名称，显示“调整”仍以“调色”为兼容可访问名称。
-
-![本轮自主实现的编辑界面](screenshots/ui-parity-editor.png)
+Bu kontroller bu tur sonrası CevikEdit arayüzü yerleşimini ve varsayılan düzenleme işlevlerini doğruladı; Jianying ile piksel / davranış eşleşmesi sertifika üretmez, Windows / Linux doğrulaması da değildir. Sayısal özellik değerleri, orijinal `aria-label` ve otomasyon konumlandırma uyumu korunur: “Hız” kontrolü için uyumluk erişilebilir ad “Hız” bırakılır, “Düzenle” kontrolü için uyumluk erişilebilir ad “Düzenle” bırakılır.

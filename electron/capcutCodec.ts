@@ -15,10 +15,10 @@ function objectJson(text: string): string {
   try {
     value = JSON.parse(normalized);
   } catch {
-    throw new Error("剪映草稿 JSON 无法解析");
+    throw new Error("CapCut taslağı JSON'u ayrıştırılamıyor");
   }
   if (value === null || typeof value !== "object" || Array.isArray(value))
-    throw new Error("剪映草稿需要 JSON 对象");
+    throw new Error("CapCut taslağı bir JSON nesnesi olmalı");
   return normalized;
 }
 
@@ -30,9 +30,9 @@ function objectJson(text: string): string {
  * No native library execution, credential lookup, logging or file writes occur.
  */
 export function decodeCapcutDraft(input: string): CapcutDecodedDraft {
-  if (typeof input !== "string") throw new Error("剪映草稿需要文本输入");
+  if (typeof input !== "string") throw new Error("CapCut taslağı metin girişi gerektiriyor");
   if (Buffer.byteLength(input, "utf8") > CAPCUT_CODEC_MAX_BYTES)
-    throw new Error("剪映草稿超过 20 MiB 读取限制");
+    throw new Error("CapCut taslağı 20 MiB okuma sınırını aşıyor");
   const source = input.trim().replace(/^\uFEFF/, "").trim();
   let parsed: unknown;
   try {
@@ -49,13 +49,13 @@ export function decodeCapcutDraft(input: string): CapcutDecodedDraft {
     return decodeEmbedded(source);
   }
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed))
-    throw new Error("剪映草稿需要 JSON 对象");
+    throw new Error("CapCut taslağı bir JSON nesnesi olmalı");
   return { text: source, encoding: "json" };
 }
 
 function decodeEmbedded(source: string): CapcutDecodedDraft {
   if (source.length < embeddedOffsets[embeddedOffsets.length - 1] + 4)
-    throw new Error("剪映草稿是不透明载体，格式未知或长度不足");
+    throw new Error("CapCut taslağı opak bir taşıyıcı; biçim bilinmiyor veya uzunluk yetersiz");
   const material = Buffer.alloc(48);
   try {
     const bodyParts: string[] = [];
@@ -66,7 +66,7 @@ function decodeEmbedded(source: string): CapcutDecodedDraft {
       for (let character = 0; character < 4; character++) {
         const code = source.charCodeAt(offset + character);
         if (!Number.isInteger(code) || code > 0x7f)
-          throw new Error("剪映草稿是不透明载体，嵌入 ASCII 格式无法识别");
+          throw new Error("CapCut taslağı opak bir taşıyıcı; gömülü ASCII biçimi tanınamadı");
         material[index * 4 + character] = code;
       }
       cursor = offset + 4;
@@ -74,10 +74,10 @@ function decodeEmbedded(source: string): CapcutDecodedDraft {
     bodyParts.push(source.slice(cursor));
     const body = bodyParts.join("");
     if (!body || body.length % 4 !== 0 || !base64Characters.test(body))
-      throw new Error("剪映草稿是不透明载体，Base64 格式无法识别");
+      throw new Error("CapCut taslağı opak bir taşıyıcı; Base64 biçimi tanınamadı");
     const bytes = Buffer.from(body, "base64");
     if (bytes.toString("base64") !== body || bytes.length < 16)
-      throw new Error("剪映草稿是不透明载体，Base64 载体不完整或不规范");
+      throw new Error("CapCut taslağı opak bir taşıyıcı; Base64 taşıyıcısı eksik veya geçersiz");
     let plaintext: Buffer;
     try {
       const decipher = createDecipheriv(
@@ -93,7 +93,7 @@ function decodeEmbedded(source: string): CapcutDecodedDraft {
       ]);
     } catch {
       throw new Error(
-        "剪映草稿认证失败，文件可能损坏，或此剪映版本的草稿格式尚不支持",
+        "CapCut taslağı kimlik doğrulaması başarısız; dosya bozuk olabilir veya bu CapCut sürümünün taslak biçimi henüz desteklenmiyor",
       );
     }
     let decoded: string;
@@ -102,7 +102,7 @@ function decodeEmbedded(source: string): CapcutDecodedDraft {
         plaintext,
       );
     } catch {
-      throw new Error("剪映草稿解码后的文本不是有效 UTF-8");
+      throw new Error("CapCut taslağının çözülen metni geçerli UTF-8 değil");
     }
     return { text: objectJson(decoded), encoding: "embedded-aes-gcm" };
   } finally {

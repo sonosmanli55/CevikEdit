@@ -12,7 +12,6 @@ import {
   DEFAULT_TRANSFORM,  DEFAULT_ADJUSTMENTS,
   DEFAULT_TEXT,
 } from "./defaults";
-import { t } from "../i18n/locale";
 import { bezierProgress } from "./bezier";
 export const id = () => crypto.randomUUID();
 export const clone = <T>(value: T): T => structuredClone(value);
@@ -23,7 +22,7 @@ export const projectDuration = (project: Project): number =>
     (end, clip) => Math.max(end, clip.start + clip.duration),
     0,
   );
-export function createProject(name = t("未命名项目")): Project {
+export function createProject(name = "Adsız proje"): Project {
   const now = new Date().toISOString();
   return {
     version: 1,
@@ -35,9 +34,9 @@ export function createProject(name = t("未命名项目")): Project {
     background: "#101015",
     assets: [],
     tracks: [
-      createTrack("text", "文字"),
-      createTrack("video", "视频 1"),
-      createTrack("audio", "音频 1"),
+      createTrack("text", "Metin"),
+      createTrack("video", "Video 1"),
+      createTrack("audio", "Ses 1"),
     ],
     clips: [],
     createdAt: now,
@@ -50,7 +49,7 @@ export function createTrack(kind: TrackKind, name?: string): Track {
     kind,
     name:
       name ??
-      { video: "视频", image: "画面", audio: "音频", text: "文字" }[kind],
+      { video: "Video", image: "Görüntü", audio: "Ses", text: "Metin" }[kind],
     muted: false,
     hidden: false,
     locked: false,
@@ -66,7 +65,7 @@ export function createClip(
     id: id(),
     trackId,
     assetId: asset?.id,
-    name: asset?.name ?? t("默认文本"),
+    name: asset?.name ?? "Varsayılan metin",
     start: snapToFrame(Math.max(0, start), fps),
     duration:
       asset?.kind === "image" || !asset ? 5 : Math.max(1 / fps, asset.duration),
@@ -459,7 +458,7 @@ export function formatTime(time: number, fps = 30) {
 /** Validate external project data without numeric coercion or defaulting missing fields. */
 export function validateProject(input: unknown): Project {
   const fail = (name: string): never => {
-    throw new Error(`项目 ${name} 无效`);
+    throw new Error(`Proje geçersiz: ${name}`);
   };
   const object = (value: unknown, name: string): Record<string, unknown> => {
     if (
@@ -523,83 +522,83 @@ export function validateProject(input: unknown): Project {
     )
       fail(name);
   };
-  const p = object(input, "内容");
-  if (p.version !== 1) fail("版本（仅支持版本 1）");
+  const p = object(input, "İçerik");
+  if (p.version !== 1) fail("Sürüm (yalnızca sürüm 1 desteklenir)");
   str(p.id, "ID", 256);
-  str(p.name, "名称", 4096, true);
+  str(p.name, "Ad", 4096, true);
   for (const field of ["width", "height"] as const)
     if (!Number.isInteger(num(p[field], field, 16, 7680))) fail(field);
-  if (![24, 25, 30, 50, 60].includes(num(p.fps, "帧率"))) fail("帧率");
-  color(p.background, "背景颜色");
+  if (![24, 25, 30, 50, 60].includes(num(p.fps, "Kare hızı"))) fail("Kare hızı");
+  color(p.background, "Arka plan rengi");
   for (const field of ["createdAt", "updatedAt"] as const)
     if (!Number.isFinite(Date.parse(str(p[field], field, 64)))) fail(field);
-  const rawAssets = list(p.assets, "素材列表", 10000),
-    rawTracks = list(p.tracks, "轨道列表", 1000),
-    rawClips = list(p.clips, "片段列表", 10000);
+  const rawAssets = list(p.assets, "Medya listesi", 10000),
+    rawTracks = list(p.tracks, "Kanal listesi", 1000),
+    rawClips = list(p.clips, "Klip listesi", 10000);
   const ids = new Set<string>();
   const recordId = (item: Record<string, unknown>, label: string) => {
     const value = str(item.id, `${label} ID`, 256);
-    if (ids.has(value)) fail("重复 ID");
+    if (ids.has(value)) fail("Yinelenen ID");
     ids.add(value);
     return value;
   };
   const assets = new Map<string, Record<string, unknown>>(),
     tracks = new Map<string, Record<string, unknown>>();
   for (const raw of rawAssets) {
-    const a = object(raw, "素材");
-    assets.set(recordId(a, "素材"), a);
-    str(a.name, "素材名称", 4096, true);
-    str(a.path, "素材路径", 32768);
-    str(a.url, "素材 URL", 32768);
-    choice(a.kind, ["video", "audio", "image"], "素材类型");
-    num(a.duration, "素材时长", 0, 86400 * 8);
+    const a = object(raw, "Medya");
+    assets.set(recordId(a, "Medya"), a);
+    str(a.name, "Medya adı", 4096, true);
+    str(a.path, "Medya yolu", 32768);
+    str(a.url, "Medya URL'si", 32768);
+    choice(a.kind, ["video", "audio", "image"], "Medya türü");
+    num(a.duration, "Medya süresi", 0, 86400 * 8);
     for (const field of ["width", "height"] as const)
-      num(a[field], `素材 ${field}`, 0, 100000);
-    num(a.fps, "素材帧率", 0, 1000);
-    bool(a.hasAudio, "素材音频标记");
-    if (a.missing !== undefined) bool(a.missing, "素材丢失标记");
-    if (a.thumbnail !== undefined) str(a.thumbnail, "素材缩略图", 32768);
-    if (a.previewUrl !== undefined) str(a.previewUrl, "素材预览 URL", 32768);
+      num(a[field], `Medya ${field}`, 0, 100000);
+    num(a.fps, "Medya kare hızı", 0, 1000);
+    bool(a.hasAudio, "Medya ses işareti");
+    if (a.missing !== undefined) bool(a.missing, "Medya eksik işareti");
+    if (a.thumbnail !== undefined) str(a.thumbnail, "Medya küçük resmi", 32768);
+    if (a.previewUrl !== undefined) str(a.previewUrl, "Medya önizleme URL'si", 32768);
     if (a.previewError !== undefined)
-      str(a.previewError, "素材预览错误", 4096, true);
+      str(a.previewError, "Medya önizleme hatası", 4096, true);
     if (a.colorPrimaries !== undefined)
-      str(a.colorPrimaries, "素材色彩原色", 64, true);
+      str(a.colorPrimaries, "Medya renk ana bileşenleri", 64, true);
     if (a.colorTransfer !== undefined)
-      str(a.colorTransfer, "素材传递函数", 64, true);
-    if (a.hdr !== undefined) bool(a.hdr, "素材 HDR 标记");
+      str(a.colorTransfer, "Medya transfer işlevi", 64, true);
+    if (a.hdr !== undefined) bool(a.hdr, "Medya: HDR etiketi");
     if (a.hdrKind !== undefined)
-      choice(a.hdrKind, ["pq", "hlg"], "素材 HDR 类型");
+      choice(a.hdrKind, ["pq", "hlg"], "Medya HDR türü");
     if (a.waveform !== undefined)
-      for (const v of list(a.waveform, "音频波形", 100000))
-        num(v, "音频波形值", 0, 1);
+      for (const v of list(a.waveform, "Ses dalga formu", 100000))
+        num(v, "Ses dalga formu değeri", 0, 1);
   }
   for (const raw of rawTracks) {
-    const t = object(raw, "轨道");
-    tracks.set(recordId(t, "轨道"), t);
-    str(t.name, "轨道名称", 4096, true);
-    choice(t.kind, ["video", "audio", "image", "text"], "轨道类型");
+    const t = object(raw, "Kanal");
+    tracks.set(recordId(t, "Kanal"), t);
+    str(t.name, "Kanal adı", 4096, true);
+    choice(t.kind, ["video", "audio", "image", "text"], "Kanal türü");
     for (const field of ["muted", "hidden", "locked"] as const)
-      bool(t[field], `轨道 ${field}`);
+      bool(t[field], `Kanal ${field}`);
   }
   for (const raw of rawClips) {
-    const c = object(raw, "片段");
-    recordId(c, "片段");
-    str(c.name, "片段名称", 4096, true);
-    const track = tracks.get(str(c.trackId, "片段轨道 ID", 256));
-    if (!track) fail("片段轨道引用");
+    const c = object(raw, "Klip");
+    recordId(c, "Klip");
+    str(c.name, "Klip adı", 4096, true);
+    const track = tracks.get(str(c.trackId, "Klip kanal ID'si", 256));
+    if (!track) fail("Klip kanal referansı");
     const asset =
       c.assetId === undefined
         ? undefined
-        : assets.get(str(c.assetId, "片段素材 ID", 256));
-    if (c.assetId !== undefined && !asset) fail("片段素材引用");
-    const start = num(c.start, "片段起点", 0, 86400),
-      duration = num(c.duration, "片段时长", Number.MIN_VALUE, 86400),
-      sourceIn = num(c.sourceIn, "源素材起点", 0, 86400 * 8),
-      speed = num(c.speed, "速度", 0.1, 8);
-    if (start + duration > 86400) fail("时间线时长（最长 24 小时）");
-    num(c.volume, "音量", 0, 4);
-    bool(c.muted, "片段静音");
-    if (c.linkId !== undefined) str(c.linkId, "片段关联 ID", 64);
+        : assets.get(str(c.assetId, "Klip medya ID'si", 256));
+    if (c.assetId !== undefined && !asset) fail("Klip medya referansı");
+    const start = num(c.start, "Klip başlangıcı", 0, 86400),
+      duration = num(c.duration, "Klip süresi", Number.MIN_VALUE, 86400),
+      sourceIn = num(c.sourceIn, "Kaynak medya başlangıcı", 0, 86400 * 8),
+      speed = num(c.speed, "Hız", 0.1, 8);
+    if (start + duration > 86400) fail("Zaman çizelgesi süresi (en fazla 24 saat)");
+    num(c.volume, "Ses düzeyi", 0, 4);
+    bool(c.muted, "Klibi sessize al");
+    if (c.linkId !== undefined) str(c.linkId, "Klip bağlantı kimliği", 64);
     for (const field of [
       "fadeIn",
       "fadeOut",
@@ -610,75 +609,75 @@ export function validateProject(input: unknown): Project {
     for (const field of ["videoFadeWindow", "audioFadeWindow"] as const)
       if (c[field] !== undefined) {
         const w = object(c[field], field);
-        num(w.offset, `${field} 偏移`, -86400 * 80, 86400 * 80);
+        num(w.offset, `${field} kayması`, -86400 * 80, 86400 * 80);
         const full = num(
           w.duration,
-          `${field} 原始时长`,
+          `${field} kaynak süresi`,
           Number.MIN_VALUE,
           86400 * 80,
         );
-        num(w.fadeIn, `${field} 淡入`, 0, full);
-        num(w.fadeOut, `${field} 淡出`, 0, full);
+        num(w.fadeIn, `${field} Yumuşak giriş`, 0, full);
+        num(w.fadeOut, `${field} Yumuşak çıkış`, 0, full);
       }
-    const transform = object(c.transform, "变换");
+    const transform = object(c.transform, "Dönüşüm");
     for (const field of ["x", "y", "rotation"] as const)
       num(transform[field], field);
-    num(transform.scale, "缩放", 0.000001, 10);
-    num(transform.opacity, "透明度", 0, 1);
-    bool(transform.flipX, "水平翻转");
-    bool(transform.flipY, "垂直翻转");
+    num(transform.scale, "Ölçek", 0.000001, 10);
+    num(transform.opacity, "Opaklık", 0, 1);
+    bool(transform.flipX, "Yatay çevir");
+    bool(transform.flipY, "Dikey çevir");
     if (c.crop !== undefined) {
-      const crop = object(c.crop, "裁剪");
-      const x = num(crop.x, "裁剪 X", 0, 1),
-        y = num(crop.y, "裁剪 Y", 0, 1),
-        width = num(crop.width, "裁剪宽度", 0.01, 1),
-        height = num(crop.height, "裁剪高度", 0.01, 1);
-      if (x + width > 1 + 1e-9 || y + height > 1 + 1e-9) fail("裁剪超出素材");
+      const crop = object(c.crop, "Kırpma");
+      const x = num(crop.x, "Kırpma X", 0, 1),
+        y = num(crop.y, "Kırpma Y", 0, 1),
+        width = num(crop.width, "Kırpma genişliği", 0.01, 1),
+        height = num(crop.height, "Kırpma yüksekliği", 0.01, 1);
+      if (x + width > 1 + 1e-9 || y + height > 1 + 1e-9) fail("Kırpma medyayı aşıyor");
     }
     if (c.chromaKey !== undefined) {
-      const chroma = object(c.chromaKey, "色度抠像");
-      bool(chroma.enabled, "色度抠像开关");
-      str(chroma.color, "抠像颜色", 9);
-      if (!/^#[\da-f]{6}$/i.test(chroma.color as string)) fail("抠像颜色");
-      num(chroma.similarity, "抠像相似度", 0.01, 1);
-      num(chroma.blend, "抠像过渡", 0, 1);
+      const chroma = object(c.chromaKey, "Kroma key");
+      bool(chroma.enabled, "Kroma key anahtarı");
+      str(chroma.color, "Kroma rengi", 9);
+      if (!/^#[\da-f]{6}$/i.test(chroma.color as string)) fail("Kroma rengi");
+      num(chroma.similarity, "Kroma benzerliği", 0.01, 1);
+      num(chroma.blend, "Kroma yumuşaklığı", 0, 1);
     }
     if (c.mask !== undefined) {
-      const mask = object(c.mask, "形状蒙版");
-      choice(mask.shape, ["rectangle", "ellipse"], "蒙版形状");
-      num(mask.width, "蒙版宽度", 0.01, 1);
-      num(mask.height, "蒙版高度", 0.01, 1);
-      num(mask.feather, "蒙版羽化", 0, 0.5);
-      bool(mask.invert, "蒙版反转");
+      const mask = object(c.mask, "Şekil maskesi");
+      choice(mask.shape, ["rectangle", "ellipse"], "Maske şekli");
+      num(mask.width, "Maske genişliği", 0.01, 1);
+      num(mask.height, "Maske yüksekliği", 0.01, 1);
+      num(mask.feather, "Maske yumuşatma", 0, 0.5);
+      bool(mask.invert, "Maskeyi ters çevir");
     }
-    const adjustments = object(c.adjustments, "颜色调整");
-    num(adjustments.brightness, "亮度", -1, 1);
-    num(adjustments.contrast, "对比度", 0, 3);
-    num(adjustments.saturation, "饱和度", 0, 3);
-    num(adjustments.temperature, "色温", -1, 1);
-    num(adjustments.blur, "模糊", 0, 100);
+    const adjustments = object(c.adjustments, "Renk ayarı");
+    num(adjustments.brightness, "Parlaklık", -1, 1);
+    num(adjustments.contrast, "Kontrast", 0, 3);
+    num(adjustments.saturation, "Doygunluk", 0, 3);
+    num(adjustments.temperature, "Renk sıcaklığı", -1, 1);
+    num(adjustments.blur, "Bulanıklık", 0, 100);
     if (c.text !== undefined) {
-      if (asset || track!.kind !== "text") fail("文字片段引用");
-      const text = object(c.text, "文字样式");
-      str(text.text, "文字内容", 20000, true);
-      num(text.fontSize, "字号", 1, 1000);
-      str(text.fontFamily, "字体", 256);
-      color(text.color, "文字颜色");
-      color(text.background, "文字背景");
-      color(text.stroke, "文字描边");
-      num(text.strokeWidth, "描边宽度", 0, 100);
-      choice(text.align, ["left", "center", "right"], "文字对齐");
-      bool(text.bold, "粗体");
+      if (asset || track!.kind !== "text") fail("Metin klibi referansı");
+      const text = object(c.text, "Metin stili");
+      str(text.text, "Metin içeriği", 20000, true);
+      num(text.fontSize, "Yazı boyutu", 1, 1000);
+      str(text.fontFamily, "Yazı tipi", 256);
+      color(text.color, "Metin rengi");
+      color(text.background, "Metin arka planı");
+      color(text.stroke, "Metin konturu");
+      num(text.strokeWidth, "Kontur kalınlığı", 0, 100);
+      choice(text.align, ["left", "center", "right"], "Metin hizalaması");
+      bool(text.bold, "Kalın");
       if (text.lineHeight !== undefined)
-        num(text.lineHeight, "行高", 0.8, 3);
-      if (text.padding !== undefined) num(text.padding, "内边距", 0, 1.5);
-      if (text.radius !== undefined) num(text.radius, "圆角", 0, 2);
+        num(text.lineHeight, "Satır yüksekliği", 0.8, 3);
+      if (text.padding !== undefined) num(text.padding, "İç boşluk", 0, 1.5);
+      if (text.radius !== undefined) num(text.radius, "Yuvarlak köşe", 0, 2);
       if (text.shadow !== undefined) {
-        const shadow = object(text.shadow, "文字阴影");
-        color(shadow.color, "阴影颜色");
-        num(shadow.blur, "阴影模糊", 0, 200);
-        num(shadow.offsetX, "阴影偏移 X", -200, 200);
-        num(shadow.offsetY, "阴影偏移 Y", -200, 200);
+        const shadow = object(text.shadow, "Metin gölgesi");
+        color(shadow.color, "Gölge rengi");
+        num(shadow.blur, "Gölge bulanıklığı", 0, 200);
+        num(shadow.offsetX, "Gölge kayması X", -200, 200);
+        num(shadow.offsetY, "Gölge kayması Y", -200, 200);
       }
     } else {
       if (
@@ -689,45 +688,45 @@ export function validateProject(input: unknown): Project {
           (track!.kind === "video" && asset.kind === "image")
         )
       )
-        fail("片段轨道与素材类型");
+        fail("Klip kanalı ve medya türü");
       if (
         asset!.kind !== "image" &&
         sourceIn + duration * speed > (asset!.duration as number) + 0.08
       )
-        fail("片段超出源素材时长");
+        fail("Klip kaynak medya süresini aşıyor");
     }
     const keyIds = new Set<string>();
-    for (const rawKey of list(c.keyframes, "关键帧列表", 400)) {
-      const k = object(rawKey, "关键帧"),
-        keyId = str(k.id, "关键帧 ID", 256);
-      if (keyIds.has(keyId)) fail("重复关键帧 ID");
+    for (const rawKey of list(c.keyframes, "Anahtar kare listesi", 400)) {
+      const k = object(rawKey, "Anahtar kare"),
+        keyId = str(k.id, "Anahtar kare ID'si", 256);
+      if (keyIds.has(keyId)) fail("Yinelenen anahtar kare ID'si");
       keyIds.add(keyId);
       if (k.easingWindow !== undefined) {
-        const w = object(k.easingWindow, "关键帧插值窗口");
-        num(w.start, "插值窗口起点", 0, 1);
-        num(w.end, "插值窗口终点", 0, 1);
+        const w = object(k.easingWindow, "Anahtar kare ara değer penceresi");
+        num(w.start, "Ara değer penceresi başlangıcı", 0, 1);
+        num(w.end, "Ara değer penceresi bitişi", 0, 1);
         if (
           (w.start as number) >= (w.end as number) ||
           k.easing === "linear"
         )
-          fail("关键帧插值窗口");
+          fail("Anahtar kare ara değer penceresi");
       }
       if (k.bezier !== undefined) {
-        const curve = object(k.bezier, "关键帧贝塞尔曲线");
-        num(curve.x1, "贝塞尔 X1", 0, 1);
-        num(curve.x2, "贝塞尔 X2", 0, 1);
-        num(curve.y1, "贝塞尔 Y1", -1, 2);
-        num(curve.y2, "贝塞尔 Y2", -1, 2);
+        const curve = object(k.bezier, "Anahtar kare Bézier eğrisi");
+        num(curve.x1, "Bézier X1", 0, 1);
+        num(curve.x2, "Bézier X2", 0, 1);
+        num(curve.y1, "Bézier Y1", -1, 2);
+        num(curve.y2, "Bézier Y2", -1, 2);
         if ((curve.x1 as number) > (curve.x2 as number))
-          fail("关键帧贝塞尔曲线");
+          fail("Anahtar kare Bézier eğrisi");
       }
-      num(k.time, "关键帧时间", 0, duration);
+      num(k.time, "Anahtar kare zamanı", 0, duration);
       choice(
         k.property,
         ["x", "y", "scale", "rotation", "opacity", "volume"],
-        "关键帧属性",
+        "Anahtar kare özelliği",
       );
-      choice(k.easing, KEYFRAME_EASINGS, "关键帧插值");
+      choice(k.easing, KEYFRAME_EASINGS, "Anahtar kare ara değeri");
       const low =
         k.property === "scale"
           ? 0.000001
@@ -742,7 +741,7 @@ export function validateProject(input: unknown): Project {
             : k.property === "volume"
               ? 4
               : 1e9;
-      num(k.value, "关键帧值", low, high);
+      num(k.value, "Anahtar kare değeri", low, high);
     }
   }
   // Return a detached value so a caller cannot mutate an already validated project through its input.

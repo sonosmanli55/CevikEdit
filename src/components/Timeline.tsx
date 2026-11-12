@@ -862,7 +862,7 @@ export default function Timeline(props: TimelineProps) {
   return (
     <section
       className="tl"
-      aria-label="多轨时间线"
+      aria-label="Çok kanallı zaman çizelgesi"
       style={
         {
           "--tl-row": `${ROW}px`,
@@ -873,16 +873,16 @@ export default function Timeline(props: TimelineProps) {
       <div className="tl-toolbar">
         <div className="tl-toolbar-group">
           <button
-            title="撤销 · ⌘Z"
-            aria-label="撤销"
+            title="Geri al · ⌘Z"
+            aria-label="Geri al"
             onClick={props.onUndo}
             disabled={!props.canUndo}
           >
             <Undo2 size={17} />
           </button>
           <button
-            title="重做 · ⇧⌘Z"
-            aria-label="重做"
+            title="Yinele · ⇧⌘Z"
+            aria-label="Yinele"
             onClick={props.onRedo}
             disabled={!props.canRedo}
           >
@@ -891,14 +891,14 @@ export default function Timeline(props: TimelineProps) {
           <span className="tl-divider" />
           <span
             className="tl-tool-indicator"
-            title="选择工具 · 拖动空白区域可框选"
-            aria-label="选择工具"
+            title="Seçim aracı · boş alanı sürükleyerek çerçeveyle seçin"
+            aria-label="Seçim aracı"
           >
             <MousePointer2 size={16} />
           </span>
           <button
-            title="在播放位置分割 · ⌘B"
-            aria-label="分割片段"
+            title="Oynatma konumunda böl · ⌘B"
+            aria-label="Klibi böl"
             onClick={props.onSplit}
             disabled={
               !project.clips.some(
@@ -913,16 +913,16 @@ export default function Timeline(props: TimelineProps) {
             <Scissors size={17} />
           </button>
           <button
-            title="复制选中片段"
-            aria-label="复制选中片段"
+            title="Seçili klibi kopyala"
+            aria-label="Seçili klibi kopyala"
             onClick={props.onDuplicate}
             disabled={!selectedUnlocked || !props.onDuplicate}
           >
             <Copy size={16} />
           </button>
           <button
-            title="删除选中片段 · Backspace"
-            aria-label="删除选中片段"
+            title="Seçili klibi sil · Backspace"
+            aria-label="Seçili klibi sil"
             onClick={props.onDelete}
             disabled={!selectedUnlocked}
           >
@@ -933,10 +933,10 @@ export default function Timeline(props: TimelineProps) {
             className={magnetic ? "is-active" : ""}
             title={
               magnetic
-                ? "关闭磁性删除（删除后收拢间隙）"
-                : "打开磁性删除（删除后收拢间隙）"
+                ? "Mıknatıslı silmeyi kapat (sildikten sonra boşlukları kapatır)"
+                : "Mıknatıslı silmeyi aç (sildikten sonra boşlukları kapatır)"
             }
-            aria-label="磁性删除"
+            aria-label="Mıknatıslı silme"
             aria-pressed={magnetic}
             onClick={() => {
               setLocalMagnetic(!magnetic);
@@ -947,8 +947,8 @@ export default function Timeline(props: TimelineProps) {
           </button>
           <button
             className={snapping ? "is-active" : ""}
-            title={snapping ? "关闭时间线吸附" : "打开时间线吸附"}
-            aria-label="时间线吸附"
+            title={snapping ? "Zaman çizelgesi yapışmasını kapat" : "Zaman çizelgesi yapışmasını aç"}
+            aria-label="Zaman çizelgesi yapışması"
             aria-pressed={snapping}
             onClick={() => {
               setLocalSnap(!snapping);
@@ -966,19 +966,19 @@ export default function Timeline(props: TimelineProps) {
               project.fps,
             )}
           </span>
-          <span className="tl-viewport" title="可见时间范围">
-            {formatTimelineTime(view.span, project.fps)} 可见
+          <span className="tl-viewport" title="Görünür zaman aralığı">
+            {formatTimelineTime(view.span, project.fps)} görünür
           </span>
           <button
-            title="缩小时间线"
-            aria-label="缩小时间线"
+            title="Zaman çizelgesini uzaklaştır"
+            aria-label="Zaman çizelgesini uzaklaştır"
             onClick={() => props.onZoom(clampPps(pps / 1.25))}
             disabled={pps <= MIN_PPS + 1e-9}
           >
             <ZoomOut size={16} />
           </button>
           <input
-            aria-label="时间线缩放"
+            aria-label="Zaman çizelgesi ölçeği"
             type="range"
             min={MIN_PPS}
             max={MAX_PPS}
@@ -987,8 +987,8 @@ export default function Timeline(props: TimelineProps) {
             onChange={(e) => props.onZoom(clampPps(Number(e.target.value)))}
           />
           <button
-            title="放大时间线"
-            aria-label="放大时间线"
+            title="Zaman çizelgesini yakınlaştır"
+            aria-label="Zaman çizelgesini yakınlaştır"
             onClick={() => props.onZoom(clampPps(pps * 1.25))}
             disabled={pps >= MAX_PPS - 1e-9}
           >
@@ -996,7 +996,7 @@ export default function Timeline(props: TimelineProps) {
           </button>
           <button
             className="tl-fit"
-            title="适配整个项目"
+            title="Tüm projeye sığdır"
             onClick={() => {
               const el = scrollRef.current;
               const end = Math.max(
@@ -1012,7 +1012,7 @@ export default function Timeline(props: TimelineProps) {
               }
             }}
           >
-            适配
+            Sığdır
           </button>
           <button
             className={`tl-fit ${minimapOpen ? "active" : ""}`}
@@ -1025,8 +1025,8 @@ export default function Timeline(props: TimelineProps) {
           </button>
           <button
             className="tl-fit"
-            title="定位到播放头"
-            aria-label="定位到播放头"
+            title="Oynatma konumuna git"
+            aria-label="Oynatma konumuna git"
             onClick={() => {
               const el = scrollRef.current;
               if (!el) return;
@@ -1039,7 +1039,7 @@ export default function Timeline(props: TimelineProps) {
               setScrollLeft(next);
             }}
           >
-            播放头
+            Oynatma konumu
           </button>
         </div>
       </div>
@@ -1103,7 +1103,7 @@ export default function Timeline(props: TimelineProps) {
         >
           <div className="tl-ruler" style={{ height: RULER }}>
             <div className="tl-ruler-label">
-              时间线 <span>{project.fps} FPS</span>
+              Zaman çizelgesi <span>{project.fps} FPS</span>
             </div>
             <div
               className="tl-ruler-body"
@@ -1124,7 +1124,7 @@ export default function Timeline(props: TimelineProps) {
                   className="tl-playhead-handle"
                   role="slider"
                   tabIndex={0}
-                  aria-label="播放位置"
+                  aria-label="Oynatma konumu"
                   aria-valuenow={playhead}
                   aria-valuemin={0}
                   aria-valuemax={duration}
@@ -1174,7 +1174,7 @@ export default function Timeline(props: TimelineProps) {
                   {renamingId === track.id ? (
                     <input
                       className="tl-track-name-input"
-                      aria-label="轨道名称"
+                      aria-label="Kanal adı"
                       autoFocus
                       defaultValue={track.name}
                       maxLength={256}
@@ -1199,7 +1199,7 @@ export default function Timeline(props: TimelineProps) {
                     />
                   ) : (
                     <span
-                      title={`${track.name}${track.locked ? "" : " · 双击重命名"}`}
+                      title={`${track.name}${track.locked ? "" : " · yeniden adlandırmak için çift tıklayın"}`}
                       onDoubleClick={() => beginRename(track)}
                     >
                       {track.name}
@@ -1207,14 +1207,14 @@ export default function Timeline(props: TimelineProps) {
                   )}
                   <span className="tl-track-number">
                     {trackLayouts[index].count > 1
-                      ? `${trackLayouts[index].count} 层`
+                      ? `${trackLayouts[index].count} katman`
                       : index + 1}
                   </span>
                 </div>
                 <div className="tl-track-controls">
                   <button
-                    title={track.locked ? "解锁轨道" : "锁定轨道"}
-                    aria-label={`${track.locked ? "解锁" : "锁定"}${track.name}`}
+                    title={track.locked ? "Kanalın kilidini aç" : "Kanalı kilitle"}
+                    aria-label={`${track.locked ? "Kilidi aç" : "Kilitle"}${track.name}`}
                     className={track.locked ? "is-active" : ""}
                     onClick={() =>
                       props.onTrackUpdate(track.id, { locked: !track.locked })
@@ -1227,8 +1227,8 @@ export default function Timeline(props: TimelineProps) {
                     )}
                   </button>
                   <button
-                    title={track.hidden ? "显示轨道" : "隐藏轨道"}
-                    aria-label={`${track.hidden ? "显示" : "隐藏"}${track.name}`}
+                    title={track.hidden ? "Kanalı göster" : "Kanalı gizle"}
+                    aria-label={`${track.hidden ? "Göster" : "Gizle"}${track.name}`}
                     className={track.hidden ? "is-active" : ""}
                     onClick={() =>
                       props.onTrackUpdate(track.id, { hidden: !track.hidden })
@@ -1238,8 +1238,8 @@ export default function Timeline(props: TimelineProps) {
                   </button>
                   {track.kind !== "text" && (
                     <button
-                      title={track.muted ? "取消静音" : "静音轨道"}
-                      aria-label={`${track.muted ? "取消静音" : "静音"}${track.name}`}
+                      title={track.muted ? "Sesi aç" : "Kanalı sessize al"}
+                      aria-label={`${track.muted ? "Sesi aç" : "Sessiz"}${track.name}`}
                       className={track.muted ? "is-active" : ""}
                       onClick={() =>
                         props.onTrackUpdate(track.id, { muted: !track.muted })
@@ -1254,8 +1254,8 @@ export default function Timeline(props: TimelineProps) {
                   )}
                   <button
                     className="tl-track-more"
-                    title="轨道操作"
-                    aria-label={`${track.name}轨道操作`}
+                    title="Kanal işlemleri"
+                    aria-label={`${track.name}Kanal işlemleri`}
                     aria-expanded={trackActions?.id === track.id}
                     onClick={(event) => {
                       const rect = event.currentTarget.getBoundingClientRect();
@@ -1363,10 +1363,10 @@ export default function Timeline(props: TimelineProps) {
                         }}
                         onPointerDown={(event) => startClip(event, original)}
                         onDoubleClick={() => onSeek(clip.start)}
-                        title={`${clip.name}\n${formatTimelineTime(clip.start, project.fps)} · ${clip.duration.toFixed(2)} 秒${track.locked ? "\n轨道已锁定" : ""}`}
+                        title={`${clip.name}\n${formatTimelineTime(clip.start, project.fps)} · ${clip.duration.toFixed(2)} sn${track.locked ? "\nKanal kilitli" : ""}`}
                         tabIndex={0}
                         role="button"
-                        aria-label={`${clip.name}，${clip.duration.toFixed(1)} 秒`}
+                        aria-label={`${clip.name}, ${clip.duration.toFixed(1)} sn`}
                         aria-pressed={selected}
                         aria-disabled={track.locked}
                         aria-keyshortcuts="Enter Alt+ArrowLeft Alt+ArrowRight"
@@ -1462,10 +1462,10 @@ export default function Timeline(props: TimelineProps) {
                           <>
                             <div
                               className="tl-trim tl-trim-start"
-                              title="拖动裁剪入点 · 左右键逐帧调整"
+                              title="Giriş noktasını kırpmak için sürükleyin · ok tuşlarıyla kare kare ayarlayın"
                               role="slider"
                               tabIndex={selected ? 0 : -1}
-                              aria-label={`${clip.name} 入点`}
+                              aria-label={`${clip.name} Giriş noktası`}
                               aria-valuenow={clip.start}
                               aria-valuetext={formatTimelineTime(
                                 clip.start,
@@ -1498,10 +1498,10 @@ export default function Timeline(props: TimelineProps) {
                             />
                             <div
                               className="tl-trim tl-trim-end"
-                              title="拖动裁剪出点 · 左右键逐帧调整"
+                              title="Çıkış noktasını kırpmak için sürükleyin · ok tuşlarıyla kare kare ayarlayın"
                               role="slider"
                               tabIndex={selected ? 0 : -1}
-                              aria-label={`${clip.name} 出点`}
+                              aria-label={`${clip.name} Çıkış noktası`}
                               aria-valuenow={clip.start + clip.duration}
                               aria-valuetext={formatTimelineTime(
                                 clip.start + clip.duration,
@@ -1540,12 +1540,12 @@ export default function Timeline(props: TimelineProps) {
                     className="tl-drop-marker"
                     style={{ left: dropTarget.time * pps }}
                   >
-                    <Plus size={12} /> 添加素材
+                    <Plus size={12} /> Medya ekle
                   </div>
                 )}
                 {track.locked && (
                   <span className="tl-lock-overlay">
-                    <LockKeyhole size={12} /> 轨道已锁定
+                    <LockKeyhole size={12} /> Kanal kilitli
                   </span>
                 )}
               </div>
@@ -1557,7 +1557,7 @@ export default function Timeline(props: TimelineProps) {
                 onClick={() => setTrackMenu(!trackMenu)}
                 aria-expanded={trackMenu}
               >
-                <Plus size={13} /> 添加轨道 <ChevronDown size={11} />
+                <Plus size={13} /> Kanal ekle <ChevronDown size={11} />
               </button>
               {trackMenu && (
                 <div className="tl-popup">
@@ -1571,10 +1571,10 @@ export default function Timeline(props: TimelineProps) {
                     >
                       <TrackIcon kind={kind} />
                       {kind === "video"
-                        ? "视频轨道"
+                        ? "Video kanalı"
                         : kind === "audio"
-                          ? "音频轨道"
-                          : "文字轨道"}
+                          ? "Ses kanalı"
+                          : "Metin kanalı"}
                     </button>
                   ))}
                 </div>
@@ -1582,7 +1582,7 @@ export default function Timeline(props: TimelineProps) {
             </div>
             {project.clips.length === 0 && (
               <span className="tl-empty-hint">
-                <Film size={16} /> 从素材库拖入视频、图片或音频，开始创作
+                <Film size={16} /> Düzenlemeye başlamak için kitaplıktan video, görsel veya ses sürükleyin
               </span>
             )}
           </div>
@@ -1624,7 +1624,7 @@ export default function Timeline(props: TimelineProps) {
           ref={actionsMenuRef}
           className="tl-track-action-menu"
           role="menu"
-          aria-label={`${actionTrack.name}轨道操作菜单`}
+          aria-label={`${actionTrack.name} kanal işlemleri menüsü`}
           style={{ left: trackActions.x, top: trackActions.y }}
           onKeyDown={(event) => {
             if (
@@ -1670,7 +1670,7 @@ export default function Timeline(props: TimelineProps) {
             onClick={() => beginRename(actionTrack)}
           >
             <Pencil size={12} />
-            重命名轨道
+            Kanalı yeniden adlandır
           </button>
           <button
             role="menuitem"
@@ -1686,7 +1686,7 @@ export default function Timeline(props: TimelineProps) {
             }}
           >
             <ArrowUp size={12} />
-            向上移动轨道
+            Kanalı yukarı taşı
           </button>
           <button
             role="menuitem"
@@ -1702,7 +1702,7 @@ export default function Timeline(props: TimelineProps) {
             }}
           >
             <ArrowDown size={12} />
-            向下移动轨道
+            Kanalı aşağı taşı
           </button>
           <div className="tl-menu-divider" />
           <button
@@ -1712,7 +1712,7 @@ export default function Timeline(props: TimelineProps) {
             onClick={() => requestTrackDelete(actionTrack)}
           >
             <Trash2 size={12} />
-            删除轨道
+            Kanalı sil
           </button>
         </div>
       )}
@@ -1729,16 +1729,16 @@ export default function Timeline(props: TimelineProps) {
             className="tl-confirm"
             role="dialog"
             aria-modal="true"
-            aria-label="删除轨道确认"
+            aria-label="Kanal silme onayı"
           >
-            <h3>删除「{deletionTrack.name}」？</h3>
+            <h3>"{deletionTrack.name}" silinsin mi?</h3>
             <p>
-              这条轨道上的 {deletionCount}{" "}
-              个片段也会被删除。素材库中的原素材会保留，可通过撤销恢复轨道和片段。
+              Bu kanaldaki {deletionCount}{" "}
+              klip de silinecek. Medya kitaplığındaki özgün medya korunur; kanal ve klipler geri alınarak kurtarılabilir.
             </p>
             <footer>
               <button autoFocus onClick={() => setDeleteTrackId(null)}>
-                取消
+                İptal
               </button>
               <button
                 className="is-danger"
@@ -1748,7 +1748,7 @@ export default function Timeline(props: TimelineProps) {
                   setDeleteTrackId(null);
                 }}
               >
-                删除轨道和片段
+                Kanalı ve klipleri sil
               </button>
             </footer>
           </section>
@@ -1757,16 +1757,16 @@ export default function Timeline(props: TimelineProps) {
       <div className="tl-status">
         <span>
           {gesture?.kind === "move"
-            ? `移动 ${gesture.ids.length} 个片段 · ${gesture.delta > 0 ? "+" : ""}${gesture.delta.toFixed(2)}s`
+            ? `${gesture.ids.length} klip taşınıyor · ${gesture.delta > 0 ? "+" : ""}${gesture.delta.toFixed(2)}s`
             : gesture?.kind === "trim"
-              ? `裁剪${gesture.edge === "start" ? "入点" : "出点"} · ${formatTimelineTime(gesture.time, project.fps)}`
+              ? `Kırpma${gesture.edge === "start" ? "Giriş noktası" : "Çıkış noktası"} · ${formatTimelineTime(gesture.time, project.fps)}`
               : selectedIds.length
-                ? `已选择 ${selectedIds.length} 个片段`
-                : "拖动移动/裁剪 · ⇧ 多选 · ⌥←/→ 逐帧微移"}
+                ? `${selectedIds.length} klip seçili`
+                : "Taşımak/kırpmak için sürükleyin · ⇧ çoklu seçim · ⌥←/→ kare kare ince ayar"}
         </span>
         <span>
-          {project.tracks.length} 条轨道 <i>·</i> {project.clips.length} 个片段{" "}
-          <i>·</i> {snapping ? "吸附开启" : "吸附关闭"}
+          {project.tracks.length} kanal <i>·</i> {project.clips.length} klip{" "}
+          <i>·</i> {snapping ? "Yapışma açık" : "Yapışma kapalı"}
         </span>
       </div>
     </section>

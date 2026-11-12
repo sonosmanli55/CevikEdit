@@ -54,7 +54,7 @@ describe("whisper output parsing", () => {
   });
 
   it("reports malformed JSON instead of guessing", () => {
-    expect(() => parseWhisperJson("{bad")).toThrow("无法解析");
+    expect(() => parseWhisperJson("{bad")).toThrow("çözümlenemedi");
     expect(parseWhisperOutput("   ")).toEqual([]);
   });
 
@@ -142,7 +142,7 @@ describe("subtitle timing", () => {
         fps: 30,
         maxCues: 3,
       }),
-    ).toThrow("超过 3 条");
+    ).toThrow("3 kaydı aşıyor");
   });
 
   it("gives every cue at least one frame", () => {

@@ -98,10 +98,10 @@ describe("loudness measurement and normalization", () => {
     );
     expect(silent.inputI).toBe(Number.NEGATIVE_INFINITY);
     expect(silent.inputTp).toBe(Number.NEGATIVE_INFINITY);
-    expect(() => parseLoudnormJson("no json here")).toThrow("响度");
+    expect(() => parseLoudnormJson("no json here")).toThrow("ses düzeyi ölçüm sonucu");
     expect(() =>
       parseLoudnormJson(summary({ input_i: "abc", input_tp: "-1" })),
-    ).toThrow("响度");
+    ).toThrow("Ses yüksekliği ölçümü çözümlenemedi");
   });
   it("computes target gain and clamps it so the measured true peak stays under the ceiling", () => {
     expect(
@@ -122,10 +122,10 @@ describe("loudness measurement and normalization", () => {
         { inputI: Number.NEGATIVE_INFINITY, inputTp: -1, inputLra: 0 },
         -16,
       ),
-    ).toThrow("安静");
+    ).toThrow("fazla sessiz");
     expect(() =>
       normalizationGainDb({ inputI: -20, inputTp: -1, inputLra: 0 }, -50),
-    ).toThrow("目标响度");
+    ).toThrow("Hedef ses düzeyi");
   });
   it("scales the clip level and every existing volume key without touching other keys", () => {
     const project = fixture();
@@ -165,7 +165,7 @@ describe("loudness measurement and normalization", () => {
         { inputI: -20, inputTp: -5, inputLra: 1 },
         -16,
       ),
-    ).toThrow("锁定");
+    ).toThrow("kilitli");
     const fresh = fixture();
     const text = createClip(undefined, fresh.tracks[0].id, 0, 30);
     fresh.clips.push(text);
@@ -176,7 +176,7 @@ describe("loudness measurement and normalization", () => {
         { inputI: -20, inputTp: -5, inputLra: 1 },
         -16,
       ),
-    ).toThrow("音频");
+    ).toThrow("kullanılabilir ses yok");
     const loud = fixture();
     loud.clips.find((c) => c.id === "music")!.volume = 3;
     expect(() =>
@@ -186,7 +186,7 @@ describe("loudness measurement and normalization", () => {
         { inputI: -40, inputTp: -20, inputLra: 1 },
         -2,
       ),
-    ).toThrow("400%");
+    ).toThrow("%400");
     const stable = fixture();
     const plan = prepareAudioNormalization(
       stable,
@@ -195,7 +195,7 @@ describe("loudness measurement and normalization", () => {
       -16,
     );
     expect(() => applyAudioEdit({ ...stable, name: "başka" }, plan)).toThrow(
-      "已变化",
+      "değişti",
     );
     expect(() => applyAudioEdit(stable, plan)).not.toThrow();
     expect(plan.changedIds).toEqual(["music"]);
@@ -286,7 +286,7 @@ describe("automatic music ducking", () => {
         amountDb: -12,
         fade: 0.3,
       }),
-    ).toThrow("同时");
+    ).toThrow("hem konuşma hem müzik");
     expect(() =>
       prepareDucking(project, ["voice"], ["music"], {
         amountDb: 4,
@@ -301,13 +301,13 @@ describe("automatic music ducking", () => {
     ).toThrow();
     expect(() =>
       prepareDucking(project, [], ["music"], { amountDb: -12, fade: 0.3 }),
-    ).toThrow("语音");
+    ).toThrow("konuşma");
     expect(() =>
       prepareDucking(project, ["voice", "voice"], ["music"], {
         amountDb: -12,
         fade: 0.3,
       }),
-    ).toThrow("重复");
+    ).toThrow("yinelenemez");
     const far = fixture();
     far.clips.find((c) => c.id === "voice")!.start = 20;
     expect(() =>
@@ -315,7 +315,7 @@ describe("automatic music ducking", () => {
         amountDb: -12,
         fade: 0.3,
       }),
-    ).toThrow("重叠");
+    ).toThrow("örtüşmüyor");
     const locked = fixture();
     locked.tracks.find((t) => t.name === "Müzik")!.locked = true;
     expect(() =>
@@ -323,7 +323,7 @@ describe("automatic music ducking", () => {
         amountDb: -12,
         fade: 0.3,
       }),
-    ).toThrow("锁定");
+    ).toThrow("kilitli");
     const silent = fixture();
     silent.assets.find((a) => a.id === "asset-voice")!.hasAudio = false;
     expect(() =>
@@ -331,7 +331,7 @@ describe("automatic music ducking", () => {
         amountDb: -12,
         fade: 0.3,
       }),
-    ).toThrow("音频");
+    ).toThrow("kullanılabilir ses yok");
   });
   it("commits one undo step and restores the previous music envelope", () => {
     const project = fixture();

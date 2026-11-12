@@ -1,5 +1,4 @@
 import type { Adjustments, Transform, TextStyle } from "./types";
-import { t } from "../i18n/locale";
 export const DEFAULT_TRANSFORM: Transform = {
   x: 0,
   y: 0,
@@ -17,7 +16,7 @@ export const DEFAULT_ADJUSTMENTS: Adjustments = {
   blur: 0,
 };
 export const DEFAULT_TEXT: TextStyle = {
-  text: t("在这里输入文字"),
+  text: "Metni buraya yazın",
   fontSize: 72,
   fontFamily: "Noto Sans SC",
   color: "#ffffff",

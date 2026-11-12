@@ -10,7 +10,6 @@ import {
   ZoomIn,
 } from "lucide-react";
 import type { Clip, MediaAsset, Project } from "../core/types";
-import { t } from "../i18n/locale";
 import {
   evaluateKeyframes,
   evaluateFade,
@@ -341,9 +340,9 @@ export default function Player({
     displayW = Math.min(size.w, size.h * aspect) * viewScale,
     displayH = displayW / aspect;
   return (
-    <section className="player-panel panel" aria-label="播放器">
+    <section className="player-panel panel" aria-label="Oynatıcı">
       <div className="panel-heading">
-        <span>播放器</span>
+        <span>Oynatıcı</span>
         <span className="muted small">
           {project.width} × {project.height} · {project.fps} fps
         </span>
@@ -351,7 +350,7 @@ export default function Player({
       <div className="player-stage" ref={hostRef}>
         <canvas
           ref={canvasRef}
-          aria-label="视频预览"
+          aria-label="Video önizlemesi"
           width={Math.max(
             2,
             Math.round(Math.min(1920, displayW * devicePixelRatio)),
@@ -432,8 +431,8 @@ export default function Player({
             <div className="preview-mark">
               R<span>✦</span>
             </div>
-            <p>让灵感，成为画面</p>
-            <span>导入素材并加入时间线开始创作</span>
+            <p>İlham, görüntüye dönüşsün</p>
+            <span>Medya içe aktarıp zaman çizelgesine ekleyerek düzenlemeye başlayın</span>
           </div>
         )}
         {selectedIds.length === 1 &&
@@ -444,16 +443,16 @@ export default function Player({
               playhead < c.start + c.duration,
           ) && (
             <div className="player-selection-hint">
-              拖动画面调整所选片段位置
+              Seçili klibi konumlandırmak için görüntüyü sürükleyin
             </div>
           )}
         {errors.length > 0 && (
           <button
             className="preview-error"
             onClick={() => setErrors([])}
-            title={errors.join(t("、"))}
+            title={errors.join(", ")}
           >
-            素材无法预览，导出仍使用原文件 · 点击收起
+            Medya önizlenemiyor; dışa aktarma özgün dosyayı kullanır · kapatmak için tıklayın
           </button>
         )}
       </div>
@@ -464,14 +463,14 @@ export default function Player({
         </div>
         <div className="transport">
           <button
-            title="上一帧 ←"
+            title="Önceki kare ←"
             onClick={() => onSeek(Math.max(0, playhead - 1 / project.fps))}
           >
             <SkipBack size={15} />
           </button>
           <button
             className="play-button"
-            aria-label={playing ? "暂停" : "播放"}
+            aria-label={playing ? "Duraklat" : "Oynat"}
             onClick={() => {
               initializeAudio();
               if (!playing && playhead >= duration) onSeek(0);
@@ -486,7 +485,7 @@ export default function Player({
             )}
           </button>
           <button
-            title="下一帧 →"
+            title="Sonraki kare →"
             onClick={() =>
               onSeek(Math.min(duration, playhead + 1 / project.fps))
             }
@@ -496,19 +495,19 @@ export default function Player({
         </div>
         <div className="player-tools">
           <button
-            title={muted ? "开启预览声音" : "静音预览"}
+            title={muted ? "Önizleme sesini aç" : "Önizlemeyi sessize al"}
             onClick={() => setMuted(!muted)}
           >
             {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
           <button
-            title="预览缩放"
+            title="Önizleme ölçeği"
             onClick={() => setViewScale(viewScale === 1 ? 1.5 : 1)}
           >
             <ZoomIn size={16} />
           </button>
           <button
-            title="全屏预览"
+            title="Tam ekran önizleme"
             onClick={() => {
               if (document.fullscreenElement) void document.exitFullscreen();
               else void hostRef.current?.requestFullscreen();

@@ -29,19 +29,19 @@ const PROPERTIES: Property[] = [
   "volume",
 ];
 const PROPERTY_LABELS: Record<Property, string> = {
-  x: "位置 X",
-  y: "位置 Y",
-  scale: "缩放",
-  rotation: "旋转",
-  opacity: "透明度",
-  volume: "音量",
+  x: "Konum X",
+  y: "Konum Y",
+  scale: "Ölçek",
+  rotation: "Döndürme",
+  opacity: "Opaklık",
+  volume: "Ses düzeyi",
 };
 const EASINGS: Easing[] = ["linear", "easeIn", "easeOut", "easeInOut"];
 const EASING_LABELS: Record<Easing, string> = {
-  linear: "线性",
-  easeIn: "缓入",
-  easeOut: "缓出",
-  easeInOut: "缓入缓出",
+  linear: "Doğrusal",
+  easeIn: "Yumuşak giriş",
+  easeOut: "Yumuşak çıkış",
+  easeInOut: "Yumuşak giriş/çıkış",
 };
 /** Pseudo-value for the easing select when a custom Bézier curve is active. */
 const CUSTOM = "custom";
@@ -551,11 +551,11 @@ export default function KeyframeEditor({
   return (
     <div className="keyframe-editor">
       <p className="field-hint">
-        拖动曲线点调整时间和数值；点击曲线定位播放头。选中关键帧后可精确输入、复制或粘贴。
+        Zaman ve değeri ayarlamak için eğri noktalarını sürükleyin; oynatma başlığını konumlandırmak için eğriye tıklayın. Bir anahtar kare seçtikten sonra hassas giriş yapabilir, kopyalayabilir veya yapıştırabilirsiniz.
       </p>
       <div className="keyframe-toolbar">
         <select
-          aria-label="曲线属性"
+          aria-label="Eğri özelliği"
           value={property}
           onChange={(event) => setProperty(event.target.value as Property)}
         >
@@ -568,23 +568,23 @@ export default function KeyframeEditor({
           )}
         </select>
         <button
-          aria-label="复制关键帧"
-          title="复制关键帧"
+          aria-label="Anahtar kareyi kopyala"
+          title="Anahtar kareyi kopyala"
           disabled={!selected || locked}
           onClick={copyKey}
         >
           <Copy size={12} />
         </button>
         <button
-          aria-label="粘贴关键帧"
-          title="粘贴到播放头"
+          aria-label="Anahtar kareyi yapıştır"
+          title="Oynatma başlığına yapıştır"
           disabled={!clipboard || locked}
           onClick={pasteKey}
         >
           <ClipboardPaste size={12} />
         </button>
         <span className="keyframe-current">
-          当前 {formatValue(property, current)}
+          Şu an {formatValue(property, current)}
         </span>
       </div>
       <div className="keyframe-curve">
@@ -592,7 +592,7 @@ export default function KeyframeEditor({
           ref={svg}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
-          aria-label={`${PROPERTY_LABELS[property]}关键帧曲线`}
+          aria-label={`${PROPERTY_LABELS[property]} anahtar kare eğrisi`}
           onPointerMove={movePoint}
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
@@ -683,9 +683,9 @@ export default function KeyframeEditor({
       {selected ? (
         <div className="keyframe-detail">
           <label>
-            时间
+            Zaman
             <input
-              aria-label="精确关键帧时间"
+              aria-label="Tam anahtar kare zamanı"
               type="number"
               min={0}
               max={clip.duration}
@@ -701,9 +701,9 @@ export default function KeyframeEditor({
             />
           </label>
           <label>
-            数值
+            Değer
             <input
-              aria-label="精确关键帧数值"
+              aria-label="Tam anahtar kare değeri"
               type="number"
               min={valueLimits(property).min}
               max={valueLimits(property).max}
@@ -719,9 +719,9 @@ export default function KeyframeEditor({
             />
           </label>
           <label>
-            插值
+            Ara değer
             <select
-              aria-label="关键帧插值"
+              aria-label="Anahtar kare ara değeri"
               value={selected.bezier ? CUSTOM : selected.easing}
               onChange={(event) => {
                 if (event.target.value === CUSTOM) {
@@ -746,15 +746,15 @@ export default function KeyframeEditor({
             </select>
           </label>
           <button
-            aria-label="跳转到关键帧"
-            title="跳转到关键帧"
+            aria-label="Anahtar kareye git"
+            title="Anahtar kareye git"
             onClick={() => seekTo(selected.time)}
           >
             <Crosshair size={12} />
           </button>
           <button
-            aria-label="删除关键帧"
-            title="删除关键帧"
+            aria-label="Anahtar kareyi sil"
+            title="Anahtar kareyi sil"
             disabled={locked}
             onClick={() => removeKey(selected.id)}
           >
@@ -763,7 +763,7 @@ export default function KeyframeEditor({
         </div>
       ) : (
         <p className="keyframe-empty">
-          在曲线或列表中选择一个关键帧，或把播放头移到目标时间后添加。
+          Eğride veya listede bir anahtar kare seçin ya da oynatma başlığını hedef zamana getirip ekleyin.
         </p>
       )}
       {selected?.bezier && (
@@ -787,8 +787,8 @@ export default function KeyframeEditor({
           ),
         )}
       </div>
-      <div className="keyframe-list" aria-label="关键帧列表">
-        {!allKeys.length && <div className="quiet-empty">还没有关键帧</div>}
+      <div className="keyframe-list" aria-label="Anahtar kare listesi">
+        {!allKeys.length && <div className="quiet-empty">Henüz anahtar kare yok</div>}
         {allKeys.map((key) => (
           <div
             key={key.id}
@@ -813,7 +813,7 @@ export default function KeyframeEditor({
             </button>
             <span>{PROPERTY_LABELS[key.property]}</span>
             <input
-              aria-label={`关键帧 ${PROPERTY_LABELS[key.property]} 值`}
+              aria-label={`${PROPERTY_LABELS[key.property]} anahtar kare değeri`}
               type="number"
               step={valueStep(key.property)}
               min={valueLimits(key.property).min}
@@ -828,7 +828,7 @@ export default function KeyframeEditor({
               }}
             />
             <select
-              aria-label="关键帧插值"
+              aria-label="Anahtar kare ara değeri"
               value={key.easing}
               onChange={(event) =>
                 updateKey(key.id, {
@@ -844,7 +844,7 @@ export default function KeyframeEditor({
               ))}
             </select>
             <button
-              aria-label="删除关键帧"
+              aria-label="Anahtar kareyi sil"
               disabled={locked}
               onClick={(event) => {
                 event.stopPropagation();

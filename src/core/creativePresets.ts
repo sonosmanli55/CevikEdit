@@ -1,6 +1,5 @@
 /** Original, offline editing recipes. MIT; no third-party templates or media. */
 import type { Clip, Keyframe, Project, TextStyle } from "./types";
-import { t } from "../i18n/locale";
 import {
   createClip,
   createTrack,
@@ -11,12 +10,12 @@ import {
 } from "./model";
 
 export type TextPresetCategory =
-  | "标题"
-  | "下三分之一"
-  | "字幕"
-  | "标记"
-  | "动态"
-  | "社媒";
+  | "Başlık"
+  | "Alt bant"
+  | "Altyazı"
+  | "İşaret"
+  | "Hareketli"
+  | "Sosyal medya";
 export type TextMotion = "rise" | "pop" | "fade" | "slide" | "settle";
 export interface TextPreset {
   id: string;
@@ -30,28 +29,28 @@ export interface TextPreset {
 }
 /** Tab order used by the template browser. */
 export const TEXT_PRESET_CATEGORIES: readonly TextPresetCategory[] = [
-  "标题",
-  "下三分之一",
-  "字幕",
-  "标记",
-  "动态",
-  "社媒",
+  "Başlık",
+  "Alt bant",
+  "Altyazı",
+  "İşaret",
+  "Hareketli",
+  "Sosyal medya",
 ];
 export const TEXT_PRESETS: readonly TextPreset[] = [
   {
     id: "classic",
-    name: "经典标题",
-    category: "标题",
+    name: "Klasik başlık",
+    category: "Başlık",
     keywords: ["title", "baslik", "simple", "sade"],
-    style: { text: t("让灵感，成为画面"), fontSize: 80 },
+    style: { text: "İlham, görüntüye dönüşsün", fontSize: 80 },
   },
   {
     id: "chapter",
-    name: "章节标题",
-    category: "标题",
+    name: "Bölüm başlığı",
+    category: "Başlık",
     keywords: ["chapter", "bolum"],
     style: {
-      text: t("CHAPTER 01\n我的故事"),
+      text: "CHAPTER 01\nHikâyem",
       fontSize: 66,
       color: "#ffd69a",
       strokeWidth: 0,
@@ -60,11 +59,11 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "cinema",
-    name: "电影片名",
-    category: "标题",
+    name: "Film adı",
+    category: "Başlık",
     keywords: ["cinema", "film", "sinema"],
     style: {
-      text: t("在路上\nA JOURNEY"),
+      text: "YOLDA\nA JOURNEY",
       fontSize: 90,
       color: "#fff0d5",
       strokeWidth: 0,
@@ -73,11 +72,11 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "editorial",
-    name: "极简刊头",
-    category: "标题",
+    name: "Minimal künye",
+    category: "Başlık",
     keywords: ["editorial", "magazine", "dergi"],
     style: {
-      text: t("生活观察\nVOL. 01"),
+      text: "HAYAT GÖZLEMİ\nVOL. 01",
       fontSize: 70,
       bold: false,
       strokeWidth: 0,
@@ -86,12 +85,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "subtitle",
-    name: "字幕底条",
-    category: "字幕",
+    name: "Altyazı şeridi",
+    category: "Altyazı",
     keywords: ["subtitle", "altyazi", "bar"],
     y: 0.36,
     style: {
-      text: t("每一帧，都值得记录"),
+      text: "Her kare kaydedilmeye değer",
       fontSize: 52,
       bold: false,
       background: "#11151c",
@@ -102,20 +101,20 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "outline",
-    name: "清晰描边",
-    category: "字幕",
+    name: "Net kontur",
+    category: "Altyazı",
     keywords: ["outline", "kontur", "stroke"],
     y: 0.36,
-    style: { text: t("给平凡的一天，加一点光"), fontSize: 54, strokeWidth: 4 },
+    style: { text: "Sıradan bir güne biraz ışık kat", fontSize: 54, strokeWidth: 4 },
   },
   {
     id: "warm-caption",
-    name: "暖白旁白",
-    category: "字幕",
+    name: "Sıcak beyaz anlatı",
+    category: "Altyazı",
     keywords: ["caption", "warm", "sicak"],
     y: 0.32,
     style: {
-      text: t("慢慢走，沿途都有风景"),
+      text: "Yavaş yürü, yol boyunca manzara var",
       fontSize: 48,
       bold: false,
       color: "#fff0d5",
@@ -127,11 +126,11 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "quote",
-    name: "访谈引用",
-    category: "字幕",
+    name: "Röportaj alıntısı",
+    category: "Altyazı",
     keywords: ["quote", "alinti", "interview"],
     style: {
-      text: t("“把热爱，写进每一天。”"),
+      text: "\"Tutkuyu her güne yaz.\"",
       fontSize: 64,
       color: "#a0f1df",
       strokeWidth: 0,
@@ -139,18 +138,18 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "mint",
-    name: "薄荷标记",
-    category: "标记",
+    name: "Nane işaret",
+    category: "İşaret",
     keywords: ["wordmark", "logo", "marka"],
     style: { text: "CEVIKEDIT", fontSize: 104, color: "#62ead1", strokeWidth: 0 },
   },
   {
     id: "comic",
-    name: "漫画强调",
-    category: "标记",
+    name: "Çizgi roman vurgusu",
+    category: "İşaret",
     keywords: ["comic", "pop", "cizgi"],
     style: {
-      text: t("精彩来了！"),
+      text: "İşte geldi!",
       fontSize: 100,
       color: "#ffd176",
       stroke: "#382637",
@@ -159,12 +158,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "news",
-    name: "资讯快报",
-    category: "标记",
+    name: "Haber bülteni",
+    category: "İşaret",
     keywords: ["news", "haber", "breaking"],
     y: 0.29,
     style: {
-      text: t("现场直击 · 最新动态"),
+      text: "Olay yerinden · son gelişmeler",
       fontSize: 60,
       background: "#b63f43",
       strokeWidth: 0,
@@ -174,12 +173,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "label",
-    name: "人物姓名牌",
-    category: "标记",
+    name: "Kişi isim etiketi",
+    category: "İşaret",
     keywords: ["name", "isim", "tag"],
     y: 0.3,
     style: {
-      text: t("林间 · 创作者"),
+      text: "Orman · içerik üreticisi",
       fontSize: 52,
       color: "#15252c",
       background: "#62ead1",
@@ -190,28 +189,28 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "rise",
-    name: "轻盈升起",
-    category: "动态",
+    name: "Hafifçe yüksel",
+    category: "Hareketli",
     keywords: ["rise", "yukari", "intro"],
     motion: "rise",
-    style: { text: t("新的故事，现在开始"), fontSize: 74, strokeWidth: 0 },
+    style: { text: "Yeni hikâye şimdi başlıyor", fontSize: 74, strokeWidth: 0 },
   },
   {
     id: "pop",
-    name: "弹跳登场",
-    category: "动态",
+    name: "Zıplayarak giriş",
+    category: "Hareketli",
     keywords: ["pop", "bounce", "zipla"],
     motion: "pop",
-    style: { text: t("HELLO！"), fontSize: 108, color: "#ffd176", strokeWidth: 4 },
+    style: { text: "MERHABA!", fontSize: 108, color: "#ffd176", strokeWidth: 4 },
   },
   {
     id: "fade",
-    name: "柔光开场",
-    category: "动态",
+    name: "Yumuşak ışıkla açılış",
+    category: "Hareketli",
     keywords: ["fade", "soft", "yumusak"],
     motion: "fade",
     style: {
-      text: t("遇见，美好的一刻"),
+      text: "Güzel bir anla karşılaş",
       fontSize: 72,
       bold: false,
       color: "#fff0d5",
@@ -220,12 +219,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "end",
-    name: "温柔谢幕",
-    category: "动态",
+    name: "Nazik kapanış",
+    category: "Hareketli",
     keywords: ["end", "outro", "bitis"],
     motion: "fade",
     style: {
-      text: t("感谢观看\n下次再见"),
+      text: "İZLEDİĞİNİZ İÇİN TEŞEKKÜRLER\nTekrar görüşmek üzere",
       fontSize: 76,
       color: "#a0f1df",
       strokeWidth: 0,
@@ -234,12 +233,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "lower-third",
-    name: "姓名下三分之一",
-    category: "下三分之一",
+    name: "İsim alt bandı",
+    category: "Alt bant",
     keywords: ["lower third", "isim", "unvan", "name"],
     y: 0.28,
     style: {
-      text: t("艾琳·德米尔\n导演 · 伊斯坦布尔"),
+      text: "Elif Demir\nYönetmen · İstanbul",
       fontSize: 54,
       color: "#ffffff",
       align: "left",
@@ -252,13 +251,13 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "news-band",
-    name: "新闻条",
-    category: "下三分之一",
+    name: "Haber bandı",
+    category: "Alt bant",
     keywords: ["news", "haber", "band", "bant"],
     y: 0.38,
     motion: "slide",
     style: {
-      text: t("突发新闻 · 最新进展"),
+      text: "SON DAKİKA · YENİ GELİŞME",
       fontSize: 46,
       color: "#ffffff",
       background: "#c0392b",
@@ -269,12 +268,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "quote-band",
-    name: "引言条",
-    category: "下三分之一",
+    name: "Alıntı bandı",
+    category: "Alt bant",
     keywords: ["quote", "alinti", "interview"],
     y: 0.3,
     style: {
-      text: t("“光会追随影子。”\n— 佚名"),
+      text: "\"Işık gölgeyi izler.\"\n— Anonim",
       fontSize: 48,
       bold: false,
       align: "left",
@@ -288,12 +287,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "stat-card",
-    name: "数据卡",
-    category: "社媒",
+    name: "Veri kartı",
+    category: "Sosyal medya",
     keywords: ["stat", "number", "sayi", "data"],
     y: 0.3,
     style: {
-      text: t("12.4B\n播放量"),
+      text: "12.4B\ngörüntüleme",
       fontSize: 62,
       color: "#0f1418",
       background: "#62ead1",
@@ -305,11 +304,11 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "neon",
-    name: "霓虹标签",
-    category: "标记",
+    name: "Neon etiket",
+    category: "İşaret",
     keywords: ["neon", "glow", "parlak"],
     style: {
-      text: t("新品"),
+      text: "YENİ",
       fontSize: 88,
       color: "#d9fff8",
       strokeWidth: 0,
@@ -318,12 +317,12 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "gold",
-    name: "金色徽章",
-    category: "标记",
+    name: "Altın rozet",
+    category: "İşaret",
     keywords: ["gold", "badge", "rozet", "altin"],
     y: 0.3,
     style: {
-      text: t("获奖"),
+      text: "ÖDÜLLÜ",
       fontSize: 56,
       color: "#2a1a06",
       background: "#f2c14e",
@@ -334,13 +333,13 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "hook",
-    name: "短视频开场",
-    category: "社媒",
+    name: "Kısa video açılışı",
+    category: "Sosyal medya",
     keywords: ["hook", "short", "reels", "tiktok", "kanca"],
     motion: "settle",
     y: -0.22,
     style: {
-      text: t("这个你绝对不知道"),
+      text: "BUNU BİLİYOR MUYDUNUZ?",
       fontSize: 60,
       lineHeight: 1.16,
       color: "#ffffff",
@@ -350,13 +349,13 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "follow",
-    name: "关注提示",
-    category: "社媒",
+    name: "Takip çağrısı",
+    category: "Sosyal medya",
     keywords: ["follow", "cta", "takip", "abone"],
     motion: "fade",
     y: 0.36,
     style: {
-      text: t("关注 → @cevikedit"),
+      text: "Takip et → @cevikedit",
       fontSize: 42,
       color: "#12161a",
       background: "#ffffff",
@@ -367,8 +366,8 @@ export const TEXT_PRESETS: readonly TextPreset[] = [
   },
   {
     id: "countdown",
-    name: "倒计时数字",
-    category: "动态",
+    name: "Geri sayım",
+    category: "Hareketli",
     keywords: ["countdown", "number", "geri sayim"],
     motion: "pop",
     style: {
@@ -474,18 +473,18 @@ export function addTextPreset(
   };
 }
 export const MOTION_PRESETS = [
-  { id: "push", name: "缓慢推进", description: "从当前缩放缓慢推近，突出主体" },
-  { id: "pull", name: "镜头拉远", description: "从近景拉回当前画面" },
-  { id: "pan-left", name: "向左漫游", description: "轻微横移，适合照片与风景" },
+  { id: "push", name: "Yavaş yaklaşma", description: "Geçerli ölçekten yavaşça yaklaşarak özneyi vurgular" },
+  { id: "pull", name: "Kamera uzaklaşması", description: "Yakın plandan geçerli görüntüye geri çekilir" },
+  { id: "pan-left", name: "Sola kayma", description: "Hafif yatay kayma; fotoğraf ve manzaralar için" },
   {
     id: "pan-right",
-    name: "向右漫游",
-    description: "轻微横移，适合照片与风景",
+    name: "Sağa kayma",
+    description: "Hafif yatay kayma; fotoğraf ve manzaralar için",
   },
-  { id: "float", name: "轻盈漂浮", description: "上下缓缓浮动" },
-  { id: "pulse", name: "呼吸缩放", description: "两次柔和放大与回落" },
-  { id: "sway", name: "轻轻摇摆", description: "小角度左右摆动" },
-  { id: "shake", name: "节奏震动", description: "短促横向震动后恢复原位" },
+  { id: "float", name: "Hafif süzülme", description: "Yukarı aşağı yavaşça salınır" },
+  { id: "pulse", name: "Nefes alan ölçek", description: "İki kez yumuşak büyütme ve geri dönüş" },
+  { id: "sway", name: "Hafif sallanma", description: "Küçük açıyla sağa sola salınır" },
+  { id: "shake", name: "Ritmik titreşim", description: "Kısa yatay titreşimden sonra eski konuma döner" },
 ] as const;
 export type MotionId = (typeof MOTION_PRESETS)[number]["id"];
 export function motionPatch(
@@ -565,51 +564,51 @@ export function motionPatch(
 export const TRANSITION_PRESETS = [
   {
     id: "dissolve",
-    name: "叠化",
-    description: "两段画面柔和交融",
-    category: "基础",
+    name: "Çapraz geçiş",
+    description: "İki görüntü yumuşakça birleşir",
+    category: "Temel",
   },
   {
     id: "dip",
-    name: "经过背景",
-    description: "淡至画布背景，再进入下一段",
-    category: "基础",
+    name: "Arka plandan geçiş",
+    description: "Tuval arka planına solar, sonra sonraki bölüme geçer",
+    category: "Temel",
   },
   {
     id: "slide-left",
-    name: "向左滑入",
-    description: "后片段从右侧滑入",
-    category: "运镜",
+    name: "Soldan kayarak giriş",
+    description: "Sonraki klip sağdan kayar",
+    category: "Kamera hareketi",
   },
   {
     id: "slide-right",
-    name: "向右滑入",
-    description: "后片段从左侧滑入",
-    category: "运镜",
+    name: "Sağdan kayarak giriş",
+    description: "Sonraki klip soldan kayar",
+    category: "Kamera hareketi",
   },
   {
     id: "slide-up",
-    name: "向上滑入",
-    description: "后片段从下侧滑入",
-    category: "运镜",
+    name: "Yukarıdan kayarak giriş",
+    description: "Sonraki klip aşağıdan kayar",
+    category: "Kamera hareketi",
   },
   {
     id: "slide-down",
-    name: "向下滑入",
-    description: "后片段从上侧滑入",
-    category: "运镜",
+    name: "Aşağıdan kayarak giriş",
+    description: "Sonraki klip yukarıdan kayar",
+    category: "Kamera hareketi",
   },
   {
     id: "zoom",
-    name: "缩放交接",
-    description: "后片段由小变大并淡入",
-    category: "动感",
+    name: "Ölçek geçişi",
+    description: "Sonraki klip küçükten büyüyerek belirir",
+    category: "Dinamik",
   },
   {
     id: "spin",
-    name: "旋转交接",
-    description: "后片段轻旋转、放大并淡入",
-    category: "动感",
+    name: "Döndürme geçişi",
+    description: "Sonraki klip hafifçe dönerek büyür ve belirir",
+    category: "Dinamik",
   },
 ] as const;
 export type TransitionId = (typeof TRANSITION_PRESETS)[number]["id"];
@@ -673,12 +672,12 @@ export function applyTransition(
     !Number.isFinite(seconds) ||
     seconds <= 0
   )
-    throw new Error("转场参数无效");
+    throw new Error("Geçiş parametreleri geçersiz");
   const front = project.clips.find((c) => c.id === clipId),
     track = project.tracks.find((t) => t.id === front?.trackId);
   if (!front || !track || front.text || track.kind === "audio")
-    throw new Error("请选择一个画面片段");
-  if (track.locked) throw new Error("请先解锁轨道");
+    throw new Error("Bir görüntü klibi seçin");
+  if (track.locked) throw new Error("Önce kanalın kilidini açın");
   const siblings = project.clips
     .filter((c) => c.trackId === track.id)
     .sort((a, b) => a.start - b.start);
@@ -692,11 +691,11 @@ export function applyTransition(
     next.start > end + tolerance ||
     next.start < end - front.duration / 2 - 0.00001
   )
-    throw new Error("需要同轨相邻的两个画面片段；请先消除间隙或过大的重叠");
+    throw new Error("Aynı kanalda bitişik iki görüntü klibi gerekir; önce boşluğu veya aşırı örtüşmeyi giderin");
   const limit = Math.min(5, front.duration / 2, next.duration / 2);
   const duration =
     Math.floor(Math.min(seconds, limit) * project.fps + 1e-8) / project.fps;
-  if (duration < 1 / project.fps) throw new Error("片段太短，无法添加转场");
+  if (duration < 1 / project.fps) throw new Error("Klip geçiş eklemek için çok kısa");
   const newStart = snapToFrame(
     end - (transition === "dip" ? 0 : duration),
     project.fps,
@@ -705,7 +704,7 @@ export function applyTransition(
     siblings[index + 2] &&
     newStart + next.duration > siblings[index + 2].start + 0.00001
   )
-    throw new Error("转场会与后续片段重叠；请先为后片段留出空间");
+    throw new Error("Geçiş sonraki kliple örtüşür; önce sonraki klip için yer bırakın");
   let incoming: Clip = {
     ...next,
     start: newStart,

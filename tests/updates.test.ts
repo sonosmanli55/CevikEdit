@@ -22,11 +22,11 @@ const release = (tag: string, options: Record<string, unknown> = {}) => ({
   prerelease: false,
   body: `Notlar ${tag}`,
   published_at: "2026-11-01T00:00:00Z",
-  html_url: `https://github.com/sonosanli55/CevikEdit/releases/tag/${tag}`,
+  html_url: `https://github.com/sonosmanli55/CevikEdit/releases/tag/${tag}`,
   assets: [
     {
       name: "CevikEdit Setup 1.0.0.exe",
-      browser_download_url: `https://github.com/sonosanli55/CevikEdit/releases/download/${tag}/CevikEdit%20Setup.exe`,
+      browser_download_url: `https://github.com/sonosmanli55/CevikEdit/releases/download/${tag}/CevikEdit%20Setup.exe`,
       size: 1024,
     },
   ],
@@ -90,12 +90,12 @@ describe("update selection", () => {
         assets: [
           {
             name: "CevikEdit-Kurucu.exe",
-            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurucu.exe",
+            browser_download_url: "https://github.com/sonosmanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurucu.exe",
             size: 211_000,
           },
           {
             name: "CevikEdit-Kurulum.exe",
-            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurulum.exe",
+            browser_download_url: "https://github.com/sonosmanli55/CevikEdit/releases/download/v0.8.0/CevikEdit-Kurulum.exe",
             size: 137_000_000,
           },
         ],
@@ -109,12 +109,12 @@ describe("update selection", () => {
         assets: [
           {
             name: "helper.exe",
-            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/helper.exe",
+            browser_download_url: "https://github.com/sonosmanli55/CevikEdit/releases/download/v0.8.0/helper.exe",
             size: 200_000,
           },
           {
             name: "CevikEdit-0.8.0.exe",
-            browser_download_url: "https://github.com/sonosanli55/CevikEdit/releases/download/v0.8.0/app.exe",
+            browser_download_url: "https://github.com/sonosmanli55/CevikEdit/releases/download/v0.8.0/app.exe",
             size: 130_000_000,
           },
         ],
@@ -242,7 +242,7 @@ describe("installer download", () => {
           pageUrl: "",
           asset: {
             name: "CevikEdit Setup 9.9.9.exe",
-            url: "https://github.com/sonosanli55/CevikEdit/releases/download/v9.9.9/setup.exe",
+            url: "https://github.com/sonosmanli55/CevikEdit/releases/download/v9.9.9/setup.exe",
             size: payload.length,
           },
         },

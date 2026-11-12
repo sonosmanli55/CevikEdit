@@ -122,7 +122,7 @@ try {
     const external = hrefs.filter((href) => href.startsWith("http"));
     if (!external.length) throw new Error(`${selector} has no external download`);
     for (const href of external)
-      if (!href.startsWith("https://github.com/sonosanli55/CevikEdit"))
+      if (!href.startsWith("https://github.com/sonosmanli55/CevikEdit"))
         throw new Error(`${selector} href is ${href}`);
   }
 

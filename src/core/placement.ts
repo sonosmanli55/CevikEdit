@@ -118,12 +118,12 @@ export function placeClip(
   clip: Clip,
   mode: PlacementMode,
 ): PlacementResult {
-  if (!isPlacementMode(mode)) throw new Error("不支持的入轨模式");
+  if (!isPlacementMode(mode)) throw new Error("Desteklenmeyen yerleştirme biçimi");
   const track = project.tracks.find((item) => item.id === clip.trackId);
-  if (!track) throw new Error("片段轨道不存在");
-  if (track.locked) throw new Error(`轨道“${track.name}”已锁定，请先解锁`);
+  if (!track) throw new Error("Klibin kanalı bulunamadı");
+  if (track.locked) throw new Error(`“${track.name}” kanalı kilitli; önce kilidini açın`);
   if (!Number.isFinite(clip.start) || !Number.isFinite(clip.duration))
-    throw new Error("片段时间无效");
+    throw new Error("Klip zamanı geçersiz");
   const start = snapToFrame(Math.max(0, clip.start), project.fps);
   const base: Clip = { ...clip, start };
   if (mode === "append") {
@@ -134,7 +134,7 @@ export function placeClip(
     };
   }
   const end = start + base.duration;
-  if (end > 86400) throw new Error("片段超出时间线范围");
+  if (end > 86400) throw new Error("Klip zaman çizelgesi aralığının dışında");
   const placed: Clip = { ...base, id: clip.id };
   const prepared =
     mode === "insert"

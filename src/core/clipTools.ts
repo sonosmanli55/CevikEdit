@@ -7,7 +7,6 @@ import {
   snapToFrame,
 } from "./model";
 import type { Clip, MediaAsset, Project } from "./types";
-import { t } from "../i18n/locale";
 
 export interface ReversedClipResult {
   project: Project;
@@ -43,31 +42,31 @@ export function reverseProjectClip(
   reversed: MediaAsset,
 ): ReversedClipResult {
   const source = project.clips.find((clip) => clip.id === clipId);
-  if (!source) throw new Error("找不到要倒放的片段");
+  if (!source) throw new Error("Ters oynatılacak klip bulunamadı");
   const track = project.tracks.find((entry) => entry.id === source.trackId);
-  if (!track) throw new Error("找不到片段所在轨道");
-  if (track.locked) throw new Error("轨道已锁定，无法倒放");
+  if (!track) throw new Error("Klibin bulunduğu kanal bulunamadı");
+  if (track.locked) throw new Error("Kanal kilitli; ters oynatılamıyor");
 
   const original = project.assets.find((asset) => asset.id === source.assetId);
-  if (!original) throw new Error("找不到原视频素材");
-  if (original.kind !== "video") throw new Error("只有视频片段可以倒放");
-  if (original.missing) throw new Error("原视频素材已丢失");
-  if (reversed.kind !== "video") throw new Error("倒放结果不是视频");
+  if (!original) throw new Error("Özgün video medyası bulunamadı");
+  if (original.kind !== "video") throw new Error("Yalnızca video klipleri ters oynatılabilir");
+  if (original.missing) throw new Error("Özgün video medyası eksik");
+  if (reversed.kind !== "video") throw new Error("Ters oynatma sonucu video değil");
   if (!Number.isFinite(reversed.duration) || reversed.duration <= 0)
-    throw new Error("倒放结果时长无效");
+    throw new Error("Ters oynatma sonucunun süresi geçersiz");
   if (original.hasAudio && !reversed.hasAudio)
-    throw new Error("倒放结果缺少原声，请重试");
+    throw new Error("Ters oynatma sonucunda özgün ses yok; tekrar deneyin");
 
   const sourceExtent = source.duration * source.speed;
   if (!Number.isFinite(sourceExtent) || sourceExtent <= 0)
-    throw new Error("片段时长无效");
+    throw new Error("Klip süresi geçersiz");
   if (
     Number.isFinite(original.duration) &&
     source.sourceIn + sourceExtent > original.duration + 0.08
   )
-    throw new Error("片段超出原视频范围");
+    throw new Error("Klip özgün video aralığının dışında");
   if (reversed.duration + 0.08 < sourceExtent)
-    throw new Error("倒放结果时长不足，请重试");
+    throw new Error("Ters oynatma sonucu çok kısa; tekrar deneyin");
 
   const nextProject = {
     ...project,
@@ -105,25 +104,25 @@ export function addFreezeFrameClip(
   duration = 2,
 ): FreezeFrameResult {
   const source = project.clips.find((clip) => clip.id === sourceClipId);
-  if (!source) throw new Error("找不到要定格的片段");
+  if (!source) throw new Error("Dondurulacak klip bulunamadı");
   const track = project.tracks.find((entry) => entry.id === source.trackId);
-  if (!track) throw new Error("找不到片段所在轨道");
-  if (track.locked) throw new Error("轨道已锁定，无法定格");
+  if (!track) throw new Error("Klibin bulunduğu kanal bulunamadı");
+  if (track.locked) throw new Error("Kanal kilitli; kare dondurulamıyor");
   const sourceAsset = project.assets.find(
     (asset) => asset.id === source.assetId,
   );
   if (!sourceAsset || sourceAsset.kind !== "video")
-    throw new Error("只有视频片段可以定格画面");
-  if (sourceAsset.missing) throw new Error("原视频素材已丢失");
-  if (image.kind !== "image") throw new Error("定格结果不是图片");
-  if (!Number.isFinite(playhead)) throw new Error("播放头位置无效");
+    throw new Error("Yalnızca video kliplerinde kare dondurulabilir");
+  if (sourceAsset.missing) throw new Error("Özgün video medyası eksik");
+  if (image.kind !== "image") throw new Error("Kare dondurma sonucu görsel değil");
+  if (!Number.isFinite(playhead)) throw new Error("Oynatma başlığı konumu geçersiz");
   if (
     playhead < source.start - 1e-9 ||
     playhead > source.start + source.duration + 1e-9
   )
-    throw new Error("播放头必须在选中视频片段范围内");
+    throw new Error("Oynatma başlığı seçili video klibinin aralığında olmalıdır");
   if (!Number.isFinite(duration) || duration <= 0)
-    throw new Error("定格时长无效");
+    throw new Error("Donmuş kare süresi geçersiz");
 
   const start = snapToFrame(Math.max(0, playhead), project.fps);
   const freezeDuration = Math.max(
@@ -131,7 +130,7 @@ export function addFreezeFrameClip(
     snapToFrame(duration, project.fps),
   );
   if (start + freezeDuration > 86400)
-    throw new Error("定格画面超出时间线范围");
+    throw new Error("Donmuş kare zaman çizelgesi aralığının dışına çıkıyor");
 
   const lastFrame = Math.max(0, source.duration - 1 / project.fps);
   const local = Math.max(
@@ -145,12 +144,12 @@ export function addFreezeFrameClip(
   let freezeTrack = tracks.find(
     (entry) =>
       entry.kind === "video" &&
-      entry.name === t("定格画面") &&
+      entry.name === "Donmuş kare" &&
       entry.id !== source.trackId &&
       !entry.locked,
   );
   if (!freezeTrack) {
-    freezeTrack = createTrack("video", t("定格画面"));
+    freezeTrack = createTrack("video", "Donmuş kare");
     // Keep text above the still while placing it above ordinary video lanes.
     const at = tracks.findIndex((entry) => entry.kind !== "text");
     tracks =
@@ -162,7 +161,7 @@ export function addFreezeFrameClip(
   const base = createClip(image, freezeTrack.id, start, project.fps);
   const clip: Clip = {
     ...base,
-    name: t("定格画面"),
+    name: "Donmuş kare",
     duration: freezeDuration,
     sourceIn: 0,
     speed: 1,

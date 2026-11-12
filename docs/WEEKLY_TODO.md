@@ -1,96 +1,97 @@
-# CevikEdit 一周功能推进计划
+# CevikEdit haftalık özellik ilerleme planı
 
-执行周期：2026-10-20 至 2026-10-26，每天北京时间 10:00，在当前聊天继续推进。
+Çalışma dönemi: 2026-10-20 ile 2026-10-26, her gün saat 10:00 (UTC+8), bu sohbette devam edilerek ilerletildi.
 
-本周目标：推进下一版 CevikEdit 的剪辑完整度，交付可以实际完成作品的新能力。前六天围绕功能开发，第七天贯通完整工作流并交付安装包候选。修复、CI、文档与测试作为每项功能的交付要求，不单独占据整周。
+Bu haftanın hedefi: bir sonraki sürüm için kurgu bütünlüğünü artıracak gerçekleştirilebilir yeni yetenekler sunmak; yedinci gün tam iş akışı boyunca ve paket adayı ile teslim edildi. Düzeltme, CI, belge ve test her bir yetenek tesliminin bir parçasıdır; ayrıca tek başına ayrı bir hafta olarak sayılmaz.
 
-这是功能目标和优先顺序，不是预先宣称全部功能都能按日完成。当天工作复杂时继续完成核心流程，记录剩余项并调整后续安排；不能把功能目标悄悄降级成改提示、补文档或修一个无关小问题。
+Bu birinci plan, tüm özelliklerin gündüz tamamlanacağı önceden ilan edilen bir liste değildir. Gün işi karmaşıksa ana akışı bitirip kalanları not alıp sonraki planı ayarlamaya devam edilir; asla birinci planı sessizce düşürülmez, sadece ipucu, belge tamamlama veya alakasız küçük bir sorun düzeltmesi biçimine evrilmez.
 
-## 功能里程碑
+## Özellik kilometre taşları
 
-### 10 月 20 日：时间线编辑能力升级
+### 10 Ekim 2026: zaman çizelgesi düzenleme yeteneklerinin yükseltilmesi
 
-- [x] 增加明确的“插入”与“覆盖”入轨模式，支持源素材 I/O 选段。
-- [x] 支持视频与分离音频的关联选择、移动和裁剪，并提供解除关联操作。
-- [x] 插入时正确推动受影响片段，覆盖时保留两侧剩余片段；处理锁轨和时间冲突。
-- 验收：从三段素材完成粗剪，画声保持同步；一次撤销恢复完整操作；保存重开与实际导出结果一致。
-- 已有分割、多选、音频分离与磁吸删除是复用基础，不能作为本次新增成果重复计数。
-- 本机证据：源素材预览新增“追加到末尾 / 插入并后移 / 覆盖当前位置”选择。插入在播放头处切开跨点片段并把同轨后续起点右移；覆盖先按两侧边界切分再裁掉占用区间；追加沿用轨道末尾。三者都经 `placeClip` 生成整个工程并一次提交，锁轨和非法范围会拒绝。音频分离会给源视频和分离音轨写入同一 `linkId`，移动、裁剪、分割、删除、复制/粘贴与重复都会同步处理另一侧；右侧“Ses”页提供“解除关联”，解除后两侧可独立编辑。测试：`tests/placement.test.ts` 8 项、`tests/linkedClips.test.ts` 5 项；桌面 `tests/placement-electron.ts` 5 项（插入切开 4 秒片段并后移、一次撤销复原、覆盖裁掉左侧、追加落到末尾、重开）与 `tests/linked-electron.ts` 5 项（分离后关联、同步微移、一次撤销、解除后独立移动、重开）均通过，renderer 无错误。详见 [VALIDATION.md](VALIDATION.md)。
+- [x] Net "ekleme" ve "üzerine yazma" giriş modları eklendi, kaynak medyanın I/O seçili aralığı desteklendi.
+- [x] Video ile ayrıştırılmış sesin bağlantılı seçim, taşıma ve kırpma desteği eklendi; bağlantıyı kesme işlemi sunuldu.
+- [x] Ekleme sırasında etkilenen parçaların doğru itildiği, üzerine yazma sırasında iki tarafın kalan parçalarının korunduğu doğrulandı; kilitli kanal ve zaman çakışması ele alındı.
+- Kabul: üç parçalı medyayı ile baştan sona kurgulandı, ses senkron kaldı; bir geri alma tüm işlemi geri getirdi; kaydetme yeniden açma ve gerçek dışa aktarma sonuçları eşleşti.
+- Mevcut bölme, çoklu seçim, ses ayrıştırma ve mıknatıs silme temel altyapısının yeniden kullanılması nedeniyle bu turda yeni bir ürün sonucu olarak tekrar sayılmadı.
+- Yerel kanıt: kaynak medya ön izlemesi "Son uca ekle / Ekle ve sonları kaydır / Geçersiz konuma yaz" seçimleri eklendi. Ekleme oynatma başında kesişen parçayı böldü ve aynı kanalda oynatma başından önce başlayan parçaları sağa kaydırdı; üzerine yazma önce iki taraf sınırını kesti sonra üzerine yazılanı kırptı; ekleme kanal sonuna devam etti. Bunların hepsi `placeClip` ile tam proje oluşturup tek seferde işlendi, kilitli kanal ve geçersiz aralık reddedildi. Ses ayrıştırma kaynak video ile ayrıştırılmış ses takımına aynı `linkId`'yi yazdı, taşıma, kırpma, bölme, silme, kopyala / yapıştırma ve tekrar senkron işlendi; sağ tarafta "Ses" sayfasında "Bağlı parçalar" ve "Bağlantıyı kes" eklendi. Testler: `tests/placement.test.ts` 8, `tests/linkedClips.test.ts` 5; masaüstü `tests/placement-electron.ts` 5 (ekleme kesişen 4 sn'lik parçayı böler ve kaydırır, bir geri alma kurtarır, kaplama sol kısmı kırpar, sonuca eklemeler sona düşer, yeniden açma) ve `tests/linked-electron.ts` 5 (ayrılma sonrası bağlantı, senkron mikro kaydırma, bir geri alma, kesme sonrası bağımsız taşıma, yeniden açma) geçti, renderer hatası yok. Detay: [VALIDATION.md](VALIDATION.md).
 
-### 10 月 21 日：倒放与定格画面
+### 21 Ekim 2026: geri sarma ve dondurma ekranı
 
-- [x] 为选中视频片段增加倒放操作，基于本地 FFmpeg 生成可复用衍生媒体，提供进度和取消。
-- [x] 支持从当前播放位置生成定格片段并调整持续时长。
-- [x] 明确倒放时原声的处理方式，管理缓存及项目保存后的媒体引用。
-- 验收：用带帧编号的合成视频核对倒放顺序、入出点和定格帧；预览、导出、撤销、重开均可用，不覆盖源媒体。
-- 本机证据：真实 FFmpeg 8.0 的 3 秒 10 fps 逐帧变色视频经桌面流程倒放、播放器预览、定格、撤销/重做、保存重开并导出；导出 90 帧的顺序与冻结区间通过逐帧颜色核对，源文件 SHA-256 未变化。倒放音频随画面一起反向；定格为无自身声音的图片叠加轨，底层声音继续。内存预算使 1080p30 最长约 34 秒、4K30 约 13 秒，更长片段需先分割。详见 [VALIDATION.md](VALIDATION.md)。
+- [x] Seçili video parçası için geri sarma işlemi eklendi, yerel FFmpeg ile yeniden kullanılabilir türetilmiş medya, ilerleme ve iptal.
+- [x] Şu anki oynatma konumundan dondurma parçası üretme ve süresi boyunca geçişi destekleme eklendi.
+- [x] Geri sarmada orijinal sesin ele alınışını açıkça belirtme, önbellek ve proje kaydetme sonrası medya referansını yönetme.
+- Kabul: çerçeveli numaralı sentetik video ile geri sarma sırası, giriş/çıkış ve dondurma çerçevesi; ön izleme, dışa aktarma, geri alma, yeniden açma çalışır, kaynak medya yok edilmez.
+- Yerel kanıt: gerçek FFmpeg 8.0'lı 3 sn'lik 10 fps'lik renkli sentetik video; masaüstü akışıyla geri sarma, oynatma, dondurma, geri alma / yeniden kullanma, kaydetme yeniden açma ve dışa aktarma; dışa aktarılan 90 kare sırası ve dondurma aralığı çerçeve renkleriyle karşılaştırıldı, kaynak dosya SHA-256'i değişmedi. Geri sarma sesi görüntüyle birlikte ters çevrildi; dondurma kendi sesi olmayan resim katmanı, altta ses çalıştı. Bellek bütçesi 1080p30 için yaklaşık 34 sn, 4K30 için yaklaşık 13 sn'yi izledi; daha uzun parça önce bölünmeli.
 
-### 10 月 22 日：可视化关键帧曲线编辑器
+### 22 Ekim 2026: görsel anahtar kare çizgisi ve esnetim
 
-- [x] 增加可视化关键帧时间轴/曲线面板，支持选择、拖动、删除和精确输入时间与数值。
-- [x] 在现有 linear / smoothstep 基础上扩展缓入、缓出或可编辑贝塞尔曲线，采用共享插值模型。
-- [x] 支持关键帧复制/粘贴，处理裁剪、分割后的曲线连续性。
-- 验收：使用同一工程制作推近、平移与透明度动画；逐帧比较预览/导出，保存重开不改变曲线。
-- 本机证据：`KeyframeEditor` 提供 SVG 曲线、按属性切换、全片段关键帧列表、点选/拖动、单次撤销、精确时间/数值输入、复制/粘贴/删除和播放头跳转。新增 `easeIn`、`easeOut`，与 `linear`、`easeInOut` 共用 `keyframeEasingWindow` / `keyframeEasingCoefficients` / `keyframeEasedRatio`；预览、曲线采样、裁剪/分割和 FFmpeg 导出使用同一套系数。桌面测试用 160×90 合成图片制作缩放、位置 X、透明度三组动画，验证拖动后一次撤销、复制/粘贴/删除、精确时间、保存重开曲线不变；打开同一工程后顺序采集 0–89 帧预览，与 90 帧导出逐帧比较（32×18 采样平均绝对差最大约 6.42、平均约 1.18，阈值 18；第 3、30、57 帧分别约 6.42、1.65、0.50），并核对相邻帧对齐。真实 FFmpeg 还覆盖 ease-in/ease-out 截断后的逐帧一致性，以及动态缩放与透明度同时启用时的 alpha 平面稳定性。详见 [VALIDATION.md](VALIDATION.md)。
+- [x] Görsel anahtar kare zaman çizelgesi / çizgi paneli eklendi, özellik seçimi, sürüklenme, silme ve hassas zaman / değer girişi desteklendi.
+- [x] Mevcut linear / smoothstep temellerinin üzerine giren, çıkan veya düzenlenebilir Bézier çizgisi genişletildi, paylaşılan ilerleme modeli kullanıldı.
+- [x] Anahtar kare kopyalama / yapıştırma desteklendi, kırpma ve bölme sonrası çizgi sürekliliği ele alındı.
+- Kabul: aynı proje ile yakınlaşma, kaydırma ve opaklık animasyonu; ön izleme / dışa aktarma çerçeve başına karşılaştırma, kaydetme yeniden açma çizgiyi değiştirmez.
+- Yerel kanıt: `KeyframeEditor` SVG çizgisi, özellikler arası geçiş, tüm parça anahtar kare listesi, tıklama / sürüklenme, tek geri alma, hassas zaman / değer girişi, kopyalama / yapıştırma / silme ve oynatma başı atlama. Yeni `easeIn`, `easeOut`; `linear` ve `easeInOut` ile `keyframeEasingWindow` / `keyframeEasingCoefficients` / `keyframeEasedRatio` paylaşıyor; önizleme, çizgi örnekleme, kırpma / bölme ve FFmpeg dışa aktarma aynı katsayı setini kullanıyor. Masaüstü test 160×90 sentetik resimle ölçek, X konumu ve opaklık animasyonu kurdu; sürüklenme sonrası tek geri alma, kopyalama / yapıştırma / silme, hassas zaman, kaydetme yeniden açma çizgiyi korudu; aynı proje açılırsa 0–89 çerçeve ön izleme alındı ve 90 kare dışa aktarma çerçeve başına karşılaştırıldı; 32×18 örnekleme ortalama mutlak fark en yüksek 6,42, ortalama 1,18 (eşik 18); çerçeve numaraları 3, 30, 57 sırasıyla 00:00:00:03, 00:00:01:00, 00:00:01:27'e denk geldi; son çerçeve mavi kanalı 120'den altındaydı. Gerçek FFmpeg, giren / çıkan kesme sonrası çerçeve tutarlılığını ve dinamik ölçekleme + opaklık için alfa düzeyi kararlılığını kapsadı. Detay: [VALIDATION.md](VALIDATION.md).
 
-### 10 月 23 日：字幕与文字动画工作流
+### 23 Ekim 2026: altyazı ve metin animasyonu iş akışı
 
-- [x] 增加字幕按播放头拆分、相邻字幕合并，并明确文本拼接和时间范围规则。
-- [x] 支持批量应用可编辑字幕样式，以及统一的文字入场、停留、出场动画设置。
-- [x] 复用现有 SRT/WebVTT 导入和字幕列表，完善“导入字幕→修整→统一样式→导出”流程。
-- 验收：用含中英文、长句和重叠时间的合成字幕完成全流程；撤销和项目重开正确，成片动画与预览一致。字幕文件导出明确其不携带动画的格式限制。
-- 本周不引入云端语音识别；已有 25 款文字模板不作为新增字幕能力重复计数。
-- 本机证据：字幕面板新增“拆分 / 合并”“文字动画”页签和可直接编辑的字体、字号、颜色、描边、行高、内边距、圆角、粗体、背景与对齐字段。拆分按项目帧对齐播放头，左段 `[开始, 播放头)`、右段 `[播放头, 结束)`，两侧至少各一帧；文本按字符比例切分，优先选择附近的标点、换行或空白。合并只接受同轨连续且相接/重叠的字幕，时间取最早开始至最晚结束，文本以换行拼接，样式和局部动画沿用最早一条。入场（无/淡入/上滑/缩放）、停留（静止/呼吸）、出场（无/淡出/下滑/缩放）与入出场时长统一应用到所选字幕，复用现有淡入淡出和 x/y/缩放/透明度关键帧，预览与 FFmpeg 导出走同一求值路径；替换这些属性时保留旋转、音量关键帧，短字幕自动缩短且不超过每条一半。所有拆分、合并、样式和动画操作都绑定计划创建时的工程快照，一次撤销/重做恢复整步。真实桌面测试用中英文合成 SRT（含长句和重叠时间）验证拆分/合并、直接样式、动画应用/撤销/重做、播放器亮像素变化、SRT 导出提示与保存重开，共 15 项检查、renderer 无错误；`tests/subtitleEdits.test.ts` 38 项通过，真实 FFmpeg 导出核对入场/停留/出场的字幕可见面积，SRT/WebVTT 只写时间与文本。详见 [VALIDATION.md](VALIDATION.md)。
+- [x] Oynatma başına altyazı bölme, komşu altyazıların birleştirilmesi ve metin birleştirme / zaman aralığı kuralları eklendi.
+- [x] Toplu uygulayabilecek düzenlenebilir altyazı stilleri ve tek tip metin giriş / kalıcılık / çıkış animasyonu desteklendi.
+- [x] Mevcut SRT / WebVTT içe aktarma ve altyazı listesini kullanarak "içe aktar → düzelt → tek stil → dışa aktar" akışını geliştirildi.
+- Kabul: Çinli ve İngilizce, uzun cümle ve örtüşen zamanlı sentetik altyazılarla tam akış; geri alma ve proje yeniden açma doğru; üretim animasyonu ve ön izleme eşleşti. Dışa aktaran altyazı dosyasının animasyon içermediği biçim kısıtı açıkça belirtildi.
+- Bu hafta bulutlı ses tanıması eklenmedi; mevcut 25 metin şablonu yeni altyazı yeteneği olarak sayılmadı.
+- Yerel kanıt: altyazı paneline "Böl / Birleştir" ve "Metin animasyonu" sekmeleri ile düzenlenebilir font, boyut, renk, çizgi, satır yüksekliği, kenar boşluğu, köşe radyosu, kalınlık, arka plan ve hizalama eklendi. Bölme proje kare hızına göre oynatma başını asitleştirdi, sol bölüm `[başlangıç, oynatma başı)`, sağ bölüm `[oynatma başı, bitiş)`, iki taraf en az bir çerçeve tuttu; metin karakter oranına göre yakın noktaya göre kesiyordu. Birleştirme yalnızca aynı kanalda ve devam eden / örtüşen altyazıları kabul ediyor, zaman en erken başlangıçtan en geç bitişe kadardı, metin satır sonuna göre birleştirildi, stil ve yerel animasyon en eski altyazıdan alındı. Giriş / kalıcılık / çıkış (yok / fade / yükseliş / ölçek, sakin / nefes, yok / fade / iniş / ölçek) süreler çerçeveye asitleştirildi ve her altyazı başına yarısından fazla tutulmadı; mevcut fade ve x/y / ölçek / opaklık anahtar karelerini yeniden kullanıldı, önizleme ve FFmpeg dışa aktarma aynı değerlendirme yolunu kullandı; bu özellikler değiştirilirken eski anahtar kareleri kaldırılıp döndürme ve ses anahtar kareleri korundu; kısa altyazılar otomatik kısılıp her birinin yarısını geçmiyordu. Tüm bölme, birleştirme, stil ve animasyon işlemleri plan oluşturma zamanındaki proje anına bağlı planlarda bulundu, bir geri alma / yeniden kullanma adımı tamamı geri getirdi. Gerçek masaüstü testi Çinli ve İngilizce sentetik SRT (uzun cümle, örtüşen zaman) ile bölme / birleştirme, doğrudan stil, animasyon uygulama / geri alma / yeniden kullanma, oynatıcı parlak piksel değişimi, SRT dışa aktarma ipucu ve kaydetme yeniden açma kapsamında 15 kontrol daha; `tests/subtitleEdits.test.ts` 38 test, gerçek FFmpeg dışa aktarma altyazı görünen alanını doğruladı, SRT / WebVTT yalnızca zaman ve metin yazıyor. Detay: [VALIDATION.md](VALIDATION.md).
 
-### 10 月 24 日：声音处理与自动压低背景音乐
+### 24 Ekim 2026: ses işlemi ve müzik otomatik baskılama
 
-- [x] 增加本地响度分析与归一化入口，允许选择目标响度并展示分析/处理进度。
-- [x] 对用户明确选中的人声轨与音乐轨，实现人声区间内自动压低音乐，支持压低量及进入/恢复时长调整。
-- [x] 将结果保留为可编辑、可撤销的参数或音量包络，复用已有音量关键帧能力。
-- 验收：用自造的人声替代信号和音乐测试预览/导出响度及压低区间，检查峰值、静音、重叠片段和取消操作，不破坏原媒体。
-- 本机证据：音频页新增“Ses araçları”面板。选中带声音的片段后，`analyze-loudness` 在主进程用本机 FFmpeg `loudnorm`（I=-16、TP=-1.5、LRA=11）分析该片段的源区间，只把 EBU R128 汇总写到界面，不生成或上传音频。归一化按目标 LUFS 计算增益，并以测得的真峰值限制不超过 -1 dBTP，再写入片段音量与现有音量关键帧。语音/音乐两个列表由用户从时间线选择后显式加入，压低的包络写成普通音量关键帧（首帧固定原音量，语音前/后按过渡时长回落），预览与 FFmpeg 导出共用同一 `evaluateKeyframes`。剪辑释放/保存沿用普通项目字段。测试：`tests/audioMix.test.ts` 10 项（解析、静音、峰值钳制、增益上限、锁轨、过时计划、包络合并/裁剪、视频带声、撤销），真实 FFmpeg 两项（响度测量 + 归一化实际导出 RMS；压低区间内 600 Hz 音乐能量降至约 1/2.5 以下，语音 440 Hz 仍可测），桌面 7 项（土耳其语界面、无中文残留、测量、归一化撤销、压低撤销/重做、重开）。详见 [VALIDATION.md](VALIDATION.md)。
+- [x] Yerel gürültü analizi ve normalizasyon girişi eklendi, hedef gürültü seçilebiliyor ve analiz / işlem ilerlemesi gösteriliyor.
+- [x] Kullanıcının açıkça seçtiği insan sesi ve müzik parçaları için insan sesi aralıkları içinde müzik otomatik baskılama uygulandı; baskı miktarı ve girme / çıkış geçiş süresi ayarlanabiliyor.
+- [x] Sonuç düzenlenebilir ve geri alınabilir parametre veya ses zarfı olarak saklandı, mevcut ses anahtar kare yeteneğini yeniden kullanıldı.
+- Kabul: sentetik insan sesi ve müzik ile ön izleme / dışa aktarma gürültüsü ve baskı aralığını test etti, en yüksek değer, sessizlik, örtüşen parçalar ve iptal işlemini kontrol etti, orijinal medyayı bozmadı.
+- Yerel kanıt: Ses sayfasına "Ses araçları" paneli eklendi. Sesli parça seçildiğinde `analyze-loudness` ana süreçte yerel FFmpeg `loudnorm` (I=-16, TP=-1.5, LRA=11) ile parçadaki kaynak aralığını analiz etti, yalnızca EBU R128 özetini arayüze yazdı, ses üretmiyor ve yükü yoktu. Normalizasyon hedef LUFS'e göre hesaplanan kazanımla, ölçülen gerçek en yüksek değerle −1 dBTP'yi aşmamak için sıkılaştırıldı ve parça ses seviyesine ve mevcut tüm ses anahtar karelerine çarptı. İnsan / müzik listeleri kullanıcının zaman çizelgesinden açıkça ekleyebildi, baskı zarfı normal ses anahtar karelerine yazıldı (ilk çerçeve sabit orijinal ses seviyesi, insan öncesi / sonrası geçiş süresiyle geri döndü), önizleme ve FFmpeg dışa aktarma aynı `evaluateKeyframes` değerlendirmesini kullandı. Düzenleme / kaydetme geri alma desenini normal proje alanlarıyla kullandı. Testler: `tests/audioMix.test.ts` 10 (çözümleme, sessizlik, en yüksek sıkma, kazanım üst sınırı, kilitli kanal, eski plan, zarf birleştirme / kırpma, video sessizliğinin insan olarak kabulü, geri alma); gerçek FFmpeg 2 (gürültü ölçümü + normalizasyon gerçek dışa aktarma RMS'i; baskı aralığında 600 Hz müzik enerjisinin yaklaşık 1/2.5'in altına düştüğü, insan sesi 440 Hz hâlâ ölçülebildi); masaüstü 7 (Türkçe arayüz, Çinli kalıntı yok, ölçüm, normalizasyon geri alma, baskı geri alma / yeniden kullanma, yeniden açma). Detay: [VALIDATION.md](VALIDATION.md).
 
-### 10 月 25 日：可复用模板与替换素材
+### 25 Ekim 2026: yeniden kullanılabilir şablonlar ve medya değiştirme
 
-- [x] 将当前工程保存为本地模板，支持模板名称、封面预览、素材占位和文字占位。
-- [x] 从模板新建独立工程，一次替换多个素材与文案，明确时长不足和画面比例变化时的处理策略。
-- [x] 复用现有可搬移项目素材包，支持模板导入/导出，附至少三套自主制作的可用示例。
-- 验收：宣传片、口播字幕、图文展示各生成一个独立工程并成功导出；不修改模板原件，不引用未授权第三方素材。
-- 本机证据：模板页可把当前工程存成模板（素材转为 `template://media/<slot>` 占位，未使用素材与缓存被丢弃，封面为缩略图或生成的 SVG 卡片），从模板新建时轨道、片段、关键帧 ID 全部重新生成，媒体从源 0 开始，短于模板时按帧裁短并裁剪关键帧/淡化；可选占位缺失只跳过相关片段并警告，必需占位缺失拒绝。模板可导入/导出 `.cevikedit-template`，导入前拒绝本机路径、越界占位、类型不符、重复键与超限数量。内置三套原创模板：Açılış kartı（16:9 6 秒）、Dikey sosyal video（9:16 8 秒）、Altyazı bloğu（16:9 12 秒三条字幕）。画面比例变化时按画布 contain 处理，不裁剪也不拉伸。`tests/templates.test.ts` 11 项、`tests/templates-electron.ts` 7 项；三套模板均能在“从模板新建→保存→导出”路径中产出独立工程（演示影片与项目见 `docs/media/`）。
+- [x] Mevcut proje yerel şablona kaydedildi, şablon adı, kapak ön izleme, medya yerleştirmesi ve metin yerleştirmesi desteklendi.
+- [x] Şablondan yeni bağımsız proje, birden fazla medyanın ve metnin tek seferde değiştirilmesini, süre ve görsel oran değişikliklerine yönelik yaklaşımı destekledi.
+- [x] Mevcut taşınabilir proje medya paketlerini yeniden kullanarak şablon içe / dışa aktarma desteklendi, en az üç tane kendi üretilmiş çalışır örnek eklendi.
+- Kabul: tanıtıcı film, konuşmacı altyazı, görsel anlatım her biri bağımsız proje üretti ve başarılı dışa aktardı; şablon orijinali değiştirilmedi, yetkisiz üçüncü taraf medyası kullanılmadı.
+- Yerel kanıt: şablon sayfası mevcut projeyi şablona kaydedebiliyor (medya `template://media/<slot>` yerleştirmesine dönüştürüldü, kullanılmayan medya ve önbellek atıldı, kapak kısaltma veya üretilen SVG kartı); şablondan yeni'nde kanal, parça, anahtar kare ID'leri yeniden üretildi, medya kaynaktan 0'dan başladı ve kısa şablonlar kare basmasıyla kısılıp anahtar kare / fade kırpıldı; opsiyonel yerleştirmeler eksikse ilgili parçalar atıldı ve uyarı verildi, zorunlu yerleştirmeler eksikse reddedildi. Şablon `.cevikedit-template` olarak içe / dışa aktarılabilir, içe aktarmadan önce yerel yol, çarpanlı yerleştirmeler, tip uyumsuzluğu, tekrarlı anahtarlar ve sınır aşımları reddedildi. İç içe üç özgün şablon: Açılış kartı (16:9, 6 sn), Dikey sosyal video (9:16, 8 sn), Altyazı bloğu (16:9, 12 sn, üç sıralı altyazı). Görsel oran değiştiğinde tuval contain yöntemi kullanıldı, kırpma veya uzatma yok.
+- `tests/templates.test.ts` 11, `tests/templates-electron.ts` 7; üç şablon da "şablondan yeni → kaydet → dışa aktar" yoluyla bağımsız proje üretebildi (demo video ve proje `docs/media/` içinde). Detay: [VALIDATION.md](VALIDATION.md).
 
-### 10 月 26 日：完整工作流联调与版本候选
+### 26 Ekim 2026: tam iş akışı uyum ve sürüm adayı
 
-- [x] 使用原创/合成素材制作一支 30–60 秒作品，贯通本周实际完成的粗剪、倒放/定格、动画、字幕、声音和模板功能。
-- [x] 核对桌面版与 Codex 插件对新增功能的操作路径；有必要时补齐受限工具接口及 skill 说明。
-- [x] 解决阻碍交付的回归，更新功能矩阵、中英文 README、使用文档与更新日志。
-- [ ] 构建 macOS DMG 和插件 ZIP 候选，生成校验文件、演示视频及周报。
-- 验收：交付可下载/打开的本地产物和实际成片；逐项列明完成、部分完成、未完成及平台边界。全部核心里程碑达成时以 v0.6.0 为候选目标，否则根据实际范围确定版本，不夸大完整度。
-- 本机证据：`scripts/generate-showcase.ts` 生成 30.0 秒 1280×720 影片，串起模板（开场标题复用内置模板样式）、三幕 `easeInOut` 关键帧推近、五条字幕统一“上滑+呼吸+淡出”、一条字幕先拆分再合并、真实 `loudnorm` 测量后按 −20 LUFS 归一化、人声全程压低音乐 11 dB；导出为 H.264 + AAC，成片与工程、模板、预览帧存于 `docs/media/`（`hafta-demosu.mp4`、`.cevikedit`、`.cevikedit-template`、`KAYNAK.txt`）。`tests/showcase.test.ts` 通过。模板功能新增模型 11 项与桌面 7 项检查。Windows 候选包升级为 **0.6.0**，`release/CevikEdit Setup 0.6.0.exe`（129 MB）已构建，`tests/package-win-electron.ts` 直接启动打包后的 `CevikEdit.exe` 验证八个资源页仅土耳其语、模板建工程、保存与 1920×1080 H.264 导出。**macOS DMG/ZIP 未构建**：本机无 macOS 环境，不能声称已完成，该子项保持未勾选。
+- [x] Orijinal / sentetik medyayla 30–60 sn'lik bir ürün üretildi, bu haftanın gerçekleştirilen kurgu, geri sarma / dondurma, animasyon, altyazı, ses ve şablon yeteneklerini içeren ana iş akışını bağladı.
+- [x] Masaüstü sürümü ve Codex eklentisinin yeni yetenekler için işlem yollarını doğruladı; gerekirse kısıtlı araç arayüzü ve skill açıklamaları tamamlandı.
+- [x] Teslimi engelleyen regresyonları çözdü, özellik matrisini, İngilizce ve Türkçe README'yi, kullanım belgesini ve güncellemeyi güncelledi.
+- [ ] macOS DMG ve eklenti ZIP adayı derlendi, doğrulama dosyaları, demo video ve haftalık rapor üretildi.
+- Kabul: indirilebilir / açılabilir yerel ürün ve gerçek üretim; her biri tamamlanan, kısmen tamamlanan, tamamlanmayan ve platform sınırları ayrı ayrı yazıldı. Tüm temel kilometre taşlarına ulaşılınca adayı **v0.6.0** hedefli, değilse sürüm gerçek kapsamına göre belirlendi, tamamlık abartılmadı.
+- Yerel kanıt: `scripts/generate-showcase.ts` 30,0 sn'lik 1280×720 video üretti, şablon (açılış başlığı yerleşik şablon stili), üç bölüm `easeInOut` anahtar kare yakınlaşması, beş altyazı "yükseliş + nefes + solma" birleşik, bir altyazının önce bölünüp birleşmesi, gerçek `loudnorm` ölçümü, −20 LUFS normalizasyonu, insan sesiyle müzik 11 dB baskı; H.264 + AAC dışa aktarıldı, üretim, proje, şablon, önizleme çerçeveleri `docs/media/` içinde (`hafta-demosu.mp4`, `.cevikedit`, `.cevikedit-template`, `KAYNAK.txt`). `tests/showcase.test.ts` geçti. Şablon yetenekleri için yeni model 11 test ve masaüstü 7 kontrol. Windows adayı **0.6.0** olarak yükseltildi, `release/CevikEdit Setup 0.6.0.exe` (129 MB) derlendi, `tests/package-win-electron.ts` derlenmiş `CevikEdit.exe`'yi doğrulayarak sekiz kaynak sayfasının yalnızca Türkçe olduğunu, şablon ile proje oluşturmayı, kaydetmeyi ve 1920×1080 H.264 dışa aktarımını doğruladı. **macOS DMG / ZIP derlenmedi**: bu makinede macOS ortamı yok, tamamlanmadığı kabul ediliyor, bu madde işaretli tutulmadı.
 
-## 每日交付标准
+## Günlük teslim standartları
 
-1. 先检查代码与最新 Git 状态，再选择实现路径；已有能力应扩展使用流程或补齐明确缺口，不能重复造轮子。
-2. 每项新增功能至少贯通：界面入口、状态模型、保存/重开、撤销/重做、预览、导出；确实不适用的环节说明理由。只做按钮、静态效果或未接入导出的原型不算完成。
-3. 使用合成素材执行与改动相关的语义和真实媒体测试。修复阻碍当前功能的 CI 问题，但不能通过删断言、隐藏失败或无理由跳过测试获得通过。
-4. 当天汇报须包含用户现在能做什么、操作路径、测试证据、截图或短演示、提交链接和剩余缺口。
-5. 验证通过后，提交归属明确的本次改动及进度记录，并正常推送至现有 GitHub 仓库；不强推，不覆盖用户、其他任务或远端的新修改。冲突无法安全处理时保留现场并报告。
-6. 先审查本聊天已完成但未提交的 0.5.1 修复，将其作为基线收尾；不能用这项既有修复替代第一天的新功能目标。
-7. 遵守 AGENTS.md 和现有离线产品范围。研究仅限已授权范围；无需为了实现这些独立功能启动第三方应用、破解访问控制或复制其代码/素材。公开资料、原创实现和合成测试足以支持时直接开发。
-8. 每天围绕一个功能主题持续推进。未完成的核心流程优先续完，可顺延后续主题并说明理由，不为每日打卡留下多个不可用半成品。
-9. 每日只在实际进展、完成或阻碍时通知；没有变化时保持安静。计划于 10 月 26 日结束，不自动延长；最后汇总真实交付结果。
-10. 周末安装包先作为候选产物交付，不自动覆盖已发布 Release，不改动用户现有项目。
+1. Önce kod ve güncel Git durumunu kontrol edip sonra uygulama yolu seçilmeli; var olan yetenekler iş akışına genişletilmeli veya açık eksiklerle tamamlanmalı, yeniden icat edilmemeli.
+2. Her yeni yetenek en az bir kez bağlanmalı: arayüz girişi, durum modeli, kaydetme / yeniden açma, geri alma / yeniden kullanma, ön izleme, dışa aktarma; gerçek uygulanamazlık nedenleri açıklamalı. Yalnızca düğme, statik etki veya dışa aktarmaya bağlı olmayan prototip tamamlanma sayılmaz.
+3. Sentetik medyayla ilgili değişikliklerin anlam testlerini ve gerçek medyayı çalıştırmalı. CI'daki engelli olanları çözmeli, ama başarılı yapmak için iddiaları silmek, başarısızlığı gizlemek veya testleri gerekçesizce atlamak yeterli değildir.
+4. Günlük rapor şunları içermeli: kullanıcının artık ne yapabileği, işlem yolu, test kanıtı, ekran görüntüsü veya kısa demo, commit bağlantısı ve kalan eksikler.
+5. Doğrulama geçtiğinde, bu değişiklik ve ilerleme kaydına ait commit'e ait olması açıkça belirtildi ve normal şekilde mevcut GitHub deposuna itilmeli; asla zorla yazmamalı, kullanıcı, diğer görev veya uzaktaki yeni değişikliklerin üzerine yazmamalı. Çakışma güvenle işlenemiyorsa sakin durdurulup rapor edilmeli.
+6. Önce bu sohbette tamamlanan ama commit edilmemiş 0.5.1 düzeltmelerini gözden geçirilmeli; bunlar bir taban olarak kapatılmalı; mevcut düzeltme yerine ilk gün yeni yetenek hedefini değiştirilmemeli.
+7. AGENTS.md ve mevcut çevrimdışı ürün kapsamına uyulmalı. Araştırma yalnızca yetkilendirilen kapsamda; özgün yetenekleri uygulamak için üçüncü taraf uygulamaların başlatılması, erişim kısıtlarının aşırı kullanılması veya kod / medya kopyalanması gerekmediğinde normal geliştirme yapılmalı.
+8. Her gün bir yetenek teması etrafında ilerlenmeli. Tamamlanmamış ana akış önce tamamlanmalı, sonraki temalar ertelenebilir ve gerekçe açıklatılabilir; her gün teslim edilebilir olmayan birden fazla parça bırakılmamalı.
+9. Günlük yalnızca gerçek ilerleme, tamamlanma veya engel durumunda bildirilmeli; değişiklik yoksa sessiz kalmalı. 10 Ekim ayının sonunda planlandığı gibi sonlandırılmamalı; son toplanma gerçek teslim sonuçlarını içermeli.
+10. Haftalık paket önce aday ürün olarak teslim edilmeli, yayınlanmış Release'i otomatik olarak değiştirmemeli, kullanıcı mevcut projelerini değiştirmemeli.
 
-## 每日记录
+## Günlük kayıtlar
 
-| 日期 | 可用的新能力 | 验证 / 演示 | 提交 / 产物 | 剩余缺口与调整 |
+| Tarih | Kullanılabilir yeni yetenekler | Doğrulama / demo | Commit / ürün | Kalan eksikler ve ayarlamalar |
 | --- | --- | --- | --- | --- |
-| 2026-10-20 | 源区间追加/插入/覆盖入轨；分离音视频关联移动、裁剪、分割、删除与解除关联 | `placement` 8 项、`linkedClips` 5 项、桌面 10 项 | 未提交（等待指示） | 插入/覆盖按单轨处理；跨轨联动与自动避让未实现 |
-| 2026-10-21 | 待执行 | — | — | — |
-| 2026-10-22 | 待执行 | — | — | — |
-| 2026-10-23 | 字幕拆分/合并、批量可编辑样式与统一入停出动画；导入→修整→样式→导出闭环 | 38 项模型测试、真实 FFmpeg 动画导出、15 项 Electron 桌面检查、i18n 0 未翻译 | 未提交（等待指示） | 字幕文件不携带动画；复杂排版仍由单条文字检查器处理 |
-| 2026-10-24 | 本地响度测量/归一化、语音区间自动压低音乐；音频页工具面板 | `audioMix` 10 项、真实 FFmpeg 2 项、桌面 7 项 | 未提交（等待指示） | 仅片段级测量；多轨总线响度与实时电平表未实现 |
-| 2026-10-25 | 时间线自由缩放/平移：2–1600 px/s、光标锚定滚轮、Shift/触控板平移、中键拖动、适配与播放头定位、可见时长读示 | `timelineView` 8 项、桌面 10 项；app/track 桌面回归保持通过 | 未提交（等待指示） | 未运行需 Chromium 的浏览器脚本；无惯性/小地图 |
-| 2026-10-26 | 30 秒端到端影片（模板+关键帧+字幕动画+响度/压低）、Windows 0.6.0 候选包与打包冒烟 | `showcase` 1 项、打包 `CevikEdit.exe` 5 项 | 0.6.0；`docs/media/hafta-demosu.mp4` | macOS DMG/ZIP 未构建（无 macOS 环境） |
-| 2026-11-07 | 修复 Windows 上 CLI 脚本启动（shebang 解释器）、主进程 181 条中文错误本地化、助手土耳其语提示词与回复、可搬移包土耳其语文件名与说明 | 整套测试首次全绿：398 项，392 通过、6 跳过、0 失败；`mainLocale` 3 项、助手桌面 13 项、portable 6 项 | 见本次提交 | Windows 仍不支持 `.cmd/.bat/.ps1`；macOS/Linux 未实机复核 |
-| 2026-11-08 | 可复用模板（保存/新建/批量替换/导入导出 + 3 套内置）、30 秒端到端演示、0.6.0 Windows 候选包 | `templates` 11 项 + 桌面 7 项、`showcase` 1 项（30.0 秒 720p 实际导出）、打包 `CevikEdit.exe` 5 项 | 0.6.0 提交；`release/CevikEdit Setup 0.6.0.exe`；`docs/media/hafta-demosu.mp4` | macOS DMG/ZIP 未构建（无 macOS 环境）；Linux 未验证 |
-| 2026-11-11 | 自由贝塞尔缓动、时间线惯性+迷你地图、离线 VAD 自动压低、4K/大工程限流、HDR→SDR BT.709、开放草稿交换导出 | `bezier` 7、`timelineMotion` 7、`vad` 12+3、`limits` 6+桌面 5、`colorManagement` 4+4、`draftExchange` 5+桌面 3；整套 458 项 452 通过 6 跳过 0 失败 | 见本次提交 | 不写回剪映加密草稿（授权边界）；不输出 HDR 成片；macOS/Linux 未实机复核 |
+| 2026-10-20 | Kaynak aralığı ekleme / ekleme / üzerine yazma girişi; ses-video bağlantılı taşıma, kırpma, bölme, silme ve bağlantıyı kesme | `placement` 8, `linkedClips` 5, masaüstü 10 | Henüz commit edilmedi (talimat bekleniyor) | Ekleme / üzerine yazma tek kanal işler; çapraz kanal bağlantısı ve otomatik uzaklık yok |
+| 2026-10-21 | Henüz çalışılmadı | — | — | — |
+| 2026-10-22 | Henüz çalışılmadı | — | — | — |
+| 2026-10-23 | Altyazı bölme / birleştirme, toplu düzenlenebilir stiller ve tek tip giriş / kalıcılık / çıkış animasyonu; içe aktar → düzelt → stil → dışa aktar akışı | 38 model testi, gerçek FFmpeg animasyon dışa aktarma, 15 Electron masaüstü kontrolü, i18n 0 eksik | Henüz commit edilmedi (talimat bekleniyor) | Altyazı dosyasıya animasyon yok; karmaşık yerleşim yine tek altyazı denetleyicisinde | 
+| 2026-10-24 | Yerel gürültü ölçümü / normalizasyon, insan sesi aralıkları içinde müzik otomatik baskılama; Ses araçları paneli | `audioMix` 10, gerçek FFmpeg 2, masaüstü 7 | Henüz commit edilmedi (talimat bekleniyor) | Yalnızca parça düzeyinde ölçüm; çok kanal toplu gürültü ve gerçek zamanlı zil tablosu yok |
+| 2026-10-25 | Zaman çizelgesi özgür ölçeklendirme / kaydırma: 2–1600 px/s, fare sabitli tekerlek, Shift / dokunmatik kaydırma, orta tuş sürüklenme, uyarlama ve oynatma başı konumlandırma, görünen süre okuma | `timelineView` 8, masaüstü 10; app/track masaüstü regresyonu hâlâ geçti | Henüz commit edilmedi (talimat bekleniyor) | Playwright Chromium gerektiren tarayıcı betiği çalıştırılmadı; yerçekimi / mini harita yok |
+| 2026-10-26 | 30 sn uçtan uca video (şablon + anahtar kare + altyazı animasyonu + gürültü / baskı), Windows 0.6.0 adayı ve paket smoke | `showcase` 1, paket `CevikEdit.exe` 5 | 0.6.0; `docs/media/hafta-demosu.mp4` | macOS DMG / ZIP derlenmedi (macOS ortamı yok) |
+| 2026-11-07 | Windows'ta CLI betik başlatma (shebang yorumlayıcı) düzeltmesi, ana süreç 181 Çinli hata yerelleştirme, asistan Türkçe isteği ve yanıtı, taşınabilir paket Türkçe dosya adı | Tüm testler ilk kez yeşil: 398 test, 392 geçti, 6 atlandı, 0 başarısız; `mainLocale` 3, asistan masaüstü 13, portable 6 | Bu turun commit'i | Windows'ta `.cmd/.bat/.ps1` yok; macOS / Linux gerçek donanımda gözden geçirilmedi |
+| 2026-11-08 | Yeniden kullanılabilir şablonlar (kaydet / yeni / toplu değiştirme / içe dışa aktar + 3 yerleşik), 30 sn uçtan uca demo, 0.6.0 Windows adayı | `templates` 11 + masaüstü 7, `showcase` 1 (30,0 sn 720p gerçek dışa aktarma), paket `CevikEdit.exe` 5 | 0.6.0 commit'i; `release/CevikEdit Setup 0.6.0.exe`; `docs/media/hafta-demosu.mp4` | macOS DMG / ZIP derlenmedi (macOS ortamı yok); Linux doğrulanmadı |
+| 2026-11-11 | Serbest Bézier esnetimi, zaman çizelgesi esnekliği + mini harita, çevrimdışı VAD ile otomatik baskı, 4K / büyük proje sınırlandırması, HDR→SDR BT.709, açık taslak değişim dışa aktarma | `bezier` 7, `timelineMotion` 7, `vad` 12+3, `limits` 6+masaüstü 5, `colorManagement` 4+4, `draftExchange` 5+masaüstü 3; tümü 458 test, 452 geçti, 6 atlandı, 0 başarısız | Bu turun commit'i | ClipCut şifreli taslak yazma yok (yetki sınırı); HDR dışa aktarma üretimi yok; macOS / Linux gerçek donanımda gözden geçirilmedi |

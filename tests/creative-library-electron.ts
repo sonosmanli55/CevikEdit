@@ -10,7 +10,7 @@ const root = process.cwd(),
   output = path.join(root, ".test-output/creative-library-electron");
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-const project = createProject("原创文字 · 动效 · 转场");
+const project = createProject("Özgün metin · hareket · geçiş");
 project.width = 640;
 project.height = 360;
 project.fps = 24;
@@ -42,7 +42,6 @@ if (packaged) {
   delete env.CEVIKEDIT_FFMPEG;
   delete env.CEVIKEDIT_FFPROBE;
 }
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   ...(packaged
     ? {
@@ -66,7 +65,7 @@ try {
       BrowserWindow.getAllWindows()[0].setSize(1470, 900);
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
-        filePath: args.at(-1).title.includes("导出")
+        filePath: args.at(-1).title.includes("Dışa aktar")
           ? paths.exported
           : paths.saved,
       });
@@ -77,16 +76,16 @@ try {
   await expect(page.locator(".tl-clip")).toHaveCount(2);
   const save = async (): Promise<Project> => {
     const old = await stat(source).then((s) => s.mtimeMs);
-    await page.getByRole("button", { name: "保存项目", exact: true }).click();
+    await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
     await expect
       .poll(() => stat(source).then((s) => s.mtimeMs))
       .toBeGreaterThan(old);
     return JSON.parse(await readFile(source, "utf8"));
   };
-  await page.getByRole("button", { name: "文本", exact: true }).click();
+  await page.getByRole("button", { name: "Metin", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(25);
   const preview = page.getByRole("button", {
-    name: "预览弹跳登场",
+    name: "Zıplayarak giriş önizle",
     exact: true,
   });
   await preview.scrollIntoViewIfNeeded();
@@ -99,61 +98,61 @@ try {
   await expect.poll(snapshot).not.toBe(first);
   checks.push("25 text recipes and animated canvas preview");
   await page
-    .getByRole("textbox", { name: "搜索预设", exact: true })
-    .fill("不存在的模板");
+    .getByRole("textbox", { name: "Ön ayar ara", exact: true })
+    .fill("yok şablonu");
   await expect(
-    page.getByText("没有匹配的文字模板", { exact: true }),
+    page.getByText("Eşleşen metin şablonu yok", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("textbox", { name: "搜索预设", exact: true }).fill("");
-  await page.getByRole("tab", { name: "动态", exact: true }).click();
+  await page.getByRole("textbox", { name: "Ön ayar ara", exact: true }).fill("");
+  await page.getByRole("tab", { name: "Hareketli", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(5);
-  await page.getByRole("tab", { name: "下三分之一", exact: true }).click();
+  await page.getByRole("tab", { name: "Alt bant", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(3);
-  await page.getByRole("tab", { name: "社媒", exact: true }).click();
+  await page.getByRole("tab", { name: "Sosyal medya", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(3);
   await page
-    .getByRole("button", { name: "添加数据卡模板", exact: true })
+    .getByRole("button", { name: "Veri kartı şablonunu ekle", exact: true })
     .click();
   let p = await save();
   const statText = p.clips.at(-1)!.text!;
-  assert.equal(statText.text, "12.4B\n播放量");
+  assert.equal(statText.text, "12.4B\ngörüntüleme");
   assert.equal(statText.background, "#62ead1");
   assert.equal(statText.radius, 0.2);
   assert.equal(statText.padding, 0.4);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   assert.equal((await save()).clips.length, 2);
-  await page.getByRole("tab", { name: "动态", exact: true }).click();
+  await page.getByRole("tab", { name: "Hareketli", exact: true }).click();
   await page
-    .getByRole("button", { name: "添加弹跳登场模板", exact: true })
+    .getByRole("button", { name: "Zıplayarak giriş şablonunu ekle", exact: true })
     .click();
   p = await save();
   assert.equal(p.clips.length, 3);
-  assert(p.clips.at(-1)?.text?.text === "HELLO！");
+  assert(p.clips.at(-1)?.text?.text === "MERHABA!");
   assert.equal(p.clips.at(-1)?.keyframes.length, 3);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   assert.equal((await save()).clips.length, 2);
   await page
-    .getByRole("button", { name: "添加轻盈升起模板", exact: true })
+    .getByRole("button", { name: "Hafifçe yüksel şablonunu ekle", exact: true })
     .click();
   p = await save();
-  assert(p.clips.at(-1)?.text?.text.includes("新的故事"));
+  assert(p.clips.at(-1)?.text?.text.includes("yeni hikâye"));
   checks.push("text category/search, editable animated text and one-step undo");
-  await page.getByRole("tab", { name: "全部", exact: true }).click();
+  await page.getByRole("tab", { name: "Tümü", exact: true }).click();
   await page.locator(".player-panel .panel-heading").click();
   await page.keyboard.press("Home");
   for (let i = 0; i < 24; i++) await page.keyboard.press("ArrowRight");
   await page.screenshot({ path: path.join(output, "text-library.png") });
   const front = page.locator(`[data-clip-id="${project.clips[0].id}"]`);
   await front.click({ position: { x: 25, y: 20 } });
-  await page.getByRole("button", { name: "特效", exact: true }).click();
+  await page.getByRole("button", { name: "Efekt", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(8);
-  await page.getByRole("button", { name: "应用暖阳调色", exact: true }).click();
+  await page.getByRole("button", { name: "Sıcak güneş renk ayarını uygula", exact: true }).click();
   p = await save();
   assert.equal(p.clips[0].adjustments.temperature, 0.3);
-  await page.getByRole("tab", { name: "动态特效", exact: true }).click();
+  await page.getByRole("tab", { name: "Hareketli efektler", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(8);
   await page
-    .getByRole("button", { name: "应用呼吸缩放特效", exact: true })
+    .getByRole("button", { name: "Nefes alan ölçek efektini uygula", exact: true })
     .click();
   p = await save();
   assert.equal(
@@ -163,23 +162,23 @@ try {
   checks.push("8 color and 8 motion effects apply real adjustments/keyframes");
   await page.locator(".effects-content").evaluate(el => el.scrollTop = 0);
   await page.screenshot({ path: path.join(output, "effect-library.png") });
-  await page.getByRole("button", { name: "转场", exact: true }).click();
+  await page.getByRole("button", { name: "Geçiş", exact: true }).click();
   await expect(page.locator(".creative-card")).toHaveCount(8);
   await page
-    .getByRole("spinbutton", { name: "转场时长", exact: true })
+    .getByRole("spinbutton", { name: "Geçiş süresi", exact: true })
     .fill("0.6");
   await page
-    .getByRole("button", { name: "应用向左滑入转场", exact: true })
+    .getByRole("button", { name: "Soldan kayarak giriş geçişini uygula", exact: true })
     .click();
   p = await save();
   const next = p.clips.find((c) => c.id === project.clips[1].id)!;
   assert(Math.abs(next.start - (2 - 14 / 24)) < 1e-8);
   assert.equal(next.keyframes.filter((k) => k.property === "x").length, 2);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   assert.equal((await save()).clips[1].start, 2);
   await front.click({ position: { x: 25, y: 20 } });
   await page
-    .getByRole("button", { name: "应用缩放交接转场", exact: true })
+    .getByRole("button", { name: "Ölçek geçişi geçişini uygula", exact: true })
     .click();
   p = await save();
   assert.equal(
@@ -191,9 +190,9 @@ try {
   );
   await page.locator(".creative-scroll").evaluate((el) => (el.scrollTop = 0));
   await page.screenshot({ path: path.join(output, "transition-library.png") });
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 120000,
   });
   const info = await page.evaluate(() => window.editorAPI!.getSystemInfo());

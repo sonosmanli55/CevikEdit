@@ -32,7 +32,7 @@ const MAX_CLIPS = 50;
 
 function finite(value: unknown, label: string): asserts value is number {
   if (typeof value !== "number" || !Number.isFinite(value))
-    throw new Error(`${label}必须是有限数值`);
+    throw new Error(`${label} sonlu bir sayı olmalı`);
 }
 function range(
   value: unknown,
@@ -42,18 +42,18 @@ function range(
 ): asserts value is number {
   finite(value, label);
   if (value < min || value > max)
-    throw new Error(`${label}须在 ${min}～${max} 之间`);
+    throw new Error(`${label} ${min}–${max} arasında olmalı`);
 }
 function audioClip(project: Project, clipId: string): Clip {
   const clip = project.clips.find((item) => item.id === clipId);
-  if (!clip) throw new Error("所选音频片段不存在");
+  if (!clip) throw new Error("Seçili ses klibi bulunamadı");
   const track = project.tracks.find((item) => item.id === clip.trackId);
-  if (!track) throw new Error("所选音频片段的轨道不存在");
+  if (!track) throw new Error("Seçili ses klibinin kanalı bulunamadı");
   if (track.locked)
-    throw new Error(`轨道“${track.name}”已锁定，请先解锁`);
+    throw new Error(`“${track.name}” kanalı kilitli; önce kilidini açın`);
   const asset = project.assets.find((item) => item.id === clip.assetId);
   if (!asset || asset.kind === "image" || asset.hasAudio === false)
-    throw new Error(`片段“${clip.name}”没有可用的音频`);
+    throw new Error(`“${clip.name}” klibinde kullanılabilir ses yok`);
   return clip;
 }
 
@@ -63,7 +63,7 @@ function numberFromLoudnorm(value: string, label: string): number {
   if (normalized === "inf") return Number.POSITIVE_INFINITY;
   const parsed = Number(normalized);
   if (!Number.isFinite(parsed))
-    throw new Error(`无法解析响度测量结果（${label}）`);
+    throw new Error(`Ses yüksekliği ölçümü çözümlenemedi (${label})`);
   return parsed;
 }
 
@@ -74,7 +74,7 @@ function numberFromLoudnorm(value: string, label: string): number {
  */
 export function parseLoudnormJson(text: string): LoudnessMeasurement {
   if (typeof text !== "string" || !text.length)
-    throw new Error("没有读取到响度测量结果");
+    throw new Error("Ses düzeyi ölçüm sonucu okunamadı");
   const blocks = [...text.matchAll(/\{[\s\S]*?\}/g)].map((match) => match[0]);
   for (let index = blocks.length - 1; index >= 0; index--) {
     if (!blocks[index].includes('"input_i"')) continue;
@@ -94,7 +94,7 @@ export function parseLoudnormJson(text: string): LoudnessMeasurement {
       );
     return { inputI, inputTp, inputLra };
   }
-  throw new Error("没有读取到有效的响度测量结果");
+  throw new Error("Geçerli bir ses düzeyi ölçüm sonucu okunamadı");
 }
 
 /**
@@ -107,11 +107,11 @@ export function normalizationGainDb(
   targetLufs: number,
   peakCeiling = -1,
 ): number {
-  range(targetLufs, "目标响度", -40, 0);
-  range(peakCeiling, "峰值上限", -9, 0);
+  range(targetLufs, "Hedef ses düzeyi", -40, 0);
+  range(peakCeiling, "Tepe sınırı", -9, 0);
   const { inputI, inputTp } = measurement;
   if (!Number.isFinite(inputI))
-    throw new Error("所选音频过于安静，无法测量有效响度");
+    throw new Error("Seçili ses ölçüm için fazla sessiz; geçerli ses düzeyi ölçülemedi");
   let gain = targetLufs - inputI;
   if (Number.isFinite(inputTp)) gain = Math.min(gain, peakCeiling - inputTp);
   return Math.max(-30, Math.min(30, gain));
@@ -133,19 +133,19 @@ export function prepareAudioNormalization(
     typeof measurement?.inputI !== "number" ||
     typeof measurement?.inputTp !== "number"
   )
-    throw new Error("响度测量结果无效");
+    throw new Error("Ses düzeyi ölçüm sonucu geçersiz");
   const gain = normalizationGainDb(measurement, targetLufs, peakCeiling);
   const factor = 10 ** (gain / 20);
   const volume = clip.volume * factor;
   if (volume > VOLUME_MAX + 1e-9)
     throw new Error(
-      "应用响度增益后音量会超过 400%，请降低目标响度或先降低片段音量",
+      "Ses düzeyi kazancı uygulanınca ses %400'ü aşar; hedef ses düzeyini düşürün veya önce klip sesini azaltın",
     );
   const keys = clip.keyframes.filter((key) => key.property === "volume");
   const scaled = keys.map((key) => {
     const value = key.value * factor;
     if (value > VOLUME_MAX + 1e-9)
-      throw new Error("应用响度增益后关键帧音量会超过 400%");
+      throw new Error("Ses düzeyi kazancı uygulanınca anahtar kare sesi %400'ü aşar");
     return value;
   });
   clip.volume = Math.max(0, Math.min(VOLUME_MAX, volume));
@@ -214,24 +214,24 @@ export function prepareDucking(
 ): AudioEditPlan {
   const project = validateProject(clone(input));
   for (const [ids, label] of [
-    [voiceIds, "语音"],
-    [musicIds, "音乐"],
+    [voiceIds, "konuşma"],
+    [musicIds, "Müzik"],
   ] as const) {
     if (!Array.isArray(ids) || !ids.length)
-      throw new Error(`请至少选择一条${label}片段`);
+      throw new Error(`En az bir ${label} klibi seçin`);
     if (ids.length > MAX_CLIPS)
-      throw new Error(`每次最多处理 ${MAX_CLIPS} 条${label}片段`);
+      throw new Error(`Her işlemde en fazla ${MAX_CLIPS} ${label} klibi işlenebilir`);
     if (new Set(ids).size !== ids.length)
-      throw new Error(`${label}片段不能重复`);
+      throw new Error(`${label} klipleri yinelenemez`);
     if (ids.some((id) => typeof id !== "string" || !id))
-      throw new Error(`${label}片段无效`);
+      throw new Error(`${label} klibi geçersiz`);
   }
   if (voiceIds.some((id) => musicIds.includes(id)))
-    throw new Error("同一条片段不能同时作为语音和音乐");
-  range(settings?.amountDb, "压低量", -60, 0);
-  range(settings?.fade, "过渡时长", 0, 5);
+    throw new Error("Aynı klip hem konuşma hem müzik olarak kullanılamaz");
+  range(settings?.amountDb, "Kısma miktarı", -60, 0);
+  range(settings?.fade, "Geçiş süresi", 0, 5);
   if (settings.amountDb > -0.1)
-    throw new Error("压低量必须小于 0 dB");
+    throw new Error("Kısma miktarı 0 dB'den küçük olmalıdır");
   const voiceClips = voiceIds.map((id) => audioClip(project, id));
   const musicClips = musicIds.map((id) => audioClip(project, id));
   const ranges = settings.ranges;
@@ -307,7 +307,7 @@ export function prepareDucking(
         ) && Number.isFinite(value);
       });
     if (times.length > 400)
-      throw new Error("语音区间过多，无法为这条音乐生成压低包络");
+      throw new Error("Çok fazla konuşma aralığı var; bu müzik için kısma zarfı oluşturulamadı");
     const nextKeys: Keyframe[] = times.map(([time, value]) => ({
       id: createId(),
       time,
@@ -324,7 +324,7 @@ export function prepareDucking(
     changed.push(clip.id);
   }
   if (!changed.length)
-    throw new Error("所选音乐没有与语音区间重叠，未修改任何片段");
+    throw new Error("Seçili müzik konuşma aralıklarıyla örtüşmüyor; hiçbir klip değiştirilmedi");
   return { base: JSON.stringify(input), project, changedIds: changed };
 }
 
@@ -334,6 +334,6 @@ export function applyAudioEdit(
   plan: AudioEditPlan,
 ): Project {
   if (JSON.stringify(current) !== plan.base)
-    throw new Error("项目已变化，请重新检查音频修改后再应用");
+    throw new Error("Proje değişti; ses değişikliklerini yeniden denetleyip uygulayın");
   return validateProject(clone(plan.project));
 }

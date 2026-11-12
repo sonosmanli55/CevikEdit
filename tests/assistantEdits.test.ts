@@ -6,8 +6,8 @@ import { validateAssistantRequest } from "../electron/assistantBackend";
 import type { Project } from "../src/core/types";
 
 function fixture(): Project {
-  const p = createProject("合成项目");
-  p.assets = [{ id: "asset", name: "合成视频", path: "/tmp/private-synthetic.mp4", url: "cevikedit-media://private", kind: "video", duration: 20, width: 640, height: 360, fps: 30, hasAudio: true }];
+  const p = createProject("Sentetik proje");
+  p.assets = [{ id: "asset", name: "Sentetik video", path: "/tmp/private-synthetic.mp4", url: "cevikedit-media://private", kind: "video", duration: 20, width: 640, height: 360, fps: 30, hasAudio: true }];
   const c = createClip(p.assets[0], p.tracks[1].id, 2, p.fps);
   c.id = "clip"; c.duration = 8; c.sourceIn = 2; c.speed = 2;
   c.fadeIn = 2; c.fadeOut = 3; c.audioFadeIn = 1; c.audioFadeOut = 2;
@@ -24,9 +24,9 @@ describe("assistant atomic edit proposals", () => {
     const p = fixture(), snapshot = clone(p);
     expect(() => previewAssistantEdits(p, [
       { type: "setVolume", clipId: "clip", volume: .4 },
-      { type: "addText", text: "新增", start: 0, duration: 2 },
+      { type: "addText", text: "Yeni", start: 0, duration: 2 },
       { type: "deleteClip", clipId: "missing" },
-    ])).toThrow("不存在");
+    ])).toThrow("yok");
     expect(p).toEqual(snapshot);
   });
   it("applies a multi-action proposal as one reversible history entry", () => {
@@ -35,7 +35,7 @@ describe("assistant atomic edit proposals", () => {
     const before = clone(useEditorStore.getState().project);
     const preview = previewAssistantEdits(before, [
       { type: "setVolume", clipId: "clip", volume: .4 },
-      { type: "addText", text: "新增", start: 0, duration: 2 },
+      { type: "addText", text: "Yeni", start: 0, duration: 2 },
       { type: "setProject", width: 1080, height: 1920 },
     ]);
     expect(useEditorStore.getState().past).toHaveLength(0);
@@ -48,10 +48,10 @@ describe("assistant atomic edit proposals", () => {
   it("blocks changes to locked source tracks and locked/incompatible destinations", () => {
     const p = fixture(); p.tracks[1].locked = true;
     for (const action of [{ type: "deleteClip", clipId: "clip" }, { type: "setVolume", clipId: "clip", volume: 0 }, { type: "splitClip", clipId: "clip", time: 5 }])
-      expect(() => previewAssistantEdits(p, [action])).toThrow("锁定");
-    expect(() => previewAssistantEdits(p, [{ type: "addAsset", assetId: "asset", start: 0, trackId: p.tracks[1].id }])).toThrow("锁定");
+      expect(() => previewAssistantEdits(p, [action])).toThrow("kilitli");
+    expect(() => previewAssistantEdits(p, [{ type: "addAsset", assetId: "asset", start: 0, trackId: p.tracks[1].id }])).toThrow("kilitli");
     p.tracks[1].locked = false;
-    expect(() => previewAssistantEdits(p, [{ type: "moveClip", clipId: "clip", start: 0, trackId: p.tracks[0].id }])).toThrow("不兼容");
+    expect(() => previewAssistantEdits(p, [{ type: "moveClip", clipId: "clip", start: 0, trackId: p.tracks[0].id }])).toThrow("uyumsuz");
   });
   it.each([
     { type: "execute", code: "do not execute" }, { type: "setVolume", clipId: "clip", volume: 1, path: "/tmp/no" },
@@ -99,32 +99,32 @@ describe("assistant atomic edit proposals", () => {
   });
   it("does not silently ignore an explicit property change because keyframes override it", () => {
     const p = fixture();
-    expect(() => previewAssistantEdits(p, [{ type: "setTransform", clipId: "clip", x: 200 }])).toThrow("关键帧");
+    expect(() => previewAssistantEdits(p, [{ type: "setTransform", clipId: "clip", x: 200 }])).toThrow("anahtar kare");
     p.clips[0].keyframes.push({ id: "volume-key", property: "volume", time: 0, value: .5, easing: "linear" });
-    expect(() => previewAssistantEdits(p, [{ type: "setVolume", clipId: "clip", volume: .1 }])).toThrow("关键帧");
+    expect(() => previewAssistantEdits(p, [{ type: "setVolume", clipId: "clip", volume: .1 }])).toThrow("anahtar kare");
     expect(previewAssistantEdits(p, [{ type: "setTransform", clipId: "clip", y: 100 }]).project.clips[0].transform.y).toBe(100);
   });
   it("shows actual values and target tracks in review descriptions", () => {
     const p = fixture();
-    const track = createTrack("video", "目标轨"); p.tracks.push(track);
+    const track = createTrack("video", "Hedef kanal"); p.tracks.push(track);
     const preview = previewAssistantEdits(p, [
       { type: "setTransform", clipId: "clip", y: 60, rotation: 30, scale: .8 },
       { type: "setFades", clipId: "clip", fadeIn: 1, fadeOut: 2, audioFadeIn: .5, audioFadeOut: .75 },
       { type: "moveClip", clipId: "clip", start: 4, trackId: track.id },
-      { type: "setProject", name: "成片", background: "#123456" },
+      { type: "setProject", name: "Son film", background: "#123456" },
     ]);
-    expect(preview.descriptions[0]).toContain("Y 60"); expect(preview.descriptions[0]).toContain("旋转 30°"); expect(preview.descriptions[0]).toContain("缩放 0.8×");
-    expect(preview.descriptions[1]).toContain("画面淡入 1s · 淡出 2s · 声音淡入 0.5s · 淡出 0.75s");
-    expect(preview.descriptions[2]).toContain("目标轨"); expect(preview.descriptions[2]).toContain("4.00s");
-    expect(preview.descriptions[3]).toContain("成片"); expect(preview.descriptions[3]).toContain("#123456");
+    expect(preview.descriptions[0]).toContain("Y 60"); expect(preview.descriptions[0]).toContain("Döndürme 30°"); expect(preview.descriptions[0]).toContain("Ölçek 0.8×");
+    expect(preview.descriptions[1]).toContain("Görüntü yumuşak girişi 1s · yumuşak çıkış 2s · ses girişi 0.5s · ses çıkışı 0.75s");
+    expect(preview.descriptions[2]).toContain("Hedef kanal"); expect(preview.descriptions[2]).toContain("4.00s");
+    expect(preview.descriptions[3]).toContain("Son film"); expect(preview.descriptions[3]).toContain("#123456");
   });
 });
 
 describe("assistant project summary privacy and bounds", () => {
   it("keeps useful timing and selection, without paths, media data or unknown fields", () => {
     const p = fixture();
-    p.name = "项目 /Users/person/private/video.mp4";
-    p.assets[0].name = "文件 C:\\private\\video.mp4";
+    p.name = "Proje /Users/person/private/video.mp4";
+    p.assets[0].name = "Dosya C:\\private\\video.mp4";
     p.assets[0].thumbnail = "data:secret"; p.assets[0].waveform = [.5, .6];
     (p.clips[0].transform as unknown as Record<string, unknown>).privateField = "sensitive";
     const context = assistantProjectContext(p, ["clip"], 3), summary = JSON.parse(context);
@@ -132,21 +132,21 @@ describe("assistant project summary privacy and bounds", () => {
     expect(summary.selectedIds).toEqual(["clip"]);
     for (const secret of ["/Users", "C:\\", "private-synthetic", "cevikedit-media", "thumbnail", "waveform", "privateField", "sensitive"])
       expect(context).not.toContain(secret);
-    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "给建议", history: [], context })).not.toThrow();
+    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "öneri ver", history: [], context })).not.toThrow();
   });
   it("bounds a large Unicode summary, preserves the selected clip and retains reference integrity", () => {
-    const p = createProject("大量字幕");
+    const p = createProject("Yoğun altyazı");
     for (let i = 0; i < 130; i++) {
-      const track = createTrack("text", "轨道" + i); p.tracks.push(track);
+      const track = createTrack("text", "Kanal" + i); p.tracks.push(track);
       const clip = createClip(undefined, track.id, i, 30);
-      clip.id = "clip-" + i; clip.text!.text = "中文标题".repeat(100); p.clips.push(clip);
+      clip.id = "clip-" + i; clip.text!.text = "Türkçe başlık".repeat(100); p.clips.push(clip);
     }
     const context = assistantProjectContext(p, ["clip-129"], 129), summary = JSON.parse(context);
     expect(Buffer.byteLength(context)).toBeLessThanOrEqual(100000);
     expect(summary.clips.some((c: any) => c.id === "clip-129")).toBe(true);
     expect(summary.clips.every((c: any) => summary.tracks.some((t: any) => t.id === c.trackId))).toBe(true);
     expect(summary.truncated).toBe(true);
-    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "建议", history: [], context })).not.toThrow();
+    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "Öneri", history: [], context })).not.toThrow();
   });
   it("does not transmit paths encoded in names, ids or source metadata", () => {
     const p = fixture(); p.clips[0].name = "/mnt/private/recording";
@@ -154,19 +154,19 @@ describe("assistant project summary privacy and bounds", () => {
     p.assets[0].id = "/etc/private/asset"; p.clips[0].assetId = p.assets[0].id;
     const context = assistantProjectContext(p, [], 0);
     for (const secret of ["/mnt/private", "/Users/private", "/etc/private"]) expect(context).not.toContain(secret);
-    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "建议", history: [], context })).not.toThrow();
+    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "Öneri", history: [], context })).not.toThrow();
   });
   it("enforces the byte budget independently of list limits for long Unicode text", () => {
-    const p = createProject("大量同轨字幕");
+    const p = createProject("Aynı kanalda yoğun altyazı");
     for (let i = 0; i < 100; i++) {
       const clip = createClip(undefined, p.tracks[0].id, i, 30);
-      clip.id = "caption-" + i; clip.text!.text = "中文标题".repeat(125); p.clips.push(clip);
+      clip.id = "caption-" + i; clip.text!.text = "Türkçe başlık".repeat(125); p.clips.push(clip);
     }
     const context = assistantProjectContext(p, ["caption-99"], 99), summary = JSON.parse(context);
     expect(Buffer.byteLength(context)).toBeLessThanOrEqual(90000);
     expect(summary.clips.length).toBeLessThan(100);
     expect(summary.clips[0].id).toBe("caption-99");
     expect(summary.truncated).toBe(true);
-    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "建议", history: [], context })).not.toThrow();
+    expect(() => validateAssistantRequest({ requestId: "summary-test", provider: "codex", prompt: "Öneri", history: [], context })).not.toThrow();
   });
 });

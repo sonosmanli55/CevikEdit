@@ -64,9 +64,9 @@ async function reportFileExists(file: string): Promise<boolean> {
 export async function reverseClipMedia(
   options: ReverseMediaOptions,
 ): Promise<void> {
-  if (shuttingDown) throw new Error("应用正在关闭。");
-  if (cancelledJobs.delete(options.jobId)) throw new Error("倒放已取消");
-  if (jobs.size > 0) throw new Error("已有倒放任务在运行");
+  if (shuttingDown) throw new Error("Uygulama kapanıyor.");
+  if (cancelledJobs.delete(options.jobId)) throw new Error("Ters oynatma iptal edildi");
+  if (jobs.size > 0) throw new Error("Zaten çalışan bir ters oynatma görevi var");
 
   let finish!: () => void;
   const completion = new Promise<void>((resolve) => {
@@ -81,9 +81,9 @@ export async function reverseClipMedia(
   try {
     progress(1, "preparing");
     const info = await probeFile(options.source);
-    if (job.cancelled) throw new Error("倒放已取消");
+    if (job.cancelled) throw new Error("Ters oynatma iptal edildi");
     const video = info.streams.find((stream) => stream.codec_type === "video");
-    if (!video) throw new Error("这段素材没有可倒放的画面");
+    if (!video) throw new Error("Bu medyada ters çevrilecek görüntü yok");
     const duration = mediaDuration(info);
     if (
       !Number.isFinite(options.sourceIn) ||
@@ -92,7 +92,7 @@ export async function reverseClipMedia(
       options.duration <= 0 ||
       options.sourceIn + options.duration > duration + 0.08
     )
-      throw new Error("倒放范围超出源素材");
+      throw new Error("Ters oynatma aralığı kaynak medyanın dışında");
 
     const fps = frameRate(video.avg_frame_rate ?? video.r_frame_rate) || 30;
     const width = Math.max(1, Number(video.width) || 1920);
@@ -104,7 +104,7 @@ export async function reverseClipMedia(
     );
     if (options.duration > maxSeconds)
       throw new Error(
-        `倒放片段过长：当前分辨率下最多 ${maxSeconds.toFixed(1)} 秒，请先分割片段。`,
+        `Ters oynatılacak klip çok uzun: bu çözünürlükte en fazla ${maxSeconds.toFixed(1)} sn; klibi önce bölün.`,
       );
 
     await mkdir(path.dirname(options.destination), { recursive: true });
@@ -112,7 +112,7 @@ export async function reverseClipMedia(
       (stream) => stream.codec_type === "audio",
     );
     const executable = await findMediaTool("ffmpeg");
-    if (job.cancelled) throw new Error("倒放已取消");
+    if (job.cancelled) throw new Error("Ters oynatma iptal edildi");
     progress(3, "rendering");
 
     child = spawn(
@@ -210,24 +210,24 @@ export async function reverseClipMedia(
       const timeout = setTimeout(() => {
         job.cancelled = true;
         child?.kill("SIGTERM");
-        reject(new Error("倒放超时，请缩短片段后重试。"));
+        reject(new Error("Ters oynatma zaman aşımına uğradı; klibi kısaltıp tekrar deneyin."));
       }, Math.min(30 * 60_000, Math.max(2 * 60_000, Math.ceil(options.duration * 5000))));
       timeout.unref();
       child!.once("close", (code) => {
         clearTimeout(timeout);
-        if (job.cancelled) reject(new Error("倒放已取消"));
+        if (job.cancelled) reject(new Error("Ters oynatma iptal edildi"));
         else if (code !== 0)
           reject(
             new Error(
-              `FFmpeg 倒放失败：${diagnostic.trim() || `退出码 ${code}`}`,
+              `FFmpeg ters oynatma hatası: ${diagnostic.trim() || `çıkış kodu ${code}`}`,
             ),
           );
         else resolve();
       });
     });
-    if (job.cancelled) throw new Error("倒放已取消");
+    if (job.cancelled) throw new Error("Ters oynatma iptal edildi");
     if (!(await reportFileExists(temporary)))
-      throw new Error("倒放没有生成输出文件");
+      throw new Error("Ters oynatma çıktı dosyası oluşturmadı");
     await rename(temporary, options.destination);
     progress(99, "rendering");
   } finally {
@@ -243,12 +243,12 @@ export async function extractFreezeFrame(
   time: number,
   destination: string,
 ): Promise<void> {
-  if (shuttingDown) throw new Error("应用正在关闭。");
+  if (shuttingDown) throw new Error("Uygulama kapanıyor.");
   const info = await probeFile(source);
   const video = info.streams.find((stream) => stream.codec_type === "video");
-  if (!video) throw new Error("这段素材没有可定格的画面");
+  if (!video) throw new Error("Bu medyada dondurulacak görüntü yok");
   const duration = mediaDuration(info);
-  if (!Number.isFinite(time) || time < 0) throw new Error("定格时间无效");
+  if (!Number.isFinite(time) || time < 0) throw new Error("Kare dondurma zamanı geçersiz");
   const at = Math.max(0, Math.min(time, Math.max(0, duration - 0.001)));
   const temporary = `${destination}.${randomUUID()}.tmp.png`;
   await mkdir(path.dirname(destination), { recursive: true });

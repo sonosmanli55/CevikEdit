@@ -1,94 +1,104 @@
-# 更新记录
+# Değişiklik günlüğü
+
+## 0.8.0 - 2026-11-12
+
+Ürün adı **CevikEdit** olarak sabitlendi; ilk herkese açık sürüm.
+
+- **Yeniden markalama**: uygulama kimliği `org.cevikedit.editor`, proje uzantısı `.cevikedit`, medya şeması `cevikedit-media`, ortam değişkenleri `CEVIKEDIT_*`. Yeni uygulama ikonu (1024×1024 kaynaktan PNG/ICO/ICNS) üretilip pakete işlendi.
+- **Tek tıkla kurulum**: ~200 KB'lık bağımlılıksız `CevikEdit-Kurucu.exe`, GitHub'daki en son sürümü bulur, kullanıcı onayıyla indirir ve kurulumu başlatır. Hiçbir şey tıklama olmadan indirilmez ya da kurulmaz; arka planda otomatik güncelleme yoktur.
+- **Uygulama içi güncelleme merkezi**: yalnızca "Güncellemeleri denetle" düğmesine basıldığında `api.github.com` sürüm akışını okur; yeni sürüm varsa sürüm notlarını gösterir ve indirmeyi kullanıcı başlatır. Telemetri, bulut yükleme ya da hesap yok.
+- **Tam Türkçe kaynak**: çalışma zamanı çeviri katmanı (`src/i18n/`, `electron/locale.ts`, `scripts/i18n-audit.ts`, `CEVIKEDIT_LOCALE`) kaldırıldı; 1.956 dizgi doğrudan Türkçe yazıldı ve ~60 el düzeltmesi yapıldı. `tests/turkish-source.test.ts`, `src` / `electron` / `plugin` / `site` altında CJK karakteri, `src/i18n` dizini ve yabancı dilli yerleşik malzeme adı bulunmadığını denetler.
+- **Belgeler ve yerleşik malzeme**: README, `docs/` altındaki tüm kılavuzlar, 64 yerleşik malzemenin ad ve etiketleri ile eklenti arayüzü Türkçeye çevrildi; `docs/VALIDATION.md` tarihsel Çince kayıttan Türkçeye yeniden yazıldı.
+- **Tanıtım sitesi**: GitHub Pages üzerinde yayınlanan sayfa (`https://sonosmanli55.github.io/CevikEdit/`) koyu zümrüt/altın palet, Bézier sürükleme demosu, kaydırmayla beliren bölümler ve azaltılmış hareket / saydamlık varyantları içerir.
+- **Doğrulama**: 49 dosyada **462 test geçti, 6 atlandı, 0 başarısız**; `npm run typecheck` ve `npm run build` temiz; paketlenmiş Windows uygulaması 5 kontrolle doğrulandı (sürüm, yalnızca Türkçe sekmeler, şablonla proje, kaydetme, 1920×1080 H.264 dışa aktarma).
 
 ## 0.6.1 - 2026-11-11
 
-补齐上一轮列出的缺口：
+Bir önceki turda sıralanan eksikler tamamlandı:
 
-- **自由贝塞尔缓动**：关键帧可切换“Özel Bézier”，拖动两个控制点或直接输入 X1/Y1/X2/Y2；Y 允许回拉与过冲，预览用精确解、导出用 24 段折线近似（误差小于动画量程的 1%）。
-- **时间线惯性滚动与迷你地图**：中键/Alt 平移松手后按帧率无关的衰减滑行；迷你地图显示全部片段、可视窗口与播放头，点击跳转，工具栏“Harita”开关。
-- **离线语音检测驱动的音乐压低**：“Konuşma aralıklarını algıla”在 本机解码并检测真实说话区间，可只在这些区间压低；检测失败会明确提示，而不是盲目压低整段。
-- **4K 与大工程限流**：片段超过 240 时时间线只绘制可视切片；导出对话框显示帧数、峰值内存估算、4K 与容量提示，超出内存预算时阻止开始。
-- **HDR 与色彩管理**：导入识别 PQ/HLG 并显示 HDR 徽标，导出自动色调映射到 SDR BT.709 并写入 bt709 标记；当前不输出 HDR 成片。
-- **草稿交换导出**：“Taslak değişim dosyasını dışa aktar (JSON)”写出开放纯文本草稿（微秒时间范围 + 完整工程），可被 CevikEdit 重新导入。**不实现向剪映加密草稿写回**：该格式属第三方专有，超出本项目授权范围，界面会明确说明剪映无法直接打开。
-- **修复**：土耳其语覆盖审计脚本新增独立的字面量扫描，补上此前漏报的字符串。
-- **构建**：Windows x64 NSIS 候选升级为 `CevikEdit Setup 0.6.1.exe`，并用打包后的可执行文件验证模板、保存与导出。
+- **Serbest Bézier esnetimi**: anahtar kareler "Özel Bézier" ile değiştirilebilir, iki kontrol noktası sürüklenebilir ya da X1/Y1/X2/Y2 girilebilir; Y geri çekme ve aşırı geçişe izin verir, ön izleme kesin çözüm, dışa aktarma 24 parçaya bölünmüş çizgi yaklaşımı kullanır (hata, animasyon çığlığının 1%'inden az).
+- **Zaman çizelgesi esnekliği ve mini harita**: orta / Alt ile kaydırma serbest bırakılınca kare hızına duyarlı azalan kayış; mini harita tüm parçaları, görünen pencereyi ve oynatma başını gösterir, tıklama ile atlar, araç çubuğundaki "Harita" aç / kapat.
+- **Çevrimdışı konuşma algılama ile müzik baskılama**: "Konuşma aralıklarını algıla" makinede parçayı çözüp gerçek konuşma aralığını algılar, yalnızca bu aralıklar baskı yapılır; algılama başarısızsa açık uyarı verilir, bütün parça bilinçsizce baskılanmaz.
+- **4K ve büyük proje sınırlandırması**: parça 240'tan fazlaysa zaman çizelgesi yalnızca görünen parçaları çizer; dışa aktarma diyaloğu çerçeve sayısı, en yüksek bellek tahmini, 4K ve kapasite uyarıları gösterir, bellek bütçesini aşarsa başlatmayı reddeder.
+- **HDR ve renk yönetimi**: içe aktarım PQ/HLG tanır ve HDR rozetini gösterir, dışa aktarım otomatik olarak SDR BT.709'e ton eşleme yapar ve bt709 işaretini yazar; şu an HDR dışa aktarma üretmez.
+- **Taslak değişim dışa aktarma**: "Taslak değişim dosyasını dışa aktar (JSON)" açık metin taslak değişim dosyası yazar (mikrosaniye zaman aralığı + tam proje), CevikEdit tarafından yeniden içe aktarılabilir. **ClipCut şifreli taslak yazma yapılmaz**: bu biçim üçüncü taraf özelidir, bu proje yetki kapsamının dışındadır, arayüz açıkça ClipCut'un doğrudan açamayacağını belirtir.
+- **Düzeltme**: Türkçe kapsama denetim betiği bağımsız sözdizimi taraması ekledi, önce atlanan ifadeleri kapsadı.
+- **Derleme**: Windows x64 NSIS adayı **CevikEdit Setup 0.6.1.exe** olarak yükseltildi ve paketlenmiş çalıştırılabilir dosyayla şablon, kaydetme ve dışa aktarma doğrulandı.
 
 ## 0.6.0 - 2026-11-08
 
-本周（10/20–10/26）交付的功能，以及之后的回归修复与打包：
+Bu hafta (10/20–10/26) teslim edilen yetenekler ve sonraki regresyon düzeltmeleri ile paket:
 
-- **可复用模板**：“模板”页把当前工程保存为模板（媒体转为占位、丢弃未使用素材与缓存、自动生成封面），从模板新建时重新生成轨道/片段/关键帧 ID，可一次替换全部媒体与文案；短于模板的媒体按帧裁短并裁剪关键帧，可选占位缺失只警告。支持导入/导出 `.cevikedit-template`，导入前拒绝本机路径、越界占位、类型不符与超限数量。附三套自主生成模板：Açılış kartı、Dikey sosyal video、Altyazı bloğu。
-- **时间线**：源区间“追加 / 插入并后移 / 覆盖当前位置”三种入轨方式，各为一次撤销；分离音频与视频共享关联 ID，同步移动/裁剪/分割/删除/复制，可解除关联；2–1600 px/s 自由缩放、光标锚定 Ctrl/⌘+滚轮、Shift+滚轮与中键平移、适配与播放头定位、可见时长读示。
-- **字幕**：按播放头拆分与相邻合并、可直接编辑的批量样式、统一“入场/停留/出场”文字动画；拆分/合并、样式与动画均一次撤销，SRT 导出明确说明不携带样式/位置/动画。
-- **声音**：本地 `loudnorm` 响度测量与目标 LUFS 归一化（-1 dBTP 峰值上限），以及按语音区间自动压低音乐的音量包络；预览与导出共用同一求值路径。
-- **界面语言**：应用仅提供土耳其语；主进程 181 条错误与运行时拼接消息全部本地化，助手提示词与回复改为土耳其语，可搬移包使用 `proje.cevikedit` / `KULLANIM.txt`。
-- **修复**：Windows 上通过 shebang 启动所选 CLI 脚本（经解释器、不使用 shell）；修正只适用于 macOS 的测试假设（PATH 分隔符、JSON 转义、符号链接、8.3 短路径），整套测试首次全绿。
-- **交付物**：30 秒 1280×720 演示影片与工程、模板（`docs/media/`）；Windows x64 NSIS 候选包 `CevikEdit Setup 0.6.0.exe`。macOS DMG/ZIP 未重新构建（无 macOS 环境）。
+- **Yeniden kullanılabilir şablonlar**: "Şablon" sayfası mevcut projeyi şablona kaydeder (medya yerleştirmesine çevrilir, kullanılmayan malzama ve önbellek atılır, kapak otomatik), şablondan yeni üretirken kanalları / parçaları / anahtar kare ID'lerini yeniden üretir, tek seferde tüm medya ve metin değiştirilebilir; kısa malzama kare basmasıyla kısılır ve anahtar kare / fade kırpar, opsiyonel yerleştirme eksikse uyarı verir. `.cevikedit-template` içe / dışa aktarma desteklenir, içe aktarmadan önce yerel yol / çarpanlı yerleştirme / tip uyumsuzluğu / tekrarlı anahtar / sınır reddedilir. Üç özgün yerleşik şablon: Açılış kartı, Dikey sosyal video, Altyazı bloğu.
+- **Zaman çizelgesi**: kaynak aralığın "Son uca ekle / Ekle ve sonları kaydır / Geçerli konuma yaz" giriş yolları, her biri tek geri alınabilir; ayrıştırma ses ve video `linkId`'yi paylaşır, senkron taşıma / kırpma / bölme / silme / kopyala / yapıştırma; bağlantıyı kesme; 2–1600 px/s özgür ölçeklendirme, fare sabitli Ctrl/⌘+tekerlek, Shift+tekerlek ve orta tuş kaydırma, uyarlama ve oynatma başı konumlandırma, görünen süre okuma.
+- **Altyazı**: oynatma başına bölme, komşu birleştirme, doğrudan düzenlenebilir toplu stil, tek tip "giriş / kalıcılık / çıkış" metin animasyonu; bölme / birleştirme, stil ve animasyon tek geri alınır, SRT dışa aktarımı stil / konum / animasyon içermediğini açıklar.
+- **Ses**: yerel `loudnorm` gürültü ölçümü ve hedef LUFS normalizasyonu (−1 dBTP en yüksek), ses aralıkları içinde otomatik müzik baskılama zarfı; önizleme ve dışa aktarma aynı değerlendirme yolunu kullanır.
+- **Arayüz dili**: uygulama yalnızca Türkçe sunar; ana süreç 181 hata ve çalışma zamanı birleşik mesajı yerel, asistan isteği ve yanıtı Türkçe, taşınabilir paket `proje.cevikedit` / `KULLANIM.txt`.
+- **Düzeltme**: Windows'ta seçili CLI betiği için shebang ile başlatma (yorumlayıcı, shell yok); yalnızca macOS'a özgü test varsayımlarının düzeltilmesi (PATH ayraçları, JSON kaçışı, sembolik bağlantı, 8.3 kısa yol), tüm testler ilk kez tam yeşil.
+- **Teslim**: 30 saniyelik 1280×720 demo video ve proje, şablon (`docs/media/`); Windows x64 NSIS adayı `CevikEdit Setup 0.6.0.exe`. macOS DMG / ZIP yeniden derlenmedi (macOS ortamı yok).
 
-## 0.5.1 — 插件按需启动
+## 0.5.1 — Eklenti gerektiğiyle başlatma
 
-- 插件连接、工具发现及 UI 资源读取不再启动 Electron，首次实际工具调用才启动一个编辑器实例；异常退出后不自动循环重启。
-- macOS 从系统加载阶段隐藏后台应用的 Dock 图标，直接启动桌面版时恢复正常窗口与 Dock 行为。
-- 补充启动器生命周期、无应用发现、资源校验及打包桌面 Dock 回归测试。
+- Eklenti bağlantısı, araç keşfi ve UI kaynak okuma artık Electron başlatmaz; ilk gerçek araç çağrısı tek editör örneğini başlatır; hata durumunda otomatik döngü başlatma yok.
+- macOS arka plan uygulamasının Dock simgesini yükleme aşamasında gizler; doğrudan masaüstü sürümünde normal pencere ve Dock davranışını geri getirir.
+- Başlatıcı yaşam döngüsü, uygulama yok keşfi, kaynak doğrulama ve paketlenmiş masaüstü Dock regresyon testleri eklendi.
 
-## 0.5.0 — Codex 插件
+## 0.5.0 — Codex eklenti
 
-- 添加本地 stdio MCP 插件，在 Codex 右侧显示并操作完整 CevikEdit 编辑器。
-- 提供项目读取、原创素材目录、导入、带版本校验的原子编辑、播放定位、撤销重做和截图工具。
-- 插件与桌面版使用独立恢复目录；保留原有媒体授权与渲染隔离。
-- 修复 macOS 后台插件也显示 Dock 图标的问题；仅在主动显示桌面窗口时显示，关闭后回到后台。
-- 添加 portable / Codex 兼容 manifest、操作 skill、安装脚本和插件 ZIP 构建。
-- README 明确 DMG 与 Codex 插件两种入口及侧栏实时画面的限制。
+- Yerel stdio MCP eklenti eklendi; Codex sağ çubuğunda ve gerçek CevikEdit düzenleyicisinde çalışır.
+- Proje okuma, özgün malzama, içe aktarma, sürüm doğrulama ile atomik düzenleme, oynatma konumlandırma, geri alma / yeniden kullanma ve ekran görüntüsü aracı eklendi.
+- Eklenti ve masaüstü sürüm ayrı kurtarma dizinleri kullanır; orijinal medya yetkilendirmesi ve render izolasyonu korunur.
+- macOS arka plan eklentisinin Dock simgesini de düzeltti; yalnızca aktif masaüstü pencere açıkken gösterilir, kapandıktan sonra arka planda kalır.
+- portable / Codex uyumlu manifest, işlem skill'i, kurulum betiği ve eklenti ZIP derlemesi eklendi.
+- README artık DMG ve Codex eklenti iki giriş noktasını, yan çubuk gerçek zamanlı görüntüsünün sınırını açıklar.
 
 ## 0.4.2 — 2026-10-13
 
-- 新增完整的离线文字 / 特效 / 转场素材入口：16 款可编辑文字模板、8 款关键帧动效、8 款转场；原有 8 款调色预设改为真实图像预览。
-- 支持分类、搜索、悬停 / 键盘焦点动态预览，一次应用与撤销；转场按帧限制时长，检查相邻片段、锁轨及后续冲突。
-- 所有预设为 MIT 授权的自主参数配方，复用内置原创图形与 OFL 字体，不下载第三方模板。
-- 修复 FFmpeg 动态缩放回到输入尺寸时可能导出失败的问题，补充全部动效和转场的实际像素渲染回归。
+- Tam kapsamlı yerel metin / etki / geçiş malzama girişi eklendi: 16 düzenlenebilir metin şablonu, 8 anahtar kare animasyonu, 8 geçiş; mevcut 8 renk / hareket ön ayarı artık gerçek görüntü ön izlemesi.
+- Sıralama, arama, hover / klavye odağı ile dinamik ön izleme, tek uygulama ve geri alma; geçişler kare bazında süre sınırı, komşu parça, kilitli kanal ve sonraki çakışma koruması.
+- Tüm ön ayarlar MIT lisanslı bağımsız parametre formüllerinden üretilir, yerleşik özgün grafikler ve OFL yazı tiplerini kullanır, üçüncü taraf şablon indirmez.
+- FFmpeg dinamik ölçekleme girdi boyutuna döndüğünde dışa aktarmayı başarısız edebileceği sorunu düzeltti, tüm animasyon ve geçişlerin gerçek piksel render regresyonunu ekledi.
 
 ## 0.4.1 — 2026-10-13
 
-- 离线素材从 34 款扩充至 64 款：新增 12 个贴纸、8 张背景、6 个透明标题底板和 4 个合成音效。
-- 所有新增素材均由本地 SVG / PCM 生成，附 MIT 许可、源文件与 SHA-256 清单。
-- 补充素材来源与许可说明，区分项目素材包、用户导入媒体和字体许可。
-- 素材生成器同时生成完整及新增素材预览图。
+- Yerel malzama 34'ten 64'e genişti: 12 sticker, 8 arka plan, 6 şeffaf başlık tabanı ve 4 sentetik ses efekti eklendi.
+- Tüm yeni malzama yerel SVG / PCM ile üretildi, MIT lisansı, kaynak dosya ve SHA-256 listesi eklendi.
+- Malzama kaynakları ve lisans açıklamaları eklendi, proje malzama paketi, kullanıcı içe aktarılan medya ve yazı tipi lisansları ayrıldı.
+- Üretici malzama betiği tam ve yeni malzama ön izlemelerini üretir.
 
 ## 0.4.0 — 2026-10-13
 
-- 更新为左向交叉带图标，统一应用和安装包图标；重整中英文 README 的功能、使用、开发和贡献入口。
-
-- 中性深灰三栏编辑器，资源顺序与属性分组对齐熟悉的操作习惯，适配小窗口。
-- 三栏宽度支持拖动与键盘微调、跨启动记忆、双击恢复默认，窗口缩小时保护播放器和属性区可用空间。
-- 单击源素材预览，视频/音频逐帧与 I/O 选段后插入；双击仍添加完整素材。
-- 字幕列表逐句定位和编辑，批量偏移、替换、统一样式；预览、锁轨保护与一次撤销。
-- 收集项目与原素材为可搬移文件夹；去重、相对路径、取消清理、搬移重开和继续保存。修复包内素材丢失及已复制外部源断开后的保存。
-- 整片、选中片段覆盖区间、自定义区间导出，保留区间内多轨画面与音频。
-- 安装包继续内置独立媒体工具，云端/SaaS/API AI 保持未实现。
+- Sol çapraz şerit ikonuna güncelleme, uygulama ve kurulum paketlerinin ikonu; orta koyu gri üç sütunlu düzenleyici, kaynak sırası ve özellik grupları, küçük pencere yerleşimi.
+- Üç sütun genişliği sürüklenebilir / klavye ile ayarlanabilir, başlangıçta hatırlama, çift tıklama varsayılana dönüş, pencere küçültülürken oynatıcı ve özellik alanı korunur.
+- Kaynak malzama tıklaması ön izleme, video / ses kare başına ve I/O seçimiyle ekleme; çift tıklama hâlâ tüm malzemeyi ekler.
+- Altyazı listesi cümle başına konumlandırma ve düzenleme, toplu zaman kaydırması / değiştirme, tek tip stil; ön izleme, kilitli kanal koruması ve tek geri alma.
+- Proje toplama ve orijinal malzama taşınabilir klasöre dönüştürüldü; kaldırma, göreli yol, iptal temizleme, taşıma yeniden açma ve devam eden kaydetme. Paket içi malzama kaybı ve dışarıdan kopyalanan kaynak kopması sonrası kaydetme düzeltildi.
+- Tamam, seçili parça kaplama aralığı ve özel aralık dışa aktarma, aralıktaki çok kanal görüntü ve ses korunur.
+- Kurulum paketi yerel medya araçlarını içermeye devam eder; bulut / SaaS / API AI boş bırakılmadı.
 
 ## 0.3.0
 
-- 原创薄荷绿/珊瑚色折带图标。
-- 34 款原创离线素材：透明贴纸、背景、标题底板和合成音效，含源码与许可；支持分类、搜索、试听和添加。
-- 可选 Codex CLI / Claude Code 剪辑助手：本地项目对话、状态、取消、历史；有限编辑提案逐项验证，用户应用后可一次撤销；项目变化后拒绝应用旧建议。
-- macOS DMG 继续内置独立构建的 FFmpeg/FFprobe、字体与许可。
-- 完成剪映桌面助手 REA + Ghidra 研究，区分观测证据和自主实现；不复制专有服务与资源。
+- Özgün açık yeşil / mercanlı çapraz şerit ikon.
+- 34 özgün yerel malzama: şeffaf sticker, arka plan, başlık tabanı ve sentetik ses efekti, kaynak ve lisans ile; kategori, arama, deneyim ve ekleme.
+- İsteğe bağlı Codex CLI / Claude Code kurgu asistanı: yerel proje diyaloğu, durum, iptal, tarih; sınırlı düzenleme önerileri adım adım doğrulandı, kullanıcı uyguladıktan sonra tek geri alınabilir; proje değişiminde eski öneri uygulanmadı.
+- macOS DMG yerel FFmpeg / FFprobe derlemesini, yazı tipi ve lisans ile içermeye devam eder.
+- ClipCut masasüstü asistanı REA + Ghidra araştırması tamamlandı, gözlem ve bağımsız uygulama ayrımı; özel servis ve kaynak kopyalanmadı.
 
 ## 0.2.1 — 2026-10-13
 
-- macOS 安装包内置独立构建的 FFmpeg 9.0.2 / FFprobe 与 x264，不再要求额外安装媒体工具。
-- 附带对应源码、构建脚本、来源指纹与 GPL 许可；打包钩子自动构建并检查非系统动态依赖。
-- 保留自定义工具设置；内置工具缺失时明确报错，不静默回退到开发机环境。
+- macOS kurulum paketi yerel FFmpeg 9.0.2 / FFprobe ve x264 ile yerleşik, ek medya araç kurulumu gerekmez.
+- Karşılık gelen kaynak, derleme betiği, kaynak parmak izi ve GPL lisansı eklendi; paket hook'ı otomatik derler ve sistem dışı dinamik bağımlılıkları kontrol eder.
+- Özel araç ayarları korundu; yerleşik araç yoksa açık hata verilir, geliştirme makinesine sessiz geri dönüş yok.
 
 ## 0.2.0 — 2026-10-13
 
-- 桌面端支持读取已验证的本地剪映不透明草稿，认证后转换为独立的 CevikEdit 项目。仍支持明文 JSON；不会修改原项目或写回剪映格式。
-- 新增项目文件夹导入和明确时间线选择，推荐活动时间线，避免导入空白主时间线。支持受控现代空时间线结构与原始画布尺寸推断。
-- 根据受控原生导出修正文字/视频图层、默认背景和变速取帧，修正非整帧裁剪的前驱画面保留；导入提示集中说明丢失的附加设置。
-- 增加固定合成载体、真实文件读取、逐帧媒体和桌面工作流验证；原始取证与私人载荷不随源码或安装包分发。
+- Masaüstünde doğrulanmış yerel ClipCut opak taslak okunmaya başlandı, doğrulama sonrası bağımsız CevikEdit projesine dönüştürüldü. Açık JSON hâlâ desteklenir; orijinal proje değiştirilmez ya da ClipCut biçimine yazma yapılmaz.
+- Proje klasörü içe aktarma ve açık zaman çizelgesi seçimi eklendi, geçerli zaman çizelgesi öncelikli önerildi, boş ana zaman çizelgesi yerine geçmedi. Kontrollü modern boş zaman çizelgesi yapısı ve orijinal tuval boyutu tahmini desteklendi.
+- Kontrollü yerel dışa aktarma ile metin / video katmanları, varsayılan arka plan ve sabit hızlı alandan sonraki kırpma öncesi kayan resmi düzeltti; kayıp ek ayarlarının içe aktarım ipuçları toplandı.
+- Sabit sentetik taşıyıcı, gerçek dosya okuma, kare başına medya ve masaüstü iş akışı doğrulamaları eklendi; orijinal çıkarım ve özel taslak kaynak kod ya da kurulum paketine dağıtılmadı.
 
-验证、安装包信息及已知边界见 [验证记录](docs/VALIDATION.md)。字体排版与复杂效果仍有损；SaaS、云端和 API AI 留白。
+Doğrulama, paket bilgileri ve bilinen sınırlar için [Doğrulama kaydı](docs/VALIDATION.md) bakın. Yazı tipi yerleşimi ve karmaşık etki hâlâ kayıplıdır; SaaS, bulut ve API AI boş bırakılmadı.
 
 ## 0.1.0
 
-独立离线编辑器首版：媒体导入、时间线编辑、多轨、文字/字幕、基础音视频变换、裁剪/抠像/蒙版、关键帧/淡化/叠化、本地项目保存与 H.264/AAC 导出。macOS arm64 完成实际桌面和安装包验收；Windows/Linux 保留构建配置，未在本机验证。
+Bağımsız yerel düzenleyici ilk sürümü: medya içe aktarma, zaman çizelgesi düzenlemesi, çok kanal, metin / altyazı, temel ses-video dönüşümleri, kırpma / kesme / maske, anahtar kare / fade / katlama, yerel proje kaydı ve H.264 / AAC dışa aktarma. macOS arm64 gerçek masaüstü ve kurulum paketi doğrulandı; Windows / Linux derleme yapılandırması korundu, yerelde doğrulanmadı.

@@ -49,45 +49,45 @@ addText yalnızca bağımsız metin klibi ekler; setText metin klibinin içeriğ
 Kullanıcı öneriyi önizleyip kendisi uygular. Yanıtını öneri veya plan olarak yaz; düzenlemeyi tamamladığını söyleme. Bilinmeyen isteğe bağlı alanlar için null kullan.`;
 
 function boundedText(value: unknown, max: number, label: string): asserts value is string {
-  if (typeof value !== "string" || value.length > max || value.includes("\0")) throw new Error(`${label}无效或过长`);
+  if (typeof value !== "string" || value.length > max || value.includes("\0")) throw new Error(`${label} geçersiz veya çok uzun`);
 }
 export function validateAssistantRequest(request: AssistantRequest): void {
-  if (!request || (request.provider !== "codex" && request.provider !== "claude")) throw new Error("请选择支持的 CLI");
-  boundedText(request.requestId, 100, "请求标识");
-  if (!/^[a-zA-Z0-9_-]{1,100}$/.test(request.requestId)) throw new Error("请求标识无效");
-  boundedText(request.prompt, 8000, "消息");
-  if (!request.prompt.trim()) throw new Error("请先输入消息");
-  boundedText(request.context, 100_000, "项目摘要");
-  if (Buffer.byteLength(request.context, "utf8") > 100_000) throw new Error("项目摘要过长");
+  if (!request || (request.provider !== "codex" && request.provider !== "claude")) throw new Error("Desteklenen bir CLI seçin");
+  boundedText(request.requestId, 100, "İstek kimliği");
+  if (!/^[a-zA-Z0-9_-]{1,100}$/.test(request.requestId)) throw new Error("İstek kimliği geçersiz");
+  boundedText(request.prompt, 8000, "Mesaj");
+  if (!request.prompt.trim()) throw new Error("Önce bir mesaj yazın");
+  boundedText(request.context, 100_000, "Proje özeti");
+  if (Buffer.byteLength(request.context, "utf8") > 100_000) throw new Error("Proje özeti çok uzun");
   let context: unknown;
-  try { context = JSON.parse(request.context); } catch { throw new Error("项目摘要不是有效 JSON"); }
-  if (!context || typeof context !== "object" || Array.isArray(context)) throw new Error("项目摘要无效");
+  try { context = JSON.parse(request.context); } catch { throw new Error("Proje özeti geçerli JSON değil"); }
+  if (!context || typeof context !== "object" || Array.isArray(context)) throw new Error("Proje özeti geçersiz");
   const check = (value: unknown, depth = 0): void => {
-    if (depth > 10) throw new Error("项目摘要层级过深");
-    if (typeof value === "string" && /(?:file:\/\/|cevikedit-media:|https?:\/\/|[A-Z]:\\|\/(?:Users|home|Volumes|private|tmp)\/)/i.test(value)) throw new Error("项目摘要包含本机路径或媒体地址，请移除后重试");
+    if (depth > 10) throw new Error("Proje özeti çok fazla iç içe");
+    if (typeof value === "string" && /(?:file:\/\/|cevikedit-media:|https?:\/\/|[A-Z]:\\|\/(?:Users|home|Volumes|private|tmp)\/)/i.test(value)) throw new Error("Proje özeti yerel yol veya medya adresi içeriyor; kaldırıp yeniden deneyin");
     if (value && typeof value === "object") for (const [key, entry] of Object.entries(value)) {
-      if (/^(?:path|url|previewUrl|thumbnail|waveform|token|apiKey|password|secret|authorization)$/i.test(key)) throw new Error("项目摘要包含不允许发送的字段");
+      if (/^(?:path|url|previewUrl|thumbnail|waveform|token|apiKey|password|secret|authorization)$/i.test(key)) throw new Error("Proje özeti gönderilmesine izin verilmeyen alanlar içeriyor");
       check(entry, depth + 1);
     }
   };
   check(context);
-  if (!Array.isArray(request.history) || request.history.length > 20) throw new Error("对话历史过长");
+  if (!Array.isArray(request.history) || request.history.length > 20) throw new Error("Sohbet geçmişi çok uzun");
   for (const message of request.history) {
-    if (!message || (message.role !== "user" && message.role !== "assistant")) throw new Error("对话角色无效");
-    boundedText(message.content, 16000, "历史消息");
+    if (!message || (message.role !== "user" && message.role !== "assistant")) throw new Error("Sohbet rolü geçersiz");
+    boundedText(message.content, 16000, "Geçmiş mesajı");
   }
 }
 
 export function parseAssistantResponse(input: string | unknown): AssistantResponse {
   let value: unknown = input;
   if (typeof input === "string") {
-    if (input.length > MAX_RESPONSE) throw new Error("助手回复过长");
+    if (input.length > MAX_RESPONSE) throw new Error("Asistan yanıtı çok uzun");
     const stripped = input.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
-    try { value = JSON.parse(stripped); } catch { throw new Error("CLI 未返回可识别的编辑提案，请换一种方式描述需求"); }
+    try { value = JSON.parse(stripped); } catch { throw new Error("CLI tanınabilir bir düzenleme önerisi döndürmedi; isteği farklı biçimde anlatın"); }
   }
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("助手回复格式无效");
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Asistan yanıtının biçimi geçersiz");
   const record = value as Record<string, unknown>;
-  if (Object.keys(record).some(k => k !== "reply" && k !== "actions") || typeof record.reply !== "string" || !record.reply.trim() || record.reply.length > 32000 || !Array.isArray(record.actions) || record.actions.length > 40) throw new Error("助手回复格式无效或提案过多");
+  if (Object.keys(record).some(k => k !== "reply" && k !== "actions") || typeof record.reply !== "string" || !record.reply.trim() || record.reply.length > 32000 || !Array.isArray(record.actions) || record.actions.length > 40) throw new Error("Asistan yanıtının biçimi geçersiz veya çok fazla öneri var");
   // Optional JSON-schema fields are nullable for Codex structured output. The
   // editor subsequently validates every action and its project-specific limits.
   const optionalFields: Record<string, string[]> = {
@@ -96,7 +96,7 @@ export function parseAssistantResponse(input: string | unknown): AssistantRespon
     setProject: ["name", "width", "height", "fps", "background"],
   };
   const cleaned = record.actions.map(value => {
-    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("编辑提案格式无效");
+    if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Düzenleme önerisinin biçimi geçersiz");
     return Object.fromEntries(Object.entries(value).filter(([key, item]) => item !== null || !optionalFields[value.type]?.includes(key)));
   });
   return { reply: record.reply, actions: cleaned as AssistantResponse["actions"] };
@@ -152,7 +152,7 @@ export async function assistantLaunch(executablePath: string): Promise<Assistant
           if (interpreter) {
             launch.command = interpreter;
             launch.prefix = [executablePath];
-          } else throw new Error("所选脚本的解释器无法在本机启动，请选择原生 .exe");
+          } else throw new Error("Seçilen betiğin yorumlayıcısı bu makinede başlatılamıyor; yerel bir .exe seçin");
         }
       } finally { await handle.close(); }
     }
@@ -164,7 +164,7 @@ export async function assistantLaunch(executablePath: string): Promise<Assistant
 export async function resolveAssistantExecutable(provider: AssistantProvider, override?: string): Promise<string> {
   if (override !== undefined) {
     const resolved = await executable(override);
-    if (!resolved) throw new Error(`所选 ${labels[provider]} 不是可执行文件（Windows 请选择原生 .exe）`);
+    if (!resolved) throw new Error(`Seçili ${labels[provider]} bir çalıştırılabilir dosya değil (Windows'ta yerel .exe seçin)`);
     return resolved;
   }
   const binary = process.platform === "win32" ? `${provider}.exe` : provider;
@@ -172,21 +172,21 @@ export async function resolveAssistantExecutable(provider: AssistantProvider, ov
   const candidates = folders.filter(path.isAbsolute).map(folder => path.join(folder, binary));
   if (provider === "codex" && process.platform === "darwin") candidates.push("/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex");
   for (const candidate of candidates) { const resolved = await executable(candidate); if (resolved) return resolved; }
-  throw new Error(`未找到 ${labels[provider]}。请先安装并在终端登录，或选择 CLI 可执行文件`);
+  throw new Error(`${labels[provider]} bulunamadı. Önce kurun ve terminalde oturum açın ya da CLI çalıştırılabilir dosyasını seçin`);
 }
 
 function probe(command: string, args: string[], cwd: string, prefix: string[] = []): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, [...prefix, ...args], { cwd, shell: false, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
     let output = "";
-    const timer = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("CLI 检查超时")); }, 8000);
+    const timer = setTimeout(() => { child.kill("SIGKILL"); reject(new Error("CLI denetimi zaman aşımına uğradı")); }, 8000);
     const receive = (data: Buffer) => {
-      if (output.length + data.length > 128000) { child.kill("SIGKILL"); reject(new Error("CLI 检查输出过长")); return; }
+      if (output.length + data.length > 128000) { child.kill("SIGKILL"); reject(new Error("CLI denetim çıktısı çok uzun")); return; }
       output += data.toString();
     };
     child.stdout.on("data", receive); child.stderr.on("data", receive);
     child.once("error", error => { clearTimeout(timer); reject(error); });
-    child.once("close", code => { clearTimeout(timer); code === 0 ? resolve(output) : reject(new Error("CLI 检查失败，请确认所选文件")); });
+    child.once("close", code => { clearTimeout(timer); code === 0 ? resolve(output) : reject(new Error("CLI denetimi başarısız; seçilen dosyayı doğrulayın")); });
   });
 }
 
@@ -197,7 +197,7 @@ export async function discoverAssistantProviders(overrides: Partial<Record<Assis
       const launch = await assistantLaunch(resolved);
       const version = (await probe(launch.command, ["--version"], os.tmpdir(), launch.prefix)).trim().slice(0, 120);
       return { id, label: labels[id], available: true, path: resolved, version };
-    } catch (error) { return { id, label: labels[id], available: false, error: error instanceof Error ? error.message : "CLI 检查失败" }; }
+    } catch (error) { return { id, label: labels[id], available: false, error: error instanceof Error ? error.message : "CLI denetimi başarısız" }; }
   }));
 }
 
@@ -219,12 +219,12 @@ export interface AssistantSession { cancel(): void; done: Promise<void> }
 type WithoutRequestId<T> = T extends unknown ? Omit<T, "requestId"> : never;
 
 function userFacingError(message: string): string {
-  if (/cyber_policy|safety|policy.*violation|access.*restricted/i.test(message)) return "CLI 服务拒绝了本次请求；请查看服务提供方的提示或官方支持，不会自动重试。";
-  if (/not logged|login|log in|auth|401|credential|api.?key/i.test(message)) return "CLI 尚未登录或登录已失效。请在终端正常登录所选 CLI，然后重新发送。";
-  if (/rate.?limit|429|quota|usage.?limit|credit|billing/i.test(message)) return "CLI 服务用量或额度受限，请在对应服务中确认后再发送。";
-  if (/ENOTFOUND|ECONN|network|connection|fetch failed|timeout/i.test(message)) return "CLI 无法连接服务，请检查网络和所选 CLI 的连接设置。";
-  if (/unexpected argument|unknown option|unrecognized|unknown variant/i.test(message)) return "所选 CLI 版本不支持所需隔离选项，请更新 CLI 后再试。";
-  return "CLI 未完成本次请求。请在终端检查所选 CLI 的登录、版本和服务状态。";
+  if (/cyber_policy|safety|policy.*violation|access.*restricted/i.test(message)) return "CLI hizmeti bu isteği reddetti; sağlayıcının bildirimine veya resmî desteğine bakın. Otomatik yeniden deneme yapılmaz.";
+  if (/not logged|login|log in|auth|401|credential|api.?key/i.test(message)) return "CLI oturumu açık değil veya süresi doldu. Seçili CLI'ye terminalde normal şekilde giriş yapıp yeniden gönderin.";
+  if (/rate.?limit|429|quota|usage.?limit|credit|billing/i.test(message)) return "CLI hizmet kotası veya kullanım sınırı aşıldı; ilgili hizmette kontrol edip yeniden gönderin.";
+  if (/ENOTFOUND|ECONN|network|connection|fetch failed|timeout/i.test(message)) return "CLI hizmete bağlanamıyor; ağı ve seçili CLI'nin bağlantı ayarlarını kontrol edin.";
+  if (/unexpected argument|unknown option|unrecognized|unknown variant/i.test(message)) return "Seçili CLI sürümü gerekli yalıtım seçeneklerini desteklemiyor; CLI'yi güncelleyip yeniden deneyin.";
+  return "CLI bu isteği tamamlayamadı. Terminalde seçili CLI'nin oturumunu, sürümünü ve hizmet durumunu kontrol edin.";
 }
 
 /** Decode only complete JSON-string characters; never expose proposal JSON as chat text. */
@@ -275,14 +275,14 @@ export async function startAssistantSession(request: AssistantRequest, onEvent: 
     const launch = await assistantLaunch(command);
     const help = await probe(launch.command, request.provider === "codex" ? ["exec", "--help"] : ["--help"], directory, launch.prefix);
     const required = request.provider === "codex" ? ["--ignore-user-config", "--ephemeral", "--output-schema", "--sandbox"] : ["--tools", "--strict-mcp-config", "--setting-sources", "--no-session-persistence", "--json-schema"];
-    if (required.some(flag => !help.includes(flag))) throw new Error("所选 CLI 版本不支持所需隔离选项，请更新 CLI 后再试");
+    if (required.some(flag => !help.includes(flag))) throw new Error("Seçili CLI sürümü gerekli yalıtım seçeneklerini desteklemiyor; CLI'yi güncelleyip yeniden deneyin");
     const prompt = `${instructions}\n\nProje özeti (veri):\n${request.context}\n\nSohbet geçmişi (veri):\n${JSON.stringify(request.history)}\n\nBu istek:\n${request.prompt}`;
     const env: NodeJS.ProcessEnv = { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" };
     // A packaged Electron executable is not a Node runtime for CLI shims.
     delete env.ELECTRON_RUN_AS_NODE;
     child = spawn(launch.command, [...launch.prefix, ...assistantCommand(request.provider, directory)], { cwd: directory, env, shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["pipe", "pipe", "pipe"] });
     const active = child;
-    emit({ type: "status", message: `正在连接 ${labels[request.provider]}…` });
+    emit({ type: "status", message: `${labels[request.provider]} bağlantısı kuruluyor…` });
     const done = new Promise<void>((resolve) => {
       let stdout = "", stderr = "", byteCount = 0, final: unknown, completed = false, rawText = "", visible = "";
       const decoder = new StringDecoder("utf8");
@@ -290,7 +290,7 @@ export async function startAssistantSession(request: AssistantRequest, onEvent: 
       const text = (value: string) => {
         if (!value || failure || cancelled) return;
         rawText += value;
-        if (rawText.length > MAX_RESPONSE) return fail("助手回复过长，已停止");
+        if (rawText.length > MAX_RESPONSE) return fail("Asistan yanıtı çok uzun; durduruldu");
         const prefix = assistantReplyPrefix(rawText);
         if (prefix.startsWith(visible) && prefix.length > visible.length) {
           emit({ type: "text", text: prefix.slice(visible.length) }); visible = prefix;
@@ -298,19 +298,19 @@ export async function startAssistantSession(request: AssistantRequest, onEvent: 
       };
       const line = (raw: string) => {
         if (!raw.trim()) return;
-        let item: any; try { item = JSON.parse(raw); } catch { return fail("CLI 返回了无效的事件数据"); }
-        if (!item || typeof item !== "object" || Array.isArray(item)) return fail("CLI 返回了无效的事件数据");
+        let item: any; try { item = JSON.parse(raw); } catch { return fail("CLI geçersiz olay verisi döndürdü"); }
+        if (!item || typeof item !== "object" || Array.isArray(item)) return fail("CLI geçersiz olay verisi döndürdü");
         if (request.provider === "codex") {
           if (item.type === "item.completed" && item.item?.type === "agent_message") { final = item.item.text; text(item.item.text || ""); }
           if (item.type === "turn.completed") completed = true;
           if (item.type === "turn.failed" || item.type === "error") fail(userFacingError(JSON.stringify(item.error ?? item.message ?? item)));
-          if ((item.type === "item.started" || item.type === "item.completed") && ["command_execution", "mcp_tool_call", "web_search", "file_change"].includes(item.item?.type)) fail("CLI 尝试使用编辑提案以外的工具，已停止本次请求");
+          if ((item.type === "item.started" || item.type === "item.completed") && ["command_execution", "mcp_tool_call", "web_search", "file_change"].includes(item.item?.type)) fail("CLI düzenleme önerisi dışında bir araç kullanmaya çalıştı; istek durduruldu");
         } else {
           if (item.type === "stream_event" && item.event?.type === "content_block_delta" && item.event.delta?.type === "text_delta") text(item.event.delta.text || "");
           if (item.type === "assistant") {
             const blocks = item.message?.content;
             if (Array.isArray(blocks)) {
-              if (blocks.some((block: any) => block.type === "tool_use" && block.name !== "StructuredOutput")) return fail("CLI 尝试使用编辑提案以外的工具，已停止本次请求");
+              if (blocks.some((block: any) => block.type === "tool_use" && block.name !== "StructuredOutput")) return fail("CLI düzenleme önerisi dışında bir araç kullanmaya çalıştı; istek durduruldu");
               const fullText = blocks.filter((block: any) => block.type === "text").map((block: any) => block.text).join("");
               if (fullText) final = fullText;
             }
@@ -323,12 +323,12 @@ export async function startAssistantSession(request: AssistantRequest, onEvent: 
       };
       active.stdout.on("data", (data: Buffer) => {
         byteCount += data.length;
-        if (byteCount > MAX_OUTPUT) return fail("CLI 输出超出限制，已停止");
+        if (byteCount > MAX_OUTPUT) return fail("CLI çıktısı sınırı aştı; durduruldu");
         stdout += decoder.write(data);
         let newline: number;
         while ((newline = stdout.indexOf("\n")) >= 0) { line(stdout.slice(0, newline)); stdout = stdout.slice(newline + 1); }
       });
-      active.stderr.on("data", (data: Buffer) => { byteCount += data.length; stderr = (stderr + data.toString()).slice(-32000); if (byteCount > MAX_OUTPUT) fail("CLI 输出超出限制，已停止"); });
+      active.stderr.on("data", (data: Buffer) => { byteCount += data.length; stderr = (stderr + data.toString()).slice(-32000); if (byteCount > MAX_OUTPUT) fail("CLI çıktısı sınırı aştı; durduruldu"); });
       active.once("error", error => { failure ||= userFacingError(error.message); });
       active.stdin.on("error", () => { /* Exit status supplies the failure, including authentication errors. */ });
       active.once("close", async code => {
@@ -338,19 +338,19 @@ export async function startAssistantSession(request: AssistantRequest, onEvent: 
         if (cancelled) emit({ type: "cancelled" });
         else if (failure) emit({ type: "error", message: failure });
         else if (code !== 0) emit({ type: "error", message: userFacingError(stderr) });
-        else if (!completed || final === undefined) emit({ type: "error", message: "CLI 未返回完整回复，请确认登录状态后重试" });
+        else if (!completed || final === undefined) emit({ type: "error", message: "CLI tam yanıt döndürmedi; oturum durumunu doğrulayıp yeniden deneyin" });
         else {
           try {
             const response = parseAssistantResponse(final);
             if (response.reply.startsWith(visible) && response.reply.length > visible.length) emit({ type: "text", text: response.reply.slice(visible.length) });
             emit({ type: "complete", response });
           }
-          catch (error) { emit({ type: "error", message: error instanceof Error ? error.message : "助手回复无法解析" }); }
+          catch (error) { emit({ type: "error", message: error instanceof Error ? error.message : "Asistan yanıtı çözümlenemedi" }); }
         }
         await rm(directory, { recursive: true, force: true }).catch(() => {});
         resolve();
       });
-      timer = setTimeout(() => { failure = "助手响应超时，已停止本次请求。可以缩短需求后重新发送。"; stop(); }, Math.max(100, Math.min(options.timeoutMs ?? 180000, 300000)));
+      timer = setTimeout(() => { failure = "Asistan yanıtı zaman aşımına uğradı; istek durduruldu. İsteği kısaltıp yeniden gönderin."; stop(); }, Math.max(100, Math.min(options.timeoutMs ?? 180000, 300000)));
       active.stdin.end(prompt, "utf8");
     });
     return { cancel() { cancelled = true; stop(); }, done };

@@ -20,21 +20,21 @@ const ipcMessage = (error: unknown) => {
   return detail.startsWith("Error: ") ? detail.slice(7) : detail;
 };
 const TRANSCRIPTION_LANGUAGES = [
-  ["auto", "自动检测"],
-  ["tr", "土耳其语"],
-  ["en", "英语"],
-  ["de", "德语"],
-  ["fr", "法语"],
-  ["es", "西班牙语"],
-  ["ar", "阿拉伯语"],
-  ["ru", "俄语"],
+  ["auto", "Otomatik algıla"],
+  ["tr", "Türkçe"],
+  ["en", "İngilizce"],
+  ["de", "Almanca"],
+  ["fr", "Fransızca"],
+  ["es", "İspanyolca"],
+  ["ar", "Arapça"],
+  ["ru", "Rusça"],
 ] as const;
 const TRANSCRIPTION_STAGE: Record<TranscriptionStage, string> = {
-  preparing: "正在准备…",
-  extracting: "正在提取音频…",
-  transcribing: "正在识别语音…",
-  parsing: "正在整理字幕…",
-  complete: "完成",
+  preparing: "Hazırlanıyor…",
+  extracting: "Ses çıkarılıyor…",
+  transcribing: "Konuşma tanınıyor…",
+  parsing: "Altyazılar düzenleniyor…",
+  complete: "Tamam",
 };
 const DEFAULT_STYLE_DRAFT: SubtitleStylePatch = {
   fontFamily: "Noto Sans SC",
@@ -53,11 +53,11 @@ const styleFromClip = (clip: Clip): SubtitleStylePatch => {
   const { text: _content, ...style } = clip.text!;
   return clone(style);
 };
-const ANIMATION_ENTRANCES = [["none", "无"], ["fade", "淡入"], ["slideUp", "上滑"], ["scale", "缩放"]] as const;
-const ANIMATION_HOLDS = [["none", "静止"], ["pulse", "呼吸"]] as const;
-const ANIMATION_EXITS = [["none", "无"], ["fade", "淡出"], ["slideDown", "下滑"], ["scale", "缩放"]] as const;
-const SPLIT_HINT = "拆分按项目帧对齐播放头，左段为 [开始, 播放头)，右段为 [播放头, 结束)，两侧至少各留一帧；文本按字符比例并优先在附近标点或空白处切开。";
-const MERGE_HINT = "合并只处理同轨连续且相接或重叠的字幕：时间取最早开始至最晚结束，文本以换行拼接，样式和局部动画沿用最早一条。";
+const ANIMATION_ENTRANCES = [["none", "Yok"], ["fade", "Yumuşak giriş"], ["slideUp", "Yukarı kay"], ["scale", "Ölçek"]] as const;
+const ANIMATION_HOLDS = [["none", "Sabit"], ["pulse", "Nefes"]] as const;
+const ANIMATION_EXITS = [["none", "Yok"], ["fade", "Yumuşak çıkış"], ["slideDown", "Aşağı kay"], ["scale", "Ölçek"]] as const;
+const SPLIT_HINT = "Bölme, oynatma konumunu proje karelerine hizalar; sol parça [başlangıç, oynatma konumu), sağ parça [oynatma konumu, bitiş) olur ve iki tarafta en az bir kare kalır. Metin karakter oranına göre, yakındaki noktalama veya boşluk tercih edilerek ayrılır.";
+const MERGE_HINT = "Birleştirme yalnızca aynı kanaldaki ardışık ve bitişik/örtüşen altyazılarda çalışır: zaman en erken başlangıçtan en geç bitişe uzanır, metinler yeni satırla birleştirilir, stil ve yerel animasyon en erken kayıttan alınır.";
 type SubtitleMode = "splitMerge" | "offset" | "replace" | "style" | "animation";
 
 export default function SubtitlePanel({ onImport, onExport }: Props) {
@@ -125,7 +125,7 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
 
   useEffect(() => {
     const textTracks = project.tracks.filter(t => t.kind === "text");
-    const preferred = textTracks.find(t => t.name.includes("字幕")) ?? textTracks[0];
+    const preferred = textTracks.find(t => t.name.includes("Altyazı")) ?? textTracks[0];
     setTrackId(preferred?.id ?? ""); setQuery(""); setChecked([]); setDraft(null); setPlan(null); setError(""); setNotice("");
   }, [project.id]);
   useEffect(() => {
@@ -134,7 +134,7 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   }, [api]);
   useEffect(() => {
     if (!project.tracks.some(t => t.id === trackId && t.kind === "text")) {
-      const preferred = project.tracks.find(t => t.kind === "text" && t.name.includes("字幕")) ?? project.tracks.find(t => t.kind === "text");
+      const preferred = project.tracks.find(t => t.kind === "text" && t.name.includes("Altyazı")) ?? project.tracks.find(t => t.kind === "text");
       setTrackId(preferred?.id ?? "");
     }
     // Newly imported cues become selected in the editor; follow their new track.
@@ -180,16 +180,16 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
 
   async function startTranscription() {
     setTranscriptionError(""); setTranscriptionNotice(""); setNotice("");
-    if (!api) { setTranscriptionError("此功能仅在桌面版可用。"); return; }
+    if (!api) { setTranscriptionError("Bu özellik yalnızca masaüstü uygulamasında kullanılabilir."); return; }
     if (!transcription?.available) {
-      setTranscriptionError(transcription?.error ?? "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。");
+      setTranscriptionError(transcription?.error ?? "Whisper bulunamadı. whisper.cpp kurun veya altyazı panelinden çalıştırılabilir dosyayı seçin.");
       return;
     }
     if (!sourceClip || !sourceAsset) {
-      setTranscriptionError("请选择时间线中的音频或视频片段，或把播放头移到含音频的片段上。");
+      setTranscriptionError("Zaman çizelgesinde bir ses veya video klibi seçin ya da oynatma başlığını ses içeren bir klibin üzerine getirin.");
       return;
     }
-    if (!modelPath) { setTranscriptionError("请选择 Whisper 模型文件"); return; }
+    if (!modelPath) { setTranscriptionError("Bir Whisper model dosyası seçin"); return; }
     if (transcriptionJobId.current) return;
     const projectId = project.id;
     const jobId = crypto.randomUUID();
@@ -209,14 +209,14 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
       });
       if (transcriptionJobId.current !== jobId) return;
       const store = useEditorStore.getState();
-      if (store.project.id !== projectId) throw new Error("项目已切换，转写结果已丢弃");
-      if (!result.cues.length) throw new Error("Whisper 没有识别到语音");
+      if (store.project.id !== projectId) throw new Error("Proje değiştirildi; yazıya dökme sonucu atıldı");
+      if (!result.cues.length) throw new Error("Whisper konuşma algılamadı");
       store.addSubtitles(result.cues);
-      setTranscriptionNotice(`已生成 ${result.cues.length} 条自动字幕`);
+      setTranscriptionNotice(`${result.cues.length} otomatik altyazı oluşturuldu`);
     } catch (e) {
       if (transcriptionJobId.current !== jobId) return;
       const message = ipcMessage(e);
-      if (message.includes("取消")) setTranscriptionNotice("转写已取消");
+      if (message.includes("İptal")) setTranscriptionNotice("Yazıya dökme iptal edildi");
       else setTranscriptionError(message);
     } finally {
       if (transcriptionJobId.current === jobId) {
@@ -253,11 +253,11 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
   function saveCue() {
     attempt(() => {
       if (!draft) return;
-      if (!draft.start.trim() || !draft.end.trim()) throw new Error("请填写开始和结束时间");
+      if (!draft.start.trim() || !draft.end.trim()) throw new Error("Başlangıç ve bitiş zamanlarını girin");
       const next = prepareSubtitleEdit(draft.project, [draft.id], { type: "cue", text: draft.text, start: Number(draft.start), end: Number(draft.end) });
       const store = useEditorStore.getState();
       store.commit(applySubtitleEdit(store.project, next));
-      setDraft(null); setNotice(next.changedIds.length ? "字幕已保存，可一次撤销" : "字幕未变化");
+      setDraft(null); setNotice(next.changedIds.length ? "Altyazı kaydedildi, tek adımda geri alınabilir" : "Altyazı değişmedi");
     });
   }
   function updateStyle(patch: SubtitleStylePatch) {
@@ -280,26 +280,26 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
       store.commit(applySubtitleEdit(store.project, next));
       setSelection([]); setPlan(null); setDraft(null);
       setNotice(type === "split"
-        ? "已按播放头拆分为两条字幕，可一次撤销"
-        : `已合并 ${count} 条字幕，可一次撤销`);
+        ? "Oynatma konumunda iki altyazıya bölündü; tek adımda geri alınabilir"
+        : `${count} altyazı birleştirilecek; tek adımda geri alınabilir`);
     });
   }
   function prepare() {
     attempt(() => {
       let edit: SubtitleEdit;
       if (mode === "offset") {
-        if (!offset.trim()) throw new Error("请填写时间偏移量");
+        if (!offset.trim()) throw new Error("Zaman kaydırma miktarını girin");
         edit = { type: "offset", seconds: Number(offset) };
       } else if (mode === "replace") edit = { type: "replace", find, replacement };
       else if (mode === "style") {
         if (referenceId && !styleDirty) edit = { type: "style", referenceId };
         else {
-          if (!styleReady) throw new Error("请选择参考字幕，或直接修改一项字幕样式");
+          if (!styleReady) throw new Error("Bir referans altyazı seçin veya doğrudan bir altyazı stilini değiştirin");
           edit = { type: "style", patch: styleDraft };
         }
       } else if (mode === "animation") {
         if (!animation.inDuration.trim() || !animation.outDuration.trim())
-          throw new Error("请填写文字入场和出场时长");
+          throw new Error("Metin giriş ve çıkış sürelerini girin");
         edit = {
           type: "animation",
           animation: {
@@ -310,9 +310,9 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
             outDuration: Number(animation.outDuration),
           },
         };
-      } else throw new Error("请使用拆分或合并按钮");
+      } else throw new Error("Lütfen bölme veya birleştirme düğmelerini kullanın");
       const next = prepareSubtitleEdit(useEditorStore.getState().project, selected, edit);
-      if (!next.changedIds.length) { setPlan(null); setNotice("没有需要修改的字幕"); return; }
+      if (!next.changedIds.length) { setPlan(null); setNotice("Değiştirilecek altyazı yok"); return; }
       setPlan(next);
     });
   }
@@ -321,149 +321,149 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
       if (!plan) return;
       const store = useEditorStore.getState();
       store.commit(applySubtitleEdit(store.project, plan));
-      setNotice(`已修改 ${plan.changedIds.length} 条字幕，可一次撤销`); setPlan(null); setDraft(null);
+      setNotice(`Değiştirildi: ${plan.changedIds.length} altyazı değiştirilecek, tek adımda geri alınabilir`); setPlan(null); setDraft(null);
     });
   }
   function setSelection(ids: string[]) { setChecked(ids); setPlan(null); }
   const draftStale = draft && JSON.stringify(draft.project) !== JSON.stringify(project);
 
-  return <section className="subtitle-panel" aria-label="字幕编辑器">
-    <div className="subtitle-heading"><h3>字幕编辑</h3><span>{clips.length} 条</span></div>
+  return <section className="subtitle-panel" aria-label="Altyazı düzenleyici">
+    <div className="subtitle-heading"><h3>Altyazı düzenleme</h3><span>{clips.length} kayıt</span></div>
     <div className="subtitle-file-actions">
-      <button className="small-button" onClick={() => void fileAction(onImport)}><FolderOpen size={14} />导入字幕文件</button>
-      <button className="small-button" onClick={() => void fileAction(onExport)} disabled={!project.clips.some(c => c.text)} title="导出项目中全部文字片段为 SRT；字幕文件不携带样式、位置或动画"><Download size={14} />导出全部 SRT</button>
+      <button className="small-button" onClick={() => void fileAction(onImport)}><FolderOpen size={14} />Altyazı dosyası içe aktar</button>
+      <button className="small-button" onClick={() => void fileAction(onExport)} disabled={!project.clips.some(c => c.text)} title="Projedeki tüm metin kliplerini SRT olarak dışa aktar; altyazı dosyası stil, konum veya animasyon taşımaz"><Download size={14} />Tümünü SRT olarak dışa aktar</button>
     </div>
-    <p className="subtitle-hint">SRT / WebVTT 只保存时间与文本；样式、画面位置和文字动画不会写入字幕文件，请导出视频保留成片效果。</p>
+    <p className="subtitle-hint">SRT / WebVTT yalnızca zaman ve metni saklar; stil, görsel konum ve metin animasyonu altyazı dosyasına yazılmaz. Bitmiş görünümü korumak için videoyu dışa aktarın.</p>
     <div className="subtitle-auto">
-      <div className="subtitle-heading"><h4>自动字幕</h4><span>本地 Whisper</span></div>
-      <p className="subtitle-hint"><Mic size={13} />使用本地 Whisper 识别所选片段中的语音，音频不会上传。</p>
-      {!api ? <p className="subtitle-hint">此功能仅在桌面版可用。</p> : <>
+      <div className="subtitle-heading"><h4>Otomatik altyazı</h4><span>Yerel Whisper</span></div>
+      <p className="subtitle-hint"><Mic size={13} />Seçili klipteki konuşmayı yerel Whisper ile tanır; ses hiçbir yere yüklenmez.</p>
+      {!api ? <p className="subtitle-hint">Bu özellik yalnızca masaüstü uygulamasında kullanılabilir.</p> : <>
         <div className="subtitle-auto-source">
           {sourceClip && sourceAsset
             ? <><span title={sourceAsset.name}>{sourceAsset.name}</span><small>{timeLabel(sourceClip.start)} — {timeLabel(sourceClip.start + sourceClip.duration)} · {Number(sourceClip.speed.toFixed(2))}×</small></>
-            : <span>未选择含音频的片段</span>}
+            : <span>Ses içeren klip seçilmedi</span>}
         </div>
-        {!sourceClip && <p className="subtitle-hint">请选择时间线中的音频或视频片段，或把播放头移到含音频的片段上。</p>}
-        {!transcription && <p className="subtitle-hint">正在检查本地 Whisper…</p>}
+        {!sourceClip && <p className="subtitle-hint">Zaman çizelgesinde bir ses veya video klibi seçin ya da oynatma başlığını ses içeren bir klibin üzerine getirin.</p>}
+        {!transcription && <p className="subtitle-hint">Yerel Whisper denetleniyor…</p>}
         {transcription && !transcription.available && <>
-          <p className="subtitle-warning">{transcription.error ?? "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。"}</p>
+          <p className="subtitle-warning">{transcription.error ?? "Whisper bulunamadı. whisper.cpp kurun veya altyazı panelinden çalıştırılabilir dosyayı seçin."}</p>
           <div className="subtitle-auto-actions">
-            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>选择 Whisper 程序…</button>
-            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>选择模型文件…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>Whisper programını seç…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>Model dosyasını seç…</button>
           </div>
         </>}
         {transcription?.available && <>
           <div className="subtitle-auto-grid">
-            <label>语言
-              <select aria-label="转写语言" value={language} onChange={e => setLanguage(e.target.value)}>
+            <label>Dil
+              <select aria-label="Yazıya dökme dili" value={language} onChange={e => setLanguage(e.target.value)}>
                 {TRANSCRIPTION_LANGUAGES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </label>
-            <label>模型
-              <select aria-label="Whisper 模型" value={modelPath} onChange={e => setModelPath(e.target.value)}>
-                {!transcription.models.length && <option value="">未找到模型</option>}
+            <label>Model
+              <select aria-label="Whisper modeli" value={modelPath} onChange={e => setModelPath(e.target.value)}>
+                {!transcription.models.length && <option value="">Model bulunamadı</option>}
                 {transcription.models.map(model => <option key={model.path} value={model.path}>{model.name} · {Math.max(1, Math.round(model.size / 1024 / 1024))} MB</option>)}
               </select>
             </label>
           </div>
           <div className="subtitle-auto-actions">
-            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>选择模型…</button>
-            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>更换程序…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("model")}>Model seç…</button>
+            <button className="small-button" onClick={() => void chooseWhisperTool("executable")}>Programı değiştir…</button>
           </div>
-          {!transcription.models.length && <p className="subtitle-warning">未找到 Whisper 模型文件，请选择 .bin 模型。</p>}
+          {!transcription.models.length && <p className="subtitle-warning">Whisper model dosyası bulunamadı; bir .bin modeli seçin.</p>}
         </>}
         {transcriptionJob && <div className="subtitle-progress" role="status">
-          <progress max={100} value={transcriptionJob.progress} aria-label="转写进度" />
+          <progress max={100} value={transcriptionJob.progress} aria-label="Yazıya dökme ilerlemesi" />
           <span>{TRANSCRIPTION_STAGE[transcriptionJob.stage]}</span>
         </div>}
         {transcription?.available && !transcriptionJob && <div className="subtitle-auto-run">
-          <button className="primary subtitle-generate" disabled={!sourceClip || !modelPath} onClick={() => void startTranscription()}><Mic size={14} />生成字幕</button>
+          <button className="primary subtitle-generate" disabled={!sourceClip || !modelPath} onClick={() => void startTranscription()}><Mic size={14} />Altyazı oluştur</button>
         </div>}
         {transcriptionJob && <div className="subtitle-auto-run">
-          <button className="small-button" onClick={() => void cancelTranscriptionJob()}>取消转写</button>
+          <button className="small-button" onClick={() => void cancelTranscriptionJob()}>Yazıya dökmeyi iptal et</button>
         </div>}
         {transcriptionError && <p className="subtitle-error" role="alert">{transcriptionError}</p>}
         {transcriptionNotice && <p className="subtitle-notice" role="status">{transcriptionNotice}</p>}
       </>}
     </div>
-    <label className="subtitle-track-label">文字轨道
-      <select aria-label="字幕轨道" value={trackId} onChange={e => setTrackId(e.target.value)}>
-        {!tracks.length && <option value="">暂无文字轨道</option>}
-        {tracks.map(t => <option key={t.id} value={t.id}>{t.name}{t.locked ? " · 已锁定" : ""}</option>)}
+    <label className="subtitle-track-label">Metin kanalı
+      <select aria-label="Altyazı kanalı" value={trackId} onChange={e => setTrackId(e.target.value)}>
+        {!tracks.length && <option value="">Henüz metin kanalı yok</option>}
+        {tracks.map(t => <option key={t.id} value={t.id}>{t.name}{t.locked ? " · kilitli" : ""}</option>)}
       </select>
     </label>
-    <label className="subtitle-search"><Search size={14} /><input aria-label="搜索字幕" placeholder="搜索当前轨道字幕" value={query} onChange={e => setQuery(e.target.value)} /></label>
+    <label className="subtitle-search"><Search size={14} /><input aria-label="Altyazı ara" placeholder="Geçerli kanaldaki altyazıları ara" value={query} onChange={e => setQuery(e.target.value)} /></label>
     <div className="subtitle-selection">
-      <label><input type="checkbox" aria-label="选择搜索结果" disabled={locked || !visible.length} checked={visible.length > 0 && visible.every(c => selected.includes(c.id))} onChange={e => setSelection(e.target.checked ? [...new Set([...selected, ...visible.map(c => c.id)])] : selected.filter(id => !visible.some(c => c.id === id)))} />选择搜索结果</label>
-      <button className="subtitle-clear" disabled={!selected.length} onClick={() => setSelection([])}>清空 ({selected.length})</button>
+      <label><input type="checkbox" aria-label="Arama sonucunu seç" disabled={locked || !visible.length} checked={visible.length > 0 && visible.every(c => selected.includes(c.id))} onChange={e => setSelection(e.target.checked ? [...new Set([...selected, ...visible.map(c => c.id)])] : selected.filter(id => !visible.some(c => c.id === id)))} />Arama sonucunu seç</label>
+      <button className="subtitle-clear" disabled={!selected.length} onClick={() => setSelection([])}>Temizle ({selected.length})</button>
     </div>
-    {locked && <p className="subtitle-hint"><LockKeyhole size={13} />此轨道已锁定，仍可定位和查看字幕。</p>}
+    {locked && <p className="subtitle-hint"><LockKeyhole size={13} />Bu kanal kilitli; yine de altyazılara gidip görüntüleyebilirsiniz.</p>}
     <div className="subtitle-cues">
-      {!visible.length && <div className="subtitle-empty"><Subtitles size={27} /><p>{clips.length ? "没有匹配的字幕" : "导入 SRT / WebVTT，或选择含字幕的文字轨道"}</p></div>}
+      {!visible.length && <div className="subtitle-empty"><Subtitles size={27} /><p>{clips.length ? "Eşleşen altyazı yok" : "SRT / WebVTT içe aktarın veya altyazı içeren bir metin kanalı seçin"}</p></div>}
       {visible.map((clip) => <div key={clip.id} className={`subtitle-cue ${draft?.id === clip.id ? "active" : ""}`} data-cue-id={clip.id}>
         <div className="subtitle-cue-line">
-          <input type="checkbox" aria-label={`选择字幕：${clip.text!.text.slice(0, 40)}`} checked={selected.includes(clip.id)} disabled={locked} onChange={e => setSelection(e.target.checked ? [...selected, clip.id] : selected.filter(id => id !== clip.id))} />
-          <button className="subtitle-cue-content" onClick={() => editCue(clip)} title="定位到此字幕并编辑"><span className="subtitle-time">{timeLabel(clip.start)} — {timeLabel(clip.start + clip.duration)}</span><span>{clip.text!.text || "（空字幕）"}</span></button>
+          <input type="checkbox" aria-label={`Altyazı seç:${clip.text!.text.slice(0, 40)}`} checked={selected.includes(clip.id)} disabled={locked} onChange={e => setSelection(e.target.checked ? [...selected, clip.id] : selected.filter(id => id !== clip.id))} />
+          <button className="subtitle-cue-content" onClick={() => editCue(clip)} title="Bu altyazıya git ve düzenle"><span className="subtitle-time">{timeLabel(clip.start)} — {timeLabel(clip.start + clip.duration)}</span><span>{clip.text!.text || "(boş altyazı)"}</span></button>
         </div>
         {draft?.id === clip.id && <div className="subtitle-cue-form">
-          <textarea aria-label="字幕内容" value={draft.text} maxLength={20000} disabled={locked} onChange={e => setDraft({ ...draft, text: e.target.value })} />
+          <textarea aria-label="Altyazı içeriği" value={draft.text} maxLength={20000} disabled={locked} onChange={e => setDraft({ ...draft, text: e.target.value })} />
           <div className="subtitle-times">
-            <label>开始 (秒)<input aria-label="字幕开始时间" type="number" min="0" max="86400" step={1 / project.fps} value={draft.start} disabled={locked} onChange={e => setDraft({ ...draft, start: e.target.value })} /></label>
-            <label>结束 (秒)<input aria-label="字幕结束时间" type="number" min="0" max="86400" step={1 / project.fps} value={draft.end} disabled={locked} onChange={e => setDraft({ ...draft, end: e.target.value })} /></label>
+            <label>Başlangıç (sn)<input aria-label="Altyazı başlangıç zamanı" type="number" min="0" max="86400" step={1 / project.fps} value={draft.start} disabled={locked} onChange={e => setDraft({ ...draft, start: e.target.value })} /></label>
+            <label>Bitiş (sn)<input aria-label="Altyazı bitiş zamanı" type="number" min="0" max="86400" step={1 / project.fps} value={draft.end} disabled={locked} onChange={e => setDraft({ ...draft, end: e.target.value })} /></label>
           </div>
-          {draftStale && <p className="subtitle-warning">项目已变化，重新点击此条字幕后再编辑。</p>}
-          <div className="subtitle-draft-actions"><button className="small-button" onClick={() => setDraft(null)}>取消</button><button className="primary small-button" disabled={locked || !!draftStale} onClick={saveCue}>保存此条</button></div>
+          {draftStale && <p className="subtitle-warning">Proje değişti; düzenlemeden önce bu altyazıya yeniden tıklayın.</p>}
+          <div className="subtitle-draft-actions"><button className="small-button" onClick={() => setDraft(null)}>İptal</button><button className="primary small-button" disabled={locked || !!draftStale} onClick={saveCue}>Bunu kaydet</button></div>
         </div>}
       </div>)}
     </div>
     <div className="subtitle-batch">
-      <div className="subtitle-heading"><h4>批量修改</h4><span>已选 {selected.length} 条</span></div>
-      <div className="subtitle-batch-tabs" role="tablist" aria-label="字幕批量操作">
-        {([['splitMerge', '拆分 / 合并'], ['offset', '时间偏移'], ['replace', '查找替换'], ['style', '统一样式'], ['animation', '文字动画']] as const).map(([key, label]) => <button key={key} role="tab" aria-selected={mode === key} className={mode === key ? "active" : ""} onClick={() => { setMode(key); setPlan(null); }}>{label}</button>)}
+      <div className="subtitle-heading"><h4>Toplu değişiklik</h4><span>Seçili {selected.length} kayıt</span></div>
+      <div className="subtitle-batch-tabs" role="tablist" aria-label="Altyazı toplu işlemleri">
+        {([['splitMerge', 'Böl / birleştir'], ['offset', 'Zaman kaydırma'], ['replace', 'Bul ve değiştir'], ['style', 'Stili eşitle'], ['animation', 'Metin animasyonu']] as const).map(([key, label]) => <button key={key} role="tab" aria-selected={mode === key} className={mode === key ? "active" : ""} onClick={() => { setMode(key); setPlan(null); }}>{label}</button>)}
       </div>
       {mode === "splitMerge" && <div className="subtitle-structure">
         <p className="subtitle-hint">{SPLIT_HINT}</p>
         <p className="subtitle-hint">{MERGE_HINT}</p>
         <div className="subtitle-structure-actions">
-          <button className="small-button" disabled={!canSplit} onClick={() => structural("split")}>按播放头拆分</button>
-          <button className="small-button" disabled={!canMerge} onClick={() => structural("merge")}>合并所选字幕</button>
+          <button className="small-button" disabled={!canSplit} onClick={() => structural("split")}>Oynatma konumunda böl</button>
+          <button className="small-button" disabled={!canMerge} onClick={() => structural("merge")}>Seçili altyazıları birleştir</button>
         </div>
-        <p className="subtitle-hint">{`播放头 ${timeLabel(playhead)} · 已选 ${selected.length} 条`}</p>
-        {splitCue && <p className="subtitle-hint">{`当前字幕 ${timeLabel(splitCue.start)} — ${timeLabel(splitCue.start + splitCue.duration)}`}</p>}
+        <p className="subtitle-hint">{`Oynatma konumu ${timeLabel(playhead)} · ${selected.length} kayıt seçili`}</p>
+        {splitCue && <p className="subtitle-hint">{`Geçerli altyazı ${timeLabel(splitCue.start)} — ${timeLabel(splitCue.start + splitCue.duration)}`}</p>}
       </div>}
-      {mode === "offset" && <label className="subtitle-batch-field">偏移秒数（负数提前）<input aria-label="字幕偏移秒数" type="number" step={1 / project.fps} value={offset} onChange={e => { setOffset(e.target.value); setPlan(null); }} /></label>}
-      {mode === "replace" && <div className="subtitle-replace"><input aria-label="查找字幕文字" placeholder="查找文字（区分大小写）" value={find} onChange={e => { setFind(e.target.value); setPlan(null); }} /><input aria-label="替换字幕文字" placeholder="替换为（可留空）" value={replacement} onChange={e => { setReplacement(e.target.value); setPlan(null); }} /></div>}
+      {mode === "offset" && <label className="subtitle-batch-field">Kaydırma saniyesi (negatif değer öne alır)<input aria-label="Altyazı kaydırma saniyesi" type="number" step={1 / project.fps} value={offset} onChange={e => { setOffset(e.target.value); setPlan(null); }} /></label>}
+      {mode === "replace" && <div className="subtitle-replace"><input aria-label="Altyazı metnini ara" placeholder="Aranan metin (büyük/küçük harfe duyarlı)" value={find} onChange={e => { setFind(e.target.value); setPlan(null); }} /><input aria-label="Altyazı metnini değiştir" placeholder="Şununla değiştir (boş bırakılabilir)" value={replacement} onChange={e => { setReplacement(e.target.value); setPlan(null); }} /></div>}
       {mode === "style" && <div className="subtitle-style-editor">
-        <label className="subtitle-batch-field">样式参考字幕<select aria-label="字幕样式参考" value={referenceId} onChange={e => chooseStyleReference(e.target.value)}><option value="">选择参考字幕</option>{clips.map(c => <option key={c.id} value={c.id}>{timeLabel(c.start)} · {c.text!.text.slice(0, 30) || "空字幕"}</option>)}</select></label>
-        <p className="subtitle-hint">选择参考会填入下方字段；修改任意字段后按当前值应用。只改样式，保留每条文案、时间、位置和动画。</p>
+        <label className="subtitle-batch-field">Stil referansı altyazı<select aria-label="Altyazı stili referansı" value={referenceId} onChange={e => chooseStyleReference(e.target.value)}><option value="">Referans altyazı seç</option>{clips.map(c => <option key={c.id} value={c.id}>{timeLabel(c.start)} · {c.text!.text.slice(0, 30) || "Boş altyazı"}</option>)}</select></label>
+        <p className="subtitle-hint">Referans seçimi aşağıdaki alanları doldurur; herhangi bir alanı değiştirdiğinizde güncel değerler uygulanır. Yalnızca stil değişir; metin, zaman, konum ve animasyon korunur.</p>
         <div className="subtitle-style-grid">
-          <label>字体<select aria-label="字幕字体" value={styleDraft.fontFamily ?? "Noto Sans SC"} onChange={e => updateStyle({ fontFamily: e.target.value })}>{fonts.map(font => <option key={font} value={font}>{font}</option>)}</select></label>
-          <label>字号<input aria-label="字幕字号" type="number" min="1" max="1000" value={styleDraft.fontSize ?? 64} onChange={e => updateStyle({ fontSize: Number(e.target.value) })} /></label>
-          <label>文字颜色<input aria-label="字幕文字颜色" type="color" value={styleDraft.color ?? "#ffffff"} onChange={e => updateStyle({ color: e.target.value })} /></label>
-          <label>描边颜色<input aria-label="字幕描边颜色" type="color" value={styleDraft.stroke ?? "#000000"} onChange={e => updateStyle({ stroke: e.target.value })} /></label>
-          <label>描边宽度<input aria-label="字幕描边宽度" type="number" min="0" max="100" step="0.1" value={styleDraft.strokeWidth ?? 2} onChange={e => updateStyle({ strokeWidth: Number(e.target.value) })} /></label>
-          <label>行高<input aria-label="字幕行高" type="number" min="0.8" max="3" step="0.05" value={styleDraft.lineHeight ?? 1.3} onChange={e => updateStyle({ lineHeight: Number(e.target.value) })} /></label>
-          <label>内边距<input aria-label="字幕内边距" type="number" min="0" max="1.5" step="0.05" value={styleDraft.padding ?? 0.25} onChange={e => updateStyle({ padding: Number(e.target.value) })} /></label>
-          <label>圆角<input aria-label="字幕圆角" type="number" min="0" max="2" step="0.05" value={styleDraft.radius ?? 0} onChange={e => updateStyle({ radius: Number(e.target.value) })} /></label>
+          <label>Yazı tipi<select aria-label="Altyazı yazı tipi" value={styleDraft.fontFamily ?? "Noto Sans SC"} onChange={e => updateStyle({ fontFamily: e.target.value })}>{fonts.map(font => <option key={font} value={font}>{font}</option>)}</select></label>
+          <label>Yazı boyutu<input aria-label="Altyazı yazı boyutu" type="number" min="1" max="1000" value={styleDraft.fontSize ?? 64} onChange={e => updateStyle({ fontSize: Number(e.target.value) })} /></label>
+          <label>Metin rengi<input aria-label="Altyazı metin rengi" type="color" value={styleDraft.color ?? "#ffffff"} onChange={e => updateStyle({ color: e.target.value })} /></label>
+          <label>Kontur rengi<input aria-label="Altyazı kontur rengi" type="color" value={styleDraft.stroke ?? "#000000"} onChange={e => updateStyle({ stroke: e.target.value })} /></label>
+          <label>Kontur kalınlığı<input aria-label="Altyazı kontur genişliği" type="number" min="0" max="100" step="0.1" value={styleDraft.strokeWidth ?? 2} onChange={e => updateStyle({ strokeWidth: Number(e.target.value) })} /></label>
+          <label>Satır yüksekliği<input aria-label="Altyazı satır yüksekliği" type="number" min="0.8" max="3" step="0.05" value={styleDraft.lineHeight ?? 1.3} onChange={e => updateStyle({ lineHeight: Number(e.target.value) })} /></label>
+          <label>İç boşluk<input aria-label="Altyazı iç boşluğu" type="number" min="0" max="1.5" step="0.05" value={styleDraft.padding ?? 0.25} onChange={e => updateStyle({ padding: Number(e.target.value) })} /></label>
+          <label>Yuvarlak köşe<input aria-label="Altyazı köşe yarıçapı" type="number" min="0" max="2" step="0.05" value={styleDraft.radius ?? 0} onChange={e => updateStyle({ radius: Number(e.target.value) })} /></label>
         </div>
         <div className="subtitle-style-row">
-          <label><input type="checkbox" aria-label="字幕粗体" checked={styleDraft.bold ?? true} onChange={e => updateStyle({ bold: e.target.checked })} />粗体</label>
-          <label><input type="checkbox" aria-label="字幕背景" checked={(styleDraft.background ?? "transparent") !== "transparent"} onChange={e => updateStyle({ background: e.target.checked ? "#15151c" : "transparent" })} />背景</label>
-          {(styleDraft.background ?? "transparent") !== "transparent" && <input aria-label="字幕背景颜色" type="color" value={styleDraft.background} onChange={e => updateStyle({ background: e.target.value })} />}
-          <label>对齐<select aria-label="字幕对齐" value={styleDraft.align ?? "center"} onChange={e => updateStyle({ align: e.target.value as "left" | "center" | "right" })}><option value="left">左</option><option value="center">居中</option><option value="right">右</option></select></label>
+          <label><input type="checkbox" aria-label="Altyazı kalın" checked={styleDraft.bold ?? true} onChange={e => updateStyle({ bold: e.target.checked })} />Kalın</label>
+          <label><input type="checkbox" aria-label="Altyazı arka planı" checked={(styleDraft.background ?? "transparent") !== "transparent"} onChange={e => updateStyle({ background: e.target.checked ? "#15151c" : "transparent" })} />Arka plan</label>
+          {(styleDraft.background ?? "transparent") !== "transparent" && <input aria-label="Altyazı arka plan rengi" type="color" value={styleDraft.background} onChange={e => updateStyle({ background: e.target.value })} />}
+          <label>Hizalama<select aria-label="Altyazı hizalaması" value={styleDraft.align ?? "center"} onChange={e => updateStyle({ align: e.target.value as "left" | "center" | "right" })}><option value="left">Sol</option><option value="center">Ortala</option><option value="right">Sağ</option></select></label>
         </div>
       </div>}
       {mode === "animation" && <div className="subtitle-animation">
         <div className="subtitle-animation-grid">
-          <label>入场<select aria-label="字幕入场动画" value={animation.entrance} onChange={e => { setAnimation({ ...animation, entrance: e.target.value as typeof animation.entrance }); setPlan(null); }}>{ANIMATION_ENTRANCES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label>停留<select aria-label="字幕停留动画" value={animation.hold} onChange={e => { setAnimation({ ...animation, hold: e.target.value as typeof animation.hold }); setPlan(null); }}>{ANIMATION_HOLDS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label>出场<select aria-label="字幕出场动画" value={animation.exit} onChange={e => { setAnimation({ ...animation, exit: e.target.value as typeof animation.exit }); setPlan(null); }}>{ANIMATION_EXITS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-          <label>入场时长 (秒)<input aria-label="字幕入场时长" type="number" min="0" max="10" step={1 / project.fps} value={animation.inDuration} onChange={e => { setAnimation({ ...animation, inDuration: e.target.value }); setPlan(null); }} /></label>
-          <label>出场时长 (秒)<input aria-label="字幕出场时长" type="number" min="0" max="10" step={1 / project.fps} value={animation.outDuration} onChange={e => { setAnimation({ ...animation, outDuration: e.target.value }); setPlan(null); }} /></label>
+          <label>Giriş<select aria-label="Altyazı giriş animasyonu" value={animation.entrance} onChange={e => { setAnimation({ ...animation, entrance: e.target.value as typeof animation.entrance }); setPlan(null); }}>{ANIMATION_ENTRANCES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>Bekleme<select aria-label="Altyazı bekleme animasyonu" value={animation.hold} onChange={e => { setAnimation({ ...animation, hold: e.target.value as typeof animation.hold }); setPlan(null); }}>{ANIMATION_HOLDS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>Çıkış<select aria-label="Altyazı çıkış animasyonu" value={animation.exit} onChange={e => { setAnimation({ ...animation, exit: e.target.value as typeof animation.exit }); setPlan(null); }}>{ANIMATION_EXITS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+          <label>Giriş süresi (sn)<input aria-label="Altyazı giriş süresi" type="number" min="0" max="10" step={1 / project.fps} value={animation.inDuration} onChange={e => { setAnimation({ ...animation, inDuration: e.target.value }); setPlan(null); }} /></label>
+          <label>Çıkış süresi (sn)<input aria-label="Altyazı çıkış süresi" type="number" min="0" max="10" step={1 / project.fps} value={animation.outDuration} onChange={e => { setAnimation({ ...animation, outDuration: e.target.value }); setPlan(null); }} /></label>
         </div>
-        <p className="subtitle-hint">统一应用到所选字幕；会替换这些字幕的位置、缩放和透明度关键帧，保留旋转与音量关键帧。短字幕会自动缩短动画。字幕文件不保存动画。</p>
+        <p className="subtitle-hint">Seçili altyazıların tamamına uygulanır; bu altyazıların konum, ölçek ve saydamlık anahtar karelerini değiştirir, döndürme ve ses anahtar karelerini korur. Kısa altyazılarda animasyon otomatik kısalır. Altyazı dosyası animasyonu saklamaz.</p>
       </div>}
-      {mode !== "splitMerge" && (plan ? <div className="subtitle-plan"><p>{stale ? "项目已变化，请重新检查修改。" : `将修改 ${plan.changedIds.length} 条字幕，可一次撤销。`}</p><div><button className="small-button" onClick={prepare}>重新检查</button><button className="primary small-button" disabled={stale || locked} onClick={apply}>应用 {plan.changedIds.length} 条修改</button></div></div> : <button className="small-button subtitle-check" disabled={!selected.length || locked || (mode === "style" && !styleReady)} onClick={prepare}>检查修改</button>)}
+      {mode !== "splitMerge" && (plan ? <div className="subtitle-plan"><p>{stale ? "Proje değişti; değişiklikleri yeniden denetleyin." : `${plan.changedIds.length} altyazı değiştirilecek; tek adımda geri alınabilir.`}</p><div><button className="small-button" onClick={prepare}>Yeniden denetle</button><button className="primary small-button" disabled={stale || locked} onClick={apply}>Uygula {plan.changedIds.length} değişiklik</button></div></div> : <button className="small-button subtitle-check" disabled={!selected.length || locked || (mode === "style" && !styleReady)} onClick={prepare}>Değişiklikleri denetle</button>)}
     </div>
     {error && <p ref={feedback} className="subtitle-error" role="alert">{error}</p>}
     {notice && <p className="subtitle-notice" role="status">{notice}</p>}

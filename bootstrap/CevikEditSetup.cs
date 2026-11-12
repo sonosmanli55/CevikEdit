@@ -23,7 +23,7 @@ namespace CevikEditSetup
 {
     internal static class Program
     {
-        internal const string Owner = "sonosanli55";
+        internal const string Owner = "sonosmanli55";
         internal const string Repo = "CevikEdit";
         internal const string ReleasesApi = "https://api.github.com/repos/" + Owner + "/" + Repo + "/releases/latest";
         internal const string ReleasesPage = "https://github.com/" + Owner + "/" + Repo + "/releases/latest";

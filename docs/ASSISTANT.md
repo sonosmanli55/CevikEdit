@@ -1,13 +1,13 @@
-# 剪辑助手
+# Asistan
 
-CevikEdit v0.3 的助手是独立实现。REA + Ghidra 对剪映桌面助手的观察来源与推断边界见 [研究记录](research/ASSISTANT_RESEARCH.md)。它使用本机 Codex CLI 或 Claude Code 生成对话与编辑建议，不复用剪映的服务、代码或账号。
+CevikEdit v0.3 asistanı ayrı bir uygulamadır. REA + Ghidra, Jianying masaüstü asistanının gözlem ve çıkarım sınırlarını [araştırma kaydı](research/ASSISTANT_RESEARCH.md) içinde bulur. Bu asistan, makinede kurulu Codex CLI ya da Claude Code kullanarak konuşma ve düzenleme önerisi üretir; Jianying'in hizmetini, kodunu ya hesabını kullanmaz.
 
-点击右上角“助手”，选择后端；如果未自动发现，可“选择 CLI”指定可执行文件。需要先自行安装 CLI 并在终端正常登录。CLI 本身与订阅不随 DMG 提供，服务可用性、计费和用量限制由对应提供方管理。安装包中的媒体编辑、素材与导出均可离线使用。
+Sağ üst köşedeki “Asistan” düğmesine bas, backend seç; otomatik keşif yoksa “CLI seç” diyerek çalıştırılabilir dosya belirleyebilirsin. Önce CLI'yı kendin kur ve terminalde normal giriş yapmış olmalı. CLI kendisi ya abonelikle gelmez; DMG'ye dahil değildir; kullanılabilirlik, fatura ve kullanım limitleri ilgili sağlayıcı tarafından yönetilir. Paketteki medya düzenleme, malzama ve dışa aktarma yalnızca yerel kullanılabilir.
 
-用户点击发送后，应用把问题、最近对话以及有限的时间线摘要交给选定 CLI 服务。摘要包含片段/素材名称、字幕文字、时间与编辑参数；不附带媒体文件、媒体路径或缩略图。助手不能看视频、听音频或自动识别字幕。项目内对话保存在本机用户数据目录，不嵌入 `.cevikedit` 文件。
+Kullanıcı gönder'e bastığında uygulama soruyu, son konuşmayı ve sınırlı zaman çizelgesi özetini seçili CLI hizmetine verir. Özet parça/malzama adları, altyazı metni, zaman ve düzenleme parametrelerini içerir; medya dosyası, yol ya thumbnail içermez. Asistan video izleyemez, sesi duyamaz ya da altyazıyı otomatik tanımlamaz. Proje içi konuşmalar makine kullanıcı veri dizininde kalır, `.cevikedit` dosyasına gömülü değildir.
 
-助手支持添加文字、使用现有素材、裁剪、分割、移动、删除、常规变速、音量、静态变换、淡化和画布设置。返回的建议先在项目副本上逐项检查，显示具体清单，用户点击“应用”才修改时间线；一次撤销恢复整批修改。若生成过程中项目发生变化，旧建议不能应用。关闭助手、切换项目或点击取消会终止当前会话；历史对话不会自动重放编辑。
+Asistan şu düzenlemeleri destekler: metin ekleme, mevcut malzama kullanma, kırpma, bölme, taşıma, silme, normal hız değiştirme, ses, statik dönüşüm, fade ve çerçeve ayarları. Gelen öneriler önce proje kopyasında tek tek incelenir, somut liste gösterilir, kullanıcı “Uygula"'ya bastığında zaman çizelgesine yazılır; bir geri al toplu düzenlemeyi geri getirir. Üretim sırasında proje değişirse eski öneri uygulanamaz. Asistanı kapatma, proje değiştirme veya iptal düğmesine basma oturumu bitirir; tarihsel konuşma düzenlemeleri otomatik tekrar oynatılmaz.
 
-CLI 运行于独立临时目录，禁用命令、文件编辑及外接工具，并限制超时、输出长度和编辑动作。支持情况依赖 CLI 版本；检测到不兼容参数或工具调用时停止，不自动降低限制。不承诺任意未来版本或管理员托管 CLI 配置具有相同行为。
+CLI bağımsız geçici dizinde çalışır; komut, dosya düzenleme ve harici araçlar devre dışıdır; zaman aşımı, çıktı uzunluğu ve düzenleme eylemleri sınırlandırılır. Destek durumu CLI sürümüne bağlı; uyumsuz parametre ya araç çağrısı tespit edilirse durur, otomatik azaltmaz. Herhangi bir gelecek sürüm ya yönetici konumundaki CLI yapılandırmasının aynı davranış göstermesi garanti edilmez.
 
-本机真实 Codex CLI 合成请求已返回有效提案。Claude Code 协议适配有合成进程测试，本机真实调用返回未登录/认证失效；因此不能将 Claude 真实服务回复写成已通过。Codex 当前 exec 协议在完整消息事件时提供文字，界面显示执行状态，不声称逐 token 流式输出；Claude 适配支持部分文本事件。
+Makinede gerçek Codex CLI sentetik istekleri geçerli öneri döndürdü. Claude Code protokol adaptasyonu sentetik süreç testiyle doğrulandı; makinede gerçek çağrı giriş/ kimlik doğrulama hatalı döndü; bu yüzden Claude gerçek hizmet yanıtı geçmişe yazılmadı. Codex şu anki exec protokolü mesaj olaylarında metin sağlar, arayüz çalıştırma durumunu gösterir, aşırı token akışı iddiası yok; Claude adaptasyonu kısmi metin olaylarını destekler.

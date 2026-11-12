@@ -11,10 +11,10 @@ import {
 } from "../src/core/model";
 import type { MediaAsset, Project } from "../src/core/types";
 function fixture(): Project {
-  const p = createProject("测试");
+  const p = createProject("test");
   const a: MediaAsset = {
     id: "asset",
-    name: "视频",
+    name: "Video",
     path: "/tmp/test.mp4",
     url: "file:///tmp/test.mp4",
     kind: "video",

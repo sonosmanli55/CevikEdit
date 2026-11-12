@@ -8,12 +8,12 @@ const entry = `
 import React from 'react'; import {createRoot} from 'react-dom/client';
 import Timeline from '/src/components/Timeline.tsx'; import MediaLibrary from '/src/components/MediaLibrary.tsx'; import EffectsPanel from '/src/components/EffectsPanel.tsx';
 import {useEditorStore} from '/src/editor/store.ts'; import {createProject,createTrack,createClip} from '/src/core/model.ts';
-const p=createProject('时间线交互验收'); p.tracks=[createTrack('video','主画面'),createTrack('video','画面 2'),createTrack('audio','音乐')];
+const p=createProject('Zaman çizelgesi etkileşim kabulü'); p.tracks=[createTrack('video','Ana görüntü'),createTrack('video','Görüntü 2'),createTrack('audio','Müzik')];
 const thumbnail='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="140"><defs><linearGradient id="g"><stop stop-color="#486c70"/><stop offset="1" stop-color="#e4bf82"/></linearGradient></defs><rect width="240" height="140" fill="url(#g)"/><path d="M0 120 85 50 145 95 195 65 240 110V140H0" fill="#344d4a"/></svg>');
-p.assets=[{id:'v',name:'山间日落.mp4',kind:'video',duration:12,path:'demo',url:thumbnail,fps:30,width:1920,height:1080,hasAudio:true,thumbnail,waveform:Array.from({length:100},(_,i)=>(Math.sin(i*.4)+1)/2)},{id:'a',name:'轻盈节奏.wav',kind:'audio',duration:20,path:'audio',url:'file:///audio.wav',fps:0,width:0,height:0,hasAudio:true,waveform:Array.from({length:100},(_,i)=>(Math.sin(i*.7)+1)/2)}];
+p.assets=[{id:'v',name:'Dağ gün batımı.mp4',kind:'video',duration:12,path:'demo',url:thumbnail,fps:30,width:1920,height:1080,hasAudio:true,thumbnail,waveform:Array.from({length:100},(_,i)=>(Math.sin(i*.4)+1)/2)},{id:'a',name:'Hafif ritim.wav',kind:'audio',duration:20,path:'audio',url:'file:///audio.wav',fps:0,width:0,height:0,hasAudio:true,waveform:Array.from({length:100},(_,i)=>(Math.sin(i*.7)+1)/2)}];
 p.clips=[{...createClip(p.assets[0],p.tracks[0].id,1,30),id:'first',duration:4},{...createClip(p.assets[0],p.tracks[0].id,3,30),id:'overlap',duration:3},{...createClip(p.assets[1],p.tracks[2].id,0,30),id:'music',duration:10}];
 useEditorStore.getState().setProject(p);window.qa={store:useEditorStore};
-function Harness(){const s=useEditorStore();return <main style={{height:'100vh',display:'flex',flexDirection:'column',background:'#101218',fontFamily:'-apple-system,BlinkMacSystemFont,sans-serif',color:'white'}}><header style={{height:45,display:'flex',alignItems:'center',padding:'0 20px',fontSize:13}}>CevikEdit CevikEdit <span style={{marginLeft:20,color:'#657184'}}>时间线与本地效果交互验收</span></header><div style={{height:360,display:'grid',gridTemplateColumns:'360px 1fr 340px'}}><MediaLibrary project={s.project} onImport={()=>{}} onAddAsset={s.addAssetClip} onRemoveAsset={s.removeAsset}/><div style={{display:'grid',placeItems:'center',background:'#13151b'}}><div style={{width:420,height:236,backgroundImage:'url("'+thumbnail+'")',backgroundSize:'cover',display:'grid',placeItems:'center',color:'#fff'}}>每一刻，都值得记录</div></div><EffectsPanel clip={s.project.clips.find(c=>c.id===s.selectedIds[0])} onApply={s.updateSelected}/></div><div style={{flex:1,minHeight:0}}><Timeline project={s.project} selectedIds={s.selectedIds} playhead={s.playhead} playing={s.playing} zoom={s.zoom} onSeek={s.seek} onSelect={s.select} onClipUpdate={s.updateClip} onMoveClips={s.moveClips} onTrim={s.trim} onSplit={s.split} onDelete={s.deleteSelected} onZoom={s.setZoom} onTrackUpdate={s.updateTrack} onAddTrack={s.addTrack} onTrackDelete={s.deleteTrack} onTrackMove={s.reorderTrack} onDropAsset={s.addAssetClip} onDuplicate={s.duplicate} onUndo={s.undo} onRedo={s.redo} canUndo={s.past.length>0} canRedo={s.future.length>0} snapping={s.snapping} onSnappingChange={s.setSnapping} magnetic={s.magnetic} onMagneticChange={s.setMagnetic}/></div></main>};
+function Harness(){const s=useEditorStore();return <main style={{height:'100vh',display:'flex',flexDirection:'column',background:'#101218',fontFamily:'-apple-system,BlinkMacSystemFont,sans-serif',color:'white'}}><header style={{height:45,display:'flex',alignItems:'center',padding:'0 20px',fontSize:13}}>CevikEdit CevikEdit <span style={{marginLeft:20,color:'#657184'}}>Zaman çizelgesi ve yerel efekt etkileşim kabulü</span></header><div style={{height:360,display:'grid',gridTemplateColumns:'360px 1fr 340px'}}><MediaLibrary project={s.project} onImport={()=>{}} onAddAsset={s.addAssetClip} onRemoveAsset={s.removeAsset}/><div style={{display:'grid',placeItems:'center',background:'#13151b'}}><div style={{width:420,height:236,backgroundImage:'url("'+thumbnail+'")',backgroundSize:'cover',display:'grid',placeItems:'center',color:'#fff'}}>Her an, kaydetmeye değer</div></div><EffectsPanel clip={s.project.clips.find(c=>c.id===s.selectedIds[0])} onApply={s.updateSelected}/></div><div style={{flex:1,minHeight:0}}><Timeline project={s.project} selectedIds={s.selectedIds} playhead={s.playhead} playing={s.playing} zoom={s.zoom} onSeek={s.seek} onSelect={s.select} onClipUpdate={s.updateClip} onMoveClips={s.moveClips} onTrim={s.trim} onSplit={s.split} onDelete={s.deleteSelected} onZoom={s.setZoom} onTrackUpdate={s.updateTrack} onAddTrack={s.addTrack} onTrackDelete={s.deleteTrack} onTrackMove={s.reorderTrack} onDropAsset={s.addAssetClip} onDuplicate={s.duplicate} onUndo={s.undo} onRedo={s.redo} canUndo={s.past.length>0} canRedo={s.future.length>0} snapping={s.snapping} onSnappingChange={s.setSnapping} magnetic={s.magnetic} onMagneticChange={s.setMagnetic}/></div></main>};
 createRoot(document.getElementById('root')).render(<Harness/>);
 `;
 const server = await createServer({
@@ -79,16 +79,16 @@ const drag = async (x: number, y: number, toX: number, toY: number) => {
   await page.mouse.up();
 };
 try {
-  await page.goto("http://127.0.0.1:5181/timeline-qa?locale=zh");
+  await page.goto("http://127.0.0.1:5181/timeline-qa");
   await page.waitForSelector(".tl-clip", { timeout: 8000 });
   const first = page
     .locator(".tl-clip")
-    .filter({ hasText: "山间日落.mp4" })
+    .filter({ hasText: "Dağ gün batımı.mp4" })
     .first();
   const box = (await first.boundingBox())!;
   const overlapBox = (await page
     .locator(".tl-clip")
-    .filter({ hasText: "山间日落.mp4" })
+    .filter({ hasText: "Dağ gün batımı.mp4" })
     .nth(1)
     .boundingBox())!;
   assert(
@@ -96,7 +96,7 @@ try {
     "overlapping clips must remain separately accessible",
   );
   await first.click({ position: { x: 40, y: 25 } });
-  await page.getByRole("button", { name: "应用黑白调色" }).click();
+  await page.getByRole("button", { name: "Siyah beyaz renk ayarını uygula" }).click();
   assert.equal(
     (await read()).clips.find((c: any) => c.id === "first").adjustments
       .saturation,
@@ -178,7 +178,7 @@ try {
     (await read()).clips.find((c: any) => c.id === "first").duration,
     3,
   );
-  await page.getByRole("button", { name: "锁定画面 2", exact: true }).click();
+  await page.getByRole("button", { name: "Görüntü 2 kanalını kilitle", exact: true }).click();
   const locked = (await page
     .locator(".tl-track")
     .nth(1)
@@ -196,17 +196,17 @@ try {
     2,
     "keyboard cannot move locked clips",
   );
-  await page.getByRole("button", { name: "解锁画面 2", exact: true }).click();
-  await page.getByRole("tab", { name: "淡入淡出", exact: true }).click();
+  await page.getByRole("button", { name: "Görüntü 2 kanalının kilidini aç", exact: true }).click();
+  await page.getByRole("tab", { name: "Yumuşak giriş/çıkış", exact: true }).click();
   await page
-    .getByRole("button", { name: "淡入淡出", exact: true })
+    .getByRole("button", { name: "Yumuşak giriş/çıkış", exact: true })
     .first()
     .click();
   p = await read();
   assert.equal(p.clips.find((c: any) => c.id === "first").fadeIn, 0.5);
   assert.equal(p.clips.find((c: any) => c.id === "first").fadeOut, 0.5);
   await page
-    .getByRole("button", { name: "添加 山间日落.mp4 到时间线" })
+    .getByRole("button", { name: "Dağ gün batımı.mp4 medyasını zaman çizelgesine ekle" })
     .focus();
   const before = (await read()).clips.length;
   await page.keyboard.press("Enter");
@@ -215,9 +215,9 @@ try {
     before + 1,
     "keyboard addition must run once",
   );
-  await page.getByRole("button", { name: "隐藏主画面", exact: true }).click();
+  await page.getByRole("button", { name: "Ana görüntü kanalını gizle", exact: true }).click();
   assert.equal((await read()).tracks[0].hidden, true);
-  await page.getByRole("button", { name: "静音音乐", exact: true }).click();
+  await page.getByRole("button", { name: "Müzik kanalını sessize al", exact: true }).click();
   assert.equal((await read()).tracks[2].muted, true);
   const countBeforeDrop = (await read()).clips.length;
   await page
@@ -247,7 +247,7 @@ try {
   const beforeZoom = await page.evaluate(
     () => (window as any).qa.store.getState().zoom,
   );
-  await page.getByRole("button", { name: "缩小时间线", exact: true }).click();
+  await page.getByRole("button", { name: "Zaman çizelgesini uzaklaştır", exact: true }).click();
   assert(
     (await page.evaluate(() => (window as any).qa.store.getState().zoom)) <
       beforeZoom,
@@ -263,108 +263,108 @@ try {
       wheelBefore,
     "control-wheel must zoom the timeline",
   );
-  await page.getByRole("button", { name: "添加轨道", exact: true }).click();
-  await page.getByRole("button", { name: "文字轨道", exact: true }).click();
+  await page.getByRole("button", { name: "Kanal ekle", exact: true }).click();
+  await page.getByRole("button", { name: "Metin kanalı", exact: true }).click();
   assert.equal(
     (await read()).tracks.filter((t: any) => t.kind === "text").length,
     1,
   );
   p = await read();
   const audioId = p.tracks.find((t: any) => t.kind === "audio").id;
-  await page.getByRole("button", { name: "音乐轨道操作", exact: true }).click();
-  await page.getByRole("menuitem", { name: "重命名轨道", exact: true }).click();
+  await page.getByRole("button", { name: "Müzik kanal işlemleri", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı yeniden adlandır", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
-    .fill("背景音乐");
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
+    .fill("Arka plan müziği");
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
     .press("Enter");
   assert.equal(
     (await read()).tracks.find((t: any) => t.id === audioId).name,
-    "背景音乐",
+    "Arka plan müziği",
   );
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "重命名轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı yeniden adlandır", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
-    .fill("不要保存");
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
+    .fill("Kaydetme");
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
     .press("Escape");
   assert.equal(
     (await read()).tracks.find((t: any) => t.id === audioId).name,
-    "背景音乐",
+    "Arka plan müziği",
   );
   const originalOrder = (await read()).tracks.map((t: any) => t.id);
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
   await page
-    .getByRole("menuitem", { name: "向上移动轨道", exact: true })
+    .getByRole("menuitem", { name: "Kanalı yukarı taşı", exact: true })
     .click();
   assert.equal(
     (await read()).tracks.findIndex((t: any) => t.id === audioId),
     originalOrder.length - 2,
   );
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
   await page
-    .getByRole("menuitem", { name: "向下移动轨道", exact: true })
+    .getByRole("menuitem", { name: "Kanalı aşağı taşı", exact: true })
     .click();
   assert.deepEqual(
     (await read()).tracks.map((t: any) => t.id),
     originalOrder,
   );
-  await page.getByRole("button", { name: "锁定背景音乐", exact: true }).click();
+  await page.getByRole("button", { name: "Arka plan müziği kanalını kilitle", exact: true }).click();
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  for (const action of ["重命名轨道", "向上移动轨道", "删除轨道"])
+  for (const action of ["Kanalı yeniden adlandır", "Kanalı yukarı taşı", "Kanalı sil"])
     await expect(
       page.getByRole("menuitem", { name: action, exact: true }),
     ).toBeDisabled();
-  await page.getByRole("button", { name: "解锁背景音乐", exact: true }).click();
+  await page.getByRole("button", { name: "Arka plan müziği kanalının kilidini aç", exact: true }).click();
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "删除轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı sil", exact: true }).click();
   await expect(
-    page.getByRole("dialog", { name: "删除轨道确认", exact: true }),
+    page.getByRole("dialog", { name: "Kanal silme onayı", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "取消", exact: true }).click();
+  await page.getByRole("button", { name: "İptal", exact: true }).click();
   assert((await read()).tracks.some((t: any) => t.id === audioId));
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "删除轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı sil", exact: true }).click();
   await page
-    .getByRole("button", { name: "删除轨道和片段", exact: true })
+    .getByRole("button", { name: "Kanalı ve klipleri sil", exact: true })
     .click();
   p = await read();
   assert(!p.tracks.some((t: any) => t.id === audioId));
   assert(!p.clips.some((c: any) => c.id === "music"));
   assert.equal(p.assets.length, 2);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   p = await read();
   assert(p.tracks.some((t: any) => t.id === audioId));
   assert(p.clips.some((c: any) => c.id === "music"));
   const emptyId = p.tracks.find((t: any) => t.kind === "text").id;
   await page
-    .getByRole("button", { name: "文字 1轨道操作", exact: true })
+    .getByRole("button", { name: "Metin 1 kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "删除轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı sil", exact: true }).click();
   assert(!(await read()).tracks.some((t: any) => t.id === emptyId));
   await expect(
-    page.getByRole("dialog", { name: "删除轨道确认", exact: true }),
+    page.getByRole("dialog", { name: "Kanal silme onayı", exact: true }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   // Create enough rows to exercise the sticky ruler independently of the content scroll.
   for (let i = 0; i < 5; i++) {
-    await page.getByRole("button", { name: "添加轨道", exact: true }).click();
-    await page.getByRole("button", { name: "视频轨道", exact: true }).click();
+    await page.getByRole("button", { name: "Kanal ekle", exact: true }).click();
+    await page.getByRole("button", { name: "Video kanalı", exact: true }).click();
   }
   await page.locator(".tl-scroll").evaluate((el) => {
     el.scrollTop = 200;
@@ -379,12 +379,12 @@ try {
     "playhead handle must remain in the sticky ruler after vertical scrolling",
   );
   for (let i = 0; i < 5; i++)
-    await page.getByRole("button", { name: "撤销", exact: true }).click();
+    await page.getByRole("button", { name: "Geri al", exact: true }).click();
   await page.locator(".tl-scroll").evaluate((el) => {
     el.scrollTop = 0;
   });
   await expect(
-    page.getByRole("button", { name: "磁性删除", exact: true }),
+    page.getByRole("button", { name: "Mıknatıslı silme", exact: true }),
   ).toBeVisible();
   assert.deepEqual(errors, []);
   mkdirSync("docs/screenshots", { recursive: true });

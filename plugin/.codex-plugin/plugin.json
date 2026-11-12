@@ -1,7 +1,7 @@
 {
   "name": "cevikedit",
-  "version": "0.5.1",
-  "description": "Local video editing inside the Codex side panel. Requires CevikEdit 0.5.0+.",
+  "version": "0.8.0",
+  "description": "Local video editing inside the Codex side panel. Requires CevikEdit 0.7.0+.",
   "author": {
     "name": "CevikEdit contributors"
   },
@@ -10,15 +10,15 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "CevikEdit",
-    "shortDescription": "在 Codex 右侧剪辑本地视频",
-    "longDescription": "在 Codex 侧栏打开完整 CevikEdit 编辑器，直接操作时间线、文字、特效、转场与本地导出。Codex 可读取项目并进行可撤销的批量编辑。需要本机 CevikEdit 0.5.0+；无需云服务或 API Key。",
+    "shortDescription": "Codex sağ panelinde yerel video kurgusu",
+    "longDescription": "Tam CevikEdit düzenleyicisini Codex kenar çubuğunda açar; zaman çizelgesi, metin, efekt, geçiş ve yerel dışa aktarma işlemlerini doğrudan yapar. Codex projeyi okuyabilir ve geri alınabilir toplu düzenlemeler yapabilir. Yerel CevikEdit 0.7.0+ gerekir; bulut hizmeti veya API anahtarı gerekmez.",
     "developerName": "CevikEdit contributors",
     "category": "Productivity",
     "logo": "./assets/icon.png",
     "composerIcon": "./assets/icon.png",
     "defaultPrompt": [
-      "用 CevikEdit 在右侧打开视频编辑器。",
-      "用 CevikEdit 剪辑我选定的本地素材，保留可编辑项目。"
+      "CevikEdit ile video düzenleyiciyi sağda aç.",
+      "CevikEdit ile seçtiğim yerel medyayı kurgula ve düzenlenebilir projeyi koru."
     ]
   }
 }

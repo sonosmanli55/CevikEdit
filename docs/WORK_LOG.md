@@ -1,31 +1,31 @@
-# 实施进展（2026-10-13）
+# Uygulama ilerleyişi (2026-10-13)
 
-用户授权本地构建与验证；GitHub 暂未发布。SaaS、云端和 API AI 留白。REA 原始资源位于 gitignored `.research/`，公开报告只保留结论、证据身份和边界，不分发剪映专有代码、库或素材。
+Kullanıcı yerel derleme ve doğrulamaya yerel izin verdi; GitHub'e henüz yayın yok. SaaS, bulut ve API AI boş bırakıldı. REA özgün kaynakları gitignored `.research/` altında; herkese açık rapor yalnızca sonuçları, kanıt kimliklerini ve sınırları tutar; Jianying özel kodu, kütüphanesi ya da malzemesi dağıtılmaz.
 
-已完成独立 Electron/React 编辑器：项目模型与严格验证、历史快照及 transaction、多轨时间线与媒体库、Canvas/Web Audio 播放器、文字/基础字幕、音量与变速、关键帧、无损曲线/淡化窗口裁剪、共享 RGB 颜色数学、source-space crop、色度抠像、形状蒙版、FFmpeg 导出与子进程清理、本地文件保存重开/恢复、代理与重新链接。与云端无关的能力均采用本地实现。
+Bağımsız Electron/React düzenleyicisi tamamlandı: proje modeli ve sıkı doğrulama, geçmiş anlık görüntüleri ve transaction, çok kanal zaman çizelgesi ve medya kitaplığı, Canvas / Web Audio oynatıcı, metin / temel altyazı, ses ve değiştirme oranı, kritik kareler, kayıpsız çizgi / fade penceresi kırpma, paylaşılan RGB renk matematiği, kaynak uzaklığı kırpma, renk kadranı kırpma, şekil maske, FFmpeg dışa aktarma ve süreç temizliği, yerel dosya kaydı yeniden açma / kurtarma, asistan ve yeniden link. Bulutla ilgili yetenekler yerel uygulama ile yapıldı.
 
-首轮研究使用 REA CLI 包级 inventory，以及 REA MCP 对明确 PID/window 的被动截图/AX 观察。专用自造三秒样片先在素材库预览，后通过普通 UI 新建时间线并观察选中属性。首轮未解析剪映 11.0 不透明载荷，也未将 classic 合成导入测试称为当前版本兼容；后续受控格式工作见本文第二轮记录。
+İlk araştırma REA CLI paket düzeyi envanteri ve REA MCP'nin açıkça belirtilen PID / pencere üzerinden pasif ekran görüntüsü / AX gözlemini kullandı. Özel kendinden üretilen üç saniyelik örnek önce malzama ön izlemesinde, sonra normal UI ile yeni zaman çizelgesi oluşturup seçili özelliklerinden gözlemlendi. İlk turda çözülemeyen Jianying 11.0 yükü ve classic sentetik içe aktarma testinin mevcut sürüm uyumluluğu olarak adlandırılmaması; sonraki kontrollü format çalışması bu kayıtta ikinci tur kaydına bakılıyor.
 
-验证已推进到实际桌面工作流：104 项自动化测试、9 个测试文件通过；主 Electron UI 的媒体/缩略图真实像素、播放、分割/撤销/复制粘贴、文字/字幕、调色/速度/关键帧、保存重开和 320×180 五秒视频导出通过。visual Electron UI 的 crop、反选椭圆蒙版、绿色抠像分别导出三份视频，并验证预览及实际导出像素，renderer errors 为空。原始本机结果位于 `.test-output/`，公开截图位于 `docs/screenshots/`。
+Doğrulama gerçek masaüstü iş akışına ilerledi: 104 otomatik test, 9 test dosyası geçti; ana Electron UI'nin medya / thumbnail gerçek pikselleri, oynatma, bölme / geri al / kopyala yapıştırma, metin / altyazı, renk / hız / kritik kare, kaydetme yeniden açma ve 320×180 beş saniyelik video dışa aktarması geçti. visual Electron UI'nin kırpma, ters elips maske, yeşil renk kadranı dışa aktarması üç video üretti ve önizleme ile gerçek dışa aktarma piksellerini doğruladı, renderer hataları boştu. Orijinal makine sonuçları `.test-output/` altında, herkese açık ekran görüntüler `docs/screenshots/` altında.
 
-为跨平台中文文字加入官方原版 Noto Sans SC 与 SIL OFL 1.1，Git blob 与 SHA-256 来源指纹匹配。依赖归属收集含 Electron/Chromium、canvas native SBOM、Skia、Cargo/原生依赖和字体：118 条记录、218 个文件，未解决项为零。最新 05:33 的两份桌面 JSON 均包含 `fonts` 证据：浏览器加载一次字体、load/check 为 true、原生家族包含 Noto Sans SC。
+Çince metinler için resmi orijinal Noto Sans SC ve SIL OFL 1.1 eklendi, Git blob ve SHA-256 kaynak parmak izi eşleşti. Bağımlılık ataması Electron / Chromium, canvas native SBOM, Skia, Cargo / native bağımlılıkları ve yazı tiplerini içerdi; 118 kayıt, 218 dosya; çözülmemiş madde yoktu. En son iki masaüstü JSON'i `fonts` kanıtını içerdi: tarayıcı yükleme yüzü 1, load/check true, yerel aile Noto Sans SC'i içeriyordu.
 
-原创 `.demo` 工程与生成器已提供；它使用本项目绘制的景观、数学合成音频和开放字体，生成真实 9 秒 MP4及预览帧。性能记录仅是开发机单次观测，不扩展为跨平台保证。
+Orijinal `.demo` mühendisliği ve üreticisi sağlandı; bu proje tarafından çizilen manzara, matematiksel sentetik ses ve açık yazı tipi kullanır, gerçek 9 saniyelik MP4 ve önizleme çerçevelerini üretir. Performans kaydı yalnızca geliştirme makinesi tek seferlik gözlemi, çapraz platform garantisi değildir.
 
-随后新增轨道删除、排序和重命名：删除保留素材库、清理片段选择并可撤销，锁轨禁止删除/移动、相邻锁轨禁止间接移动。store 回归与实际 track Electron GUI 均通过，包括删除确认、锁邻约束、一次撤销和滚动播放头。live Player、存储 race/recovery 与音频 shared source/proxy/relink/实际RMS也分别有通过证据。
+Bundan sonra kanal silme, sıralama ve yeniden adlandırma eklendi: silme medya kitaplığını korur, parça seçimini temizler ve geri alınabilir; kilitli kanal silmeyi / taşımayı reddeder, komşu kilitli kanal dolaylı taşımayı reddeder. Store regresyonu ve gerçek track Electron GUI'si geçti, silme onayı, kilitli komşu kısıtı, tek geri alma ve kaydırma ile oynatma başı dahil. live Player, depolama yarışı / kurtarma ve ses paylaşılan / proxy / yeniden link / gerçek RMS kanıtları ayrı ayrı geçti.
 
-干净安装405包及原生模块检查完成，最新DMG/ZIP已生成并通过hdiutil/zip/ad-hoc严格签名检查。最终05:39:11的package smoke已从DMG复制的app在独立cwd启动，并完成原生canvas/Noto、13clips、真实预览、1280×720九秒中文与AAC混音导出，errors为空。镜像内/外ASAR指纹一致（6081e40…80094b），六份notices存在且不含研究/测试/demo或builder开发文件；最终截图四轨与三栏完整可见。Windows/Linux 与真实 GitHub CI 没有运行证据；采用本地ad-hoc签名；Developer ID、公证和自动更新未配置。最终要求审计应基于当前文件和实际运行结果，不把已准备的配置视为打包或发布完成。详见 [VALIDATION.md](VALIDATION.md)。
+Temiz kurulum 405 paket ve native modül kontrolü tamamlandı, en son DMG / ZIP üretildi ve hdiutil / zip / ad-hoc sıkı imza doğrulamasından geçti. En son package smoke, DMG kopyasındaki `.app`'i bağımsız cwd ile başlatıp native canvas / Noto, 13 parça, gerçek ön izleme, 1280×720 dokuz saniyelik Çince ve AAC karıştırılmış dışa aktarmayı doğruladı, hatalar boştu. İç / dış ASAR parmak izi tutarlıydı (6081e40…80094b), altı notices kaynağı mevcut ve araştırma / test / demo / builder geliştirme dosyası içermiyordu; son ekran görüntüsü dört kanal ve üç sütun tam görünürlük dahil. Windows / Linux ve gerçek GitHub CI için çalıştırma kanıtı yoktu; yerel ad-hoc imza kullanıldı; Developer ID, noter ve otomatik güncelleme yapılandırılmadı. Son kapsam denetimi mevcut dosyalar ve gerçek çalışma sonuçlarına dayanmalıydı, hazırlanan yapılandırma paket ya da yayın tamamlama sayılmamalıydı.
 
-依赖审计：production npm tree 0 advisory，完整开发图有8个moderate条目，来源是同一个sprintf-js拒绝服务advisory传播到builder链。构建链不随产品运行时npm模块分发，仍如实记录开发依赖报告，详见VALIDATION。
+Bağımlılık denetimi: üretim npm ağacı 0 advisory; tam geliştirme grafiğinde 8 moderate girdi, aynı sprintf-js reddedilen servis advisory'i ile builder zincirine yayıldı. Bu zincir ürün çalışma zamanı npm modüllerinin dağıtımında yoktu, geliştirme bağımlılık raporu olduğu gibi tutuldu; ayrıntı için [VALIDATION.md](VALIDATION.md) bakın.
 
-## 第二轮：原生草稿互通
+## İkinci tur: native taslak uyumu
 
-2026-10-13：通过受控样本与 ARM64 静态分析推导本地草稿载体，使用独立 Node crypto 实现并认证解码。新增项目目录/多时间线选择、空白主时间线、画布推断、图层顺序映射与黑色默认背景。实际受控导入并导出成功，原生导出验证半幅/Y 反向位置；文字字体排版仍明确有损。REA + Ghidra 正式完成三个函数伪代码与常量表取证，四条 Evidence 已导出保存；155 项测试通过，并修复非整帧入点、长 GOP/B 帧与 VFR 的取帧边界。最终安装包验收见第二轮报告和 VALIDATION。原始样本留在忽略目录。
+2026-10-13: kontrollü örnek ve ARM64 sabit analizden yerel taslak taşıyıcı çıkarıldı, bağımsız Node crypto ile uygulandı ve doğrulandı. Proje klasörü / çok zaman çizelgesi seçimi, boş ana zaman çizelgesi, çerçeve tahmini, katman sırası eşlemesi ve siyah varsayılan arka plan eklendi. Gerçek kontrollü içe aktarma ve dışa aktarma başarılı oldu, native dışa aktarma yarım genişlik / Y ters yön doğrulaması yapıldı; metin fontu ve yerleşim hâlâ zararlıydı. REA + Ghidra resmi olarak üç işlev söz programı ve sabit tablo çıkarımını tamamladı, dört Evidence dışa aktarıldı; 155 test geçti ve çerçeve dışı giriş, uzun GOP / B kare ile VFR alıntı sınırları düzeltildi. Son paket doğrulaması ikinci raporda ve VALIDATION'ta.
 
-## v0.2.1：安装即用的媒体引擎
+## v0.2.1: kuruluma dahil medya motoru
 
-官方固定源码独立构建 FFmpeg 9.0.2、FFprobe 与 x264，随 macOS 包附带 GPL 许可、对应源码及构建脚本。打包钩子校验/生成当前架构工具；主进程默认使用包内路径。159 项内置引擎测试通过，1 项 x265 造样测试跳过并补验 HEVC 解码/代理。最终 DMG 的空 PATH、独立 cwd、全新配置、真实预览和九秒中文混音导出均通过；不依赖系统 FFmpeg。源码及包未提交或发布 GitHub。
+Resmi sabit kaynak FFmpeg 9.0.2, FFprobe ve x264 `b35605ace3ddf7c1a5d67a2eb553f034aef41d55`, macOS paketine GPL lisansı, kaynak, build betiği ve liste ile birlikte sunuldu. Paket hook'ı doğrulama / üretim akışını çalıştırıyor; ana süreç varsayılan yerleşik yolu kullanıyor. 159 yerel motor testi geçti, 1 x265 testi atlandı ve HEVC decode / proxy ayrıca doğrulandı. Son DMG'nin boş PATH, bağımsız cwd, yeni yapılandırma ve gerçek ön izleme ile dokuz saniyelik Çince karıştırılmış dışa aktarma geçti; sistem FFmpeg'e bağımlı değildi. Kaynak ve paket GitHub'e gönderilmedi ya da yayınlanmadı.
 
-## v0.4.0：界面习惯与本地工作流
+## v0.4.0: arayüz alışkanlığı ve yerel iş akışı
 
-在用户要求继续完善和尽量保持剪映操作习惯后，先对照已有授权的原生 UI 截图与功能矩阵分析差距。本轮补齐资源/属性分类、深灰层级与小窗口布局，源素材预览选段、字幕批量编辑、可搬移素材包与区间导出。修复素材包丢失引用/已复制外部源断开后的保存，并阻止原生菜单/Escape 打断工作弹窗。独立回归发现问题后先复现再修复；没有再读取私人草稿或操作第三方服务。新增功能与 UI 有真实合成媒体的桌面验证，核心测试 270 通过、1 跳过；最终安装包证据见 VALIDATION。
+Kullanıcı mevcut iş akışını sürdürmeyi ve mümkün olduğunca Jianying alışkanlıklarına sadık kalmak istediğinde, önce yetkili native UI ekran görüntülerine ve işlev matrisine göre fark analizi yaptık. Bu tur kaynak / özellik sınıflandırmasını, derin gri katmanı ve küçük pencere yerleşimini, kaynak malzaman ön izleme / seçim, altyazı toplu düzenlemesi, taşınabilir malzama paketi ve aralık dışa aktarmayı tamamladık. Malzama paketi kaybı / dış kaynak kopması sonrası kaydetme sorunları giderildi ve native menü / Escape çalışma zamanı pencerelerini kesemedi. Bağımsız regresyon sorunları tekrar üretilip giderildi; özel taslağa ya da üçüncü parti uygulamaya yeniden erişim izni verilmedi. Yeni işlevler ve arayüz gerçek sentetik medya ile masaüstü doğrulaması gerektirdi; çekirdek test 270 geçti, 1 atlandı; son paket kanıtı için [VALIDATION.md](VALIDATION.md) bakın.

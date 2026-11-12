@@ -39,11 +39,11 @@ const sources = await Promise.all(
   }),
 );
 const assets = await importAssets(sources, path.join(output, "cache"));
-const project = createProject("已有淡出的叠化验收");
+const project = createProject("Mevcut karartmalı çapraz geçiş kabulü");
 project.width = 320;
 project.height = 180;
 project.fps = 24;
-const track = createTrack("video", "连续画面");
+const track = createTrack("video", "Ardışık görüntü");
 const front = createClip(assets[0], track.id, 0, project.fps);
 const next = createClip(assets[1], track.id, 1, project.fps);
 front.duration = 1;
@@ -82,7 +82,6 @@ const env: Record<string, string> = Object.fromEntries(
 env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs"), original],
   env,
@@ -97,7 +96,7 @@ try {
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
         filePath:
-          args[args.length - 1].title === "导出视频"
+          args[args.length - 1].title === "Videoyu dışa aktar"
             ? files.exported
             : files.saved,
       });
@@ -112,13 +111,13 @@ try {
   await page
     .locator(`[data-clip-id="${front.id}"]`)
     .click({ position: { x: 25, y: 25 } });
-  await page.getByRole("button", { name: "转场", exact: true }).click();
-  await page.getByRole("button", {name:"应用叠化转场",exact:true}).click();
+  await page.getByRole("button", { name: "Geçiş", exact: true }).click();
+  await page.getByRole("button", {name:"Çapraz geçiş geçişini uygula",exact:true}).click();
   await expect(
-    page.getByText("已添加 0.50 秒叠化（后片段提前重叠）", { exact: true }),
+    page.getByText("0.50 sn çapraz geçiş eklendi (sonraki klip öne bindirildi)", { exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "另存为", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Farklı kaydet", exact: false }).click();
   await expect
     .poll(async () =>
       readFile(saved, "utf8")
@@ -175,9 +174,9 @@ try {
     .toBe(true);
   const previewPixel = await pixel();
   await page.screenshot({ path: path.join(output, "preview-midpoint.png") });
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 60_000,
   });
   const probe = await probeFile(exported);

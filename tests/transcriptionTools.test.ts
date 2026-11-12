@@ -95,7 +95,7 @@ describe("whisper executable discovery", () => {
         env: { PATH: generic },
         bundledDirectories: [path.join(directory, "missing")],
       }),
-    ).rejects.toThrow("找不到 Whisper");
+    ).rejects.toThrow("Whisper bulunamadı");
   });
 
   it("reports invalid explicit paths and missing tools", async () => {
@@ -105,14 +105,14 @@ describe("whisper executable discovery", () => {
         env: { PATH: system },
         savedExecutable: directory,
       }),
-    ).rejects.toThrow("所选 Whisper");
+    ).rejects.toThrow("Seçili Whisper");
     await expect(
       resolveWhisperExecutable({
         platform,
         env: { PATH: "" },
         bundledDirectories: [path.join(directory, "missing")],
       }),
-    ).rejects.toThrow("找不到 Whisper");
+    ).rejects.toThrow("Whisper bulunamadı");
   });
 });
 

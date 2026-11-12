@@ -1,65 +1,65 @@
-# 功能矩阵
+# Özellik matrisi
 
-本表描述 CevikEdit 当前独立实现的能力，不是商业剪映的完整功能清单或兼容性保证。`supported` 表示有实际实现和相应核心/渲染验证；`limited` 表示存在实现但范围有限或仍缺某类运行验证；`unused` 表示本期不接入。macOS 桌面核心流程与 visual UI 已执行；逐项证据和仍待验证的平台边界见 [VALIDATION.md](VALIDATION.md)。
+Bu tablo CevikEdit'in şu anki bağımsız uygulamasında tanımlı yetenekleri anlatır; ticari ClipCut'un tam özellik listesi ya da uyumluluk garantisi değildir. `supported` gerçek uygulama ve karşılık gelen çekirdek / render doğrulaması olduğunda demektir; `limited` uygulama var ama sınırlı ya da belirli bir tür çalışma doğrulaması eksikse demektir; `unused` bu dönemde bağlanmadıysa demektir. macOS masaüstü çekirdek akışı ve görsel arayüz çalıştırıldı; her birinin kanıtı ve hâlâ doğrulanmamış platform sınırları için [VALIDATION.md](VALIDATION.md) bakın.
 
-| 功能 | 状态 | 边界与证据 |
+| Özellik | Durum | Sınırlar ve kanıt |
 | --- | --- | --- |
-| 熟悉的三栏编辑界面 | supported | 中性深灰、资源顺序、属性分组及小窗口布局；独立实现，非逐像素复刻，见 UI_PARITY.md |
-| 源素材预览与 I/O 选段 | supported | 单击预览、局部快捷键、入出点插入和一次撤销；实际预览与导出帧/声音验证 |
-| 字幕列表与批量编辑 | supported | 轨道筛选、多选、逐条文本/时间编辑、按播放头拆分、相邻合并、批量时间偏移/字面替换、参考或直接可编辑样式、统一入停出文字动画；锁轨、过时提案与一次撤销保护；自动字幕见下一行 |
-| 时间线入轨方式与音视频关联 | supported | 源区间追加/插入（切开跨点片段并后移）/覆盖（切分后裁掉占用区间）；分离音频与源视频共享 linkId，同步移动、裁剪、分割、删除、复制/粘贴，可解除关联；单轨处理，无跨轨联动 |
-| 响度分析与归一化 | limited | 主进程 FFmpeg `loudnorm` 测量所选片段源区间，目标 LUFS 与 -1 dBTP 峰值上限写入片段音量与音量关键帧，一次撤销；片段级离线测量，无总线响度或实时电平表 |
-| 对白自动压低音乐 | supported | 用户显式选择语音/音乐片段；本地离线 VAD（20 ms 能量、噪声底 +8 dB、迟滞、0.35 s 合句、0.25 s 去爆音）可只在实际说话处压低，也可退回整段区间；生成普通音量关键帧，可调压低量与过渡时长，预览/导出共用求值；会替换音乐原有音量关键帧 |
-| 本地 Whisper 自动字幕 | limited | 选择时间线音视频片段，FFmpeg 提取 16 kHz 单声道音频，调用本地 whisper.cpp + GGML 模型；JSON/SRT 解析、噪声清理、长句拆分、变速/区间/帧对齐与一次撤销；不上传、不自动下载程序或模型；只支持 whisper.cpp，真实识别与真实音频提取尚未在开发机验收，见 TRANSCRIPTION.md |
-| 可搬移项目素材包 | supported | 去重复制、相对路径、搬移后保存、新增媒体收集、取消与缺失素材处理；包内为 `proje.cevikedit`、`KULLANIM.txt` 与 `media/`，文件夹名与说明为土耳其语；系统字体需另装 |
-| 可复用模板与批量替换 | supported | 工程保存为模板（媒体转占位、丢弃未使用素材与缓存）、从模板新建并一次替换全部媒体与文案、新增媒体按可用长度裁短并裁剪关键帧、可选占位缺失只警告；模板导出/导入 `.cevikedit-template`，导入前拒绝本机路径/越界占位/重复键/超大封面；3 套自主生成内置模板；见 VALIDATION.md 与 `docs/media/` |
-| 自定义 / 选中时间区间导出 | supported | 保留区间内全部可见图层与声音；像素、RMS、逐帧边界和 UI 验证 |
-| 视频、音频、图片导入 | supported | FFprobe 检测；真实素材、Unicode 路径、缩略图、波形测试 |
-| 本地预览代理 | supported | H.264 4:4:4、不兼容视频/音频容器代理测试；具体编码依赖本机 FFmpeg |
-| HEVC 等编码输入 | limited | 条件测试取决于本机编码器；非所有 codec/平台保证 |
-| 可调时间线高度与实时画面拖动 | supported | 分隔条支持拖动/键盘调整；播放器实时反馈、关键帧路径整体移动、单次撤销和最终帧保留通过 GUI 验证 |
-| 时间线缩放与自由平移 | supported | 2–1600 px/s 缩放，光标锚定 Ctrl/⌘+滚轮、Shift+滚轮与触控板横向平移、中键拖动平移、松手后惯性滑行、迷你地图显示/跳转、适配工程与定位播放头、可见时长读示；只改变视图，不修改片段；桌面实测通过 |
-| 多轨与同轨重叠 | supported | 时间线分行、兼容轨道限制、移动与合成测试；片段超过 240 时仅绘制可视切片（保留两侧余量），小工程保持完整 DOM |
-| 裁剪入出点、分割、常规变速 | supported | 源范围语义及真实导出帧/音频测试；0.1–8 倍，音高保持 |
-| 视频倒放与定格画面 | limited | 倒放按片段源区间生成本地缓存 MP4，画面与原有声音一起反向，保留时间线起点/时长/速度并复用内容寻址缓存，提供进度和取消；FFmpeg `reverse` 整段缓冲带来分辨率相关时长上限（本机预算 3 GiB，1080p30 约 34 秒），超长需分割。定格从播放头取源帧生成 PNG 叠加轨，继承当前静态变换、调色、裁剪、抠像和蒙版，持续时长可调，底层声音继续。真实合成视频逐帧顺序、冻结区间、撤销、保存重开与导出通过 Windows 桌面验证；未在 macOS 实机复核 |
-| 吸附、磁吸删除 | limited | 吸附与删除区间并集测试；未复制全部商业主轨磁吸策略 |
-| 轨道重命名、删除、排序 | supported | 原子删除/排序与锁轨约束；store 回归及实际 App 回调、删除确认、撤销、滚动播放头 GUI 通过 |
-| 锁轨、静音、隐藏 | supported | 核心语义与导出测试；隐藏画面不自动静音 |
-| 多选、复制粘贴、撤销重做 | supported | store 历史隔离、原子编辑和连续属性 transaction 测试 |
-| 位置、缩放、旋转、翻转、透明度 | supported | 实际合成、图像象限、旋转与动画导出测试 |
-| 可视化关键帧曲线与缓动 | supported | SVG 曲线/列表、点选、拖动、删除、精确时间/数值、复制粘贴、播放头跳转；linear、缓入、缓出、缓入缓出共用窗口化插值，裁剪/分割保留曲线；模型、真实 FFmpeg 与桌面预览/导出逐帧测试。可选具名预设或自由 cubic-Bézier（可拖动控制点、Y 允许过冲），预览为精确解、导出为 24 段折线近似（误差 < 动画量程 1%） |
-| 画面 / 音频淡入淡出 | supported | split/trim 包络保留、变速、负偏移窗口及像素/RMS 导出测试 |
-| 亮度、对比度、饱和度、色温 | supported | 共享 RGB 数学模型、真实 FFmpeg 像素与 alpha 测试；非专业颜色管理 |
-| 模糊、本地调色预设 | limited | 实际参数映射；显示尺寸与模糊内核可使预览和输出略异 |
-| 本地转场库 | supported | 8 款：叠化、经过背景、四向滑入、缩放与旋转交接；按帧限制时长、锁轨/间隙/后续重叠保护；实际导出像素验证，无独立转场轨 |
-| 文字与动态效果模板 | supported | 25 款可编辑文字（含下三分之一、社媒分类与行高/内边距/圆角/阴影样式）、8 款关键帧动效，加原有 8 款调色；动态预览、分类/搜索、一次撤销；预览与导出共用文字几何计算 |
-| source-space 画面裁切 | supported | 源空间归一化裁剪、严格边界；真实桌面 UI 保存/重置及导出红色像素验证 |
-| RGB 色度抠像 | supported | 自主 RGB 距离/过渡参数；桌面预览和实际导出删除绿色背景、保留红色前景；非人物 AI 抠像 |
-| 矩形 / 椭圆蒙版 | supported | 共享源空间蒙版、羽化、反转及 alpha 数学测试；桌面椭圆/反选预览与实际导出验证 |
-| 文字与字体 | supported | 默认内置原版 Noto Sans SC（OFL 1.1），可选系统字体；内容、描边、背景、对齐；中文真实渲染测试，其他系统字体跨机器可能不同 |
-| SRT / 基础 WebVTT | limited | 基础时间与文本转换，SRT 输出；字幕文件只保存时间与文本，不携带样式、画面位置或文字动画，需要成片动画时导出视频 |
-| 视频音频分离、音轨混合 | supported | FFmpeg 抽取独立 AAC 音轨，按原片段入点、时长与变速对齐到新音轨，原片段自动静音；内容寻址复用已抽取文件；时间线镜像波形；抽取、保存重开与波形显示通过桌面验证，导出沿用既有音轨混音路径 |
-| 保存、打开、最近项目、自动恢复 | supported | 校验、原子写入和本地恢复实现；桌面保存/重开与媒体重新载入通过，异常断电恢复未做破坏性测试 |
-| macOS 内置媒体引擎 | supported | v0.2.1 内置独立构建 FFmpeg/FFprobe，无需系统安装；随包提供源码与许可 |
-| MP4 / MOV 视频导出 | supported | H.264 / AAC，进度、取消、错误、目标保护与关闭进程测试 |
-| classic 剪映明文导入 | limited | 合成 JSON 测试的基础片段有损转换；不是已验证历史版本互通 |
-| 本轮剪映嵌入 AES-256-GCM 草稿 | limited | 本机 11.0.12922 / 构建 11.1.0-beta3，两个受控项目的四个载荷已独立认证解码；只支持该已验证封装，未知或认证失败拒绝导入，不代表任意版本兼容 |
-| 剪映项目文件夹与时间线选择 | limited | 桌面读取项目/布局清单，多时间线要求明确选择、推荐活动时间线；显式时间线不被空根草稿或备份替换。新流程的运行证据见第二轮报告 |
-| 剪映基础片段与画布转换 | limited | 微秒时间、基础速度、音量和静态变换映射；缺失画布由首个可导入视觉片段推断并警告。位移几何仅有受控预览近似证据，尚无原生导出逐像素保真证明 |
-| 剪映文字、复杂效果及写回 | limited | 文字仅保留内容，使用自己的默认字体/样式；复杂关键帧、效果和转场不保真。只读导入；不实现剪映专有加密草稿写回（超出授权范围），改为导出开放纯文本草稿交换 JSON，可被 CevikEdit 重新导入 |
-| macOS 桌面 | supported | arm64 本机开发构建、visual 实际导出与最终 DMG 内 app 工作流均通过 |
-| Windows / Linux | limited | Windows x64 已在本机构建 0.6.0 NSIS 候选包并启动打包后的 `CevikEdit.exe` 验证模板、保存、导出（1920×1080 H.264）；Linux 仍只有构建目标未实机验证 |
-| 浏览器完整视频编辑器 | limited | 预览与基础交互；缺少桌面文件操作及本地导出桥接 |
-| 账号、云项目、SaaS | unused | 没有服务端与云同步 |
-| 直接 API AI、云端语音识别、人物抠像 | unused | 自动字幕改用本地 whisper.cpp，见 TRANSCRIPTION.md；未接入云端 API 或人物 AI 抠像 |
-| Codex 插件 | limited | 本地 stdio MCP、fullscreen App 画面桥接、鼠标/键盘操作和版本校验编辑；协议、真实编辑器交互及导出已验，Codex 宿主打开留待用户重连后验收；见 CODEX_PLUGIN.md |
-| CLI 剪辑助手 | limited | Codex / Claude Code，土耳其语对话、取消、受限编辑建议与一次撤销；Windows 支持 shebang 脚本（经解释器启动），不支持 `.cmd/.bat/.ps1`，需选原生 `.exe`；真实 Codex 合成问答通过，Claude 本机需重新登录；见 ASSISTANT.md |
-| 原创离线素材 | supported | 64 款原创 PNG / WAV，SVG 源与 MIT 许可；分类、搜索、试听、添加 |
-| HDR 输入与色彩管理 | limited | 导入按 FFprobe 识别 PQ/HLG 并标记 HDR；导出对 HDR 图层做 zscale + hable 色调映射到 SDR BT.709，输出显式 bt709 标记，媒体库显示 HDR/HLG 徽标；**不输出 HDR 成片**，不做峰值亮度元数据；真实 FFmpeg 与桌面验证 |
-| 曲线变速（time remap） | unused | 仅支持恒定速度 0.1–8 倍与预设缓动 |
-| 商业素材、贴纸、付费模板、专业转场库 | unused | 不复制或分发剪映资源 |
-| macOS .app / DMG / ZIP 打包 | limited | v0.5.0 时通过镜像/ZIP/ad-hoc 签名校验与 DMG 内 app 导出；**本周功能未重新打包或实机验证 macOS**，本机无 macOS 环境 |
-| 本地 ad-hoc 签名 | supported | macOS identity `-`，严格签名验证通过；不是 Developer ID 签名 |
-| 自动更新、Developer ID、公证 | unused | 未接入更新服务、未配置开发者发行签名/公证 |
+| Üç sütunlu düzenleyici arayüzü | supported | Nötr koyu gri, kaynak sırası, özellik grupları ve küçük pencere yerleşimi; bağımsız uygulama, piksel başına kopyalama değil; UI_PARITY.md içinde |
+| Kaynak malzama ön izleme ve I/O seçimi | supported | Tıklama ön izleme, yerel kısayollar, giriş / çıkış eklenmesi ve tek geri alma; gerçek ön izleme ve dışa aktarma çerçevesi / ses doğrulaması |
+| Altyazı listesi ve toplu düzenleme | supported | Kanal filtresi, çoklu seçim, parça parçacık metin / zaman düzenleme, oynatma başına bölme, komşu birleştirme, toplu zaman kaydırması / sözdizimi değiştirme, referans ya da doğrudan düzenlenebilir stil, tek tip giriş / kalıcılık / çıkış metin animasyonu; kilitli kanal, eski öneri ve tek geri alma koruması; otomatik altyazı bir sonraki satıra bakın |
+| Zaman çizelgesi giriş yolu ve ses-video bağlamı | supported | Kaynak aralığı ekleme / ekleme (kesişen parçayı bölüp sonraya kaydırma) / üzerine yazma (bölme sonrası kırpma); ayrıştırma ses ile kaynak video `linkId`'yi paylaşır, senkron taşıma, kırpma, bölme, silme, kopyala / yapıştırma; bağlantıyı kesme; tek kanal işleme, çapraz kanal bağlanması yok |
+| Gürültü analizi ve normalizasyon | limited | Ana süreç FFmpeg `loudnorm` ile seçili parçanın kaynak aralığını ölçer, hedef LUFS ve −1 dBTP en yüksek değeri parça ses seviyesine ve ses anahtar karelerine yazar, tek geri alma; parça düzeyinde çevrimdışı ölçüm, toplu gürültü veya gerçek zamanlı zil tablosu yok |
+| Diyalog için otomatik müzik baskılama | supported | Kullanıcı sesli / müzik parçalarını açıkça seçer; yerel çevrimdışı VAD (20 ms enerji, gürültü tabanı +8 dB, gecikme, 0,35 s birleşme, 0,25 s patlama atma) yalnızca gerçekten konuşulan yerlerde baskı yapabilir ya da bütün parça aralığına dönebilir; normal ses anahtar karelerine yazılır, baskı miktarı ve geçiş süresi ayarlanabilir, önizleme / dışa aktarma aynı değerlendirme; müzikin mevcut ses anahtar karelerini değiştirir |
+| Yerel Whisper otomatik altyazı | limited | Zaman çizelgesi sesli / video parçasını seçer, FFmpeg 16 kHz mono sesi çıkarır, yerel whisper.cpp + GGML modeli çağırır; JSON / SRT çözümü, gürültü temizleme, uzun cümle bölme, hız / aralık / kare hizalaması ve tek geri alma; yüklenmez, otomatik indirme yok; yalnızca whisper.cpp; gerçek tanıma ve gerçek ses çıkarma henüz geliştirme makinesinde kabul edilmedi, TRANSCRIPTION.md içinde |
+| Taşınabilir proje malzama paketi | supported | Kaldırma, göreli yol, taşıma sonrası kaydetme, yeni malzama toplama, iptal ve eksik malzama işlemi; paket `proje.cevikedit`, `KULLANIM.txt` ve `media/` içerir, klasör adı ve açıklaması Türkçe; sistem yazı tipleri ayrıca kurulmalıdır |
+| Yeniden kullanılabilir şablonlar ve toplu değiştirme | supported | Proje şablona kaydedilir (medya yerleştirmesi, kullanılmayan malzama ve önbellek atılır), şablondan yeni ve tek seferde tüm malzama ve metin değiştirilir, yeni malzama uygun uzunlukla kısılır ve anahtar kare / fade ile kırar, opsiyonel yerleştirme eksikse uyarı verir; şablon dışa / içe aktarma `.cevikedit-template`, içe aktarmadan önce yerel yol / çarpanlı yerleştirme / tekrarlı anahtar / büyük kapak reddedilir; 3 özgün yerleşik şablon; VALIDATION.md ve `docs/media/` içinde |
+| Özel / seçili zaman aralığı dışa aktarma | supported | Aralıktaki tüm görünen katmanlar ve sessiz olmayan sesler korunur; piksel, RMS, kare sınırı ve UI doğrulaması |
+| Video, ses, resim içe aktarma | supported | FFprobe tespiti; gerçek malzama, Unicode yol, kısaltma, dalga testi |
+| Yerel ön izleme aracı | supported | H.264 4:4:4, uyumsuz video / ses container aracı testleri; belirli kodlama yerel FFmpeg'e bağlı |
+| HEVC gibi kod aracı girişi | limited | Test koşulları yerel kodlayıcıya bağlı; tüm codec / platform garantisi yok |
+| Zaman çizelgesi yüksekliği ve gerçek zamanlı görüntü sürüklenmesi | supported | Ayrac sürüklenebilir / klavye ile ayar; oynatıcı gerçek zamanlı geri bildirim, anahtar kare yoluyla taşıma, tek geri alma ve son kare saklama GUI doğrulaması |
+| Zaman çizelgesi ölçeklendirme ve özgür kaydırma | supported | 2–1600 px/s, fare sabitli Ctrl/⌘+tekerlek, Shift+tekerlek ve dokunmatik yatay kaydırma, orta tuş kaydırma, serbest bırakma sonrası yerçekimi, mini harita göster / at, uyarlama ve oynatma başı konumlandırma, görünen süre okuma; yalnızca görünümü değiştirir, parçayı değiştirmez; masaüstü gerçek doğrulama |
+| Çok kanal ve aynı kanal örtüşmesi | supported | Zaman çizelgesi satırları, uyumluk kanal kısıtı, taşıma ve sentez testi; parça 240'tan fazla olduğunda yalnızca görünen parçalar çizilir (iki yanan 25% boşluk), küçük proje tam DOM korur |
+| Kırpma giriş / çıkış, bölme, sabit hız değişimi | supported | Kaynak aralık semantiği ve gerçek dışa aktarma çerçevesi / ses testi; 0,1–8 kat, ton yüksekliği korunur |
+| Video geri sarma ve dondurma | limited | Geri sarma parça kaynak aralığında yerel önbellek MP4 üretir, görüntü ve orijinal ses birlikte ters çevrilir, zaman çizelgesi başlangıcı / süre / hızı korur ve içerik adresli önbellek kullanır, ilerleme ve iptal; FFmpeg `reverse` tam parça tamponu çözünürlükten bağımsız süreyi kısıtlar (yerel bütçe 3 GiB, 1080p30 yaklaşık 34 s), uzun parça önce bölünmeli. Dondurma oynatma başından kaynak çerçeveye PNG ile çizim katmanı üretir, mevcut sabit dönüşümü, renk ayarı, kırpma, kesme ve maskeyi miras alır, süre ayarlanabilir, altta ses çalışmaya devam eder. Gerçek sentetik video kare sırası, dondurma aralığı, geri alma, kaydetme yeniden açma ve dışa aktarma Windows masaüstü doğrulamasını geçti; macOS gerçek donanımda gözden geçirilmedi |
+| Asitleştirme, mıknatıs silme | limited | Asitleme ve silme aralık birleşimi testi; ticari ana kanal mıknatısı stratejisinin tamı yok |
+| Kanal yeniden adlandırma, silme, sıralama | supported | Atomik silme / sıralama ve kilitli kanal kısıtı; store regresyonu ve gerçek App geri çağrıları, silme onayı, geri alma, kaydırma oynatma başı GUI doğrulaması |
+| Kilitli kanal, sessize alma, gizleme | supported | Çekirdek semantiği ve dışa aktarma testi; gizlenen görsel otomatik sessize etmez |
+| Çoklu seçim, kopyala / yapıştırma, geri alma / yeniden kullanma | supported | Store geçmiş izolasyonu, atomik düzenleme ve sürekli özellik işlem testi |
+| Konum, ölçek, döndürme, çevirme, opaklık | supported | Gerçek sentez, görüntü kadranı, döndürme ve animasyon dışa aktarma testi |
+| Görsel anahtar kare çizgisi ve esnetim | supported | SVG çizgi / liste, nokta seçimi, sürüklenme, silme, hassas zaman / değer, kopyala / yapıştırma, oynatma başı atlama; lineer, giren, çıkan, giren-çıkan pencereleme ilerlemesiyle paylaşılır, kırpma / bölme çizgiyi korur; model, gerçek FFmpeg ve masaüstü ön izleme / dışa aktarma kare başına test. İstenen adlandırılmış ön ayar ya da özgür cubic-Bézier (sürüklenebilir kontrol noktası, Y aşırı geçişe izin verir), ön izleme kesin çözüm, dışa aktarma 24 parçaya bölünmüş çizgi yaklaşımı (hata < animasyon çığlığı 1%) |
+| Görsel / ses fade | supported | Split / trim paketinin korunması, hız değişimi, negatif kaydırma penceresi ve piksel / RMS dışa aktarma testi |
+| Parlaklık, kontrast, doygunluk, renk sıcaklığı | supported | Paylaşılan RGB matematik modeli, gerçek FFmpeg pikselleri ve alfa testi; profesyonel renk yönetimi yok |
+| Bulanıklık, yerel renk ayar ön ayarları | limited | Gerçek parametre eşleme; görüntü boyutu ve bulanıklık çekirdeği nedeniyle ön izleme ve çıktı hafif farklı olabilir |
+| Yerel geçiş kütüphanesi | supported | 8 tane: katlama, arka planda, dört yönlü kayma, ölçek ve döndürme geçişi; kare ile süre sınırı, kilitli kanal / boşluk / sonraki örtüşme koruması; gerçek dışa aktarma pikselleri doğrulandı, bağımsız geçiş kanalı yok |
+| Metin ve dinamik etki şablonları | supported | 25 düzenlenebilir metin (alttan üçte, sosyal medya kategorisi ve satır yüksekliği / kenar boşluğu / köşe radyosu / gölge stili dahil), 8 anahtar kare animasyonu, mevcut 8 renk / hareket; dinamik ön izleme, kategori / arama, tek geri alma; metin geometrisi ön izleme ve dışa aktarma paylaşılır |
+| Kaynak uzaklığı görüntü kırpma | supported | Kaynak uzaklılık normalize kırpma, sıkı sınır; gerçek masaüstü UI kaydetme / sıfırlama ve dışa aktarma kırmızı piksel doğrulaması |
+| RGB renk kesme | supported | Kendi RGB mesafe / geçiş parametreleri; masaüstü ön izleme ve gerçek dışa aktarma yeşil arka planı kaldırıp kırmızı ön planı korur; ticari AI karakter kesme değil |
+| Dikdörtge / elips maske | supported | Paylaşılan kaynak uzaklık maske, yumuşatma, ters seçim ve alfa matematik testi; masaüstü elips / ters ön izleme ve gerçek dışa aktarma doğrulaması |
+| Metin ve yazı tipi | supported | Varsayılan yerleşik orijinal Noto Sans SC (OFL 1.1), isteğe bağlı sistem yazı tipleri; içerik, çizgi, arka plan, hizalama; gerçek Çinli render testi, diğer sistem yazı tipleri makineye göre farklı olabilir |
+| SRT / temel WebVTT | limited | Temel zaman ve metin dönüşümü, SRT dışa aktarma; altyazı dosyası yalnızca zaman ve metni kaydeder, stil, görsel konum veya metin animasyonu taşımaz, animasyonlu üretim gerekirse video dışa aktarılır |
+| Video ses ayrıştırma, kanal karıştırma | supported | FFmpeg bağımsız AAC ses kanalı çıkarır, orijinal parçaların girişi, süresi ve hızla yeni kanalı hizlar, orijinal parça otomatik sessize edilir; içerik adresli yeniden kullanım; zaman çizelgesi ayna dalgası; çıkarım, kaydetme yeniden açma ve dalga gösterimi masaüstü doğrulamasını geçti, dışa aktarma mevcut kanal karıştırma yolunu kullanır |
+| Kaydetme, açma, son proje, otomatik kurtarma | supported | Doğrulama, atomik yazma ve yerel kurtarma; masaüstü kaydetme / yeniden açma ve medyanın yeniden yüklemesi doğrulandı, anormal kesintide kurtarma testi yapılmadı |
+| macOS yerleşik medya motoru | supported | v0.2.1 yerleşik bağımsız FFmpeg / FFprobe derlemesi, sistem kurulum gerekmez; kaynak ve lisans paket içine |
+| MP4 / MOV video dışa aktarma | supported | H.264 / AAC, ilerleme, iptal, hata, hedef koruma ve süreç sonlandırma testi |
+| classic ClipCut açık JSON içe aktarma | limited | Sentetik JSON testlerinin temel parça kayıplı dönüşümü; doğrulanmış tarihsel sürümlerle karşılaştırma değil |
+| Bu tur ClipCut AES-256-GCM taslak | limited | Yerel 11.0.12922 / derleme 11.1.0-beta3, iki kontrol edilen projenin dört yüklemenin bağımsız doğrulaması; yalnızca bu doğrulanmış sarmalama desteklenir, bilinmeyen ya da doğrulama başarısız ise içe aktarma reddedilir, herhangi bir sürüm uyumluluğu değil |
+| ClipCut proje klasörü ve zaman çizelgesi seçimi | limited | Masaüstü proje / yerleşim listeleri okur, çok zaman çizelgesi açık seçim ister, geçerli zaman çizelgesi öncelikli önerilir; açık zaman çizelgesi boş kök taslak ya da yedekten değiştirilmez. Yeni akışın çalışma kanıtı ikinci tur raporudur |
+| ClipCut temel parça ve tuval dönüşümü | limited | Mikrosaniye zaman, temel hız, ses ve sabit dönüşüm eşlemesi; eksik tuval ilk içe aktarılabilir görsel parçadan tahmin edilir ve uyarı verilir. Konum geometrisi yalnızca kontrol edilen ön izleme yaklaşımı kanıtı, saf dışa aktarma pikselleri birebir kanıtı yok |
+| ClipCut metin, karmaşık etkiler ve yazma geri | limited | Metin yalnızca içeriği korur, kendi varsayılan yazı tipi / stili kullanır; karmaşık anahtar kareler, etkiler ve geçişler birebir değil. Salt okuma; ClipCut şifreli taslak yazma yok (yetki kapsamı dışında), açık metin taslak değişim JSON dışa aktarılır, CevikEdit tarafından yeniden içe aktarılabilir |
+| macOS masaüstü | supported | Arm64 yerel geliştirme derlemesi, görsel gerçek dışa aktarma ve son DMG içi app iş akışı doğrulandı |
+| Windows / Linux | limited | Windows x64 yerel 0.6.0 NSIS adayı derlendi ve paketlenmiş `CevikEdit.exe` ile doğrulandı (şablon, kaydetme, dışa aktarma 1920×1080 H.264); Linux hâlâ yalnızca derleme hedefi, gerçek donanımda doğrulanmadı |
+| Tarayıcı tam video düzenleyicisi | limited | Önizleme ve temel etkileşim; masaüstü dosya işlemi ve yerel dışa aktarma köprüsü yok |
+| Hesap, bulut proje, SaaS | unused | Sunucu ve bulut senkronizasyonu yok |
+| Doğrudan API AI, bulut ses tanıma, AI karakter kesme | unused | Otomatik altyazı yerel whisper.cpp; TRANSCRIPTION.md içinde; bulut API veya AI karakter kesme bağlanmadı |
+| Codex eklentisi | limited | Yerel stdio MCP, tam ekran App görüntü köprüsü, fare / klavye etkileşimi ve sürüm doğrulama ile düzenleme; protokol, gerçek düzenleyici etkileşimi ve dışa aktarma doğrulandı, Codex konak açılması kullanıcı yeniden bağlandıktan sonra kabul edilmeyi bekliyor; CODEX_PLUGIN.md içinde |
+| CLI kurgu asistanı | limited | Codex / Claude Code, Türkçe diyalog, iptal, kısıtlı düzenleme önerisi ve tek geri alma; Windows shebang betiği için destek (yorumlayıcı ile başlatma), `.cmd/.bat/.ps1` yok, yerel `.exe` seçilmeli; gerçek Codex sentetik soru-cevap doğrulandı, Claude yerel yeniden giriş gerekiyor; ASSISTANT.md içinde |
+| Özgün çevrimdışı malzama | supported | 64 özgün PNG / WAV, SVG kaynak ve MIT lisansı; kategori, arama, deneyim, ekleme |
+| HDR girişi ve renk yönetimi | limited | İçe aktarım FFprobe ile PQ/HLG tanır ve HDR işaretler; dışa aktarım HDR katmanları için zscale + hable ton eşlemesi ile SDR BT.709'e, çıktı açık bt709 işareti; medya kitaplığında HDR/HLG rozet; **HDR dışa aktarması üretmez**, en yüksek parlaklık meta verisi yok; gerçek FFmpeg ve masaüstü doğrulaması |
+| Çizgi hız (time remap) | unused | Sadece sabit hız 0,1–8 kat ve önceden ayarlanmış esnetim |
+| Ticari malzama, sticker, ücretli şablon, profesyonel geçiş kütüphanesi | unused | ClipCut kaynakları kopyalanmaz ya da dağıtılmaz |
+| macOS .app / DMG / ZIP paketleme | limited | v0.5.0 için görüntü / ZIP / ad-hoc imza doğrulaması ve DMG içi app dışa aktarma; **bu haftanın yetenekleri yeniden paketlenmedi ya da gerçek macOS doğrulanmadı**, bu makinede macOS ortamı yok |
+| Yerel ad-hoc imza | supported | macOS kimliği `-`, sıkı imza doğrulaması geçti; Developer ID imzası değil |
+| Otomatik güncelleme, Developer ID, noter | unused | Güncelleme servisi yok, geliştirici yayın imzası / noter yok |
 
-测试不是目标应用的行为证据：REA 观察报告单独区分观察、推断、自主设计与未覆盖项；合成数据证明的是独立实现的语义，当前本机草稿的认证解码证据来自专用受控样本；二者都不能证明任意版本互通、复杂项目保真或原生导出像素一致。第二轮证据与未覆盖项见 [草稿格式研究](research/DRAFT_FORMAT_ROUND2.md)。大型项目、长时间性能、所有系统与媒体编码组合仍需独立验证。
+Testler hedef uygulamanın davranış kanıtı değildir: REA gözlem raporları ayrı ayrı gözlem, çıkarım, bağımsız tasarım ve kapsam dışı maddeleri ayırır; sentetik veriler bağımsız uygulamanın semantiğini kanıt eder, şu anki yerel taslakların doğrulanmış kod çözme kanıtları özel kontrol edilen örneklerden gelir; ikisi de herhangi bir sürüm uyumluluğunu, karmaşık projenin birebir tutarlılığını ya da saf dışa aktarma piksellerinin tutarlılığını kanıt edemez. İkinci tur kanıtları ve kapsam dışı maddeler [Draft formatı araştırması](research/DRAFT_FORMAT_ROUND2.md) içinde. Büyük proje, uzun süreli performans, tüm sistem ve medya kod çözme kombinasyonları hâlâ bağımsız doğrulanmalıdır.

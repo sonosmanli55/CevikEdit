@@ -1,36 +1,36 @@
-# 剪映草稿导入边界
+# Jianying taslağı içe aktarma sınırları
 
-CevikEdit 使用自己的 `.cevikedit` 项目格式。桌面版提供实验性的剪映草稿文件和项目文件夹导入：读取本地草稿、选择时间线、解码已验证的载荷，再把基础片段转换为 CevikEdit 项目。转换是有损的，不修改原项目，也不提供剪映格式写回。
+CevikEdit kendi `.cevikedit` proje formatini kullanır. Masaüstü sürümü deneysel Jianying taslağı dosyası ve proje klasörü içe aktarma sunar: yerel taslağı okur, zaman çizelgesi seçer, doğrulanmış yükü çözer ve temel parçaları CevikEdit projesine çevirir. Dönüşüm zararlıdır, orijinali değiştirmez ve Jianying formatına yazma sunmaz.
 
-## 已验证的格式范围
+## Doğrulanmış format kapsamı
 
-第二轮研究已在本机剪映 `CFBundleShortVersionString = 11.0.12922`、`CFBundleVersion = 11.1.0-beta3` 的两个专用受控项目上完成四个载荷的独立认证解码，并核对自造媒体、时间范围、基础速度、缩放、旋转、音量和文字内容。这个结果替代首轮“载荷不透明、尚未解析”的结论；它不能证明任意剪映版本、云草稿或其他封装都兼容。
+İkinci tur araştırma, yerel Jianying `CFBundleShortVersionString = 11.0.12922`, `CFBundleVersion = 11.1.0-beta3` olan iki özel yetkilendirilmiş proje üzerinde dört yük ayrı ayrı doğrulanmış decode işlemi gerçekleştirdi ve kendinden üretilen medya, zaman aralığı, temel hız, ölçek, döndürme, ses ve metin içeriğini doğruladı. Bu sonuç, ilk tur “yük opak kaldı, henüz çözülemedi” sonucunu yerine getirir; yalnızca bu doğrulanmış taslağın uyumluluğunu kanıt eder, herhangi bir Jianying sürümü, bulut taslağı ya da başka sarmalamanın uyumluluğu kanıtlanmaz.
 
-当前独立解码器支持两类输入：
+Şu anda bağımsız decodeçisi şu iki giriş tipini destekler:
 
-- 明文 JSON 对象，包括以 `tracks` 和 `materials` 组织的 classic 草稿，以及已观察到的现代空白时间线结构。
-- 本轮验证的嵌入 AES-256-GCM 载荷：必要的密钥和 IV 由载荷自身的十二个分片提供，剩余 Base64 内容包含密文和认证标签。使用 Node.js 标准加密接口独立实现，认证失败或载荷结构未知时拒绝导入。
+- Metin JSON nesneleri; `tracks` ve `materials` ile organize edilen classic taslağın yanı sıra gözlemlenen modern boş zaman çizelgesi yapısı dahil.
+- Bu tur doğrulanmış gömülü AES-256-GCM yükü: gerekli anahtar ve IV yükünün kendi on iki parçadan gelir, geri kalan Base64 içeriği şifre ve doğrulama etiketi içerir. Node.js standart şifreleme arayüzü ile bağımsız uygulanır, doğrulama başarısız ya da yük yapısı bilinmediyse içe aktarma reddedilir.
 
-解码不执行剪映原生库，不查找账号凭据，也不调用远程服务。开源测试使用自行构造的 JSON 和合成载荷；原始草稿、完整解码 JSON、设备标识及样本中的密钥/IV 不进入公开仓库。静态发现、独立解码验证、界面观察和仍未解决的细节分别记录于 [第二轮草稿格式研究](research/DRAFT_FORMAT_ROUND2.md)。独立认证解码、补充 Ghidra 定点反编译和剪映原生导出对照是分别取得的证据，详情见研究报告。
+Decode Jianying native klibini çalıştırmaz, hesap bilgisini aramaz ve uzak servise çağrı yapmaz. Açık testler kendi oluşturduğu JSON ve sentetik yükleri kullanır; orijinal taslağın içeriği, tam decode JSON'i, cihaz tanımları ve örneklerdeki anahtar / IV'ler herkese açık depoya girmez. Statik keşif, bağımsız decode doğrulaması, arayüz gözleme ve henüz çözülmemiş ayrıntılar [İkinci tur taslak formatı araştırması](research/DRAFT_FORMAT_ROUND2.md) içinde kaydedildi. Bağımsız doğrulanmış decode, ek supplement Ghidra sabit nokta ters inceleme ve Jianying native dışa aktarma karşılaştırması ayrı ayrı kanıtlar; ayrıntılar araştırma raporunda.
 
-## 如何选择项目与时间线
+## Proje ve zaman çizelgesi seçimi
 
-在桌面版“文件”菜单中使用“导入剪映项目文件夹”，选择一个具体项目目录；也可使用“导入剪映草稿文件”选择草稿文件，或明确选择 `Timelines/<时间线 ID>/draft_info.json`。
+Masaüstü sürümde “Dosya” menüsünde “Jianying proje klasörünü içe aktar” ile bir proje dizini seçilir; ya da “Jianying taslağı dosyasını içe aktar” ile taslak dosya seçilir ya da `Timelines/<zaman çizelgesi ID>/draft_info.json` açıkça seçilir.
 
-现代项目通过 `Timelines/project.json` 的清单识别未删除时间线，并通过 `timeline_layout.json` 推荐当前编辑的时间线。项目有多条时间线时，应用要求明确选择；“当前编辑”和“主时间线”可能不是同一条，项目根目录中的草稿也可能没有实际片段。明确选定的时间线不会被根草稿或临时备份替换，清单无效、所选文件缺失或认证失败都会报告错误。classic 项目文件夹仅在 `draft_info.json` 不存在时尝试 `draft_content.json`；明确选定文件没有此回退。
+Modern proje `Timelines/project.json` listesinden silinmemiş zaman çizelgesini tanımlar, `timeline_layout.json` ile mevcut düzenleyici zaman çizelgesini önermek için kullanılır. Projedeki zaman çizelgesi sayısı çoksa uygulama açık seçim ister; “mevcut düzenleme” ve “ana zaman çizelgesi” aynı olamaz, proje kökündeki taslağın gerçek parça içermeyebilir. Açık seçilen zaman çizelgesi kök taslağa ya da geçici yedeklere değiştirilemez; liste geçersiz, seçili dosya eksik ya da doğrulama başarısızsa hata raporlanır. Classic proje klasöründe `draft_info.json` yoksa `draft_content.json` dener; açık seçim bu geri dönüşü desteklemez.
 
-草稿及时间线侧文件仅在所选项目目录范围内读取。草稿引用的本地媒体由桌面媒体导入流程核查；缺失媒体保留引用并提示重新链接，不下载远程资源。浏览器版仅保留明文 JSON 转换，项目文件夹和嵌入载荷解码使用桌面桥接。
+Taslak ve zaman çizelgesi yan dosyaları yalnızca seçili proje dizini sınırları içinde okunur. Taslaftan referans verilen yerel medya masaüstü medya içe aktarma akışıyla denetlenir; eksik medya referansı korunur ve yeniden link gerektirir, uzak kaynak indirilmez. Tarayıcı sürümü yalnızca metin JSON dönüşünü korur, proje klasörü ve gömülü yük decode için masaüstü köprüsünü kullanır.
 
-## 转换规则与丢失项
+## Dönüşüm kuralları ve kayıplar
 
-时间范围按微秒转换为 CevikEdit 秒，映射时间线开始、时长、源入点、0.1–8 倍基础速度、线性音量、统一缩放、旋转、透明度和翻转。归一化位移映射为 CevikEdit 画布半宽/半高单位，Y 方向反转；这一几何映射得到受控截图及原生导出像素测量支持，但不等于整个画面逐像素一致。字段缺失时的默认值和输入校验是独立实现的选择，不等于逐项观察过剪映执行行为。
+Zaman aralığı mikrosaniyeden CevikEdit saniyesine çevrilir, zaman çizelgesi başlangıcına, süresine, kaynak girişine, 0,1–8 kat temel hız, lineer ses, ortak ölçek, döndürme, şeffaflik ve ters çevirme; normalize konum CevikEdit çerçeve yarım genişliği / yarım yüksekliği birimine eşlenir, Y yönü tersine; bu geometri eşlemesi kontrollü ekran görüntüsü ve native dışa aktarma pikselleri ölçümü destekler, tüm görüntü için piksel eşleşmesi değildir. Alan eksikliğinde kullanılan varsayılanlar ve girdi doğrulaması bağımsız uygulama kararlarıdır, Jianying çalışma davranışının aşina gözleminin yerine geçmez.
 
-优先使用草稿给出的有效画布尺寸。尺寸缺失时，尝试由首个可导入视觉片段的记录尺寸推断，并提示核对；无法推断时使用 1920 × 1080。源时长缺失时由引用片段推断并发出警告，源范围明显越界的片段跳过。素材路径只接受本地绝对路径。
+Önce taslaftan geçerli çerçeve boyutu kullanılır. Boyut eksikse, ilk içe aktarılabilir görsel parçasından kayıt boyutundan türetmeye çalışılır ve doğrulanması istenir; türetilemezse 1920 × 1080 kullanılır. Kaynak süre eksikse parçalar üzerinden türetip uyarı verilir, kaynak aralığı açıkça aşan parçalar atılır. Malzama yolları yalnızca yerel mutlak yolları kabul eder.
 
-文字只保留基本内容，字体、花字、样式和排版使用 CevikEdit 自己的默认字体及样式。剪映关键帧、曲线变速、复杂效果、模板、转场、裁切、倒放、特殊音效与画布背景未完整映射；导入警告列出检测到的丢失项。非等比缩放转为统一缩放。复杂项目即使能解码，也不保证能够完整转换或保留视觉效果。
+Metin yalnızca temel içeriği korur, font, özel yazı, stil ve yerleşim CevikEdit'in kendi yazı tipi ve stili kullanır. Jianying kritik kareleri, çizgi değiştirme oranları, karmaşık etkinlikler, şablonlar, geçişler, kırpma, geri sarma, özel ses efektleri ve çerçeve arka planı tam eşleşmedi; içe aktarma uyarıları algılanan kayıplar listesini açar. Eşit oran dışındaki ölçek ortak ölçeğe dönüştürülür. Karmaşık proje decode bile olsa tam dönüşü ya da görsel etkilerin korunmasını garanti etmez.
 
-导入后请核对所选时间线、画布比例、媒体范围、文字和效果，再保存为 `.cevikedit` 继续编辑。当前不支持写回剪映、不保证其他版本互通，也未把受控预览的近似核对提升为商业剪映完整渲染兼容。
+İçe aktırdıktan sonra seçili zaman çizelgesi, çerçeve oranı, medya aralığı, metin ve etkiyi doğrulayın, sonra `.cevikedit` olarak kaydederek düzenlemeye devam edin. Jianying'e yazma desteklenmez, diğer sürüm uyumluluğu garanti edilmez, kontrollü ön izlemenin yaklaşıklığı ticari Jianying tam render uyumluluğuna yükseltilemez.
 
-账号、云项目、SaaS 和依赖 API 的 AI 功能仍留白。本实现不复制或分发剪映专有代码、库、图标、字体、模板或素材；分析工具与本地原始取证数据不随 CevikEdit 分发。
+Hesap, bulut proje, SaaS ve API AI üzerindeki AI işlevleri hâlâ boş bırakıldı. Bu uygulama Jianying özel kodu, kütüphanesi, ikonunu, yazı tipini, şablonunu ya da malzemasını kopyalamadı ya da dağıtmadı; analiz aracı ve yerel özgün inceleme verileri CevikEdit ile dağıtılmıyor.
 
-非整帧裁剪、长 GOP/B 帧与 VFR 取帧已有真实逐帧回归，详见第二轮报告；覆盖限定测试中的媒体组合。
+Çerçeve dışı kırpma, uzun GOP / B kare ve VFR alıntı gerçek zamanlı kare regresyonuna sahiptir; ikinci tur raporunda ayrıntılıdır; kapsam test medya kombinasyonlarıyla sınırlandırıldı.

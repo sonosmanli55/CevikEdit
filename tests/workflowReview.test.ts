@@ -14,8 +14,8 @@ async function fixture() {
   const root = await mkdtemp(path.join(os.tmpdir(), "cevikedit-workflow-review-")); folders.push(root);
   const source = path.join(root, "source.png"); await writeFile(source, "synthetic image bytes");
   const parent = path.join(root, "packages"); await mkdir(parent);
-  const project = createProject("搬移回归");
-  project.assets = [{ id: "asset", name: "自造图片", kind: "image", path: source, url: "file://" + source, duration: 0, width: 160, height: 90, fps: 0, hasAudio: false }];
+  const project = createProject("Taşıma regresyonu");
+  project.assets = [{ id: "asset", name: "Kendi ürettiğim görsel", kind: "image", path: source, url: "file://" + source, duration: 0, width: 160, height: 90, fps: 0, hasAudio: false }];
   project.clips = [createClip(project.assets[0], project.tracks[1].id, 0, 30)];
   const folder = await collectPortableProject(project, parent, new AbortController().signal, () => {}), file = path.join(folder, "proje.cevikedit");
   const opened = await resolvePortableDocument(JSON.parse(await readFile(file, "utf8")), file);
@@ -24,7 +24,7 @@ async function fixture() {
 describe("independent workflow review", () => {
   it("can save text edits while a packaged asset remains missing and relinkable", async () => {
     const { file, opened } = await fixture();
-    await rm(opened.assets[0].path); opened.assets[0].missing = true; opened.name = "继续编辑未丢失的内容";
+    await rm(opened.assets[0].path); opened.assets[0].missing = true; opened.name = "Kaybolmayan içeriği düzenlemeye devam et";
     await expect(savePortableDocument(opened, file)).resolves.toBeUndefined();
     const restored = await resolvePortableDocument(JSON.parse(await readFile(file, "utf8")), file);
     expect(restored.name).toBe(opened.name); expect(restored.assets[0].path).toBe(opened.assets[0].path);
@@ -33,7 +33,7 @@ describe("independent workflow review", () => {
     const { root, file, opened } = await fixture();
     const source = path.join(root, "external.png"); await writeFile(source, "new synthetic image");
     opened.assets.push({ ...opened.assets[0], id: "new", path: source, url: "file://" + source });
-    await savePortableDocument(opened, file); await rm(source); opened.name = "第二次编辑";
+    await savePortableDocument(opened, file); await rm(source); opened.name = "İkinci düzenleme";
     await expect(savePortableDocument(opened, file)).resolves.toBeUndefined();
     const restored = await resolvePortableDocument(JSON.parse(await readFile(file, "utf8")), file);
     expect((await readFile(restored.assets[1].path)).toString()).toBe("new synthetic image");
@@ -43,7 +43,7 @@ describe("independent workflow review", () => {
     const source = path.join(root, "frames.mkv");
     await runMediaTool("ffmpeg", ["-v", "error", "-y", "-f", "lavfi", "-i", "nullsrc=s=160x90:r=30:d=1,format=gbrp,geq=r='mod(N*70,240)':g='20':b='20'", "-c:v", "ffv1", source]);
     const [asset] = await importAssets([source], path.join(root, "cache"));
-    const project = createProject("逐帧范围"); project.width = 160; project.height = 90; project.assets = [asset]; project.clips = [createClip(asset, project.tracks[1].id, 0, 30)];
+    const project = createProject("Kare kare aralık"); project.width = 160; project.height = 90; project.assets = [asset]; project.clips = [createClip(asset, project.tracks[1].id, 0, 30)];
     const render = async (name: string, range?: ExportOptions["range"]) => {
       const file = path.join(root, name + ".mp4");
       await new Promise<void>((resolve, reject) => { void startExport(project, { path: file, width: 160, height: 90, fps: 30, quality: "high", format: "mp4", range }, event => { if (event.status === "complete") resolve(); if (event.status === "error") reject(new Error(event.message)); }).catch(reject); });

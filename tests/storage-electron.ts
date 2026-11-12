@@ -31,7 +31,6 @@ const errors: string[] = [];
 let app!: ElectronApplication;
 let page!: Page;
 const launch = async () => {
-env.CEVIKEDIT_LOCALE = "zh";
   app = await electron.launch({
     args: [path.join(root, "dist-electron", "main.cjs")],
     env,
@@ -53,9 +52,9 @@ env.CEVIKEDIT_LOCALE = "zh";
       (dialog as any).showOpenDialog = async (...args: any[]) => {
         const options = args[args.length - 1];
         const file =
-          options.title === "导入素材"
+          options.title === "Medya içe aktar"
             ? p.video
-            : options.title === "打开 CevikEdit 项目"
+            : options.title === "CevikEdit projesi aç"
               ? p.saved
               : p.backup;
         if (g.deferOpen)
@@ -86,28 +85,28 @@ const setName = async (name: string) => {
 const addText = async (text: string) => {
   await page
     .locator(".resource-tabs")
-    .getByRole("button", { name: "文本", exact: true })
+    .getByRole("button", { name: "Metin", exact: true })
     .click();
-  await page.getByRole("button", { name: "添加文本", exact: true }).click();
-  await page.getByRole("textbox", { name: "文字内容", exact: true }).fill(text);
-  await page.getByRole("textbox", { name: "文字内容", exact: true }).blur();
+  await page.getByRole("button", { name: "Metin ekle", exact: true }).click();
+  await page.getByRole("textbox", { name: "Metin içeriği", exact: true }).fill(text);
+  await page.getByRole("textbox", { name: "Metin içeriği", exact: true }).blur();
 };
 const save = async () => {
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect(page.locator(".save-dot")).not.toHaveClass(/dirty/);
   return read();
 };
 try {
   await launch();
-  await setName("保存时的快照");
+  await setName("Kaydetme anındaki anlık görüntü");
   await app.evaluate(() => {
     (globalThis as any).deferSave = true;
   });
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect
     .poll(() => app.evaluate(() => Boolean((globalThis as any).releaseSave)))
     .toBe(true);
-  await setName("保存期间继续编辑");
+  await setName("Kaydetme sırasında düzenlemeye devam");
   await app.evaluate(() => {
     (globalThis as any).releaseSave();
     (globalThis as any).deferSave = false;
@@ -118,7 +117,7 @@ try {
         .then((p) => p.name)
         .catch(() => null),
     )
-    .toBe("保存时的快照");
+    .toBe("Kaydetme anındaki anlık görüntü");
   await expect(page.locator(".save-dot")).toHaveClass(/dirty/);
   await app.evaluate(({ BrowserWindow }) => {
     BrowserWindow.getAllWindows()[0].close();
@@ -133,14 +132,14 @@ try {
     1,
     "Unsaved changes must keep the window open after Cancel",
   );
-  assert.equal((await save()).name, "保存期间继续编辑");
-  await addText("自动恢复保留的内容");
+  assert.equal((await save()).name, "Kaydetme sırasında düzenlemeye devam");
+  await addText("Otomatik kurtarmanın koruduğu içerik");
   await expect
     .poll(
       () =>
         page.evaluate(async () => {
           const p = await window.editorAPI!.getAutosave();
-          return p?.clips.some((c) => c.text?.text === "自动恢复保留的内容");
+          return p?.clips.some((c) => c.text?.text === "Otomatik kurtarmanın koruduğu içerik");
         }),
       { timeout: 10000 },
     )
@@ -151,18 +150,18 @@ try {
   await app.close();
   await launch();
   await expect(
-    page.getByRole("dialog", { name: "恢复上次编辑", exact: true }),
+    page.getByRole("dialog", { name: "Son düzenlemeyi geri yükle", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "恢复项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi geri yükle", exact: true }).click();
   await expect(page.locator(".project-title input")).toHaveValue(
-    "保存期间继续编辑",
+    "Kaydetme sırasında düzenlemeye devam",
   );
   assert(
-    (await save()).clips.some((c) => c.text?.text === "自动恢复保留的内容"),
+    (await save()).clips.some((c) => c.text?.text === "Otomatik kurtarmanın koruduğu içerik"),
   );
   await page
     .locator(".resource-tabs")
-    .getByRole("button", { name: "素材", exact: true })
+    .getByRole("button", { name: "Medya", exact: true })
     .click();
   await page.locator(".media-import").click();
   await expect(page.locator(".media-item")).toHaveCount(1, { timeout: 30000 });
@@ -171,56 +170,56 @@ try {
   await page.locator(`[data-asset-id="${video.id}"]`).dblclick();
   project = await save();
   await rm(fixture.video);
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "打开项目", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Proje aç", exact: false }).click();
   await expect(
-    page.getByRole("button", { name: "重新链接丢失素材", exact: true }),
+    page.getByRole("button", { name: "Eksik medyayı yeniden bağla", exact: true }),
   ).toBeVisible();
   await app.evaluate(() => {
     (globalThis as any).deferOpen = true;
   });
   await page
-    .getByRole("button", { name: "重新链接丢失素材", exact: true })
+    .getByRole("button", { name: "Eksik medyayı yeniden bağla", exact: true })
     .click();
   await expect
     .poll(() => app.evaluate(() => Boolean((globalThis as any).releaseOpen)))
     .toBe(true);
-  await addText("重链接期间新增的文字");
+  await addText("Yeniden bağlama sırasında eklenen metin");
   await app.evaluate(() => {
     (globalThis as any).releaseOpen();
     (globalThis as any).deferOpen = false;
   });
   await expect(
-    page.getByRole("button", { name: "重新链接丢失素材", exact: true }),
+    page.getByRole("button", { name: "Eksik medyayı yeniden bağla", exact: true }),
   ).toHaveCount(0, { timeout: 30000 });
   project = await save();
   assert.equal(project.assets[0].path, backup);
-  assert(project.clips.some((c) => c.text?.text === "重链接期间新增的文字"));
+  assert(project.clips.some((c) => c.text?.text === "Yeniden bağlama sırasında eklenen metin"));
   // Switching projects while a Save As dialog is pending must not attach the old path to a new project.
   await app.evaluate(() => {
     (globalThis as any).deferSave = true;
     (globalThis as any).releaseSave = undefined;
   });
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "另存为", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Farklı kaydet", exact: false }).click();
   await expect
     .poll(() => app.evaluate(() => Boolean((globalThis as any).releaseSave)))
     .toBe(true);
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "新建项目", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Yeni proje", exact: false }).click();
   await app.evaluate(() => {
     (globalThis as any).releaseSave();
     (globalThis as any).deferSave = false;
   });
   await expect(
-    page.getByText("原项目快照已保存", { exact: true }),
+    page.getByText("Özgün projenin anlık görüntüsü kaydedildi", { exact: true }),
   ).toBeVisible();
-  await setName("切换后独立的新项目");
+  await setName("Değiştirmeden sonra bağımsız yeni proje");
   await app.evaluate(() => {
     (globalThis as any).deferSave = true;
     (globalThis as any).releaseSave = undefined;
   });
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect
     .poll(() => app.evaluate(() => Boolean((globalThis as any).releaseSave)))
     .toBe(true);

@@ -71,7 +71,7 @@ function clip(
     id: randomUUID(),
     trackId,
     assetId: asset?.id,
-    name: asset?.name ?? "标题",
+    name: asset?.name ?? "Başlık",
     start: 0,
     duration: 2,
     sourceIn: 0,
@@ -92,7 +92,7 @@ function project(clips: Clip[]): Project {
   return {
     version: 1,
     id: randomUUID(),
-    name: "导出测试",
+    name: "Dışa aktarma testi",
     width: 160,
     height: 90,
     fps: 10,
@@ -101,7 +101,7 @@ function project(clips: Clip[]): Project {
     tracks: [
       {
         id: "title",
-        name: "标题",
+        name: "Başlık",
         kind: "text",
         muted: false,
         hidden: false,
@@ -109,7 +109,7 @@ function project(clips: Clip[]): Project {
       },
       {
         id: "overlay",
-        name: "叠加",
+        name: "üst üste",
         kind: "image",
         muted: false,
         hidden: false,
@@ -117,7 +117,7 @@ function project(clips: Clip[]): Project {
       },
       {
         id: "video",
-        name: "视频",
+        name: "Video",
         kind: "video",
         muted: false,
         hidden: false,
@@ -125,7 +125,7 @@ function project(clips: Clip[]): Project {
       },
       {
         id: "audio",
-        name: "音频",
+        name: "Ses",
         kind: "audio",
         muted: false,
         hidden: false,
@@ -282,9 +282,9 @@ describe("real local media and FFmpeg export", () => {
   });
 
   it("creates and reuses local Chromium preview proxies while keeping original export sources", async () => {
-    const mkv = path.join(directory, "容器.mkv");
-    const aiff = path.join(directory, "音频.aiff");
-    const tiff = path.join(directory, "图片.tiff");
+    const mkv = path.join(directory, "kap.mkv");
+    const aiff = path.join(directory, "ses.aiff");
+    const tiff = path.join(directory, "gorsel.tiff");
     await runMediaTool("ffmpeg", [
       "-v",
       "error",
@@ -426,7 +426,7 @@ describe("real local media and FFmpeg export", () => {
         duration: 1,
         text: {
           ...DEFAULT_TEXT,
-          text: "中文标题",
+          text: "Türkçe başlık",
           fontSize: 22,
           strokeWidth: 0,
         },
@@ -1191,14 +1191,14 @@ describe("real local media and FFmpeg export", () => {
         settings("invalid.mp4"),
         () => {},
       ),
-    ).rejects.toThrow("超出源素材时长");
+    ).rejects.toThrow("kaynak medyanın süresini aşıyor");
     await expect(
       startExport(
         project([clip(assets[0], "video")]),
         settings("unused.mp4", { path: assets[0].path }),
         () => {},
       ),
-    ).rejects.toThrow("不能覆盖");
+    ).rejects.toThrow("Dışa aktarılan dosya");
     if (process.platform !== "win32") {
       const aliasPath = path.join(directory, "source-alias.mp4");
       await symlink(assets[0].path, aliasPath);
@@ -1211,7 +1211,7 @@ describe("real local media and FFmpeg export", () => {
           settings("unused.mp4", { path: assets[0].path }),
           () => {},
         ),
-      ).rejects.toThrow("不能覆盖");
+      ).rejects.toThrow("Dışa aktarılan dosya");
     }
     const options = settings("existing.mp4");
     await writeFile(options.path, "original output");

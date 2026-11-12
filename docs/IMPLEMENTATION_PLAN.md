@@ -1,37 +1,38 @@
-# CevikEdit 实施记录
+# CevikEdit uygulama kaydı
 
-2026-10-13。用户授权本地开发与验证，macOS 优先、兼顾 Windows/Linux；GitHub 暂不发布。使用 REA 研究指定剪映安装包与专用测试草稿的可观察行为，独立实现离线编辑器。SaaS、云端与 API AI 留白；不复制或分发剪映专有代码、库、字体、图标或模板。
+2026-10-13. Kullanıcı yerel geliştirme ve doğrulamaya yerel izin verdi; macOS öncelikli, Windows / Linux de gözden geçirildi; GitHub'e henüz yayın yok. REA araştırmasıyla belirtilen Jianying kurulum paketleri ve özel test taslaflarının gözlemlenebilir davranışını kullanarak bağımsız uygulama geliştirildi. SaaS, bulut ve API AI boş bırakıldı; Jianying özel kodu, kütüphanesi, yazı tipi, ikon ya da şablon malzemesi kopyalanmadı ya da dağıtılmadı.
 
-## 当前交付证据
+## Şu anki teslim kanıtları
 
-- [x] REA CLI / MCP 研究报告，区分观察、推断、自主设计和未解决项。
-- [x] macOS 编译后的 Electron 编辑器可以执行本地导入、编辑、保存重开与导出。
-- [x] 多轨、移动、裁剪、分割、多选、复制粘贴、锁轨、吸附/磁吸删除和撤销重做。
-- [x] 文字/基础字幕、音频、常规变速、变换、RGB 调色、关键帧与保持包络的淡入淡出。
-- [x] source-space crop、RGB 色度抠像、矩形/椭圆蒙版，实际 UI 与导出像素验证。
-- [x] 项目验证、保存打开、最近项目和本地自动恢复实现；保存重开通过桌面验收。
-- [x] 真实 FFmpeg 导出、进度、取消、目标保护与媒体进程关闭测试。
-- [x] v0.4.0 的 270 项自动化测试、22 个文件通过（另 1 项跳过），编译后核心/visual 桌面流程通过。
-- [x] 双语 README、MIT、原版依赖 notices、OFL 字体 provenance、构建配置和 CI workflow。
-- [x] 原创本地演示工程生成器及真实媒体导出。
-- [x] 最新两份桌面 evidence 包含 Noto 浏览器加载与原生字体注册的实际断言结果。
-- [x] 轨道删除/排序/重命名 store 实现及四项新增回归测试。
-- [x] 新增轨道 UI、音频分离/共享重新链接、live Player 与完整套件重跑。
-- [x] 干净 npm ci 安装及原生模块就绪；DMG/ZIP 生成与镜像/压缩包/ad-hoc 签名检查。
-- [x] 上一轮真实 `.app` 在仓库外启动、Noto、预览及九秒混音导出 smoke。
-- [x] 最终 DMG 复制 app 的独立cwd、字体/native canvas、预览、九秒混音导出 smoke；原包/镜像内ASAR一致与签名/ZIP/镜像校验。
-- [ ] Windows/Linux 本机运行与实际 GitHub CI 执行（本次无相应环境或发布）。
+- [x] REA CLI / MCP araştırma raporu; gözlem, çıkarım, bağımsız tasarım ve çözülmemiş maddeler ayrıldı.
+- [x] Derlenmiş Electron düzenleyicisi yerel içe aktarma, düzenleme, kaydetme yeniden açma ve dışa aktarmayı çalıştırdı.
+- [x] Çok kanal, taşıma, kırpma, bölme, çoklu seçim, kopyala / yapıştırma, kanal kilidi, mıknatıs / sürüklenme silme ve geri alma / yeniden kullanma.
+- [x] Metin / temel altyazı, ses, normal değiştirme oranı, dönüşüm, RGB renk, kritik kare ve paketlenen fades ile geçiş.
+- [x] Kaynak uzaklığı kırpma, RGB renk kadranı kırpma, dikdörtge / elips maske; gerçek arayüz ve dışa aktarma pikselleri doğrulandı.
+- [x] Proje doğrulama, kaydetme açma, son proje ve yerel otomatik kurtarma; kaydetme yeniden açma masaüstü kabulüyle doğrulandı.
+- [x] Gerçek FFmpeg dışa aktarması, ilerleme, iptal, hedef koruması ve medya süreç kapatma testleri.
+- [x] v0.4.0'in 270 otomatik testi, 22 dosya geçti (1 atlandı); derleme sonrası çekirdek / görsel masaüstü akışı geçti.
+- [x] Çift dilli README, MIT, orijinal bağımlılık notices, OFL yazı tipi kaynağı, derleme yapılandırması ve CI workflow.
+- [x] Orijinal yerel demo üretim aracı ve gerçek medya dışa aktarması.
+- [x] Son iki masaüstü kanıtı Noto'nun tarayıcı yüklemesini ve yerel yazı motorunu gerçek iddia sonuçları içeriyor.
+- [x] Kanal silme / sıralama / yeniden adlandırma store uygulaması ve dört yeni regresyon testi.
+- [x] Yeni kanal UI, ses ayrıştırma / yeniden linkleme, canlı Player ve tam paket yeniden çalıştırma.
+- [x] Temiz `npm ci` kurulumu ve native modüller hazır; DMG / ZIP üretimi ve imge / sıkıştırma paketi / ad-hoc imza kontrolü.
+- [x] Son gerçek `.app`, depo dışında başlatıldı, Noto, ön izleme ve dokuz saniyelik karıştırılmış dışa aktarma smoke.
+- [x] Son DMG kopyası bağımsız cwd, font / native canvas, ön izleme ve dokuz saniyelik karıştırılmış dışa aktarma smoke; orijinal / imge ASAR tutarlılığı ve imza / ZIP / imge doğrulaması.
+- [ ] Windows / Linux gerçek makinesi çalışması ve gerçek GitHub CI çalıştırılması (bu turda uygun ortam ya da yayın yok).
 
-## 本轮完善
+## Bu tur iyileştirmeleri
 
-- [x] 依据既有授权 UI 截图对齐布局、资源顺序、属性分组、缩放/位置控件和时间线样式。
-- [x] 源素材单击预览、I/O 标记、选段插入与整段双击添加。
-- [x] 字幕逐句和批量编辑，原子撤销、锁轨及过时计划保护。
-- [x] 素材包收集、去重、相对引用、搬移继续保存和缺失素材处理。
-- [x] 自定义/选中区间导出，逐帧、真实像素和声音验证。
+- [x] Mevcut yetkili UI ekran görüntülerini kullanarak yerleşim, kaynak sırası, özellik grupları, ölçek / konum kontrolleri ve zaman çizelgesi stili eşleştirmesi.
+- [x] Kaynak malzamanın tıklaması ile ön izleme, I/O işaretleri, seçili parça ekleme ve tam parça çift tıklama ekleme.
+- [x] Altyazı cümle düzeltmesi ve toplu düzenleme, atomik geri alma, kanal kilidi ve eski plan koruması.
+- [x] Malzama paketi toplama, dedup, görecel referans, taşıma devamı ve eksik malzama işlemi.
+- [x] Özel / seçili aralık dışa aktarma, kare çözümleme, gerçek piksel ve ses doğrulaması.
+- [x] Proje doğrulama, kaydetme / açma, son proje ve yerel otomatik kurtarma uygulandı; kaydetme yeniden açma masaüstü kabulüyle doğrulandı.
 
-## 当前范围
+## Şu anki kapsam
 
-已实现并验证独立编辑器的主要本地工作流。商业剪映的全部功能一比一对等没有覆盖证据，也不是当前实现的声明。草稿导入是实验性、有损转换；第二轮增加现代多时间线目录与本机受控不透明草稿的认证解码，兼容性限定见 CAPCUT_INTEROP.md。SaaS、账号与 API AI 不以假按钮冒充实现。
+Bağımsız düzenleyicinin temel yerel iş akışı uygulandı ve doğrulandı. Ticari Jianying'in tüm özelliklerinin birebir eşleşmesi için tam kapsam kanıtı yoktur ve bu kapsamda tanımadık ya da geliştirilmedi. Taslak içe aktarma deneysel ve zararlı dönüşümdür; ikinci tur modern çok zaman çizelgesi dizinleri ve yerel yetkilendirmeli opak taslağın doğrulanmış decode ile ekledi; uyumluluk sınırı CAPCUT_INTEROP.md içinde. SaaS, hesap ve API AI eklenmedi; sahte buton ya da iddia ile uygulanmadı.
 
-完整证据、运行环境和限制见 [VALIDATION.md](VALIDATION.md)；功能边界见 [FEATURE_MATRIX.md](FEATURE_MATRIX.md)。最终打包验证完成后据真实结果更新本清单，不依据计划或测试脚本存在标记完成。
+Tam kanıt, çalışma ortamı ve sınırlar için [VALIDATION.md](VALIDATION.md); özellik sınırları için [FEATURE_MATRIX.md](FEATURE_MATRIX.md). Son paket doğrulamasından sonra bu kayıt gerçek sonuçlara göre güncellenir; plan ya da test betiğindeki işaretler ile bitmeyen şeyler tamamlanmadığı anlamına gelmez.

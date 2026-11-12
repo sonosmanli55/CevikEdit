@@ -1,62 +1,62 @@
-# 在 Codex 中使用 CevikEdit
+# Codex'te CevikEdit kullanımı
 
-CevikEdit 提供两种入口：独立 DMG 桌面应用，以及 Codex 桌面端右侧的插件面板。两者使用同一套编辑器和本地媒体引擎。插件需要本机安装 **CevikEdit 0.5.0 或更新版本**，不是云端剪辑服务。
+CevikEdit iki giriş sunar: bağımsız DMG masaüstü uygulaması ile Codex masaüstü ekinin sağ kenar çubuğu paneli. İkisi aynı düzenleyiciyi ve yerel medya motorunu kullanır. Eklenti için **CevikEdit 0.8.0 veya üzeri** sürümü yerel olarak kurulu olmalıdır; bu bir bulut tabanlı video düzenleyici hizmeti değildir.
 
-## 安装
+## Kurulum
 
-1. 从 [v0.5.0 Release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0) 下载 DMG 与插件 ZIP。打开 CevikEdit DMG，将应用拖入“应用程序”，至少启动一次确认系统允许运行。
-2. 安装 Codex 桌面端及其 CLI，确保终端可以运行 `codex`，并有 Python 3。
-3. 在 CevikEdit 源码目录，或解压后的 `CevikEdit-plugin-0.5.0.zip` 目录执行：
+1. [v0.8.0 sürümü](https://github.com/sonosmanli55/CevikEdit/releases/latest) dosyalarından Windows kurulum paketini ve eklenti ZIP'ini indirin. CevikEdit DMG'sini açıp uygulamayı “Uygulamalara” sürükleyin ve en az bir kez başlatarak sistem izninin verildiğini doğrulayın.
+2. Codex masaüstü ekini ve CLI'sini kurun; terminalin `codex` çalıştığını ve Python 3 olduğunu doğrulayın.
+3. CevikEdit kaynak dizininde ya da açılmış eklenti ZIP dizininde şu komutları çalıştırın:
 
 ```sh
 sh scripts/install-plugin.sh
 ```
 
-应用放在其他位置时：
+Uygulama başka bir konumdaysa:
 
 ```sh
 sh scripts/install-plugin.sh --app /absolute/path/CevikEdit.app
 ```
 
-脚本先核对应用版本，再通过 `codex plugin marketplace add` 和 `codex plugin add` 安装本地插件。不修改 Codex 的工具审批策略。指定路径记录在 `~/.config/cevikedit/plugin.json`；环境变量 `CEVIKEDIT_APP` 可覆盖它。默认寻找 `/Applications/CevikEdit.app` 和 `~/Applications/CevikEdit.app`。
+Script önce uygulama sürümünü doğrular, ardından `codex plugin marketplace add` ve `codex plugin add` ile yerel eklentiyi kurar. Codex araç onaylama politikalarını değiştirmez. Belirli yollar `~/.config/cevikedit/plugin.json` dosyasına kaydedilir; `CEVIKEDIT_APP` ortam değişkeni bunu geçersiz kılabilir. Varsayılan arayüz `/Applications/CevikEdit.app` ve `~/Applications/CevikEdit.app` arar.
 
-重连或新开 Codex 聊天，让工具和 skill 加载，然后输入：
+Plugin'i yeniden bağlayın ya da yeni bir Codex sohbeti açın; araç ve skill yüklenir, ardından şunu yazın:
 
-> 用 CevikEdit 在右侧打开视频编辑器。
+> Sağ tarafta CevikEdit ile video düzenleyiciyi aç.
 
-也可以先在插件列表启用 CevikEdit，再使用 `$cevikedit`。
+Ayrıca eklenti listesinde CevikEdit'i etkinleştirebilir, sonra `$cevikedit` kullanabilirsiniz.
 
-## 直接操作与让 Codex 剪辑
+## Doğrudan işle ve Codex'in kurguyu yapması
 
-右侧是本地 CevikEdit 的实时交互画面，支持点击、拖动片段、滚轮、键盘快捷键。窄面板默认适应窗口；点击 **100%** 可按原始尺寸滚动查看。中文或长文本可先点击编辑器的输入框，再用底部输入栏发送。
+Sağ tarafta yerel CevikEdit'in gerçek zamanlı etkileşim görüntüsü gösterilir; tıklama, parça sürüklenmesi, tekerlek, klavye kısayolları desteklenir. Panel daha dar pencere için varsayılan olarak boyutlanır; **100%** tıklanarak orijinal boyutta kaydırma görüntülenebilir. Çinçe ya da uzun metin için önce düzenleyicinin giriş alanını, sonra alt kaydırıcı ile gönderin.
 
-上方工具栏可导入、打开、保存和导出。文件选择/保存会弹出 macOS 系统对话框；若被其他窗口遮挡，点击“显示桌面窗口”。完整素材、文字、特效、转场和导出工作流沿用桌面版。
+Üst araç çubuğu içe aktarma, açma, kaydetme ve dışa aktarmayı içerir. Dosya seçimi / kaydetme macOS sistem diyaloğu açar; başka bir pencere tarafından kapatılırsa “Masaüstü pencereğini göster”e tıklayın. Tam üretim, malzama, metin, etki, geçiş ve dışa aktarma iş akışı masaüstü sürümüyle aynıdır.
 
-0.5.1 起，连接插件、查询工具列表和读取侧栏资源均不会启动 CevikEdit。首次实际调用编辑器工具才启动应用，同一连接复用一个实例；应用异常退出后不会自动循环重启。macOS 应用从系统加载阶段即以后台模式启动，点击“显示桌面窗口”后才显示 Dock 图标。关闭这个窗口会隐藏图标并保留插件会话。直接启动桌面版仍正常显示在 Dock 中。
+0.5.1'den itibaren bağlantı, araç listesi sorgulama ve kenar çubuğu kaynağı okuma CevikEdit'i başlatmaz. İlk gerçek araç çağrısı olduğunda uygulama başlar; aynı bağlantı bir örneği yeniden kullanır; uygulama hata durumunda otomatik döngü başlatmaz. macOS uygulaması yükleme aşamasında iptal modunda başlar; “Masaüstü pencereğini göster” tıklandıktan sonra Dock simgesi görünür. Bu pencereyi kapatmak simge gizler ama eklenti oturumunu korur. Doğrudan masaüstü sürümü hâlâ Dock'ta normal görünür.
 
-也可以告诉 Codex：
+Ayrıca şu şekilde de söyleyebilirsin:
 
-> 用内置海洋背景做一个 5 秒标题视频，添加“我的第一支视频”，然后让我检查。
+> Bir 5 saniyelik başlık videosu yapayım, “Benim ilk videosum” olsun, sonra kontrol et.
 
-Codex 可读取当前项目、导入指定素材、添加文字与片段、裁剪、分割、移动、调整画面/声音、播放、定位、撤销和重做。批量编辑需带当前 revision；你在界面中修改后，旧提案会被拒绝，防止覆盖新编辑。每次批量编辑都可一次撤销。
+Codex şu işlemleri yapabilir: mevcut projeyi okur, belirtilen malzemeleri içe aktarır, metin ve parça ekler, kırpma, bölme, taşıma, görsel / ses ayarlarını düzenler, oynatır, konumlandırır, geri alır ve yeniden yapar. Toplu düzenleme mevcut revizyonu taşır; arayüzde sen düzenledikten sonra eski öneri reddedilir, yeni düzenlemeyi kapamaz. Her toplu düzenleme tek geri alınabilir.
 
-## 当前限制
+## Mevcut sınırlar
 
-- 采用与 [iPhone-use](https://github.com/zhongerxin/iPhone-use) 类似的 MCP App 实时画面桥接。侧栏约 6 fps，实际速度受宿主和窗口大小影响；这是交互画面，不是原帧率视频监看。声音由本机 CevikEdit 播放。精细预览可显示桌面窗口。
-- 侧栏不支持直接从 Finder 拖入文件；使用“导入素材”或明确指定路径。中文输入推荐底部输入栏。
-- 插件会话独立运行，每次连接的恢复数据隔离保存在 `~/Library/Application Support/CevikEdit-Plugin/sessions/<会话>/`，`cevikedit_state` 返回 recoveryPath；重连后可打开该 `autosave.cevikedit` 恢复。重要项目应主动保存。不会自动接管桌面版未保存的项目；通过保存、打开 `.cevikedit` 文件交换。
-- 本地 stdio 插件面向 Codex 桌面端；Codex CLI 可使用工具，但没有图形侧栏。不是 ChatGPT 网页插件，也尚未提交公共插件目录。
-- 首版在 macOS Apple Silicon 验证。Windows / Linux 需要平台应用路径及独立验收。
+- [iPhone-use](https://github.com/zhongerxin/iPhone-use) benzeri bir MCP App gerçek zamanlı görüntü köprüsü kullanılır. Panel yaklaşık 6 fps; gerçek hız konak ve pencere boyutunu etkiler; bu bir etkileşim görüntüsüdür, orijinal kare hızlı video izleme değildir. Ses yerel CevikEdit tarafından çalar. İnce önizleme için masaüstü pencereyi gösterilebilir.
+- Panel doğrudan Finder'dan dosya sürüklemeyi desteklemez; “Malzama içe aktar” kullanın ya da yol açıkça belirtin. Çince giriş için alt kaydırıcı girişi önerilir.
+- Eklenti oturumu bağımsız çalışır; her bağlantı için kurtarma verileri `~/Library/Application Support/CevikEdit-Plugin/sessions/<konuşma>/` altında izole tutulur, `cevikedit_state` recoveryPath döndürür; yeniden bağlamadan sonra o `autosave.cevikedit` kurtarılabilir. Önemli projeler aktif olarak kaydedilmelidir. Uygulamanın kaydedilmemiş projelerini otomatik devralmaz; `.cevikedit` dosyaları ile kaydetme / açma aracılığıyla değişim yapılır.
+- Yerel stdio eklenti Codex masaüstü ekine yöneliktir; Codex CLI araç kullanabilir, fakat grafik panel yoktur. ChatGPT web eklentisi değildir, henüz herkese açık eklenti diziniye gönderilmedi.
+- İlk sürüm Apple Silicon macOS üzerinde doğrulandı. Windows / Linux için platform uygulama yolu ve bağımsız kabul gerekir.
 
-## 数据与权限
+## Veri ve izin
 
-插件不启动 HTTP 服务，不增加遥测、登录、云同步或直接 AI API。媒体预览、保存和导出在本机运行；插件只启动自己的 CevikEdit 会话，不捕获其他应用。
+Eklenti HTTP hizmeti başlatmaz, telemetri, giriş, bulut senkronizasyon ya da doğrudan AI API eklemeyen bir araçtır. Medya ön izleme, kaydetme ve dışa aktarma yerel CevikEdit içinde çalışır; eklenti yalnızca kendi CevikEdit oturumunu başlatır, diğer uygulamaları yakalamaz.
 
-Codex 会接收到它主动读取的项目摘要、文字、操作结果，以及显式请求的截图。实时帧工具仅供侧栏调用。数据仍受 Codex 自身的数据处理方式约束，不能理解为所有信息绝不离开本机。导入工具只应使用用户明确授权的文件。
+Codex'e gönderilen veriler Codex tarafından aktif olarak okunan proje özetleri, metinler, işlem sonuçları ve açıkça istenen ekran görüntüleri içerir. Gerçek zamanlı kare aracı yalnızca panelden kullanılır. Veriler yine de Codex'in kendi veri işleme biçimine tabidir; bu yüzden her bilginin bu makineden çıkmadığı anlamına gelmez. İçe aktarma aracı yalnızca kullanıcının açıkça yetkilendirdiği dosyaları kullanmalıdır.
 
-## 构建与验证
+## Derleme ve doğrulama
 
-以下构建命令在源码仓库执行；插件 ZIP 仅包含安装所需文件。
+Aşağıdaki derleme komutları kaynak depoda çalıştırılır; eklenti ZIP'i yalnızca kurulum gereken dosyaları içerir:
 
 ```sh
 npm ci
@@ -66,14 +66,14 @@ npm run dist:mac:installer
 npm run plugin:pack
 ```
 
-DMG / 应用由 Electron Builder 生成；插件 ZIP 输出到 `release/CevikEdit-plugin-0.5.0.zip`。ZIP 包含 portable `plugin.json` / `mcp.json`、Codex 兼容 manifest、skill、Python 启动器与安装脚本。编辑器和自包含 MCP App UI 随 DMG 分发，因此插件包不再复制视频引擎。
+DMG / uygulama Electron Builder tarafından üretilir; eklenti ZIP `release/CevikEdit-plugin-0.5.0.zip` çıktısına yazar. ZIP portable `plugin.json` / `mcp.json`, Codex uyumlulu manifestı, skill, Python başlatıcı ve kurulum betiğini içerir. Düzenleyici ve kendi kendine tutulan MCP App UI DMG ile dağıtılır; bu yüzden eklenti paketi artık video motorunu kopyalamaz.
 
-开发协议验收使用隔离数据目录。安装包验收可通过 `CEVIKEDIT_TEST_APP=/absolute/path/CevikEdit.app/Contents/MacOS/CevikEdit npm run test:plugin` 指定实际程序。
+Geliştirme protokol doğrulaması izole veri dizinleri kullanır. Paket doğrulaması `CEVIKEDIT_TEST_APP=/absolute/path/CevikEdit.app/Contents/MacOS/CevikEdit npm run test:plugin` ile gerçek program belirleyerek yapılabilir.
 
-协议依据：[OpenAI 插件打包](https://developers.openai.com/plugins/build/plugins)、[MCP Apps](https://modelcontextprotocol.io/docs/extensions/apps)。参考 iPhone-use 的 manifest、fullscreen resource 与实时帧桥接结构；CevikEdit 的编辑、输入和打包实现为本项目代码。
+Protokol dayanağı: [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins) ve [MCP Apps](https://modelcontextprotocol.io/docs/extensions/apps). iPhone-use'in manifest, tam ekran kaynak ve gerçek zamanlı kare köprü yapısı referans alınır; CevikEdit'in düzenleme, giriş ve paketleme uygulaması bu projenin kendi kodudur.
 
-## 本地交互验收截图
+## Yerel etkileşim doğrulaması ekranı
 
-下图来自独立的本地 MCP Apps 验证宿主，展示实际 CevikEdit 编辑器和插件 UI；不是已通过的 Codex 宿主截图。
+Aşağıdaki görüntü bağımsız yerel MCP Apps doğrulama konakında üretilir; gerçek CevikEdit düzenleyicisi ve eklenti arayüzünü gösterir; Codex konakından geçen bir ekran görüntüsü değildir.
 
-![本地 MCP App 界面验证](screenshots/codex-plugin-local-host.jpg)
+![Yerel MCP App arayüz doğrulaması](screenshots/codex-plugin-local-host.jpg)

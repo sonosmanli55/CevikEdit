@@ -111,23 +111,13 @@ const api: EditorAPI = {
 };
 contextBridge.exposeInMainWorld("editorAPI", api);
 
-// Locale negotiated by the main process. The application ships in Turkish;
-// `--cevikedit-locale=zh` is kept for the Chinese-source regression harnesses.
-const localeArgument = process.argv.find((argument) =>
-  argument.startsWith("--cevikedit-locale="),
-);
-contextBridge.exposeInMainWorld(
-  "cevikeditLocale",
-  localeArgument ? localeArgument.slice("--cevikedit-locale=".length) : "tr",
-);
-
 // Present only in the dedicated plugin process, never in a normal desktop window.
 if (process.argv.includes("--cevikedit-plugin")) {
   contextBridge.exposeInMainWorld("cevikeditPlugin", {
     onCommand: (callback: (request: { action: string; args: unknown }) => Promise<unknown>) => {
       ipcRenderer.on("plugin-command", async (_, request) => {
         try { ipcRenderer.send("plugin-result", { id: request.id, result: await callback(request) }); }
-        catch (error) { ipcRenderer.send("plugin-result", { id: request.id, error: error instanceof Error ? error.message : "操作失败" }); }
+        catch (error) { ipcRenderer.send("plugin-result", { id: request.id, error: error instanceof Error ? error.message : "İşlem başarısız" }); }
       });
       ipcRenderer.send("plugin-ready");
     },

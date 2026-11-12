@@ -48,7 +48,7 @@ it("reports a damaged bundle instead of silently using system tools", async () =
       bundledDirectory: path.join(directory, "missing"),
       env: { PATH: system },
     }),
-  ).rejects.toThrow("内置 ffprobe");
+  ).rejects.toThrow("Gömülü ffprobe");
 });
 it("does not hide a stale explicit override with the bundled tool", async () => {
   await expect(
@@ -57,7 +57,7 @@ it("does not hide a stale explicit override with the bundled tool", async () => 
       bundledDirectory,
       env: { CEVIKEDIT_FFMPEG: directory },
     }),
-  ).rejects.toThrow("所选 ffmpeg");
+  ).rejects.toThrow("Seçili ffmpeg");
 });
 it("retains PATH discovery for source development", async () => {
   expect(

@@ -7,11 +7,11 @@
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/source_license-MIT-45d6c0" alt="Source license: MIT" /></a>
   <img src="https://img.shields.io/badge/status-early_development-orange" alt="Status: early development" />
-  <img src="https://img.shields.io/badge/verified-macOS_arm64-333333" alt="Verified platform: macOS arm64" />
+  <img src="https://img.shields.io/badge/verified-Windows_x64-333333" alt="Verified platform: Windows x64" />
 </p>
 <p align="center">
-  <a href="README.md">简体中文</a> · English<br />
-  <a href="#getting-started">Getting started</a> · <a href="docs/USER_GUIDE.md">User guide</a> · <a href="docs/WEEKLY_TODO.md">Weekly feature plan (中文)</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="#contributing">Contributing</a>
+  <a href="README.md">Türkçe</a> · English<br />
+  <a href="https://sonosmanli55.github.io/CevikEdit/">Website</a> · <a href="#getting-started">Getting started</a> · <a href="docs/USER_GUIDE.md">User guide</a> · <a href="docs/WEEKLY_TODO.md">Weekly feature plan</a> · <a href="CHANGELOG.md">Changelog</a> · <a href="#contributing">Contributing</a>
 </p>
 
 ![CevikEdit media library, player, inspector and multitrack timeline](docs/screenshots/ui-parity-editor.png)
@@ -20,7 +20,7 @@ CevikEdit brings media management, multitrack editing, subtitles and video expor
 
 The project uses [REA](https://github.com/morluto/rea) to study Jianying's interface behavior and local project formats, then independently implements an editor with Electron, React, TypeScript and FFmpeg. REA supports development research; REA, Ghidra and Jianying are not runtime dependencies.
 
-> **Current source: v0.6.1 release candidate, early development.** This week adds reusable templates, timeline insert/overwrite placement with linked audio, free zoom/pan with inertia and a minimap, subtitle split/merge with text animation, free cubic-Bézier easing, offline speech detection for ducking, 4K/large-project guardrails, HDR-to-SDR tone mapping and an open draft exchange export. The interface ships in Turkish only. A Windows x64 NSIS candidate was built and launched on this machine; the macOS package has not been rebuilt with this week's work, and Linux is unverified. Published packages remain in the [v0.5.0 preview release](https://github.com/Xiangyu-CAS/rea-capcut/releases/tag/v0.5.0), or follow the source instructions below. A 30-second showcase is in [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); per-feature evidence is in [docs/VALIDATION.md](docs/VALIDATION.md) (Chinese).
+> **Current release: v0.8.0 — full Turkish interface.** All UI text, documentation and built-in assets are Turkish; the runtime translation layer was removed. This version also adds a Windows installer, a one-click bootstrap launcher and an in-app update center that checks the GitHub releases feed only when you press the button. No telemetry, no cloud upload, no account. See the [website](https://sonosmanli55.github.io/CevikEdit/) and the [latest release](https://github.com/sonosmanli55/CevikEdit/releases). A 30-second showcase is in [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); per-feature evidence is in [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Features
 
@@ -40,13 +40,15 @@ See the [feature matrix](docs/FEATURE_MATRIX.md) for detailed support and limita
 
 ## Getting started
 
-### Option 1: standalone DMG
+### Option 1: Windows installer or one-click launcher
 
-Download the [CevikEdit 0.5.0 DMG for macOS Apple Silicon](https://github.com/Xiangyu-CAS/rea-capcut/releases/download/v0.5.0/CevikEdit-0.5.0-arm64.dmg), open it, drag the app into Applications, and launch it. FFmpeg and FFprobe are bundled. This preview is ad-hoc signed and is not Apple-notarized.
+Download the [CevikEdit 0.8.0 installer](https://github.com/sonosmanli55/CevikEdit/releases/latest) (`CevikEdit-Kurulum.exe`) and run it. If you prefer a ~200 KB download that fetches and installs the app in the background, use `CevikEdit-Kurucu.exe` from the same release; it asks before downloading and installing anything.
+
+The [macOS 0.5.0 DMG](https://github.com/sonosmanli55/CevikEdit/releases/tag/v0.5.0) remains available for Apple Silicon; it is ad-hoc signed, not Apple-notarized, and has not been rebuilt since this week's work.
 
 ### Option 2: inside the Codex side panel
 
-Install **CevikEdit 0.5.0+**, Codex desktop, its `codex` CLI, and Python 3. Download the [Codex plugin ZIP](https://github.com/Xiangyu-CAS/rea-capcut/releases/download/v0.5.0/CevikEdit-plugin-0.5.0.zip), then run from its extracted directory or this repository:
+Install **CevikEdit 0.8.0+**, Codex desktop, its `codex` CLI, and Python 3. Download the [Codex plugin ZIP](https://github.com/sonosmanli55/CevikEdit/releases/latest), then run from its extracted directory or this repository:
 
 ```sh
 sh scripts/install-plugin.sh
@@ -130,7 +132,7 @@ Use media you own or can redistribute. Keep private projects, caches, credential
 
 ## Documentation
 
-Most detailed guides are currently in Chinese.
+Most detailed guides are currently in Turkish.
 
 | Audience | Guides |
 | --- | --- |

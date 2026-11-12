@@ -22,8 +22,8 @@ function SearchBox({
     <label className="creative-search">
       <Search size={14} />
       <input
-        aria-label="搜索预设"
-        placeholder="搜索名称或用途"
+        aria-label="Ön ayar ara"
+        placeholder="Ad veya kullanım amacı ara"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -32,7 +32,7 @@ function SearchBox({
 }
 function Footer() {
   return (
-    <footer className="creative-footer">自主编写 · MIT 许可 · 离线可用</footer>
+    <footer className="creative-footer">Özgün geliştirme · MIT lisansı · çevrimdışı kullanılabilir</footer>
   );
 }
 export function TextLibrary({
@@ -43,33 +43,33 @@ export function TextLibrary({
   onBlank: () => void;
 }) {
   const [query, setQuery] = useState(""),
-    [category, setCategory] = useState("全部");
+    [category, setCategory] = useState("Tümü");
   const needle = query.toLowerCase().trim();
   const presets = TEXT_PRESETS.filter(
     (p) =>
-      (category === "全部" || category === p.category) &&
+      (category === "Tümü" || category === p.category) &&
       [p.name, p.style.text, ...(p.keywords ?? [])]
         .join(" ")
         .toLowerCase()
         .includes(needle),
   );
   const countFor = (name: string) =>
-    name === "全部"
+    name === "Tümü"
       ? TEXT_PRESETS.length
       : TEXT_PRESETS.filter((p) => p.category === name).length;
   return (
-    <section className="creative-library" aria-label="文字模板库">
+    <section className="creative-library" aria-label="Metin şablonu kitaplığı">
       <header>
         <strong>
-          文字模板 <small>{TEXT_PRESETS.length}</small>
+          Metin şablonları <small>{TEXT_PRESETS.length}</small>
         </strong>
         <button onClick={onBlank}>
-          <Type size={12} /> 添加文本
+          <Type size={12} /> Metin ekle
         </button>
       </header>
       <SearchBox value={query} onChange={setQuery} />
-      <div className="creative-tabs" role="tablist" aria-label="文字模板分类">
-        {["全部", ...TEXT_PRESET_CATEGORIES].map((c) => (
+      <div className="creative-tabs" role="tablist" aria-label="Metin şablonu kategorisi">
+        {["Tümü", ...TEXT_PRESET_CATEGORIES].map((c) => (
           <button
             key={c}
             role="tab"
@@ -85,7 +85,7 @@ export function TextLibrary({
       </div>
       <div className="creative-scroll">
         <p className="creative-help">
-          添加到播放头位置；内容、字体、描边、行高、圆角和动画均可编辑。
+          Oynatma başlığı konumuna ekler; içerik, yazı tipi, kontur, satır yüksekliği, köşe yuvarlaklığı ve animasyon düzenlenebilir.
         </p>
         <div className="creative-grid">
           {presets.map((p) => (
@@ -96,11 +96,11 @@ export function TextLibrary({
                   {p.name}
                   <small>
                     {p.category}
-                    {p.motion ? " · 动效" : " · 可编辑文字"}
+                    {p.motion ? " · animasyon" : " · düzenlenebilir metin"}
                   </small>
                 </span>
                 <button
-                  aria-label={`添加${p.name}模板`}
+                  aria-label={`${p.name} şablonunu ekle`}
                   onClick={() => onAdd(p)}
                 >
                   <Plus size={14} />
@@ -110,7 +110,7 @@ export function TextLibrary({
           ))}
         </div>
         {!presets.length && (
-          <p className="creative-empty">没有匹配的文字模板</p>
+          <p className="creative-empty">Eşleşen metin şablonu yok</p>
         )}
       </div>
       <Footer />
@@ -132,7 +132,7 @@ export function MotionLibrary({
     <>
       <SearchBox value={query} onChange={setQuery} />
       <p className="creative-help">
-        应用到所选画面或文字。覆盖对应属性的关键帧；其他属性保留，可撤销。
+        Seçili görüntüye veya metne uygular. İlgili özelliğin anahtar karelerinin üzerine yazar; diğer özellikler korunur ve geri alınabilir.
       </p>
       <div className="creative-grid">
         {presets.map((p) => (
@@ -141,11 +141,11 @@ export function MotionLibrary({
             <div>
               <span title={p.description}>
                 {p.name}
-                <small>关键帧动效</small>
+                <small>Anahtar kare animasyonu</small>
               </span>
               <button
                 disabled={disabled}
-                aria-label={`应用${p.name}特效`}
+                aria-label={`Uygula${p.name}Efekt`}
                 onClick={() => onApply(p.id)}
               >
                 <Plus size={14} />
@@ -154,7 +154,7 @@ export function MotionLibrary({
           </article>
         ))}
       </div>
-      {!presets.length && <p className="creative-empty">没有匹配的动效</p>}
+      {!presets.length && <p className="creative-empty">Eşleşen animasyon yok</p>}
     </>
   );
 }
@@ -166,24 +166,24 @@ export function TransitionLibrary({
   onApply: (transition: TransitionId, seconds: number) => void;
 }) {
   const [query, setQuery] = useState(""),
-    [category, setCategory] = useState("全部"),
+    [category, setCategory] = useState("Tümü"),
     [seconds, setSeconds] = useState(0.5);
   const presets = TRANSITION_PRESETS.filter(
     (p) =>
-      (category === "全部" || category === p.category) &&
+      (category === "Tümü" || category === p.category) &&
       (p.name + p.description).includes(query.trim()),
   );
   return (
-    <section className="creative-library" aria-label="转场素材库">
+    <section className="creative-library" aria-label="Geçiş kitaplığı">
       <header>
         <strong>
-          画面转场 <small>{TRANSITION_PRESETS.length}</small>
+          Görüntü geçişleri <small>{TRANSITION_PRESETS.length}</small>
         </strong>
-        <span>本地生成</span>
+        <span>Yerel olarak oluşturulur</span>
       </header>
       <SearchBox value={query} onChange={setQuery} />
-      <div className="creative-tabs" role="tablist" aria-label="转场分类">
-        {["全部", "基础", "运镜", "动感"].map((c) => (
+      <div className="creative-tabs" role="tablist" aria-label="Geçiş kategorisi">
+        {["Tümü", "Temel", "Kamera hareketi", "Dinamik"].map((c) => (
           <button
             key={c}
             role="tab"
@@ -195,10 +195,10 @@ export function TransitionLibrary({
         ))}
       </div>
       <label className="creative-duration">
-        转场时长
+        Geçiş süresi
         <input
           type="number"
-          aria-label="转场时长"
+          aria-label="Geçiş süresi"
           min={0.05}
           max={5}
           step={0.05}
@@ -209,11 +209,11 @@ export function TransitionLibrary({
               setSeconds(Math.max(0.05, Math.min(5, value)));
           }}
         />
-        秒
+        sn
       </label>
       <div className="creative-scroll">
         <p className="creative-help">
-          选择同轨相邻画面的前一段。时长按帧与片段长度限制；除「经过背景」外，后段会提前重叠。运镜会替换后段开头对应的关键帧。
+          Aynı kanaldaki bitişik görüntülerden öncekini seçin. Süre, kare ve klip uzunluğuyla sınırlıdır; "Arka plandan geçiş" dışındakilerde sonraki klip öne bindirilir. Kamera hareketleri sonraki klibin başındaki ilgili anahtar kareleri değiştirir.
         </p>
         <div className="creative-grid">
           {presets.map((p) => (
@@ -229,7 +229,7 @@ export function TransitionLibrary({
                 <button
                   disabled={disabled}
                   className="transition-apply"
-                  aria-label={`应用${p.name}转场`}
+                  aria-label={`Uygula${p.name}Geçiş`}
                   onClick={() => onApply(p.id, seconds)}
                 >
                   <Plus size={14} />
@@ -238,7 +238,7 @@ export function TransitionLibrary({
             </article>
           ))}
         </div>
-        {!presets.length && <p className="creative-empty">没有匹配的转场</p>}
+        {!presets.length && <p className="creative-empty">Eşleşen geçiş yok</p>}
       </div>
       <Footer />
     </section>

@@ -103,20 +103,20 @@ function SourcePreviewSession({ asset, fps, onClose, onAddRange, mode, onModeCha
     try { await element.play(); }
     catch (reason) {
       if (alive.current && !(reason instanceof DOMException && reason.name === "AbortError")) {
-        setError("无法播放此素材，请检查格式或重新导入以生成预览代理。");
+        setError("Bu medya oynatılamıyor; biçimi kontrol edin veya önizleme vekili oluşturmak için yeniden içe aktarın.");
       }
     }
   };
   const metadata = () => {
     const value = media.current?.duration ?? 0;
-    if (!Number.isFinite(value) || value <= 0) { setError("无法读取素材时长。"); return; }
+    if (!Number.isFinite(value) || value <= 0) { setError("Medya süresi okunamıyor."); return; }
     const end = knownDuration > 0 ? Math.min(knownDuration, value) : value;
     setDuration(end);setSourceOut(end);setReady(true);
   };
   const mediaError = () => {
     if (!alive.current) return;
     setPlaying(false);setReady(false);
-    setError("无法解码素材预览。请重新导入以生成代理，或检查源文件是否可用。");
+    setError("Medya önizlemesi çözülemiyor. Vekil oluşturmak için yeniden içe aktarın veya kaynak dosyanın kullanılabilir olduğunu kontrol edin.");
   };
   const keyDown = (event: KeyboardEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
@@ -137,41 +137,41 @@ function SourcePreviewSession({ asset, fps, onClose, onAddRange, mode, onModeCha
     onAddRange(image ? 0 : sourceIn, image ? duration : sourceOut - sourceIn, mode);
   };
   return (
-    <section ref={panel} className="source-preview player-panel panel" aria-label="素材源预览" tabIndex={0} onKeyDown={keyDown}
+    <section ref={panel} className="source-preview player-panel panel" aria-label="Medya kaynak önizlemesi" tabIndex={0} onKeyDown={keyDown}
       onPointerDown={event => { if (!(event.target as HTMLElement).closest("button, input, select")) panel.current?.focus({ preventScroll: true }); }}>
       <header className="panel-heading source-heading">
-        <div><span>素材预览</span><strong title={asset.name}>{asset.name}</strong></div>
-        <button aria-label="返回时间线播放器" title="返回时间线播放器 · Esc" onClick={() => { pause();onClose(); }}><X size={16} /></button>
+        <div><span>Medya önizlemesi</span><strong title={asset.name}>{asset.name}</strong></div>
+        <button aria-label="Zaman çizelgesi oynatıcısına dön" title="Zaman çizelgesi oynatıcısına dön · Esc" onClick={() => { pause();onClose(); }}><X size={16} /></button>
       </header>
       <div className="source-stage">
-        {asset.missing || error ? <div className="source-message source-error" role="alert"><CircleAlert size={26} /><strong>{asset.missing ? "素材文件丢失" : "预览不可用"}</strong><p>{asset.missing ? "请在素材操作菜单中重新链接文件。" : error}</p></div> : image ?
+        {asset.missing || error ? <div className="source-message source-error" role="alert"><CircleAlert size={26} /><strong>{asset.missing ? "Medya dosyası eksik" : "Önizleme kullanılamıyor"}</strong><p>{asset.missing ? "Dosyayı medya işlemleri menüsünden yeniden bağlayın." : error}</p></div> : image ?
           <img src={sourceUrl} alt={asset.name} onLoad={() => setReady(true)} onError={mediaError} /> : asset.kind === "video" ?
           <video ref={element => { media.current = element; }} src={sourceUrl} preload="auto" playsInline muted={muted} onLoadedMetadata={metadata} onError={mediaError} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false);setTime(duration); }} /> :
           <><audio ref={element => { media.current = element; }} src={sourceUrl} preload="auto" muted={muted} onLoadedMetadata={metadata} onError={mediaError} onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false);setTime(duration); }} />
             <div className="source-audio"><AudioLines size={38} /><strong>{asset.name}</strong><div className="source-waveform" aria-hidden="true">{Array.from({length: 80}, (_, i) => <i key={i} style={{height: `${10 + clamp(asset.waveform?.[Math.floor(i / 80 * asset.waveform.length)] ?? .25, 0, 1) * 85}%`}} />)}</div></div></>}
-        {!asset.missing && !error && !ready && <div className="source-loading">正在读取素材…</div>}
+        {!asset.missing && !error && !ready && <div className="source-loading">Medya okunuyor…</div>}
       </div>
       {!image && <>
         <div className="source-seek">
           <div className="source-range-highlight" aria-hidden="true" style={{left: `${duration > 0 ? sourceIn / duration * 100 : 0}%`,width: `${duration > 0 ? (sourceOut-sourceIn)/duration*100 : 100}%`}} />
-          <input aria-label="素材预览进度" type="range" min={0} max={duration || 1} step={frame} value={time} disabled={unavailable} onChange={event => seek(Number(event.target.value))} />
+          <input aria-label="Medya önizleme ilerlemesi" type="range" min={0} max={duration || 1} step={frame} value={time} disabled={unavailable} onChange={event => seek(Number(event.target.value))} />
         </div>
         <div className="source-controls">
           <span className="timecode"><strong>{formatTime(time,frameRate)}</strong><span> / {formatTime(duration,frameRate)}</span></span>
-          <div className="source-transport"><button aria-label="源素材上一帧" disabled={unavailable} onClick={() => seek(time-frame)}><ChevronLeft size={16} /></button><button aria-label={playing ? "暂停素材" : "播放素材"} disabled={unavailable} onClick={() => void playPause()}>{playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}</button><button aria-label="源素材下一帧" disabled={unavailable} onClick={() => seek(time+frame)}><ChevronRight size={16} /></button></div>
-          <button aria-label={muted ? "开启源素材声音" : "静音源素材"} onClick={() => setMuted(!muted)} disabled={unavailable}>{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}</button>
+          <div className="source-transport"><button aria-label="Kaynak medyada önceki kare" disabled={unavailable} onClick={() => seek(time-frame)}><ChevronLeft size={16} /></button><button aria-label={playing ? "Medyayı duraklat" : "Medyayı oynat"} disabled={unavailable} onClick={() => void playPause()}>{playing ? <Pause size={17} fill="currentColor" /> : <Play size={17} fill="currentColor" />}</button><button aria-label="Kaynak medyada sonraki kare" disabled={unavailable} onClick={() => seek(time+frame)}><ChevronRight size={16} /></button></div>
+          <button aria-label={muted ? "Kaynak medya sesini aç" : "Kaynak medyayı sessize al"} onClick={() => setMuted(!muted)} disabled={unavailable}>{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}</button>
         </div>
       </>}
       <footer className="source-range">
         {!image && <div className="source-marks">
-          <label><button title="将当前位置设为入点 · I" aria-label="标记源素材入点" disabled={unavailable} onClick={() => setIn(time)}>入点 <kbd>I</kbd></button><input aria-label="源素材入点" type="number" min={0} max={Math.max(0,sourceOut-minLength)} step={frame} value={Number(sourceIn.toFixed(6))} disabled={unavailable} onChange={event => {if(event.target.value !== "") setIn(Number(event.target.value));}} /><span>秒</span></label>
-          <label><button title="将当前位置设为出点 · O" aria-label="标记源素材出点" disabled={unavailable} onClick={() => setOut(time)}>出点 <kbd>O</kbd></button><input aria-label="源素材出点" type="number" min={sourceIn+minLength} max={duration} step={frame} value={Number(sourceOut.toFixed(6))} disabled={unavailable} onChange={event => {if(event.target.value !== "") setOut(Number(event.target.value));}} /><span>秒</span></label>
-          <button title="重置为完整素材" aria-label="重置源素材范围" disabled={unavailable} onClick={() => {setSourceIn(0);setSourceOut(duration);seek(0);}}><RotateCcw size={14} /></button>
+          <label><button title="Geçerli konumu giriş noktası yap · I" aria-label="Kaynak medya giriş noktasını işaretle" disabled={unavailable} onClick={() => setIn(time)}>Giriş noktası <kbd>I</kbd></button><input aria-label="Kaynak medya giriş noktası" type="number" min={0} max={Math.max(0,sourceOut-minLength)} step={frame} value={Number(sourceIn.toFixed(6))} disabled={unavailable} onChange={event => {if(event.target.value !== "") setIn(Number(event.target.value));}} /><span>sn</span></label>
+          <label><button title="Geçerli konumu çıkış noktası yap · O" aria-label="Kaynak medya çıkış noktasını işaretle" disabled={unavailable} onClick={() => setOut(time)}>Çıkış noktası <kbd>O</kbd></button><input aria-label="Kaynak medya çıkış noktası" type="number" min={sourceIn+minLength} max={duration} step={frame} value={Number(sourceOut.toFixed(6))} disabled={unavailable} onChange={event => {if(event.target.value !== "") setOut(Number(event.target.value));}} /><span>sn</span></label>
+          <button title="Tam medyaya sıfırla" aria-label="Kaynak medya aralığını sıfırla" disabled={unavailable} onClick={() => {setSourceIn(0);setSourceOut(duration);seek(0);}}><RotateCcw size={14} /></button>
         </div>}
-        <div className="source-add-row"><span>{image ? `${asset.width} × ${asset.height} · 图片` : <><Brackets size={12} /> 已选 {formatTime(Math.max(0, sourceOut-sourceIn),frameRate)}</>}</span><label className="source-mode">入轨方式<select aria-label="入轨方式" value={mode} onChange={event => onModeChange(event.target.value as PlacementMode)}><option value="append">追加到末尾</option><option value="insert">插入并后移</option><option value="overwrite">覆盖当前位置</option></select></label><button className="primary" disabled={unavailable} onClick={add}><Plus size={14} />{image ? "添加图片" : "添加选中片段"}</button></div>
-        <p className="source-tip">追加保留现有片段；插入会在播放头处让同轨后续片段后移，必要时切开跨点片段；覆盖会替换同轨对应区间。三种方式都只提交一次撤销。</p>
-        {!image && <p className="source-tip">聚焦预览后按 I / O 标记，空格播放选段，← / → 逐帧定位</p>}
-        {!image && ready && duration < frame - 1e-8 && <p className="source-error">素材不足项目的一帧，暂时无法添加。</p>}
+        <div className="source-add-row"><span>{image ? `${asset.width} × ${asset.height} · görsel` : <><Brackets size={12} /> Seçili {formatTime(Math.max(0, sourceOut-sourceIn),frameRate)}</>}</span><label className="source-mode">Yerleştirme biçimi<select aria-label="Yerleştirme biçimi" value={mode} onChange={event => onModeChange(event.target.value as PlacementMode)}><option value="append">Sona ekle</option><option value="insert">Araya ekle ve kaydır</option><option value="overwrite">Geçerli aralığı kapla</option></select></label><button className="primary" disabled={unavailable} onClick={add}><Plus size={14} />{image ? "Görsel ekle" : "Seçili klibi ekle"}</button></div>
+        <p className="source-tip">Sona ekleme mevcut klipleri korur; araya ekleme oynatma konumundaki sonraki klipleri sağa kaydırır ve gerektiğinde klibi ikiye böler; kaplama aynı kanaldaki aralığı değiştirir. Üç yöntem de tek adımda geri alınır.</p>
+        {!image && <p className="source-tip">Önizlemeye odaklanıp I / O ile işaretleyin, boşlukla seçimi oynatın, ← / → ile kare kare gezinin</p>}
+        {!image && ready && duration < frame - 1e-8 && <p className="source-error">Medya projenin bir karesinden kısa olduğu için şu anda eklenemiyor.</p>}
       </footer>
     </section>
   );

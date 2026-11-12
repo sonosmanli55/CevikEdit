@@ -37,23 +37,23 @@ try {
   assert.equal(tools.length, 9);
   assert.deepEqual(tools.find((t: any) => t.name === 'cevikedit_frame')._meta.ui.visibility, ['app']);
   const resource = await rpc('resources/read', { uri: 'ui://cevikedit/editor-v1.html' });
-  assert.match(resource.contents[0].text, /中文 \/ 粘贴/);
+  assert.match(resource.contents[0].text, /Metin \/ yapıştır/);
   assert.equal(resource.contents[0]._meta['openai/ui'].preferredDisplayMode, 'fullscreen');
   checks.push('MCP initialization, tools, app-only visibility, bundled fullscreen resource');
   let state = (await call('cevikedit_open')).structuredContent;
   assert(state && state.clips.length === 0);
   const firstRevision = state.revision;
   let result = await call('cevikedit_edit', { revision: firstRevision, actions: [
-    { type: 'setProject', name: 'Codex 插件验收', width: 640, height: 360 },
-    { type: 'addText', text: '在 Codex 内剪辑', start: 0, duration: 5, fontSize: 50 },
+    { type: 'setProject', name: 'Codex eklentisi kabulü', width: 640, height: 360 },
+    { type: 'addText', text: 'Codex içinde kurgula', start: 0, duration: 5, fontSize: 50 },
   ] });
   assert.equal(result.isError, undefined);
   state = result.structuredContent;
   assert.equal(state.clips.length, 1);
-  assert.equal(state.name, 'Codex 插件验收');
+  assert.equal(state.name, 'Codex eklentisi kabulü');
   assert((await call('cevikedit_edit', { revision: firstRevision, actions: [{ type: 'deleteClip', clipId: state.clips[0].id }] })).isError);
   assert((await call('cevikedit_edit', { revision: state.revision, actions: [{ type: 'setProject', name: 'Must roll back' }, { type: 'execute', code: 'bad' }] })).isError);
-  assert.equal((await call('cevikedit_state')).structuredContent.name, 'Codex 插件验收');
+  assert.equal((await call('cevikedit_state')).structuredContent.name, 'Codex eklentisi kabulü');
   assert.equal((await call('cevikedit_control', { command: 'undo' })).structuredContent.clips.length, 0);
   state = (await call('cevikedit_control', { command: 'redo' })).structuredContent;
   assert.equal(state.clips.length, 1);
@@ -91,6 +91,6 @@ try {
 }
 
 const recovered = JSON.parse(await readFile(path.join(output, 'user-data/autosave.cevikedit'), 'utf8'));
-assert.equal(recovered.name, 'Codex 插件验收');
+assert.equal(recovered.name, 'Codex eklentisi kabulü');
 assert.equal(recovered.clips.length, 2);
 console.log('Disconnect flushed the latest project and terminated the editor.');

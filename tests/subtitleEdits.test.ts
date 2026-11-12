@@ -4,18 +4,18 @@ import { clone, createClip, createProject, createTrack, evaluateFade, evaluateKe
 import { useEditorStore } from "../src/editor/store";
 
 function fixture() {
-  const p = createProject("字幕合成验收");
-  p.tracks[0].name = "字幕";
-  const titleTrack = createTrack("text", "片头标题");
+  const p = createProject("Altyazı birleştirme kabulü");
+  p.tracks[0].name = "Altyazı";
+  const titleTrack = createTrack("text", "Açılış başlığı");
   p.tracks.push(titleTrack);
   p.clips = [2, 6, 9].map((start, index) => {
     const c = createClip(undefined, p.tracks[0].id, start, p.fps);
-    c.id = `cue-${index}`; c.duration = 3; c.text!.text = `字幕 ${index} [a].* $&`;
+    c.id = `cue-${index}`; c.duration = 3; c.text!.text = `Altyazı ${index} [a].* $&`;
     c.name = c.text!.text;
     return c;
   });
   const title = createClip(undefined, titleTrack.id, 0, p.fps);
-  title.id = "title"; title.text!.text = "保留标题"; p.clips.push(title);
+  title.id = "title"; title.text!.text = "Başlığı koru"; p.clips.push(title);
   return p;
 }
 beforeEach(() => useEditorStore.getState().setProject(createProject()));
@@ -33,22 +33,22 @@ describe("subtitle batch edit workflow", () => {
   });
   it("fails the entire batch if any cue would go before zero or beyond 24 hours", () => {
     const p = fixture(), before = clone(p);
-    expect(() => prepareSubtitleEdit(p, ["cue-2", "cue-0"], { type: "offset", seconds: -3 })).toThrow("未修改任何字幕");
-    expect(() => prepareSubtitleEdit(p, ["cue-0", "cue-2"], { type: "offset", seconds: 86390 })).toThrow("范围");
+    expect(() => prepareSubtitleEdit(p, ["cue-2", "cue-0"], { type: "offset", seconds: -3 })).toThrow("değiştirilmedi");
+    expect(() => prepareSubtitleEdit(p, ["cue-0", "cue-2"], { type: "offset", seconds: 86390 })).toThrow("zaman çizelgesi");
     expect(p).toEqual(before);
   });
   it("permits overlapping cues and frame-aligns nonzero absolute start/end edits", () => {
     const p = fixture();
-    const c = prepareSubtitleEdit(p, ["cue-0"], { type: "cue", text: "新字幕", start: 6.017, end: 8.081 }).project.clips[0];
+    const c = prepareSubtitleEdit(p, ["cue-0"], { type: "cue", text: "Yeni altyazı", start: 6.017, end: 8.081 }).project.clips[0];
     expect(c.start).toBeCloseTo(6 + 1 / 30, 10); expect(c.start + c.duration).toBeCloseTo(8 + 2 / 30, 10);
-    expect(c.text!.text).toBe("新字幕"); expect(c.name).toBe("新字幕");
+    expect(c.text!.text).toBe("Yeni altyazı"); expect(c.name).toBe("Yeni altyazı");
   });
   it.each([[0, 1], [20, 21], [3, 4], [1, 6]])("retimes a complete cue window %s–%s without clamping a disjoint move", (start, end) => {
-    const plan = prepareSubtitleEdit(fixture(), ["cue-0"], { type: "cue", text: "时序", start, end });
+    const plan = prepareSubtitleEdit(fixture(), ["cue-0"], { type: "cue", text: "Zamanlama", start, end });
     expect(plan.project.clips[0].start).toBe(start); expect(plan.project.clips[0].duration).toBe(end - start);
   });
   it("accepts exactly one frame with floating-point timing", () => {
-    const plan = prepareSubtitleEdit(fixture(), ["cue-0"], { type: "cue", text: "一帧", start: 7, end: 7 + 1 / 30 });
+    const plan = prepareSubtitleEdit(fixture(), ["cue-0"], { type: "cue", text: "Bir kare", start: 7, end: 7 + 1 / 30 });
     expect(plan.project.clips[0].duration).toBeCloseTo(1 / 30, 10);
   });
   it("moves the local envelope with translated and disjoint cues instead of fading them out permanently", () => {
@@ -75,14 +75,14 @@ describe("subtitle batch edit workflow", () => {
   it("finds and replaces literal punctuation and preserves dollar replacement text", () => {
     const p = fixture();
     const plan = prepareSubtitleEdit(p, ["cue-0", "cue-1"], { type: "replace", find: "[a].*", replacement: "$&$1" });
-    expect(plan.project.clips[0].text!.text).toBe("字幕 0 $&$1 $&");
-    expect(plan.project.clips[1].text!.text).toBe("字幕 1 $&$1 $&");
+    expect(plan.project.clips[0].text!.text).toBe("Altyazı 0 $&$1 $&");
+    expect(plan.project.clips[1].text!.text).toBe("Altyazı 1 $&$1 $&");
     expect(plan.project.clips[2]).toEqual(p.clips[2]);
   });
   it("allows empty replacement and reports an empty changed set for unmatched text", () => {
     const p = fixture();
-    expect(prepareSubtitleEdit(p, ["cue-0"], { type: "replace", find: "字幕 ", replacement: "" }).project.clips[0].text!.text).toBe("0 [a].* $&");
-    expect(prepareSubtitleEdit(p, ["cue-0"], { type: "replace", find: "不存在", replacement: "新" }).changedIds).toEqual([]);
+    expect(prepareSubtitleEdit(p, ["cue-0"], { type: "replace", find: "Altyazı ", replacement: "" }).project.clips[0].text!.text).toBe("0 [a].* $&");
+    expect(prepareSubtitleEdit(p, ["cue-0"], { type: "replace", find: "yok", replacement: "Yeni" }).changedIds).toEqual([]);
   });
   it("copies only text style, preserving every target's content, transforms, timing and keyframes", () => {
     const p = fixture(); p.clips[0].text!.fontSize = 99; p.clips[0].text!.color = "#112233";
@@ -96,30 +96,30 @@ describe("subtitle batch edit workflow", () => {
   });
   it("does not modify locked target tracks, including text-only edits", () => {
     const p = fixture(); p.tracks[0].locked = true;
-    const edits: SubtitleEdit[] = [{ type: "offset", seconds: 1 }, { type: "replace", find: "字幕", replacement: "修改" }, { type: "style", referenceId: "title" }, { type: "cue", text: "修改", start: 2, end: 4 }];
-    for (const edit of edits) expect(() => prepareSubtitleEdit(p, ["cue-0"], edit)).toThrow("锁定");
+    const edits: SubtitleEdit[] = [{ type: "offset", seconds: 1 }, { type: "replace", find: "Altyazı", replacement: "Değiştir" }, { type: "style", referenceId: "title" }, { type: "cue", text: "Değiştir", start: 2, end: 4 }];
+    for (const edit of edits) expect(() => prepareSubtitleEdit(p, ["cue-0"], edit)).toThrow("kilitli");
   });
   it("rejects stale plans after edits or project switches and detaches committed data", () => {
     const p = fixture(), plan = prepareSubtitleEdit(p, ["cue-0"], { type: "offset", seconds: 1 });
-    const changed = clone(p); changed.name = "别的编辑";
-    expect(() => applySubtitleEdit(changed, plan)).toThrow("项目已变化");
-    const another = clone(p); another.id = id(); expect(() => applySubtitleEdit(another, plan)).toThrow("项目已变化");
+    const changed = clone(p); changed.name = "Başka düzenleme";
+    expect(() => applySubtitleEdit(changed, plan)).toThrow("Proje değişti");
+    const another = clone(p); another.id = id(); expect(() => applySubtitleEdit(another, plan)).toThrow("Proje değişti");
     const applied = applySubtitleEdit(p, plan); applied.clips[0].start = 25; expect(plan.project.clips[0].start).toBe(3);
   });
   it("commits multiple replacements as one undo/redo and leaves unrelated titles intact", () => {
     useEditorStore.getState().setProject(fixture()); const before = clone(useEditorStore.getState().project);
-    const plan = prepareSubtitleEdit(before, ["cue-0", "cue-1", "cue-2"], { type: "replace", find: "字幕", replacement: "台词" });
+    const plan = prepareSubtitleEdit(before, ["cue-0", "cue-1", "cue-2"], { type: "replace", find: "Altyazı", replacement: "Replik" });
     useEditorStore.getState().commit(applySubtitleEdit(useEditorStore.getState().project, plan));
     expect(useEditorStore.getState().past).toHaveLength(1); expect(useEditorStore.getState().project.clips[3]).toEqual(before.clips[3]);
     useEditorStore.getState().undo(); expect(useEditorStore.getState().project).toEqual(before);
-    useEditorStore.getState().redo(); expect(useEditorStore.getState().project.clips[0].text!.text).toContain("台词");
+    useEditorStore.getState().redo(); expect(useEditorStore.getState().project.clips[0].text!.text).toContain("Replik");
   });
   it.each<SubtitleEdit>([
     { type: "offset", seconds: NaN }, { type: "offset", seconds: Infinity }, { type: "offset", seconds: 100000 },
-    { type: "cue", text: "无效", start: -1, end: 2 }, { type: "cue", text: "无效", start: 2, end: 2.001 },
-    { type: "cue", text: "无效", start: NaN, end: 3 }, { type: "cue", text: "无效", start: 4, end: 3 },
-    { type: "cue", text: "无效", start: 86400, end: 86401 }, { type: "replace", find: "", replacement: "a" },
-    { type: "replace", find: "字幕", replacement: "\0" }, { type: "style", referenceId: "missing" },
+    { type: "cue", text: "Geçersiz", start: -1, end: 2 }, { type: "cue", text: "Geçersiz", start: 2, end: 2.001 },
+    { type: "cue", text: "Geçersiz", start: NaN, end: 3 }, { type: "cue", text: "Geçersiz", start: 4, end: 3 },
+    { type: "cue", text: "Geçersiz", start: 86400, end: 86401 }, { type: "replace", find: "", replacement: "a" },
+    { type: "replace", find: "Altyazı", replacement: "\0" }, { type: "style", referenceId: "missing" },
   ])("rejects invalid data %# without mutating the input", edit => {
     const p = fixture(), snapshot = clone(p); expect(() => prepareSubtitleEdit(p, ["cue-0"], edit)).toThrow(); expect(p).toEqual(snapshot);
   });
@@ -134,37 +134,37 @@ describe("subtitle batch edit workflow", () => {
 describe("subtitle split and merge", () => {
   it("splits one cue at the frame-aligned playhead and divides text at a nearby sentence break", () => {
     const p = fixture(), cue = p.clips[0];
-    cue.start = 2; cue.duration = 4; cue.text!.text = "第一句。第二句"; cue.name = cue.text!.text;
+    cue.start = 2; cue.duration = 4; cue.text!.text = "Birinci cümle。İkinci cümle"; cue.name = cue.text!.text;
     const splitAt = snapToFrame(4.017, p.fps);
     const plan = prepareSubtitleEdit(p, ["cue-0"], { type: "split", at: 4.017 });
     const cues = plan.project.clips.filter(c => c.trackId === p.tracks[0].id).sort((a, b) => a.start - b.start);
     expect(cues).toHaveLength(4);
     expect(cues[0]).toMatchObject({ id: "cue-0", start: 2, duration: splitAt - 2 });
-    expect(cues[0].text!.text).toBe("第一句。");
+    expect(cues[0].text!.text).toBe("Birinci cümle。");
     expect(cues[1].start).toBe(splitAt); expect(cues[1].duration).toBe(6 - splitAt);
-    expect(cues[1].text!.text).toBe("第二句");
-    expect(cues[1].text).toEqual({ ...cues[0].text!, text: "第二句" });
+    expect(cues[1].text!.text).toBe("İkinci cümle");
+    expect(cues[1].text).toEqual({ ...cues[0].text!, text: "İkinci cümle" });
     expect(plan.changedIds).toEqual(["cue-0", cues[1].id]);
     expect(plan.project.clips.find(c => c.id === "title")).toEqual(p.clips[3]);
   });
   it("keeps at least one frame on each side of a split and refuses boundaries or locked tracks", () => {
     const p = fixture(), before = clone(p);
     for (const at of [2, 2 + 1 / 120, 5, 5 - 1 / 120])
-      expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "split", at })).toThrow("至少");
+      expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "split", at })).toThrow("en az");
     expect(p).toEqual(before);
     p.tracks[0].locked = true;
-    expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "split", at: 3.5 })).toThrow("锁定");
-    expect(() => prepareSubtitleEdit(fixture(), ["cue-0", "cue-1"], { type: "split", at: 3.5 })).toThrow("一条");
+    expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "split", at: 3.5 })).toThrow("kilitli");
+    expect(() => prepareSubtitleEdit(fixture(), ["cue-0", "cue-1"], { type: "split", at: 3.5 })).toThrow("bir altyazı");
   });
   it("merges only a contiguous adjacent/overlapping run and joins text with a newline", () => {
     const p = fixture();
     p.clips[1].text!.text = "English first line"; p.clips[1].name = p.clips[1].text!.text;
-    p.clips[2].text!.text = "第二句中文字幕"; p.clips[2].name = p.clips[2].text!.text;
+    p.clips[2].text!.text = "İkinci cümle Türkçe altyazı"; p.clips[2].name = p.clips[2].text!.text;
     p.clips[2].start = 8.5; // overlapping with cue-1, still adjacent in track order
     const plan = prepareSubtitleEdit(p, ["cue-2", "cue-1"], { type: "merge" });
     const merged = plan.project.clips.find(c => c.id === "cue-1")!;
     expect(merged).toMatchObject({ start: 6, duration: 5.5 });
-    expect(merged.text!.text).toBe("English first line\n第二句中文字幕");
+    expect(merged.text!.text).toBe("English first line\nİkinci cümle Türkçe altyazı");
     expect(plan.project.clips.some(c => c.id === "cue-2")).toBe(false);
     expect(plan.project.clips.find(c => c.id === "cue-0")).toEqual(p.clips[0]);
     expect(plan.project.clips.find(c => c.id === "title")).toEqual(p.clips[3]);
@@ -173,9 +173,9 @@ describe("subtitle split and merge", () => {
   it("refuses gaps, non-consecutive selections and unselected cues between targets", () => {
     const p = fixture();
     p.clips[2].start = 9.5;
-    expect(() => prepareSubtitleEdit(p, ["cue-1", "cue-2"], { type: "merge" })).toThrow("相接");
-    expect(() => prepareSubtitleEdit(fixture(), ["cue-0", "cue-2"], { type: "merge" })).toThrow("连续");
-    expect(() => prepareSubtitleEdit(fixture(), ["cue-0"], { type: "merge" })).toThrow("至少");
+    expect(() => prepareSubtitleEdit(p, ["cue-1", "cue-2"], { type: "merge" })).toThrow("bitişik");
+    expect(() => prepareSubtitleEdit(fixture(), ["cue-0", "cue-2"], { type: "merge" })).toThrow("ardışık");
+    expect(() => prepareSubtitleEdit(fixture(), ["cue-0"], { type: "merge" })).toThrow("en az");
   });
   it("commits a split and merge as one undo step across the title and source cues", () => {
     const p = fixture(); useEditorStore.getState().setProject(p);
@@ -221,7 +221,7 @@ describe("editable subtitle styles and uniform text animation", () => {
     expect(plan.project.clips[1].text!.color).toBe("#123456");
     for (const patch of [{ text: "x" }, { fontSize: 0 }, { color: "not-a-color" }, { lineHeight: 9 }] as any[])
       expect(() => prepareSubtitleEdit(p, ["cue-1"], { type: "style", patch })).toThrow();
-    expect(() => prepareSubtitleEdit(p, ["cue-1"], { type: "style" })).toThrow("参考");
+    expect(() => prepareSubtitleEdit(p, ["cue-1"], { type: "style" })).toThrow("referans");
   });
   it("applies the same entrance, hold and exit to every selected cue using preview/export fades and keyframes", () => {
     const p = fixture();
@@ -272,6 +272,6 @@ describe("editable subtitle styles and uniform text animation", () => {
       expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "animation", animation } as any)).toThrow();
     expect(p).toEqual(before);
     p.clips[0].duration = 1 / 60;
-    expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "animation", animation: { entrance: "fade", hold: "none", exit: "none", inDuration: .3, outDuration: 0 } })).toThrow("两帧");
+    expect(() => prepareSubtitleEdit(p, ["cue-0"], { type: "animation", animation: { entrance: "fade", hold: "none", exit: "none", inDuration: .3, outDuration: 0 } })).toThrow("iki kare");
   });
 });

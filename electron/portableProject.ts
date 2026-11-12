@@ -10,23 +10,23 @@ export interface PortableDocument { format: "cevikedit-portable"; version: 1; pr
 const savedCopies = new Map<string, { size: number; mtime: number; relative: string }>();
 const tasks = new Map<string, { controller: AbortController; done: Promise<void> }>();
 const inside = (root: string, file: string) => { const relative = path.relative(root, file); return relative !== "" && !relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative); };
-const abort = (signal: AbortSignal) => { if (signal.aborted) throw new Error("已取消项目打包"); };
+const abort = (signal: AbortSignal) => { if (signal.aborted) throw new Error("Proje paketleme iptal edildi"); };
 
 /** Resolve only the format we write; ordinary .cevikedit projects remain unchanged. */
 export async function resolvePortableDocument(input: unknown, projectFile: string): Promise<Project> {
   if (!input || typeof input !== "object" || (input as any).format !== "cevikedit-portable") return validateProject(input);
   const document = input as PortableDocument;
-  if (document.version !== 1) throw new Error("不支持的素材包版本");
+  if (document.version !== 1) throw new Error("Desteklenmeyen medya paketi sürümü");
   const project = validateProject(document.project);
   const directory = await realpath(path.dirname(projectFile));
   const mediaDirectory = await realpath(path.join(directory, "media"));
-  if (!inside(directory, mediaDirectory)) throw new Error("素材包目录指向包外位置");
+  if (!inside(directory, mediaDirectory)) throw new Error("Medya paketi klasörü paket dışını gösteriyor");
   for (const asset of project.assets) {
-    if (!/^media\/[a-f\d-]{36}\.[a-z\d]{1,12}$/i.test(asset.path)) throw new Error("素材包包含无效的相对路径");
+    if (!/^media\/[a-f\d-]{36}\.[a-z\d]{1,12}$/i.test(asset.path)) throw new Error("Medya paketi geçersiz göreli yol içeriyor");
     const candidate = path.resolve(directory, ...asset.path.split("/"));
     let resolved = candidate;
     try { resolved = await realpath(candidate); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
-    if (!inside(mediaDirectory, resolved)) throw new Error("素材包引用了包外文件");
+    if (!inside(mediaDirectory, resolved)) throw new Error("Medya paketi paket dışındaki bir dosyaya başvuruyor");
     asset.path = resolved; asset.url = `file://${resolved}`;
     delete asset.thumbnail; delete asset.previewUrl; delete asset.previewError; delete asset.waveform;
   }
@@ -35,17 +35,17 @@ export async function resolvePortableDocument(input: unknown, projectFile: strin
 
 export async function collectPortableProject(input: Project, parent: string, signal: AbortSignal, progress: (fraction: number, message: string) => void): Promise<string> {
   const project = validateProject(input);
-  if (!path.isAbsolute(parent) || !(await stat(parent)).isDirectory()) throw new Error("请选择有效的目标文件夹");
+  if (!path.isAbsolute(parent) || !(await stat(parent)).isDirectory()) throw new Error("Geçerli bir hedef klasör seçin");
   const unique = new Map<string, { source: string; destination: string; bytes: number; mtime: number; ids: string[] }>();
   const assetPaths = new Map<string, string>();
   let total = 0;
   for (const asset of project.assets) {
     abort(signal);
-    if (!path.isAbsolute(asset.path)) throw new Error(`素材“${asset.name}”不是本地文件`);
+    if (!path.isAbsolute(asset.path)) throw new Error(`“${asset.name}” medyası yerel bir dosya değil`);
     let resolved: string;
-    try { resolved = await realpath(asset.path); } catch { throw new Error(`找不到素材“${asset.name}”，请重新链接后打包`); }
+    try { resolved = await realpath(asset.path); } catch { throw new Error(`“${asset.name}” medyası bulunamadı; yeniden bağlayıp paketleyin`); }
     const metadata = await stat(resolved);
-    if (!metadata.isFile()) throw new Error(`素材“${asset.name}”不是普通文件`);
+    if (!metadata.isFile()) throw new Error(`“${asset.name}” medyası normal bir dosya değil`);
     if (!unique.has(resolved)) {
       const extension = path.extname(resolved).slice(1).toLowerCase();
       const destination = `media/${randomUUID()}.${/^[a-z\d]{1,12}$/.test(extension) ? extension : "bin"}`;
@@ -65,11 +65,11 @@ export async function collectPortableProject(input: Project, parent: string, sig
       let copied = 0;
       source.on("data", chunk => {
         hash.update(chunk); copied += chunk.length;
-        if (Date.now() - lastUpdate > 100) { lastUpdate = Date.now(); progress(total ? Math.min(.98, (completedBytes + copied) / total * .98) : 0, `正在收集素材 ${count + 1} / ${unique.size}`); }
+        if (Date.now() - lastUpdate > 100) { lastUpdate = Date.now(); progress(total ? Math.min(.98, (completedBytes + copied) / total * .98) : 0, `Medya toplanıyor ${count + 1} / ${unique.size}`); }
       });
       await pipeline(source, createWriteStream(path.join(temporary, entry.destination), { flags: "wx", mode: 0o600 }), { signal });
       const after = await stat(entry.source);
-      if (after.size !== entry.bytes || after.mtimeMs !== entry.mtime || copied !== entry.bytes) throw new Error("素材在打包期间发生变化，请完成修改后重试");
+      if (after.size !== entry.bytes || after.mtimeMs !== entry.mtime || copied !== entry.bytes) throw new Error("Medya paketleme sırasında değişti; düzenlemeyi bitirip yeniden deneyin");
       completedBytes += copied; count++;
       manifest.push({ file: entry.destination, bytes: copied, sha256: hash.digest("hex"), assetIds: entry.ids });
     }
@@ -91,7 +91,7 @@ export function startPortablePackage(project: Project, parent: string, callback:
   const jobId = randomUUID(), controller = new AbortController();
   const emit = (event: Omit<ExportProgress, "jobId">) => { try { callback({ jobId, ...event }); } catch { /* Window may have closed. */ } };
   const done = Promise.resolve().then(async () => {
-    emit({ status: "preparing", progress: 0, message: "正在检查素材" });
+    emit({ status: "preparing", progress: 0, message: "Medya denetleniyor" });
     try {
       const destination = await collectPortableProject(project, parent, controller.signal, (fraction, message) => emit({ status: "rendering", progress: fraction, message }));
       emit({ status: "complete", progress: 1, path: destination });
@@ -108,7 +108,7 @@ export async function cancelPortablePackages(): Promise<void> { const current = 
 export async function savePortableDocument(input: Project, file: string): Promise<void> {
   const project = validateProject(input), directory = await realpath(path.dirname(file));
   const media = await realpath(path.join(directory, "media"));
-  if (!inside(directory, media)) throw new Error("素材包目录指向包外位置");
+  if (!inside(directory, media)) throw new Error("Medya paketi klasörü paket dışını gösteriyor");
   const copied: string[] = [], destinations = new Map<string, string>();
   const pendingCache = new Map<string, { size: number; mtime: number; relative: string }>();
   const temporaryFile = `${file}.${randomUUID()}.tmp`;
@@ -130,12 +130,12 @@ export async function savePortableDocument(input: Project, file: string): Promis
           const target = path.join(directory, cached.relative);
           try { if (await realpath(target) === target && (await stat(target)).size === cached.size) relative = cached.relative; } catch { /* A missing copy cannot recover the source. */ }
         }
-        if (!relative) throw new Error(`找不到素材“${asset.name}”，请重新链接后保存`);
+        if (!relative) throw new Error(`“${asset.name}” medyası bulunamadı; yeniden bağlayıp kaydedin`);
         asset.path = relative; asset.url = relative;
         delete asset.thumbnail; delete asset.previewUrl; delete asset.previewError; delete asset.waveform; delete asset.missing;
         continue;
       }
-      if (!metadata.isFile()) throw new Error(`素材“${asset.name}”不是普通文件`);
+      if (!metadata.isFile()) throw new Error(`“${asset.name}” medyası normal bir dosya değil`);
       let relative = destinations.get(source);
       if (!relative && path.dirname(source) === media && /^[a-f\d-]{36}\.[a-z\d]{1,12}$/i.test(path.basename(source))) relative = `media/${path.basename(source)}`;
       if (!relative && cached && cached.size === metadata.size && cached.mtime === metadata.mtimeMs) {
@@ -148,7 +148,7 @@ export async function savePortableDocument(input: Project, file: string): Promis
         const target = path.join(directory, relative); copied.push(target);
         await pipeline(createReadStream(source), createWriteStream(target, { flags: "wx", mode: 0o600 }));
         const after = await stat(source);
-        if (after.size !== metadata.size || after.mtimeMs !== metadata.mtimeMs) throw new Error("素材在保存期间发生变化，请重试");
+        if (after.size !== metadata.size || after.mtimeMs !== metadata.mtimeMs) throw new Error("Medya kaydetme sırasında değişti; yeniden deneyin");
       }
       destinations.set(source, relative);
       pendingCache.set(cacheKey, { size: metadata.size, mtime: metadata.mtimeMs, relative });

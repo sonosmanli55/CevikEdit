@@ -36,7 +36,7 @@ export default function PresetPreview({
   const canvas = useRef<HTMLCanvasElement>(null),
     [playing, setPlaying] = useState(false);
   const scene = useMemo(() => {
-    const p = createProject("素材预览");
+    const p = createProject("Medya önizlemesi");
     p.width = 640;
     p.height = 360;
     p.background = "#18212b";
@@ -149,7 +149,7 @@ export default function PresetPreview({
   return (
     <button
       className="preset-preview"
-      aria-label={`预览${label}`}
+      aria-label={`${label} önizle`}
       aria-pressed={playing}
       onMouseEnter={() => setPlaying(true)}
       onMouseLeave={() => setPlaying(false)}
@@ -158,7 +158,7 @@ export default function PresetPreview({
       onClick={() => setPlaying((p) => !p)}
     >
       <canvas ref={canvas} width={320} height={180} />
-      <small>{playing ? "播放中" : "悬停预览"}</small>
+      <small>{playing ? "Oynuyor" : "Önizle"}</small>
     </button>
   );
 }

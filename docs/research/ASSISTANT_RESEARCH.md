@@ -1,76 +1,76 @@
-# 桌面剪辑助手研究与独立实现边界
+# Masaüstü kurgu asistanı araştırması ve bağımsız uygulama sınırları
 
-研究日期：2026-10-13。目标是理解本机剪映随包交付的助手结构，指导 CevikEdit 自主实现；本报告不是商业剪映功能完全复刻或云端模型行为的证明。
+Araştırma tarihi: 2026-10-13. Amaç, bu makinedeki CapCut kurulumuyla birlikte gelen asistan yapısını anlamak ve CevikEdit için bağımsız bir uygulamaya yön vermek; bu rapor, ticari CapCut özelliklerinin tamamen kopyalandığının veya bulut modeli davranışının kanıtı değildir.
 
-## 范围与来源
+## Kapsam ve kaynaklar
 
-用户明确选定本机剪映并要求研究“剪映助手”。本轮只读 `/Applications/VideoFusion-macOS.app` 的应用资源与原生库；使用 REA 6.4.0 静态 JavaScript 分析和 REA + Ghidra 12.1.4 原生反编译。没有执行被分析的 JavaScript/原生库，没有打开私人项目、读取账号缓存、发送剪映云端对话或调用包内服务端接口。没有修改应用二进制或检查会员绕过路径。
+Kullanıcı bu makinedeki CapCut kurulumunu açıkça seçti ve "CapCut asistanı"nın araştırılmasını istedi. Bu turda yalnızca `/Applications/VideoFusion-macOS.app` uygulamasının kaynakları ve yerel kütüphaneleri salt okunur biçimde incelendi; REA 6.4.0 ile statik JavaScript analizi, REA + Ghidra 12.1.4 ile yerel kod decompile işlemi kullanıldı. Analiz edilen JavaScript/yerel kütüphaneler çalıştırılmadı; özel projeler açılmadı, hesap önbelleği okunmadı, CapCut bulut sohbetine istek gönderilmedi ve paket içindeki sunucu arayüzleri çağrılmadı. Uygulama ikilisi değiştirilmedi ve üyelik atlatma yolları incelenmedi.
 
-`Info.plist` 实际记录 `CFBundleShortVersionString=11.0.12922`，`CFBundleVersion=11.1.0-beta3`。这两个字段原样记录，不能从中自行推算正式发布日期。
+`Info.plist` dosyasında gerçekte `CFBundleShortVersionString=11.0.12922` ve `CFBundleVersion=11.1.0-beta3` kayıtlıdır. Bu iki alan olduğu gibi kaydedilmiştir; bunlardan resmî yayın tarihi türetilemez.
 
-| 载体 | SHA-256 | 用途 |
+| Taşıyıcı | SHA-256 | Kullanım |
 | --- | --- | --- |
-| `Resources/image_h5_smart_edit_chat_bot` 目录 | `cd9732e18b3a90c949a8100bde94a8fa893b4075f4222fd3b95308808c0d7460` | REA 静态应用图 |
-| `static/js/chat-bot.52f2052e.js` | `0becc6e4ac4bad8a02a7986261d8f13cae1b25f08e0d402e5c13c6419cc7c607` | 写作助手资源辨识 |
-| `Frameworks/libDeepAgentsService.dylib` | `89fa7b46730f2cffd05e01f520a1e416a5e6ee585958b73ef423851b178e9d20` | 原生服务桥接 |
-| 上述原生库的只读 arm64 切片 | `25d5160542fb62d115d4e45f3f55bea29dde9d5ca36469815655c598858150cc` | Ghidra 分析输入 |
-| `Frameworks/libVECreator.dylib` | `0af38474f1ea1ffa0ce99187b030c093b12afa39608ffd5ff341fa437e051961` | 有界静态字符串/资源路径定位 |
-| `Frameworks/libdeepagents_capi.dylib` | `e119438b11646cb0d734b6378d12292e728983ecd64482600613c28dd09b58b2` | 有界静态符号与字符串定位 |
+| `Resources/image_h5_smart_edit_chat_bot` dizini | `cd9732e18b3a90c949a8100bde94a8fa893b4075f4222fd3b95308808c0d7460` | REA statik uygulama grafiği |
+| `static/js/chat-bot.52f2052e.js` | `0becc6e4ac4bad8a02a7986261d8f13cae1b25f08e0d402e5c13c6419cc7c607` | Yazma asistanı kaynağının belirlenmesi |
+| `Frameworks/libDeepAgentsService.dylib` | `89fa7b46730f2cffd05e01f520a1e416a5e6ee585958b73ef423851b178e9d20` | Yerel servis köprüsü |
+| Yukarıdaki yerel kütüphanenin salt okunur arm64 dilimi | `25d5160542fb62d115d4e45f3f55bea29dde9d5ca36469815655c598858150cc` | Ghidra analiz girdisi |
+| `Frameworks/libVECreator.dylib` | `0af38474f1ea1ffa0ce99187b030c093b12afa39608ffd5ff341fa437e051961` | Sınırlı statik dize/kaynak yolu tespiti |
+| `Frameworks/libdeepagents_capi.dylib` | `e119438b11646cb0d734b6378d12292e728983ecd64482600613c28dd09b58b2` | Sınırlı statik sembol ve dize tespiti |
 
-原始证据仅保存在本机忽略目录 `.research/assistant-round3/`；专有伪代码、完整字符串与资源不进入公开源码或安装包。CevikEdit 不链接这些库。
+Ham kanıtlar yalnızca makinedeki yok sayılan `.research/assistant-round3/` dizininde tutulur; tescilli sözde kod, tam dizeler ve kaynaklar herkese açık kaynak koduna veya kurulum paketine girmez. CevikEdit bu kütüphanelere bağlanmaz.
 
-## 公开发布时间核对
+## Herkese açık yayın tarihinin doğrulanması
 
-剪映账号于 **2026-09-20** 发布的可读官方页面明确是剪映 Hub 的 PC 专业版内测招募；它支持“9 月 20 日这一轮发布涉及桌面智能创作”的说法，不能单独证明助手在该日首次上线。[剪映 Hub 官方公告](https://jingxuan.douyin.com/m/video/7687570571546086702)
+CapCut hesabının **2026-09-20** tarihinde yayımladığı okunabilir resmî sayfa, açık biçimde CapCut Hub PC profesyonel sürümünün kapalı beta duyurusudur; "20 Eylül'deki bu yayın turu masaüstü akıllı üretimi kapsıyor" ifadesini destekler, ancak asistanın ilk kez o gün yayımlandığını tek başına kanıtlamaz. [CapCut Hub resmî duyurusu](https://jingxuan.douyin.com/m/video/7687570571546086702)
 
-另一个剪映账号页面标注 **2026-04-24**，已宣传通过对话批量修改、生成画面及寻找素材/功能。因此本报告不写“9 月 20 日首次发布助手”，也不把不同端和不同阶段的能力合并为一个已验证版本。[剪映 AI 助手官方公告](https://jingxuan.douyin.com/m/video/7631940182882761957)
+Başka bir CapCut hesabı sayfası **2026-04-24** tarihini taşır ve sohbet yoluyla toplu düzenleme, görüntü üretme, malzeme/özellik bulma özelliklerini zaten tanıtmaktadır. Bu nedenle bu rapor "asistan ilk kez 20 Eylül'de yayımlandı" demez ve farklı platformlardaki, farklı aşamalardaki yetenekleri tek bir doğrulanmış sürümde birleştirmez. [CapCut AI asistanı resmî duyurusu](https://jingxuan.douyin.com/m/video/7631940182882761957)
 
-官网当前介绍智能搜索素材、智能剪口播等能力，但没有提供本轮所需的桌面助手完整工具协议或离线行为规范。[剪映官网](https://www.jianying.com/)
+Resmî site günümüzde akıllı malzeme arama, akıllı sesli anlatım kurgusu gibi yetenekleri tanıtmakta, ancak bu turda gereken eksiksiz masaüstü asistanı araç protokolünü veya çevrimdışı davranış kurallarını sunmamaktadır. [CapCut resmî sitesi](https://www.jianying.com/)
 
-## REA 证据与结论
+## REA kanıtları ve sonuçlar
 
-### 写作助手与桌面 Agent 是不同证据面
+### Yazma asistanı ile masaüstü Agent farklı kanıt yüzeyleridir
 
-REA 对随包 `image_h5_smart_edit_chat_bot` 目录实际完成静态分析，读取 8 个相关文件、解析 4 个 JavaScript 文件、识别 874 个模块且无语法解析失败。主 Evidence 为 `ev_2a8897b54698090e9945afa7ded823e5ce196cd5cc13f73cb63e80eaef4dd1ff`，摘要为 `ev_39909e36eecb4dc670263a7c61e90771b32c5ecdd7c87636281c03e2712e12ae`，目标文件视图为 `ev_b7f0ac32bce3db1b722d2a9a85c9088ffe095106da95455195c2f2f06b2d1735`。
+REA, paketle gelen `image_h5_smart_edit_chat_bot` dizini üzerinde gerçekten statik analiz tamamladı; 8 ilgili dosya okundu, 4 JavaScript dosyası ayrıştırıldı, 874 modül tanımlandı ve sözdizimi ayrıştırma hatası oluşmadı. Ana Evidence `ev_2a8897b54698090e9945afa7ded823e5ce196cd5cc13f73cb63e80eaef4dd1ff`, özet `ev_39909e36eecb4dc670263a7c61e90771b32c5ecdd7c87636281c03e2712e12ae`, hedef dosya görünümü `ev_b7f0ac32bce3db1b722d2a9a85c9088ffe095106da95455195c2f2f06b2d1735`'tir.
 
-该资源内的界面文案是“写作助手”，静态代码包含模型选择、流式消息、取消、引用文本、复制，以及把结果送至文本编辑器的桥接事件。它适合说明通用对话界面，却不能证明“新桌面 Agent 已被完整逆向”。本轮明确保留这个区分。
+Bu kaynaktaki arayüz metni "yazma asistanı"dır; statik kod model seçimi, akış halinde mesaj, iptal, alıntılanan metin, kopyalama ve sonucu metin düzenleyiciye gönderen köprü olaylarını içerir. Bu, genel bir sohbet arayüzünü açıklamaya uygundur, ama "yeni masaüstü Agent tamamen tersine mühendislikle çözüldü"yü kanıtlamaz. Bu tur bu ayrımı açıkça korur.
 
-REA 对整个目录的应用关系与语义图覆盖为 **partial**：部分展开关系超出结果预算，React 语义分析达到工作进程堆限制，部分文件语义分析未启动。已保留的静态事实可用，缺失关系不能当成不存在。没有通过重新执行 bundle 来补足这些未知项。
+REA'nın tüm dizin için uygulama ilişkileri ve anlam grafiği kapsamı **partial** düzeyindedir: ilişkilerin bir kısmı sonuç bütçesini aştı, React anlam analizi çalışan işlem yığın sınırına ulaştı, bazı dosyaların anlam analizi başlatılmadı. Elde kalan statik olgular kullanılabilir; eksik ilişkiler yok sayılamaz. Bu bilinmeyenleri kapatmak için bundle yeniden çalıştırılmadı.
 
-### 原生 Agent 的模型、工具与会话分离
+### Yerel Agent'ta model, araç ve oturum ayrımı
 
-针对约 4 MB 的 `libDeepAgentsService.dylib` 提取 arm64 切片，经 REA 的 Ghidra provider 默认分析后，实际取得如下证据。Ghidra analysis profile digest 为 `20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c`。
+Yaklaşık 4 MB boyutundaki `libDeepAgentsService.dylib` için arm64 dilimi çıkarıldı ve REA'nın Ghidra sağlayıcısının varsayılan analizinden sonra aşağıdaki kanıtlar gerçekten elde edildi. Ghidra analysis profile digest değeri `20565088524a2d0359b9b96f46ac48e679d774c7b0092c56abc06de8fdbec11c`'dir.
 
-| 问题 | 原生证据 | 能支持的结论 |
+| Soru | Yerel kanıt | Desteklenen sonuç |
 | --- | --- | --- |
-| 工具如何派发 | `ev_8e1b57bee76e44367230a698d45158e1b520073312cc4c2865a225534c5bdcb6` 字符串、`ev_870deee2ed36f1b17b403d2553d93206ae2aa63b9d834f81c59bd156d0519a04` 引用、`ev_2414e62687dce11aed59b5627f62d78b348b245f563124d6d06f7330a84bc119` 伪代码 | `0x1ae683` 的 CallToolAsync 日志被 `0x133324` 引用，其所属函数 `0x133264` 有服务有效性检查、异步回调及向桥接函数传递参数的路径。支持“有独立工具派发桥”，不证明所有工具已执行成功。 |
-| 取消是否是明确接口 | `ev_968e228c08d2a322950e46ef30bbc6a38643ccd25dfbde7960c19cf1ee4881ed` | 导出 `_da_session_cancel`（`0x17857c`）先检查初始化结果，再通过函数表调用实现，返回状态。不能据此断言所有工具都能立即取消。 |
-| 会话历史与 token 生命周期 | `ev_10511a3ede3b056772bf773e8df72fdaf4e68d9262bc362a8b74f07de61d4810`、`ev_7e2ae4fd25ea49f2b3fae60f42ceca13cdd83be79d1c32d94277ac4aceb02062` | 原生类型/字符串含历史分页、TokenStreamCancel、ToolCallCancel；这属于接口存在证据，不是运行测试。 |
-| 工具结果是否有专项处理 | `ev_12b29b49c52bbc0b8345ff0c790033579890f553ca408199311fbc09e8719e20` 引用、`ev_3097e52d2b0b32c3d287836ed06a854c8de4ad155b5dba1bdaa82a988d5f5386` 伪代码 | 函数 `0x170930` 比较 12 字符的 `material_asr` 工具名并走专门分支。支持存在按工具类型处理结果的机制；没有恢复 ASR 算法或云服务。 |
+| Araçlar nasıl dağıtılıyor | `ev_8e1b57bee76e44367230a698d45158e1b520073312cc4c2865a225534c5bdcb6` dizesi, `ev_870deee2ed36f1b17b403d2553d93206ae2aa63b9d834f81c59bd156d0519a04` referansı, `ev_2414e62687dce11aed59b5627f62d78b348b245f563124d6d06f7330a84bc119` sözde kodu | `0x1ae683` adresindeki CallToolAsync günlüğüne `0x133324` tarafından referans verilir; ait olduğu `0x133264` fonksiyonu servis geçerlilik denetimi, eşzamansız geri çağırma ve köprü fonksiyonuna parametre aktaran bir yol içerir. "Ayrı bir araç dağıtım köprüsü var" görüşünü destekler; tüm araçların başarıyla çalıştırıldığını kanıtlamaz. |
+| İptal açık bir arayüz mü | `ev_968e228c08d2a322950e46ef30bbc6a38643ccd25dfbde7960c19cf1ee4881ed` | Dışa aktarılan `_da_session_cancel` (`0x17857c`) önce başlatma sonucunu denetler, ardından fonksiyon tablosu üzerinden çağrı yaparak uygular ve durum döndürür. Buna dayanarak tüm araçların hemen iptal edilebildiği söylenemez. |
+| Oturum geçmişi ve token yaşam döngüsü | `ev_10511a3ede3b056772bf773e8df72fdaf4e68d9262bc362a8b74f07de61d4810`, `ev_7e2ae4fd25ea49f2b3fae60f42ceca13cdd83be79d1c32d94277ac4aceb02062` | Yerel türler/dizeler geçmiş sayfalama, TokenStreamCancel ve ToolCallCancel içerir; bu, arayüzün varlığına dair kanıttır, çalışma testi değildir. |
+| Araç sonuçları için özel işleme var mı | `ev_12b29b49c52bbc0b8345ff0c790033579890f553ca408199311fbc09e8719e20` referansı, `ev_3097e52d2b0b32c3d287836ed06a854c8de4ad155b5dba1bdaa82a988d5f5386` sözde kodu | `0x170930` fonksiyonu 12 karakterlik `material_asr` araç adını karşılaştırır ve özel bir dala yönelir. Araç türüne göre sonuç işleyen bir mekanizmanın varlığını destekler; ASR algoritması veya bulut servisi geri kazanılmadı. |
 
-工具派发伪代码报告类型传播未收敛，部分间接调用与结构体类型不确定。报告仅使用可交叉核对的字符串、引用、分支和已命名导出，不把反编译 C 当成原始源码。
+Araç dağıtımı sözde kodu raporunda tür yayılımı yakınsamamıştır; bazı dolaylı çağrıların ve yapı türlerinin belirsizliği sürmektedir. Rapor yalnızca çapraz doğrulanabilen dizeleri, referansları, dalları ve adlandırılmış dışa aktarımları kullanır; decompile edilmiş C kodunu özgün kaynak kodu olarak ele almaz.
 
-完整原生 Evidence 已导出到私有 `native-evidence-bundle.json`，随后调用 `close_binary` 正常关闭自建 Ghidra 会话；独立 MCP 前端正常退出。没有复用旧 Hopper 会话。
+Tam yerel Evidence özel `native-evidence-bundle.json` dosyasına aktarıldı; ardından `close_binary` çağrısıyla kendi oluşturduğumuz Ghidra oturumu normal biçimde kapatıldı ve bağımsız MCP ön ucu normal şekilde çıktı. Eski Hopper oturumu yeniden kullanılmadı.
 
-### 桌面编辑器侧的补充静态观察
+### Masaüstü düzenleyici tarafındaki ek statik gözlemler
 
-`libVECreator.dylib` 的有界字节检索记录了具体偏移及文件指纹，但这部分是 **本地静态字符串观察，不伪装成 REA 反编译 Evidence**：
+`libVECreator.dylib` üzerindeki sınırlı bayt araması belirli ofsetleri ve dosya parmak izlerini kaydetti, ancak bu bölüm **yerel statik dize gözlemidir ve REA decompile Evidence'ı gibi sunulmaz**:
 
-- `qrc:/Agent/view/AgentChatView.qml` 与主窗口容器路径，支持包内存在专门桌面聊天视图；没有恢复完整 QML 树或验证当前用户界面入口。
-- `LocalAgentChannel` 的 open/send/retry/cancel、token 事件、tool_start/tool_end 和会话历史恢复诊断文本；同时出现项目目录持久化路径解析的诊断。它们提示项目上下文与对话生命周期有关，但不证明具体落盘模式或所有运行分支。
-- `LocalAgentToolDispatcher` 含未知工具、隐藏工具直接调用被拒绝等诊断。不能仅凭日志字符串推断完整权限策略，更不作为绕过这些检查的入口。
-- service 包内类型包含 `DeepAgentModelHost`、`DeepAgentToolHost`、会话与流式观察者。与已取得工具派发伪代码合看，模型和编辑工具分离是有依据的架构推断。
+- `qrc:/Agent/view/AgentChatView.qml` ve ana pencere kapsayıcı yolu, pakette özel bir masaüstü sohbet görünümünün varlığını destekler; tam QML ağacı geri kazanılmadı ve mevcut kullanıcı arayüzü giriş noktası doğrulanmadı.
+- `LocalAgentChannel` için open/send/retry/cancel, token olayları, tool_start/tool_end ve oturum geçmişi kurtarma tanılama metinleri; aynı zamanda proje dizini kalıcılaştırma yolu çözümlemesine ilişkin tanılamalar görülür. Bunlar proje bağlamının sohbet yaşam döngüsüyle ilişkili olduğunu ima eder, ama somut diske yazma düzenini veya tüm çalışma dallarını kanıtlamaz.
+- `LocalAgentToolDispatcher` bilinmeyen araç, gizli araçların doğrudan çağrılmasının reddedilmesi gibi tanılamalar içerir. Yalnızca günlük dizelerinden eksiksiz bir yetki politikası çıkarılamaz; bu dizeler bu denetimleri atlamak için bir giriş noktası olarak da kullanılamaz.
+- Servis paketindeki türler `DeepAgentModelHost`, `DeepAgentToolHost` ve oturum ile akış gözlemcilerini içerir. Elde edilen araç dağıtımı sözde koduyla birlikte değerlendirildiğinde, model ile düzenleme araçlarının ayrıldığı mimari çıkarımı dayanaklıdır.
 
-## 对 CevikEdit 的自主设计建议
+## CevikEdit için bağımsız tasarım önerileri
 
-下列是基于现有 CevikEdit 模型和本轮证据提出的独立实现要求，不宣称与剪映内部协议一致：
+Aşağıdakiler, mevcut CevikEdit modeline ve bu turdaki kanıtlara dayanan bağımsız uygulama gereksinimleridir; CapCut'un iç protokolüyle uyumlu olduğu iddia edilmez:
 
-1. 让对话绑定当前项目，提供运行中、完成、错误、取消和重试状态。项目切换、编辑变化、旧请求迟到时避免把结果写入错误项目。
-2. 以 Claude Code、Codex 等用户配置的 CLI 作为模型后端，用参数数组和标准输入传递请求，不拼接 shell 命令。CLI 自身可能联网；界面需要说明发送哪些文本，不自动上传媒体或私人路径。
-3. 模型产生自主定义的有限编辑计划，应用层验证片段/素材引用、数值及当前项目版本。先显示可读的变更，再通过编辑器 transaction 应用，保留一次撤销；不执行模型返回的任意代码。
-4. 对话、工具和模型接口分离，以便换 CLI 后端而不改变时间线执行器。素材、字幕和文字使用既有 CevikEdit 工程数据，外部视频理解、ASR、生成图像/视频等未实现能力应明确显示限制。
-5. 测试需要覆盖真实桌面入口、假 CLI 协议、取消及迟到响应、工具计划校验、应用与撤销；已安装真实 CLI 的验证必须单独说明是否真正完成模型对话，不能用版本号或假 CLI 通过替代。
+1. Sohbeti geçerli projeye bağlayın; çalışıyor, tamamlandı, hata, iptal ve yeniden deneme durumları sunun. Proje değişimi, düzenleme değişikliği ve geç gelen eski isteklerde sonuçların yanlış projeye yazılmasını önleyin.
+2. Kullanıcının yapılandırdığı Claude Code, Codex gibi CLI'ları model arka ucu olarak kullanın; istekleri parametre dizisi ve standart girdi ile iletin, shell komutu birleştirmeyin. CLI'nin kendisi ağa çıkabilir; arayüz hangi metinlerin gönderildiğini açıklamalı, medya veya özel yolları otomatik yüklememelidir.
+3. Model, kendi tanımladığı sınırlı bir düzenleme planı üretsin; uygulama katmanı klip/malzeme referanslarını, sayısal değerleri ve geçerli proje sürümünü doğrulasın. Önce okunabilir değişiklikler gösterilsin, sonra düzenleyici transaction'ı ile uygulanıp tek bir geri alma korunsun; modelin döndürdüğü rastgele kod yürütülmesin.
+4. Sohbet, araç ve model arayüzleri ayrılsın; böylece zaman çizelgesi yürütücüsü değişmeden CLI arka ucu değiştirilebilsin. Malzemeler, altyazılar ve metinler mevcut CevikEdit proje verilerini kullansın; harici video anlama, ASR, görüntü/video üretimi gibi uygulanmamış yetenekler açıkça sınır olarak gösterilsin.
+5. Testler gerçek masaüstü giriş noktasını, sahte CLI protokolünü, iptali ve geç gelen yanıtları, araç planı doğrulamasını, uygulama ve geri almayı kapsamalıdır; kurulu gerçek CLI ile doğrulama, gerçek model sohbetinin yapılıp yapılmadığını ayrıca belirtmelidir; sürüm numarası veya sahte CLI testinin geçmesi bunun yerine geçmez.
 
-## 仍未知或未覆盖
+## Hâlâ bilinmeyen veya kapsanmayanlar
 
-没有测试剪映云端推理、其模型与完整工具清单、会员/灰度条件、Skills 的完整执行语义、实际媒体语义理解或跨版本一致性。本轮没有宣称复制剪映专有源码，也没有把包内“写作助手”直接当作 9 月发布功能的完整实现。CevikEdit 的 CLI 协议、编辑计划及素材库属于自主产品设计，其完成情况由产品代码和桌面测试另外验收。
+CapCut bulut çıkarımı, modelleri ve eksiksiz araç listesi, üyelik/kademeli yayın koşulları, Skills'in eksiksiz yürütme semantiği, gerçek medya semantiği anlama veya sürümler arası tutarlılık test edilmedi. Bu turda CapCut'un tescilli kaynak kodunun kopyalandığı iddia edilmedi ve paketteki "yazma asistanı" doğrudan Eylül'de yayımlanan özelliğin eksiksiz uygulaması sayılmadı. CevikEdit'in CLI protokolü, düzenleme planı ve malzeme kütüphanesi kendi ürün tasarımıdır; bunların tamamlanma durumu ürün koduna ve masaüstü testlerine göre ayrıca kabul edilir.

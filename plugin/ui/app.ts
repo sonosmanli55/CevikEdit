@@ -8,7 +8,7 @@ let stopped = false, connected = false, dragging = false, lastMove = 0;
 let queue = Promise.resolve();
 async function call(name: string, args: Record<string, unknown> = {}) {
   const result = await app.callServerTool({ name, arguments: args });
-  if (result.isError) throw new Error(result.content?.filter(c => c.type === 'text').map(c => c.text).join(' ') || '操作失败');
+  if (result.isError) throw new Error(result.content?.filter(c => c.type === 'text').map(c => c.text).join(' ') || 'İşlem başarısız');
   return result.structuredContent as Record<string, any>;
 }
 function input(args: Record<string, unknown>) {
@@ -21,8 +21,8 @@ async function poll() {
     try {
       const frame = await call('cevikedit_frame');
       if (frame.data) { screen.src = `data:image/jpeg;base64,${frame.data}`; screen.width = frame.width; screen.height = frame.height; }
-      status.textContent = '本地连接 · 实时画面';
-    } catch (e) { status.textContent = `连接中断 · ${e instanceof Error ? e.message : e}`; }
+      status.textContent = 'Yerel bağlantı · canlı görüntü';
+    } catch (e) { status.textContent = `Bağlantı kesildi · ${e instanceof Error ? e.message : e}`; }
   }
   if (!stopped) setTimeout(poll, 150);
 }
@@ -75,7 +75,7 @@ for (const button of document.querySelectorAll<HTMLButtonElement>('[data-menu]')
 document.querySelector<HTMLButtonElement>('#desktop')!.onclick = () => { if (connected) void input({ type: 'desktop' }); };
 document.querySelector<HTMLButtonElement>('#zoom')!.onclick = e => {
   const original = stage.classList.toggle('original');
-  (e.currentTarget as HTMLButtonElement).textContent = original ? '适应窗口' : '100%';
+  (e.currentTarget as HTMLButtonElement).textContent = original ? 'Pencereye sığdır' : '100%';
 };
 app.onteardown = async () => { stopped = true; return {}; };
 app.ontoolresult = () => {};
@@ -83,4 +83,4 @@ void app.connect().then(async () => {
   connected = true;
   try { await app.requestDisplayMode({ mode: 'fullscreen' }); } catch { /* host chooses presentation */ }
   void poll();
-}).catch(e => { status.textContent = `无法连接 Codex：${e.message}`; });
+}).catch(e => { status.textContent = `Codex'e bağlanılamadı: ${e.message}`; });

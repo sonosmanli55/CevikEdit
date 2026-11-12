@@ -22,15 +22,15 @@ export function separateProjectAudio(
   audioAsset: MediaAsset,
 ): AudioSeparation {
   const source = project.clips.find((clip) => clip.id === clipId);
-  if (!source) throw new Error("找不到要分离音频的片段");
-  if (audioAsset.kind !== "audio") throw new Error("分离出的素材不是音频");
+  if (!source) throw new Error("Sesi ayrılacak klip bulunamadı");
+  if (audioAsset.kind !== "audio") throw new Error("Ayrılan materyal ses değil");
   const frame = 1 / project.fps;
   // Audible part of the source clip, measured in source seconds.
   const span = Math.min(
     source.duration * source.speed,
     Math.max(0, audioAsset.duration - source.sourceIn),
   );
-  if (span < frame - 1e-9) throw new Error("分离出的音频过短");
+  if (span < frame - 1e-9) throw new Error("Ayrılan ses çok kısa");
   const track = createTrack("audio");
   const linkId = id();
   const clip = createClip(audioAsset, track.id, source.start, project.fps);

@@ -62,7 +62,6 @@ import {
   transcribeAudio,
   whisperStatus,
 } from "./transcription";
-import { getMainLocale, resolveLocale, setMainLocale, tr, translateMenu } from "./locale";
 import { validateProject } from "../src/core/model";
 import { decodeCapcutDraft } from "./capcutCodec";
 import {
@@ -84,7 +83,6 @@ import type {
 } from "../src/core/types";
 
 const pluginMode = process.argv.includes("--cevikedit-plugin");
-setMainLocale(resolveLocale(app.isPackaged));
 // A connected MCP server is a background app until its desktop window is shown.
 if (process.platform === "darwin") app.setActivationPolicy(pluginMode ? "accessory" : "regular");
 if (pluginMode && !process.env.CEVIKEDIT_USER_DATA)
@@ -114,17 +112,17 @@ let assistantCancelPending = false;
 let assistantStartDone: Promise<void> = Promise.resolve();
 let assistantHistoryWrites = Promise.resolve();
 function assistantHistoryFile(projectId: unknown): string {
-  if (typeof projectId !== "string" || !projectId || projectId.length > 256) throw new Error("无效项目 ID");
+  if (typeof projectId !== "string" || !projectId || projectId.length > 256) throw new Error("Geçersiz proje kimliği");
   return userFile(`assistant/${createHash("sha256").update(projectId).digest("hex")}.json`);
 }
 function cleanAssistantMessages(value: unknown): AssistantMessage[] {
-  if (!Array.isArray(value) || value.length > 60) throw new Error("对话记录过大");
+  if (!Array.isArray(value) || value.length > 60) throw new Error("Sohbet kaydı çok büyük");
   const messages = value.map(item => {
     if (!item || !["user", "assistant"].includes(item.role) || typeof item.content !== "string" || item.content.length > 12000)
-      throw new Error("对话记录格式无效");
+      throw new Error("Sohbet kaydı biçimi geçersiz");
     return { role: item.role, content: item.content } as AssistantMessage;
   });
-  if (JSON.stringify(messages).length > 250000) throw new Error("对话记录过大");
+  if (JSON.stringify(messages).length > 250000) throw new Error("Sohbet kaydı çok büyük");
   return messages;
 }
 let pendingProject = process.argv.find(
@@ -157,7 +155,7 @@ function validateCapcutToken(token: unknown): asserts token is string {
     typeof token !== "string" ||
     !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(token)
   )
-    throw new Error("剪映项目选择无效，请重新选择项目");
+    throw new Error("CapCut proje seçimi geçersiz; projeyi yeniden seçin");
 }
 const menuAction = (action: string) =>
   window?.webContents.send("menu-action", action);
@@ -281,7 +279,7 @@ async function hydrateProject(input: unknown): Promise<Project> {
 async function readProject(file: string) {
   const metadata = await stat(file);
   if (metadata.size > 30 * 1024 * 1024)
-    throw new Error("项目文件过大（最大 30MB）");
+    throw new Error("Proje dosyası çok büyük (en fazla 30 MB)");
   const input = JSON.parse(await readFile(file, "utf8"));
   const project = await hydrateProject(await resolvePortableDocument(input, file));
   if (input?.format === "cevikedit-portable") portablePaths.add(path.resolve(file));
@@ -294,14 +292,14 @@ function handle(name: string, callback: (...args: any[]) => unknown) {
       event.sender !== window.webContents ||
       event.senderFrame !== window.webContents.mainFrame
     )
-      throw new Error("无效调用来源");
+      throw new Error("Geçersiz çağrı kaynağı");
     return callback(...args);
   });
 }
 function validateTranscriptionRequest(
   value: unknown,
 ): asserts value is TranscriptionRequest {
-  if (!value || typeof value !== "object") throw new Error("无效的转写请求");
+  if (!value || typeof value !== "object") throw new Error("Geçersiz yazıya dökme isteği");
   const request = value as Record<string, unknown>;
   if (
     typeof request.jobId !== "string" ||
@@ -309,15 +307,15 @@ function validateTranscriptionRequest(
       request.jobId,
     )
   )
-    throw new Error("无效的转写请求");
+    throw new Error("Geçersiz yazıya dökme isteği");
   if (
     typeof request.source !== "string" ||
     !path.isAbsolute(request.source) ||
     !allowedMedia.has(path.resolve(request.source))
   )
-    throw new Error("该素材未通过本地访问授权");
+    throw new Error("Bu materyal yerel erişim iznine sahip değil");
   if (typeof request.model !== "string" || !path.isAbsolute(request.model))
-    throw new Error("所选模型不可用，请重新选择");
+    throw new Error("Seçili model kullanılamıyor; yeniden seçin");
   const number = (key: string, min: number, max: number) => {
     const candidate = request[key];
     if (
@@ -326,7 +324,7 @@ function validateTranscriptionRequest(
       candidate < min ||
       candidate > max
     )
-      throw new Error("无效的转写请求");
+      throw new Error("Geçersiz yazıya dökme isteği");
     return candidate;
   };
   const sourceIn = number("sourceIn", 0, 24 * 3600);
@@ -334,32 +332,32 @@ function validateTranscriptionRequest(
   const duration = number("duration", 1 / 240, 86400);
   const speed = number("speed", 0.1, 8);
   number("fps", 1, 240);
-  if (start + duration > 86400) throw new Error("无效的转写请求");
+  if (start + duration > 86400) throw new Error("Geçersiz yazıya dökme isteği");
   if (duration * speed > 6 * 3600)
-    throw new Error("单个片段最长支持 6 小时");
+    throw new Error("Tek klip için en fazla 6 saat desteklenir");
   if (sourceIn + duration * speed > 24 * 3600)
-    throw new Error("无效的转写请求");
+    throw new Error("Geçersiz yazıya dökme isteği");
   if (
     typeof request.language !== "string" ||
     !/^(auto|[a-z]{2,3})$/i.test(request.language)
   )
-    throw new Error("无效的转写语言");
+    throw new Error("Geçersiz yazıya dökme dili");
 }
 const jobIdPattern =
   /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 function validateReverseRequest(
   value: unknown,
 ): asserts value is ReverseClipRequest {
-  if (!value || typeof value !== "object") throw new Error("无效的倒放请求");
+  if (!value || typeof value !== "object") throw new Error("Geçersiz ters oynatma isteği");
   const request = value as Record<string, unknown>;
   if (typeof request.jobId !== "string" || !jobIdPattern.test(request.jobId))
-    throw new Error("无效的倒放请求");
+    throw new Error("Geçersiz ters oynatma isteği");
   if (
     typeof request.source !== "string" ||
     !path.isAbsolute(request.source) ||
     !allowedMedia.has(path.resolve(request.source))
   )
-    throw new Error("该素材未通过本地访问授权");
+    throw new Error("Bu materyal yerel erişim iznine sahip değil");
   const number = (key: string, min: number, max: number) => {
     const candidate = request[key];
     if (
@@ -368,12 +366,12 @@ function validateReverseRequest(
       candidate < min ||
       candidate > max
     )
-      throw new Error("无效的倒放请求");
+      throw new Error("Geçersiz ters oynatma isteği");
     return candidate;
   };
   const sourceIn = number("sourceIn", 0, 24 * 3600);
   const duration = number("duration", 1 / 240, 6 * 3600);
-  if (sourceIn + duration > 24 * 3600) throw new Error("无效的倒放请求");
+  if (sourceIn + duration > 24 * 3600) throw new Error("Geçersiz ters oynatma isteği");
   if (
     request.name !== undefined &&
     (typeof request.name !== "string" ||
@@ -381,27 +379,27 @@ function validateReverseRequest(
       request.name.length > 4096 ||
       request.name.includes("\0"))
   )
-    throw new Error("无效的倒放请求");
+    throw new Error("Geçersiz ters oynatma isteği");
 }
 
 function validateFreezeRequest(
   value: unknown,
 ): asserts value is FreezeFrameRequest {
-  if (!value || typeof value !== "object") throw new Error("无效的定格请求");
+  if (!value || typeof value !== "object") throw new Error("Geçersiz kare dondurma isteği");
   const request = value as Record<string, unknown>;
   if (
     typeof request.source !== "string" ||
     !path.isAbsolute(request.source) ||
     !allowedMedia.has(path.resolve(request.source))
   )
-    throw new Error("该素材未通过本地访问授权");
+    throw new Error("Bu materyal yerel erişim iznine sahip değil");
   if (
     typeof request.time !== "number" ||
     !Number.isFinite(request.time) ||
     request.time < 0 ||
     request.time > 24 * 3600
   )
-    throw new Error("无效的定格请求");
+    throw new Error("Geçersiz kare dondurma isteği");
   if (
     request.name !== undefined &&
     (typeof request.name !== "string" ||
@@ -409,7 +407,7 @@ function validateFreezeRequest(
       request.name.length > 4096 ||
       request.name.includes("\0"))
   )
-    throw new Error("无效的定格请求");
+    throw new Error("Geçersiz kare dondurma isteği");
 }
 
 function derivedAssetName(name: string | undefined, source: string): string {
@@ -420,7 +418,7 @@ function derivedAssetName(name: string | undefined, source: string): string {
 function registerIPC() {
   handle("import-builtin-asset", async (id: unknown) => {
     const definition = BUILTIN_ASSETS.find(asset => asset.id === id);
-    if (!definition) throw new Error("未找到内置素材");
+    if (!definition) throw new Error("Yerleşik medya bulunamadı");
     const source = app.isPackaged
       ? path.join(app.getAppPath().replace(/\.asar$/, ".asar.unpacked"), "dist/builtin-assets", definition.fileName)
       : path.join(__dirname, "../public/builtin-assets", definition.fileName);
@@ -434,8 +432,8 @@ function registerIPC() {
   });
   handle("assistant-providers", () => discoverAssistantProviders(assistantOverrides));
   handle("assistant-choose-cli", async (provider: AssistantProvider) => {
-    if (provider !== "codex" && provider !== "claude") throw new Error("无效助手类型");
-    const result = await dialog.showOpenDialog(window!, { title: tr(`选择 ${provider === "codex" ? "Codex" : "Claude Code"} CLI`), properties: ["openFile"] });
+    if (provider !== "codex" && provider !== "claude") throw new Error("Geçersiz asistan türü");
+    const result = await dialog.showOpenDialog(window!, { title: `Seç ${provider === "codex" ? "Codex" : "Claude Code"} CLI`, properties: ["openFile"] });
     if (!result.canceled) {
       assistantOverrides[provider] = result.filePaths[0];
       await mkdir(path.dirname(userFile("assistant-clis.json")), { recursive: true });
@@ -444,8 +442,8 @@ function registerIPC() {
     return discoverAssistantProviders(assistantOverrides);
   });
   handle("assistant-start", async (request: AssistantRequest) => {
-    if (assistantStarting || assistantRunning) throw new Error("助手正在处理上一条消息");
-    if (!request || typeof request.requestId !== "string" || !["codex", "claude"].includes(request.provider)) throw new Error("助手请求无效");
+    if (assistantStarting || assistantRunning) throw new Error("Asistan önceki mesajı işliyor");
+    if (!request || typeof request.requestId !== "string" || !["codex", "claude"].includes(request.provider)) throw new Error("Asistan isteği geçersiz");
     assistantStarting = true;
     assistantPendingId = request.requestId; assistantCancelPending = false;
     let resolveStart!: () => void;
@@ -469,7 +467,7 @@ function registerIPC() {
     const file = assistantHistoryFile(projectId);
     await assistantHistoryWrites.catch(() => {});
     try {
-      if ((await stat(file)).size > 1024 * 1024) throw new Error("对话记录过大");
+      if ((await stat(file)).size > 1024 * 1024) throw new Error("Sohbet kaydı çok büyük");
       return cleanAssistantMessages(JSON.parse(await readFile(file, "utf8")));
     } catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return []; throw error; }
   });
@@ -487,11 +485,11 @@ function registerIPC() {
     let selected = paths;
     if (!selected) {
       const result = await dialog.showOpenDialog(window!, {
-        title: tr("导入素材"),
+        title: "Medya içe aktar",
         properties: ["openFile", "multiSelections"],
         filters: [
           {
-            name: tr("媒体文件"),
+            name: "Medya dosyaları",
             extensions: [
               "mp4",
               "mov",
@@ -514,7 +512,7 @@ function registerIPC() {
               "heic",
             ],
           },
-          { name: tr("所有文件"), extensions: ["*"] },
+          { name: "Tüm dosyalar", extensions: ["*"] },
         ],
       });
       if (result.canceled) return [];
@@ -525,7 +523,7 @@ function registerIPC() {
       selected.length > 100 ||
       selected.some((p) => typeof p !== "string" || !path.isAbsolute(p))
     )
-      throw new Error("请提供最多 100 个本地素材的绝对路径");
+      throw new Error("En fazla 100 yerel medya için tam yol sağlayın");
     const assets = await importAssets(selected, cacheDir());
     assets.forEach(authorizeAsset);
     return assets;
@@ -533,10 +531,10 @@ function registerIPC() {
   handle("extract-audio", async (asset: MediaAsset) => {
     const source = path.resolve(String(asset?.path ?? ""));
     if (!allowedMedia.has(source))
-      throw new Error("该素材未通过本地访问授权");
+      throw new Error("Bu materyal yerel erişim iznine sahip değil");
     const probe = await probeFile(source);
     if (!probe.streams.some((stream) => stream.codec_type === "audio"))
-      throw new Error("这段素材没有可分离的音频");
+      throw new Error("Bu materyalde ayrılacak ses yok");
     const metadata = await stat(source);
     const directory = userFile("extracted-audio");
     await mkdir(directory, { recursive: true });
@@ -552,7 +550,7 @@ function registerIPC() {
       await extractAudioTrack(source, target);
     }
     const [extracted] = await importAssets([target], cacheDir());
-    if (!extracted) throw new Error("无法读取分离出的音频");
+    if (!extracted) throw new Error("Ayrılan ses okunamadı");
     extracted.name =
       typeof asset.name === "string" && asset.name.trim()
         ? asset.name
@@ -565,7 +563,7 @@ function registerIPC() {
     const request = input;
     const source = path.resolve(request.source);
     const metadata = await stat(source);
-    if (!metadata.isFile()) throw new Error("所选素材无效");
+    if (!metadata.isFile()) throw new Error("Seçili medya geçersiz");
     const directory = reverseDir();
     await mkdir(directory, { recursive: true });
     const key = createHash("sha256")
@@ -608,14 +606,14 @@ function registerIPC() {
         });
       const [reversed] = await importAssets([target], cacheDir());
       if (!reversed || reversed.kind !== "video")
-        throw new Error("无法读取倒放后的视频");
-      reversed.name = `${derivedAssetName(request.name, source)} · ${tr("倒放")}`;
+        throw new Error("Ters çevrilen video okunamadı");
+      reversed.name = `${derivedAssetName(request.name, source)} · ${"Ters"}`;
       authorizeAsset(reversed);
       emit(100, "complete");
       return reversed;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      if (!message.includes("取消")) {
+      if (!message.includes("İptal")) {
         emit(0, "error", message);
       } else {
         emit(0, "cancelled", message);
@@ -625,7 +623,7 @@ function registerIPC() {
   });
   handle("cancel-reverse", (jobId: unknown) => {
     if (typeof jobId !== "string" || !jobIdPattern.test(jobId))
-      throw new Error("无效的倒放请求");
+      throw new Error("Geçersiz ters oynatma isteği");
     return cancelReverseClip(jobId);
   });
   handle("freeze-frame", async (input: unknown) => {
@@ -633,7 +631,7 @@ function registerIPC() {
     const request = input;
     const source = path.resolve(request.source);
     const metadata = await stat(source);
-    if (!metadata.isFile()) throw new Error("所选素材无效");
+    if (!metadata.isFile()) throw new Error("Seçili medya geçersiz");
     const directory = freezeDir();
     await mkdir(directory, { recursive: true });
     const key = createHash("sha256")
@@ -662,25 +660,25 @@ function registerIPC() {
     }
     const [image] = await importAssets([target], cacheDir());
     if (!image || image.kind !== "image")
-      throw new Error("无法读取定格画面");
-    image.name = `${derivedAssetName(request.name, source)} · ${tr("定格画面")}`;
+      throw new Error("Donmuş kare okunamadı");
+    image.name = `${derivedAssetName(request.name, source)} · ${"Donmuş kare"}`;
     authorizeAsset(image);
     return image;
   });
   handle("analyze-loudness", async (input: unknown) => {
     const request = validateLoudnessRequest(input);
     if (!allowedMedia.has(request.source))
-      throw new Error("该素材未通过本地访问授权");
+      throw new Error("Bu materyal yerel erişim iznine sahip değil");
     const metadata = await stat(request.source);
-    if (!metadata.isFile()) throw new Error("所选素材无效");
+    if (!metadata.isFile()) throw new Error("Seçili medya geçersiz");
     return measureLoudness(request);
   });
   handle("analyze-speech", async (input: unknown) => {
     const request = validateSpeechRequest(input);
     if (!allowedMedia.has(request.source))
-      throw new Error("该素材未通过本地访问授权");
+      throw new Error("Bu materyal yerel erişim iznine sahip değil");
     const metadata = await stat(request.source);
-    if (!metadata.isFile()) throw new Error("所选素材无效");
+    if (!metadata.isFile()) throw new Error("Seçili medya geçersiz");
     return analyzeSpeech(request);
   });
   handle("check-updates", () => checkUpdates());
@@ -703,9 +701,9 @@ function registerIPC() {
   });
   handle("import-template", async () => {
     const result = await dialog.showOpenDialog(window!, {
-      title: tr("Şablon içe aktar"),
+      title: "Şablon içe aktar",
       properties: ["openFile"],
-      filters: [{ name: tr("CevikEdit şablonu"), extensions: ["cevikedit-template"] }],
+      filters: [{ name: "CevikEdit şablonu", extensions: ["cevikedit-template"] }],
     });
     if (result.canceled || !result.filePaths[0]) return null;
     const template = await readTemplateFile(result.filePaths[0]);
@@ -717,9 +715,9 @@ function registerIPC() {
     const template = store.templates.find((item) => item.id === id);
     if (!template) throw new Error("Şablon bulunamadı");
     const result = await dialog.showSaveDialog(window!, {
-      title: tr("Şablonu dışa aktar"),
+      title: "Şablonu dışa aktar",
       defaultPath: `${template.name}.cevikedit-template`,
-      filters: [{ name: tr("CevikEdit şablonu"), extensions: ["cevikedit-template"] }],
+      filters: [{ name: "CevikEdit şablonu", extensions: ["cevikedit-template"] }],
     });
     if (result.canceled || !result.filePath) return null;
     await writeFile(result.filePath, serializeTemplate(template), "utf8");
@@ -727,7 +725,7 @@ function registerIPC() {
   });
   handle("relink-asset", async (asset: MediaAsset) => {
     const result = await dialog.showOpenDialog(window!, {
-      title: tr(`重新链接 ${asset.name}`),
+      title: `${asset.name} öğesini yeniden bağla`,
       properties: ["openFile"],
     });
     if (result.canceled) return null;
@@ -737,7 +735,7 @@ function registerIPC() {
       (imported.kind !== asset.kind &&
         !(asset.kind === "audio" && imported.hasAudio))
     )
-      throw new Error("新素材类型与原素材不一致");
+      throw new Error("Yeni medya türü özgün medyayla eşleşmiyor");
     authorizeAsset(imported);
     return {
       ...imported,
@@ -757,9 +755,9 @@ function registerIPC() {
   });
   handle("open-project", async () => {
     const result = await dialog.showOpenDialog(window!, {
-      title: tr("打开 CevikEdit 项目"),
+      title: "CevikEdit projesi aç",
       properties: ["openFile"],
-      filters: [{ name: tr("CevikEdit 项目"), extensions: ["cevikedit", "json"] }],
+      filters: [{ name: "CevikEdit projesi", extensions: ["cevikedit", "json"] }],
     });
     if (result.canceled) return null;
     const file = result.filePaths[0],
@@ -768,7 +766,7 @@ function registerIPC() {
     return { project, path: file };
   });
   handle("open-recent-project", async (file: string) => {
-    if (!recentPaths.has(file)) throw new Error("项目不在最近打开列表");
+    if (!recentPaths.has(file)) throw new Error("Proje son açılanlar listesinde değil");
     const project = await readProject(file);
     await remember(project, file);
     return { project, path: file };
@@ -780,19 +778,19 @@ function registerIPC() {
   });
   handle("save-project", async (input: unknown, file?: string) => {
     const project = validateProject(input);
-    if (file && !savePaths.has(file)) throw new Error("未经选择的项目保存位置");
+    if (file && !savePaths.has(file)) throw new Error("Seçilmemiş proje kayıt konumu");
     if (!file) {
       const result = await dialog.showSaveDialog(window!, {
-        title: tr("保存项目"),
+        title: "Projeyi kaydet",
         defaultPath: project.name + ".cevikedit",
-        filters: [{ name: tr("CevikEdit 项目"), extensions: ["cevikedit"] }],
+        filters: [{ name: "CevikEdit projesi", extensions: ["cevikedit"] }],
       });
       if (result.canceled || !result.filePath) return null;
       file = result.filePath;
       savePaths.add(file);
     }
     if (portablePaths.has(path.resolve(file))) {
-      for (const asset of project.assets) if (!allowedMedia.has(path.resolve(asset.path))) throw new Error("项目引用了未经导入的素材");
+      for (const asset of project.assets) if (!allowedMedia.has(path.resolve(asset.path))) throw new Error("Proje içe aktarılmamış medyaya başvuruyor");
       await savePortableDocument(project, file);
     } else await atomicWrite(file, JSON.stringify(project, null, 2));
     await remember(project, file);
@@ -800,8 +798,8 @@ function registerIPC() {
   });
   handle("package-project", async (input: unknown) => {
     const project = validateProject(input), owner = window!.webContents;
-    for (const asset of project.assets) if (!allowedMedia.has(path.resolve(asset.path))) throw new Error("项目引用了未经导入的素材");
-    const selected = await dialog.showOpenDialog(window!, { title: tr("选择素材包保存位置"), properties: ["openDirectory", "createDirectory"] });
+    for (const asset of project.assets) if (!allowedMedia.has(path.resolve(asset.path))) throw new Error("Proje içe aktarılmamış medyaya başvuruyor");
+    const selected = await dialog.showOpenDialog(window!, { title: "Medya paketi kayıt konumunu seç", properties: ["openDirectory", "createDirectory"] });
     if (selected.canceled || !selected.filePaths[0] || owner.isDestroyed()) return null;
     return startPortablePackage(project, selected.filePaths[0], event => {
       if (event.status === "complete" && event.path) outputPaths.add(event.path);
@@ -825,11 +823,11 @@ function registerIPC() {
     }
   });
   handle("choose-export-path", async (name: string, format: string) => {
-    if (!["mp4", "mov"].includes(format)) throw new Error("无效导出格式");
+    if (!["mp4", "mov"].includes(format)) throw new Error("Geçersiz dışa aktarma biçimi");
     const result = await dialog.showSaveDialog(window!, {
-      title: tr("导出视频"),
+      title: "Videoyu dışa aktar",
       defaultPath: name + "." + format,
-      filters: [{ name: format.toUpperCase() + " " + tr("视频"), extensions: [format] }],
+      filters: [{ name: format.toUpperCase() + " " + "Video", extensions: [format] }],
     });
     if (result.canceled || !result.filePath) return null;
     outputPaths.add(result.filePath);
@@ -837,10 +835,10 @@ function registerIPC() {
   });
   handle("export-project", async (input: unknown, options: ExportOptions) => {
     const project = validateProject(input);
-    if (!outputPaths.has(options.path)) throw new Error("请先选择导出位置");
+    if (!outputPaths.has(options.path)) throw new Error("Önce dışa aktarma konumunu seçin");
     for (const asset of project.assets)
       if (!allowedMedia.has(path.resolve(asset.path)))
-        throw new Error("导出引用了未经导入的素材");
+        throw new Error("Dışa aktarma içe aktarılmamış medyaya başvuruyor");
     return startExport(project, options, (event) =>
       window?.webContents.send("export-progress", event),
     );
@@ -857,26 +855,26 @@ function registerIPC() {
       !Array.isArray(extensions) ||
       extensions.some((e) => !/^[a-z0-9]+$/i.test(e))
     )
-      throw new Error("无效文件类型");
+      throw new Error("Geçersiz dosya türü");
     const result = await dialog.showOpenDialog(window!, {
       properties: ["openFile"],
-      filters: [{ name: tr("文本文件"), extensions }],
+      filters: [{ name: "Metin dosyaları", extensions }],
     });
     if (result.canceled) return null;
     const file = result.filePaths[0];
     if ((await stat(file)).size > 20 * 1024 * 1024)
-      throw new Error("文件超过 20MB");
+      throw new Error("Dosya 20 MB sınırını aşıyor");
     return { text: await readFile(file, "utf8"), name: path.basename(file) };
   });
   handle("choose-capcut-project", async (mode: "file" | "directory") => {
     if (mode !== "file" && mode !== "directory")
-      throw new Error("请选择草稿文件或项目文件夹");
+      throw new Error("Taslak dosyası veya proje klasörü seçin");
     const owner = window!;
     const result = await dialog.showOpenDialog(owner, {
-      title: tr(mode === "file" ? "选择剪映草稿文件" : "选择剪映项目文件夹"),
+      title: mode === "file" ? "CapCut taslak dosyasını seç" : "CapCut proje klasörünü seç",
       properties: [mode === "file" ? "openFile" : "openDirectory"],
       ...(mode === "file"
-        ? { filters: [{ name: tr("剪映草稿"), extensions: ["json"] }] }
+        ? { filters: [{ name: "CapCut taslağı", extensions: ["json"] }] }
         : {}),
     });
     if (result.canceled || !result.filePaths[0]) return null;
@@ -913,14 +911,14 @@ function registerIPC() {
     pruneCapcutSelections();
     const selection = capcutSelections.get(token);
     if (!selection || selection.ownerId !== window!.webContents.id)
-      throw new Error("剪映项目选择已失效，请重新选择项目");
-    if (selection.reading) throw new Error("所选时间线正在读取，请稍候");
+      throw new Error("CapCut proje seçimi geçersizleşti; projeyi yeniden seçin");
+    if (selection.reading) throw new Error("Seçili zaman çizelgesi okunuyor; bekleyin");
     if (
       timelineId !== undefined &&
       (typeof timelineId !== "string" ||
         !selection.plan.timelines.some((choice) => choice.id === timelineId))
     )
-      throw new Error("请选择项目中已有的时间线");
+      throw new Error("Projede var olan bir zaman çizelgesi seçin");
     selection.reading = true;
     try {
       const result = await readSelectedCapcutTimeline(
@@ -946,7 +944,7 @@ function registerIPC() {
   });
   handle("write-text-file", async (text: string, name: string) => {
     if (typeof text !== "string" || text.length > 20 * 1024 * 1024)
-      throw new Error("文本内容无效或过大");
+      throw new Error("Metin içeriği geçersiz veya çok büyük");
     const result = await dialog.showSaveDialog(window!, {
       defaultPath: path.basename(name),
     });
@@ -960,13 +958,13 @@ function registerIPC() {
       !savePaths.has(file) &&
       !outputPaths.has(file)
     )
-      throw new Error("未授权的文件位置");
+      throw new Error("Yetkisiz dosya konumu");
     shell.showItemInFolder(file);
   });
   handle("choose-media-tool", async (name: string) => {
-    if (!["ffmpeg", "ffprobe"].includes(name)) throw new Error("无效工具名");
+    if (!["ffmpeg", "ffprobe"].includes(name)) throw new Error("Geçersiz araç adı");
     const result = await dialog.showOpenDialog(window!, {
-      title: tr(`选择 ${name} 可执行文件`),
+      title: `Seç ${name} çalıştırılabilir dosyası`,
       properties: ["openFile"],
     });
     if (result.canceled) return null;
@@ -982,32 +980,31 @@ function registerIPC() {
   handle("transcription-status", () => whisperStatus(transcriptionOptions()));
   handle("choose-whisper-tool", async (kind: unknown) => {
     if (kind !== "executable" && kind !== "model")
-      throw new Error("无效工具类型");
+      throw new Error("Geçersiz araç türü");
     const result = await dialog.showOpenDialog(window!, {
-      title: tr(
+      title:
         kind === "executable"
-          ? "选择 Whisper 可执行文件"
-          : "选择 Whisper 模型文件",
-      ),
+          ? "Whisper çalıştırılabilir dosyasını seç"
+          : "Whisper model dosyasını seç",
       properties: ["openFile"],
       ...(kind === "model"
-        ? { filters: [{ name: tr("Whisper 模型"), extensions: ["bin"] }] }
+        ? { filters: [{ name: "Whisper modeli", extensions: ["bin"] }] }
         : {}),
     });
     if (result.canceled || !result.filePaths[0]) return null;
     const file = path.resolve(result.filePaths[0]);
     const metadata = await stat(file);
-    if (!metadata.isFile()) throw new Error("所选文件无效");
+    if (!metadata.isFile()) throw new Error("Seçili dosya geçersiz");
     if (kind === "model") {
       if (path.extname(file).toLowerCase() !== ".bin")
-        throw new Error("请选择 .bin 模型文件");
+        throw new Error("Lütfen bir .bin model dosyası seçin");
       if (metadata.size <= 0 || metadata.size > 8 * 1024 * 1024 * 1024)
-        throw new Error("模型文件大小无效");
+        throw new Error("Model dosyası boyutu geçersiz");
       transcriptionTools.model = file;
     } else {
-      if (metadata.size <= 0) throw new Error("所选文件无效");
+      if (metadata.size <= 0) throw new Error("Seçili dosya geçersiz");
       if (metadata.size > 512 * 1024 * 1024)
-        throw new Error("可执行文件过大");
+        throw new Error("Çalıştırılabilir dosya çok büyük");
       transcriptionTools.executable = file;
     }
     await atomicWrite(
@@ -1023,16 +1020,16 @@ function registerIPC() {
     if (!status.available)
       throw new Error(
         status.error ??
-          "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。",
+          "Whisper bulunamadı. whisper.cpp kurun veya altyazı panelinden çalıştırılabilir dosyayı seçin.",
       );
     if (
       !status.models.some(
         (model) => path.resolve(model.path) === path.resolve(request.model),
       )
     )
-      throw new Error("所选模型不可用，请重新选择");
+      throw new Error("Seçili model kullanılamıyor; yeniden seçin");
     const owner = window?.webContents;
-    if (!owner) throw new Error("窗口已关闭");
+    if (!owner) throw new Error("Pencere kapandı");
     return transcribeAudio(request, {
       ...transcriptionOptions(),
       onProgress: (progress, stage) => {
@@ -1053,7 +1050,7 @@ function registerIPC() {
         jobId,
       )
     )
-      throw new Error("无效的转写请求");
+      throw new Error("Geçersiz yazıya dökme isteği");
     return cancelTranscription(jobId);
   });
   ipcMain.on("set-dirty", (event, value) => {
@@ -1143,7 +1140,7 @@ function createWindow() {
     show: !pluginMode,
     minWidth: 1060,
     minHeight: 680,
-    title: tr("CevikEdit · CevikEdit"),
+    title: "CevikEdit · CevikEdit",
     backgroundColor: "#141518",
     titleBarStyle: "hiddenInset",
     trafficLightPosition: { x: 16, y: 17 },
@@ -1155,7 +1152,6 @@ function createWindow() {
       backgroundThrottling: !pluginMode,
       additionalArguments: [
         ...(pluginMode ? ["--cevikedit-plugin"] : []),
-        `--cevikedit-locale=${getMainLocale()}`,
       ],
     },
   });
@@ -1179,9 +1175,9 @@ function createWindow() {
     void dialog
       .showMessageBox(window!, {
         type: "question",
-        message: tr("项目有未保存的修改"),
-        detail: tr("保存项目后再关闭？最近编辑也会自动恢复。"),
-        buttons: [tr("保存并关闭"), tr("取消"), tr("不保存")],
+        message: "Projede kaydedilmemiş değişiklikler var",
+        detail: "Kapatmadan önce projeyi kaydedelim mi? Son düzenlemeler de otomatik geri yüklenecek.",
+        buttons: ["Kaydet ve kapat", "İptal", "Kaydetme"],
         defaultId: 0,
         cancelId: 1,
       })
@@ -1268,59 +1264,59 @@ void app.whenReady().then(async () => {
         ]
       : []),
     {
-      label: "文件",
+      label: "Dosya",
       submenu: [
         {
-          label: "新建项目",
+          label: "Yeni proje",
           accelerator: "CmdOrCtrl+N",
           click: () => menuAction("new"),
         },
         {
-          label: "打开项目",
+          label: "Proje aç",
           accelerator: "CmdOrCtrl+O",
           click: () => menuAction("open"),
         },
         {
-          label: "保存",
+          label: "Kaydet",
           accelerator: "CmdOrCtrl+S",
           click: () => menuAction("save"),
         },
         {
-          label: "另存为",
+          label: "Farklı kaydet",
           accelerator: "CmdOrCtrl+Shift+S",
           click: () => menuAction("save-as"),
         },
         { type: "separator" },
         {
-          label: "导入素材",
+          label: "Medya içe aktar",
           accelerator: "CmdOrCtrl+I",
           click: () => menuAction("import"),
         },
         {
-          label: "导入剪映草稿文件…",
+          label: "CapCut taslak dosyası içe aktar…",
           click: () => menuAction("import-capcut-file"),
         },
         {
-          label: "导入剪映项目文件夹…",
+          label: "CapCut proje klasörü içe aktar…",
           click: () => menuAction("import-capcut-directory"),
         },
         {
-          label: "导出视频",
+          label: "Videoyu dışa aktar",
           accelerator: "CmdOrCtrl+E",
           click: () => menuAction("export"),
         },
       ],
     },
     {
-      label: "编辑",
+      label: "Düzenle",
       submenu: [
         {
-          label: "撤销",
+          label: "Geri al",
           accelerator: "CmdOrCtrl+Z",
           click: () => menuAction("undo"),
         },
         {
-          label: "重做",
+          label: "Yinele",
           accelerator: "CmdOrCtrl+Shift+Z",
           click: () => menuAction("redo"),
         },
@@ -1332,7 +1328,7 @@ void app.whenReady().then(async () => {
       ],
     },
     {
-      label: "窗口",
+      label: "Pencere",
       submenu: [
         { role: "minimize" },
         { role: "togglefullscreen" },
@@ -1342,14 +1338,14 @@ void app.whenReady().then(async () => {
       ],
     },
     {
-      label: "帮助",
+      label: "Yardım",
       submenu: [
-        { label: "快捷键", click: () => menuAction("shortcuts") },
-        { label: "关于 CevikEdit", click: () => menuAction("about") },
+        { label: "Kısayollar", click: () => menuAction("shortcuts") },
+        { label: "CevikEdit hakkında", click: () => menuAction("about") },
       ],
     },
   ];
-  Menu.setApplicationMenu(Menu.buildFromTemplate(translateMenu(template)));
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   createWindow();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

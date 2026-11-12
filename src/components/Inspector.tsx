@@ -65,7 +65,7 @@ function NumberField({
       {range && (
         <input
           className="property-range"
-          aria-label={`${label}滑块`}
+          aria-label={`${label} kaydırıcısı`}
           type="range"
           min={min}
           max={max}
@@ -101,7 +101,7 @@ function NumberField({
       {diamond && (
         <button
           className="diamond-btn"
-          title={`添加 ${label} 关键帧`}
+          title={`${label} anahtar karesi ekle`}
           onClick={(e) => {
             e.preventDefault();
             diamond();
@@ -170,7 +170,7 @@ export default function Inspector({
   freezing = false,
 }: Props) {
   const [freezeDuration, setFreezeDuration] = useState(2);
-  const [tab, setTab] = useState("画面"),
+  const [tab, setTab] = useState("Görüntü"),
     [fonts, setFonts] = useState<string[]>([
       "Noto Sans SC",
       "sans-serif",
@@ -187,23 +187,23 @@ export default function Inspector({
   useEffect(() => {
     setTab(
       clip?.text
-        ? "文本"
+        ? "Metin"
         : project.assets.find((a) => a.id === clip?.assetId)?.kind === "audio"
-          ? "音频"
-          : "画面",
+          ? "Ses"
+          : "Görüntü",
     );
   }, [clip?.id, !!clip?.text]);
   if (!clip)
     return (
       <aside className="inspector panel">
         <div className="panel-heading">
-          <span>项目参数</span>
+          <span>Proje parametreleri</span>
           <SlidersHorizontal size={16} />
         </div>
         <div className="inspector-content">
-          <h3>画布设置</h3>
+          <h3>Tuval ayarları</h3>
           <label className="stacked-label">
-            项目名称
+            Proje adı
             <input
               value={project.name}
               onFocus={() => useEditorStore.getState().beginTransaction()}
@@ -212,9 +212,9 @@ export default function Inspector({
             />
           </label>
           <label className="property-row">
-            <span>画面比例</span>
+            <span>Görüntü oranı</span>
             <select
-              aria-label="画面比例"
+              aria-label="Görüntü oranı"
               value={`${project.width}:${project.height}`}
               onChange={(e) => {
                 const [width, height] = e.target.value.split(":").map(Number);
@@ -230,19 +230,19 @@ export default function Inspector({
                 "3840:2160",
               ].includes(`${project.width}:${project.height}`) && (
                 <option value={`${project.width}:${project.height}`}>
-                  自定义
+                  Özel
                 </option>
               )}
-              <option value="1920:1080">16:9 · 横屏</option>
-              <option value="1080:1920">9:16 · 竖屏</option>
-              <option value="1080:1080">1:1 · 方形</option>
-              <option value="1440:1080">4:3 · 经典</option>
+              <option value="1920:1080">16:9 · yatay</option>
+              <option value="1080:1920">9:16 · dikey</option>
+              <option value="1080:1080">1:1 · kare</option>
+              <option value="1440:1080">4:3 · klasik</option>
               <option value="2560:1440">16:9 · 2K</option>
               <option value="3840:2160">16:9 · 4K</option>
             </select>
           </label>
           <NumberField
-            label="宽度"
+            label="Genişlik"
             value={project.width}
             min={16}
             max={7680}
@@ -251,7 +251,7 @@ export default function Inspector({
             onChange={(width) => onProjectUpdate({ width })}
           />
           <NumberField
-            label="高度"
+            label="Yükseklik"
             value={project.height}
             min={16}
             max={7680}
@@ -260,9 +260,9 @@ export default function Inspector({
             onChange={(height) => onProjectUpdate({ height })}
           />
           <label className="property-row">
-            <span>帧率</span>
+            <span>Kare hızı</span>
             <select
-              aria-label="帧率"
+              aria-label="Kare hızı"
               value={project.fps}
               onChange={(e) => onProjectUpdate({ fps: Number(e.target.value) })}
             >
@@ -274,9 +274,9 @@ export default function Inspector({
             </select>
           </label>
           <label className="property-row">
-            <span>背景颜色</span>
+            <span>Arka plan rengi</span>
             <input
-              aria-label="背景颜色"
+              aria-label="Arka plan rengi"
               type="color"
               value={project.background}
               onChange={(e) => onProjectUpdate({ background: e.target.value })}
@@ -285,12 +285,12 @@ export default function Inspector({
           </label>
           <div className="inspector-guide">
             <Image size={30} />
-            <p>选择时间线片段</p>
-            <span>在这里调整画面、音频、文字和动画</span>
+            <p>Zaman çizelgesinden klip seçin</p>
+            <span>Görüntü, ses, metin ve animasyon ayarlarını buradan yapın</span>
           </div>
           <div className="offline-note">
             <span className="status-dot" />
-            素材留在本机，项目完全离线
+            Medya yerelde kalır, proje tamamen çevrimdışı
           </div>
         </div>
       </aside>
@@ -346,25 +346,25 @@ export default function Inspector({
     else onUpdate({ transform: { ...clip.transform, [property]: value } });
   };
   const visual = asset?.kind !== "audio";
-  const pictureTabs = ["画面", "裁剪", "抠像", "蒙版"];
+  const pictureTabs = ["Görüntü", "Kırpma", "Kroma key", "Maske"];
   const pictureActive = pictureTabs.includes(tab);
   const tabs = clip.text
-    ? ["文本", "画面", "动画", "速度"]
+    ? ["Metin", "Görüntü", "Animasyon", "Hız"]
     : visual
-      ? ["画面", "音频", "速度", "动画", "调色"]
-      : ["音频", "速度", "动画"];
+      ? ["Görüntü", "Ses", "Hız", "Animasyon", "Renk ayarı"]
+      : ["Ses", "Hız", "Animasyon"];
   const tabLabel = (value: string) =>
-    value === "速度" ? "变速" : value === "调色" ? "调整" : value;
+    value === "Hız" ? "Hız değiştirme" : value === "Renk ayarı" ? "Ayar" : value;
   return (
     <aside className="inspector panel">
       <div className="inspector-tabs">
-        <nav className="inspector-main-tabs" aria-label="片段属性">
+        <nav className="inspector-main-tabs" aria-label="Klip özellikleri">
           {tabs.map((t) => (
             <button
               key={t}
               aria-label={t}
-              aria-pressed={tab === t || (t === "画面" && pictureActive)}
-              className={tab === t || (t === "画面" && pictureActive) ? "active" : ""}
+              aria-pressed={tab === t || (t === "Görüntü" && pictureActive)}
+              className={tab === t || (t === "Görüntü" && pictureActive) ? "active" : ""}
               onClick={() => setTab(t)}
             >
               {tabLabel(t)}
@@ -372,16 +372,16 @@ export default function Inspector({
           ))}
         </nav>
         {visual && !clip.text && (
-          <nav className="inspector-picture-tabs" aria-label="画面工具" hidden={!pictureActive}>
+          <nav className="inspector-picture-tabs" aria-label="Görüntü araçları" hidden={!pictureActive}>
             {pictureTabs.map((t) => (
               <button
                 key={t}
-                aria-label={t === "画面" ? "基础画面" : t}
+                aria-label={t === "Görüntü" ? "Temel görüntü" : t}
                 aria-pressed={tab === t}
                 className={tab === t ? "active" : ""}
                 onClick={() => setTab(t)}
               >
-                {t === "画面" ? "基础" : t}
+                {t === "Görüntü" ? "Temel" : t}
               </button>
             ))}
           </nav>
@@ -395,13 +395,13 @@ export default function Inspector({
           </span>
         </div>
         {locked && (
-          <div className="inline-warning">轨道已锁定，解锁后可编辑</div>
+          <div className="inline-warning">Kanal kilitli; düzenlemek için kilidini açın</div>
         )}
         <fieldset disabled={locked}>
-          {["裁剪", "抠像", "蒙版"].includes(tab) && (
+          {["Kırpma", "Kroma key", "Maske"].includes(tab) && (
             <VisualTools
               mode={
-                tab === "裁剪" ? "crop" : tab === "抠像" ? "chroma" : "mask"
+                tab === "Kırpma" ? "crop" : tab === "Kroma key" ? "chroma" : "mask"
               }
               clip={clip}
               asset={asset}
@@ -409,12 +409,12 @@ export default function Inspector({
               locked={locked}
             />
           )}
-          {tab === "画面" && (
+          {tab === "Görüntü" && (
             <>
               <div className="section-title">
-                <h3>位置大小</h3>
+                <h3>Konum ve boyut</h3>
                 <button
-                  title="重置变换"
+                  title="Dönüşümü sıfırla"
                   onClick={() =>
                     onUpdate({
                       transform: { ...DEFAULT_TRANSFORM },
@@ -428,7 +428,7 @@ export default function Inspector({
                 </button>
               </div>
               <NumberField
-                label="缩放"
+                label="Ölçek"
                 range
                 value={evaluated.transform.scale * 100}
                 min={1}
@@ -439,20 +439,20 @@ export default function Inspector({
               />
               <div className="position-fields">
               <NumberField
-                label="位置 X"
+                label="Konum X"
                 value={evaluated.transform.x}
                 onChange={(v) => animate("x", v)}
                 diamond={() => key("x", evaluated.transform.x)}
               />
               <NumberField
-                label="位置 Y"
+                label="Konum Y"
                 value={evaluated.transform.y}
                 onChange={(v) => animate("y", v)}
                 diamond={() => key("y", evaluated.transform.y)}
               />
               </div>
               <NumberField
-                label="旋转"
+                label="Döndürme"
                 value={evaluated.transform.rotation}
                 min={-3600}
                 max={3600}
@@ -461,7 +461,7 @@ export default function Inspector({
                 diamond={() => key("rotation", evaluated.transform.rotation)}
               />
               <NumberField
-                label="不透明度"
+                label="Opaklık"
                 value={evaluated.transform.opacity * 100}
                 min={0}
                 max={100}
@@ -470,11 +470,11 @@ export default function Inspector({
                 diamond={() => key("opacity", evaluated.transform.opacity)}
               />
               <div className="property-row">
-                <span>翻转</span>
+                <span>Çevir</span>
                 <div className="segmented">
                   <button
                     className={clip.transform.flipX ? "active" : ""}
-                    title="水平翻转"
+                    title="Yatay çevir"
                     onClick={() =>
                       onUpdate({
                         transform: {
@@ -488,7 +488,7 @@ export default function Inspector({
                   </button>
                   <button
                     className={clip.transform.flipY ? "active" : ""}
-                    title="垂直翻转"
+                    title="Dikey çevir"
                     onClick={() =>
                       onUpdate({
                         transform: {
@@ -502,9 +502,9 @@ export default function Inspector({
                   </button>
                 </div>
               </div>
-              <h3>画面淡入淡出</h3>
+              <h3>Görüntü yumuşak giriş/çıkışı</h3>
               <NumberField
-                label="画面淡入"
+                label="Görüntü yumuşak girişi"
                 value={clip.fadeIn}
                 min={0}
                 max={clip.duration}
@@ -513,7 +513,7 @@ export default function Inspector({
                 onChange={(fadeIn) => onUpdate({ fadeIn })}
               />
               <NumberField
-                label="画面淡出"
+                label="Görüntü yumuşak çıkışı"
                 value={clip.fadeOut}
                 min={0}
                 max={clip.duration}
@@ -523,9 +523,9 @@ export default function Inspector({
               />
               {asset?.kind === "image" && (
                 <>
-                  <h3>片段时长</h3>
+                  <h3>Klip süresi</h3>
                   <NumberField
-                    label="片段时长"
+                    label="Klip süresi"
                     value={clip.duration}
                     min={1 / project.fps}
                     max={Math.max(1 / project.fps, 86400 - clip.start)}
@@ -547,17 +547,17 @@ export default function Inspector({
                     }}
                   />
                   <p className="muted small">
-                    定格画面或图片在时间线上的持续时间。
+                    Donmuş karenin veya görselin zaman çizelgesindeki süresi.
                   </p>
                 </>
               )}
             </>
           )}
-          {tab === "音频" && (
+          {tab === "Ses" && (
             <>
-              <h3>音量</h3>
+              <h3>Ses düzeyi</h3>
               <NumberField
-                label="音量"
+                label="Ses düzeyi"
                 value={evaluated.volume * 100}
                 min={0}
                 max={400}
@@ -566,17 +566,17 @@ export default function Inspector({
                 diamond={() => key("volume", evaluated.volume)}
               />
               <label className="toggle-property">
-                <span>片段静音</span>
+                <span>Klibi sessize al</span>
                 <input
-                  aria-label="片段静音"
+                  aria-label="Klibi sessize al"
                   type="checkbox"
                   checked={clip.muted}
                   onChange={(e) => onUpdate({ muted: e.target.checked })}
                 />
               </label>
-              <h3>声音淡入淡出</h3>
+              <h3>Ses yumuşak giriş/çıkışı</h3>
               <NumberField
-                label="声音淡入"
+                label="Ses yumuşak girişi"
                 value={clip.audioFadeIn}
                 min={0}
                 max={clip.duration}
@@ -585,7 +585,7 @@ export default function Inspector({
                 onChange={(audioFadeIn) => onUpdate({ audioFadeIn })}
               />
               <NumberField
-                label="声音淡出"
+                label="Ses yumuşak çıkışı"
                 value={clip.audioFadeOut}
                 min={0}
                 max={clip.duration}
@@ -594,43 +594,43 @@ export default function Inspector({
                 onChange={(audioFadeOut) => onUpdate({ audioFadeOut })}
               />
               {!asset?.hasAudio && (
-                <p className="muted">这段素材没有音频流。</p>
+                <p className="muted">Bu medyada ses akışı yok.</p>
               )}
               {clip.linkId && onDetachLink && (
                 <div className="audio-separate">
-                  <h3>关联片段</h3>
+                  <h3>Bağlı klip</h3>
                   <p className="muted small">
-                    此片段与分离出的音频保持关联：移动、裁剪、分割和删除会同时作用于另一条片段。
+                    Bu klip ayrılan sesle bağlantılıdır: taşıma, kırpma, bölme ve silme işlemleri diğer klibe de uygulanır.
                   </p>
                   <button className="small-button" onClick={onDetachLink}>
-                    解除关联
+                    Bağlantıyı çöz
                   </button>
                 </div>
               )}
               {asset?.kind === "video" && asset.hasAudio && onSeparateAudio && (
                 <div className="audio-separate">
-                  <h3>分离音频</h3>
+                  <h3>Sesi ayır</h3>
                   <button
                     className="small-button"
                     disabled={separating}
                     onClick={onSeparateAudio}
                   >
                     <AudioLines size={14} />
-                    {separating ? "正在分离音频…" : "分离音频"}
+                    {separating ? "Ses ayrılıyor…" : "Sesi ayır"}
                   </button>
                   <p className="muted small">
-                    将视频中的声音写成独立音频片段，原片段自动静音，可单独调整。
+                    Videodaki sesi ayrı bir ses klibine dönüştürür; asıl klip otomatik sessize alınır ve ayrı ayrı ayarlanabilir.
                   </p>
                 </div>
               )}
             </>
           )}
-          {tab === "调色" && (
+          {tab === "Renk ayarı" && (
             <>
               <div className="section-title">
-                <h3>基础调整</h3>
+                <h3>Temel ayar</h3>
                 <button
-                  title="重置调色"
+                  title="Renk ayarını sıfırla"
                   onClick={() =>
                     onUpdate({ adjustments: { ...DEFAULT_ADJUSTMENTS } })
                   }
@@ -639,7 +639,7 @@ export default function Inspector({
                 </button>
               </div>
               <Slider
-                label="亮度"
+                label="Parlaklık"
                 value={clip.adjustments.brightness}
                 min={-1}
                 max={1}
@@ -650,7 +650,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="对比度"
+                label="Kontrast"
                 value={clip.adjustments.contrast}
                 min={0}
                 max={3}
@@ -661,7 +661,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="饱和度"
+                label="Doygunluk"
                 value={clip.adjustments.saturation}
                 min={0}
                 max={3}
@@ -672,7 +672,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="色温"
+                label="Renk sıcaklığı"
                 value={clip.adjustments.temperature}
                 min={-1}
                 max={1}
@@ -683,7 +683,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="模糊"
+                label="Bulanıklık"
                 value={clip.adjustments.blur}
                 min={0}
                 max={100}
@@ -693,31 +693,31 @@ export default function Inspector({
                 }
               />
               <p className="field-hint">
-                预览与导出使用相同的 RGB
-                调整模型，编码与色彩转换可能产生轻微差异。
+                Önizleme ve dışa aktarma aynı RGB
+                ayar modelini kullanır; kodlama ve renk dönüşümü küçük farklar oluşturabilir.
               </p>
             </>
           )}
-          {tab === "文本" && clip.text && (
+          {tab === "Metin" && clip.text && (
             <>
-              <h3>文字内容</h3>
+              <h3>Metin içeriği</h3>
               <textarea
-                aria-label="文字内容"
+                aria-label="Metin içeriği"
                 value={clip.text.text}
                 rows={4}
                 onFocus={() => useEditorStore.getState().beginTransaction()}
                 onBlur={() => useEditorStore.getState().endTransaction()}
                 onChange={(e) =>
                   onUpdate({
-                    name: e.target.value.slice(0, 30) || "文本",
+                    name: e.target.value.slice(0, 30) || "Metin",
                     text: { ...clip.text!, text: e.target.value },
                   })
                 }
               />
               <label className="property-row">
-                <span>字体</span>
+                <span>Yazı tipi</span>
                 <select
-                  aria-label="字体"
+                  aria-label="Yazı tipi"
                   value={clip.text.fontFamily}
                   onChange={(e) =>
                     onUpdate({
@@ -725,7 +725,7 @@ export default function Inspector({
                     })
                   }
                 >
-                  <option value="sans-serif">系统默认</option>
+                  <option value="sans-serif">Sistem varsayılanı</option>
                   {fonts
                     .filter((f) => f !== "sans-serif")
                     .map((f) => (
@@ -734,7 +734,7 @@ export default function Inspector({
                 </select>
               </label>
               <NumberField
-                label="字号"
+                label="Yazı boyutu"
                 value={clip.text.fontSize}
                 min={1}
                 max={1000}
@@ -744,9 +744,9 @@ export default function Inspector({
                 }
               />
               <label className="property-row">
-                <span>文字颜色</span>
+                <span>Metin rengi</span>
                 <input
-                  aria-label="文字颜色"
+                  aria-label="Metin rengi"
                   type="color"
                   value={clip.text.color}
                   onChange={(e) =>
@@ -755,7 +755,7 @@ export default function Inspector({
                 />
                 <button
                   className={clip.text.bold ? "active" : ""}
-                  title="加粗"
+                  title="Kalın"
                   onClick={() =>
                     onUpdate({
                       text: { ...clip.text!, bold: !clip.text!.bold },
@@ -766,12 +766,12 @@ export default function Inspector({
                 </button>
               </label>
               <div className="property-row">
-                <span>对齐</span>
+                <span>Hizalama</span>
                 <div className="segmented">
                   {(["left", "center", "right"] as const).map((align, i) => (
                     <button
                       key={align}
-                      title={["左对齐", "居中", "右对齐"][i]}
+                      title={["Sola hizala", "Ortala", "Sağa hizala"][i]}
                       className={clip.text!.align === align ? "active" : ""}
                       onClick={() =>
                         onUpdate({ text: { ...clip.text!, align } })
@@ -788,11 +788,11 @@ export default function Inspector({
                   ))}
                 </div>
               </div>
-              <h3>描边与背景</h3>
+              <h3>Kontur ve arka plan</h3>
               <label className="property-row">
-                <span>描边颜色</span>
+                <span>Kontur rengi</span>
                 <input
-                  aria-label="描边颜色"
+                  aria-label="Kontur rengi"
                   type="color"
                   value={clip.text.stroke}
                   onChange={(e) =>
@@ -803,7 +803,7 @@ export default function Inspector({
                 />
               </label>
               <NumberField
-                label="描边宽度"
+                label="Kontur kalınlığı"
                 value={clip.text.strokeWidth}
                 min={0}
                 max={100}
@@ -812,10 +812,10 @@ export default function Inspector({
                 }
               />
               <label className="toggle-property">
-                <span>文字背景</span>
+                <span>Metin arka planı</span>
                 <input
                   type="checkbox"
-                  aria-label="文字背景"
+                  aria-label="Metin arka planı"
                   checked={clip.text.background !== "transparent"}
                   onChange={(e) =>
                     onUpdate({
@@ -832,7 +832,7 @@ export default function Inspector({
               {clip.text.background !== "transparent" && (
                 <input
                   type="color"
-                  aria-label="文字背景颜色"
+                  aria-label="Metin arka plan rengi"
                   value={clip.text.background}
                   onChange={(e) =>
                     onUpdate({
@@ -841,9 +841,9 @@ export default function Inspector({
                   }
                 />
               )}
-              <h3>排版与阴影</h3>
+              <h3>Düzen ve gölge</h3>
               <Slider
-                label="行高"
+                label="Satır yüksekliği"
                 value={clip.text.lineHeight ?? 1.3}
                 min={0.9}
                 max={2.4}
@@ -853,7 +853,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="内边距"
+                label="İç boşluk"
                 value={clip.text.padding ?? 0.25}
                 min={0}
                 max={1.2}
@@ -863,7 +863,7 @@ export default function Inspector({
                 }
               />
               <Slider
-                label="圆角"
+                label="Yuvarlak köşe"
                 value={clip.text.radius ?? 0}
                 min={0}
                 max={1}
@@ -873,10 +873,10 @@ export default function Inspector({
                 }
               />
               <label className="toggle-property">
-                <span>文字阴影</span>
+                <span>Metin gölgesi</span>
                 <input
                   type="checkbox"
-                  aria-label="文字阴影"
+                  aria-label="Metin gölgesi"
                   checked={!!clip.text.shadow}
                   onChange={(e) =>
                     onUpdate({
@@ -898,9 +898,9 @@ export default function Inspector({
               {clip.text.shadow && (
                 <>
                   <label className="property-row">
-                    <span>阴影颜色</span>
+                    <span>Gölge rengi</span>
                     <input
-                      aria-label="阴影颜色"
+                      aria-label="Gölge rengi"
                       type="color"
                       value={clip.text.shadow.color}
                       onChange={(e) =>
@@ -917,7 +917,7 @@ export default function Inspector({
                     />
                   </label>
                   <Slider
-                    label="阴影模糊"
+                    label="Gölge bulanıklığı"
                     value={clip.text.shadow.blur}
                     min={0}
                     max={80}
@@ -933,7 +933,7 @@ export default function Inspector({
                     }
                   />
                   <NumberField
-                    label="阴影偏移 X"
+                    label="Gölge kayması X"
                     value={clip.text.shadow.offsetX}
                     min={-200}
                     max={200}
@@ -947,7 +947,7 @@ export default function Inspector({
                     }
                   />
                   <NumberField
-                    label="阴影偏移 Y"
+                    label="Gölge kayması Y"
                     value={clip.text.shadow.offsetY}
                     min={-200}
                     max={200}
@@ -964,11 +964,11 @@ export default function Inspector({
               )}
             </>
           )}
-          {tab === "速度" && (
+          {tab === "Hız" && (
             <>
-              <h3>常规变速</h3>
+              <h3>Normal hız değiştirme</h3>
               <NumberField
-                label="播放速度"
+                label="Oynatma hızı"
                 value={clip.speed}
                 min={0.1}
                 max={8}
@@ -988,11 +988,11 @@ export default function Inspector({
                 ))}
               </div>
               <p className="field-hint">
-                更改变速会保留源素材范围并调整片段时长。音频保持音高。
+                Hızı değiştirmek kaynak medya aralığını korur ve klip süresini ayarlar. Ses perdesi korunur.
               </p>
-              <h3>时间范围</h3>
+              <h3>Zaman aralığı</h3>
               <NumberField
-                label="开始时间"
+                label="Başlangıç zamanı"
                 value={clip.start}
                 min={0}
                 step={1 / project.fps}
@@ -1000,7 +1000,7 @@ export default function Inspector({
                 onChange={(start) => onUpdate({ start })}
               />
               <NumberField
-                label="源素材入点"
+                label="Kaynak medya giriş noktası"
                 value={clip.sourceIn}
                 min={0}
                 max={Math.max(
@@ -1012,11 +1012,11 @@ export default function Inspector({
                 onChange={(sourceIn) => onUpdate({ sourceIn })}
               />
               <p className="muted small">
-                在时间线上拖动片段两侧，可以裁剪入点和出点。
+                Kırpma giriş ve çıkış noktalarını ayarlamak için zaman çizelgesinde klibin kenarlarını sürükleyin.
               </p>
               {asset?.kind === "video" && onReverse && onFreezeFrame && (
                 <div className="clip-tools">
-                  <h3>片段工具</h3>
+                  <h3>Klip araçları</h3>
                   <div className="clip-tool-row">
                     <button
                       className="small-button"
@@ -1025,15 +1025,15 @@ export default function Inspector({
                     >
                       <RotateCcw size={14} />
                       {reversing
-                        ? `正在倒放… ${Math.round(reverseProgress ?? 0)}%`
-                        : "倒放片段"}
+                        ? `Ters oynatılıyor… ${Math.round(reverseProgress ?? 0)}%`
+                        : "Klibi ters oynat"}
                     </button>
                     {reversing && onCancelReverse && (
                       <button
                         className="small-button"
                         onClick={onCancelReverse}
                       >
-                        取消
+                        İptal
                       </button>
                     )}
                   </div>
@@ -1042,15 +1042,15 @@ export default function Inspector({
                       className="clip-tool-progress"
                       max={100}
                       value={reverseProgress ?? 0}
-                      aria-label="倒放进度"
+                      aria-label="Ters oynatma ilerlemesi"
                     />
                   )}
                   <p className="muted small">
-                    视频与原有声音一起倒放。系统会生成独立媒体，原素材不会被覆盖。
+                    Video ve varsa özgün ses birlikte ters çevrilir. Ayrı bir medya oluşturulur; özgün medyanın üzerine yazılmaz.
                   </p>
-                  <h3>定格画面</h3>
+                  <h3>Donmuş kare</h3>
                   <NumberField
-                    label="定格时长"
+                    label="Donmuş kare süresi"
                     value={freezeDuration}
                     min={1 / project.fps}
                     max={600}
@@ -1064,20 +1064,20 @@ export default function Inspector({
                     onClick={() => onFreezeFrame(freezeDuration)}
                   >
                     <Image size={14} />
-                    {freezing ? "正在生成定格画面…" : "定格当前帧"}
+                    {freezing ? "Donmuş kare oluşturuluyor…" : "Geçerli kareyi dondur"}
                   </button>
                   <p className="muted small">
                     {playheadInside
-                      ? "从当前播放头生成独立画面，可在画面属性中调整持续时长。"
-                      : "请先把播放头移到当前视频片段范围内。"}
+                      ? "Geçerli oynatma başlığından ayrı bir görüntü oluşturur; süresini görüntü özelliklerinden ayarlayabilirsiniz."
+                      : "Önce oynatma başlığını geçerli video klibinin aralığına taşıyın."}
                   </p>
                 </div>
               )}
             </>
           )}
-          {tab === "动画" && (
+          {tab === "Animasyon" && (
             <>
-              <h3>关键帧</h3>
+              <h3>Anahtar kare</h3>
               <KeyframeEditor
                 clip={clip}
                 project={project}

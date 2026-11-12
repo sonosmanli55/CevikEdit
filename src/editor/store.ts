@@ -259,7 +259,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   removeAsset: (assetId) => {
     const p = get().project;
     if (p.clips.some((c) => c.assetId === assetId))
-      throw new Error("素材仍被时间线使用，请先删除对应片段");
+      throw new Error("Medya hâlâ zaman çizelgesinde kullanılıyor; önce ilgili klipleri silin");
     get().commit({ ...p, assets: p.assets.filter((a) => a.id !== assetId) });
   },
   addAssetClip: (assetId, start, trackId, range, mode) => {
@@ -269,7 +269,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     if (range && (asset.missing || !Number.isFinite(range.sourceIn) || !Number.isFinite(range.duration) ||
         range.sourceIn < 0 || range.duration < 1 / p.fps - 1e-9 || range.duration > 86400 ||
         (asset.kind === "image" ? range.sourceIn !== 0 : range.sourceIn + range.duration > asset.duration + 1e-9)))
-      throw new Error("素材选段无效或超出源素材范围");
+      throw new Error("Medya seçimi geçersiz veya kaynak medya aralığının dışında");
     let track: Track | undefined;
     if (trackId !== undefined) {
       track = p.tracks.find(
@@ -308,7 +308,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
   },
   addSubtitles: (cues) => {
     const p = get().project,
-      track = createTrack("text", "字幕");
+      track = createTrack("text", "Altyazı");
     const clips = cues
       .filter(
         (c) =>
@@ -498,7 +498,7 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     const p = get().project,
       track = createTrack(
         kind,
-        `${{ video: "视频", image: "画面", audio: "音频", text: "文字" }[kind]} ${p.tracks.filter((t) => t.kind === kind).length + 1}`,
+        `${{ video: "Video", image: "Görüntü", audio: "Ses", text: "Metin" }[kind]} ${p.tracks.filter((t) => t.kind === kind).length + 1}`,
       );
     get().commit({
       ...p,

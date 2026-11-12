@@ -57,7 +57,9 @@ const NON_SPEECH = new Set([
   "ses",
 ]);
 
-const BRACKETED = /[\[\(（【]\s*([^\]\)）】]{0,80}?)\s*[\]\)）】]/g;
+// Ayraçlar hem ASCII hem Tam Genişlik (CJK) biçimde kabul edilir; içe
+// aktarılan altyazılarda her iki biçim de görülebildiği için davranış korunur.
+const BRACKETED = /[\[\(\uFF08\u3010]\s*([^\]\)\uFF09\u3011]{0,80}?)\s*[\]\)\uFF09\u3011]/g;
 
 function markerKey(value: string): string {
   return value
@@ -82,7 +84,7 @@ export function cleanTranscript(value: string): string {
   if (!text) return "";
   // A cue made only of a bracketed annotation is a stage direction, not speech.
   if (
-    /^[\[\(（【][\s\S]*[\]\)）】]$/.test(text) &&
+    /^[\[\(\uFF08\u3010][\s\S]*[\]\)\uFF09\u3011]$/.test(text) &&
     !/[\p{L}\p{N}]/u.test(text.replace(BRACKETED, ""))
   )
     return "";
@@ -149,7 +151,7 @@ export function parseWhisperJson(raw: string): TranscriptionCue[] {
   try {
     value = JSON.parse(raw.replace(/^\uFEFF/, ""));
   } catch {
-    throw new Error("Whisper 结果无法解析");
+    throw new Error("Whisper sonucu çözümlenemedi");
   }
   const record = value as Record<string, unknown> | null;
   const list = Array.isArray(value)
@@ -159,7 +161,7 @@ export function parseWhisperJson(raw: string): TranscriptionCue[] {
       : Array.isArray(record?.segments)
         ? record.segments
         : null;
-  if (!list) throw new Error("Whisper 结果无法解析");
+  if (!list) throw new Error("Whisper sonucu çözümlenemedi");
   return list
     .map(cueFromSegment)
     .filter((cue): cue is TranscriptionCue => cue !== null)
@@ -309,7 +311,7 @@ export function buildSubtitleCues(
         if (end - start < frame) continue;
       }
       if (result.length >= maxCues)
-        throw new Error(`自动字幕超过 ${maxCues} 条，请分段转写`);
+        throw new Error(`Otomatik altyazı ${maxCues} kaydı aşıyor; transkripsiyonu parçalara bölün`);
       result.push({ start, end, text });
     }
   }

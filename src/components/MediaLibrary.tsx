@@ -103,7 +103,7 @@ export default function MediaLibrary({
         data-asset-id={asset.id}
         role="button"
         tabIndex={0}
-        aria-label={`${asset.name}，${asset.kind === "audio" ? "音频" : asset.kind === "image" ? "图片" : "视频"}${asset.missing ? "，文件丢失" : ""}`}
+        aria-label={`${asset.name}, ${asset.kind === "audio" ? "Ses" : asset.kind === "image" ? "Görsel" : "Video"}${asset.missing ? ", dosya eksik" : ""}`}
         aria-pressed={selected === asset.id}
         className={`media-item media-item-${asset.kind} ${selected === asset.id ? "is-selected" : ""} ${asset.missing ? "is-missing" : ""}`}
         draggable={!asset.missing}
@@ -199,19 +199,19 @@ export default function MediaLibrary({
           )}
           <span className="media-time">
             {asset.kind === "image"
-              ? "图片"
+              ? "Görsel"
               : formatMediaDuration(asset.duration)}
           </span>
           {inTimeline && (
-            <span className="media-used" title="已用于时间线">
+            <span className="media-used" title="Zaman çizelgesinde kullanılıyor">
               <Check size={10} />
             </span>
           )}
-          {asset.missing && <span className="media-missing">文件丢失</span>}
+          {asset.missing && <span className="media-missing">Dosya eksik</span>}
           <button
             className="media-add"
-            aria-label={`添加 ${asset.name} 到时间线`}
-            title="添加到播放位置 · 双击素材"
+            aria-label={`${asset.name} medyasını zaman çizelgesine ekle`}
+            title="Oynatma konumuna ekle · medyaya çift tıklayın"
             disabled={asset.missing}
             onClick={(event) => {
               event.stopPropagation();
@@ -227,7 +227,7 @@ export default function MediaLibrary({
           </span>
           <span className="media-metadata">
             {asset.kind === "audio"
-              ? "音频"
+              ? "Ses"
               : `${asset.width} × ${asset.height}`}{" "}
             {asset.kind === "video" && asset.fps > 0
               ? `· ${Math.round(asset.fps * 100) / 100} fps`
@@ -236,8 +236,8 @@ export default function MediaLibrary({
         </div>
         <button
           className="media-more"
-          title="素材操作"
-          aria-label={`${asset.name} 操作`}
+          title="Medya işlemleri"
+          aria-label={`${asset.name} İşlem`}
           aria-expanded={menu === asset.id}
           onClick={(event) => {
             event.stopPropagation();
@@ -252,7 +252,7 @@ export default function MediaLibrary({
             className="media-context"
             onClick={(event) => event.stopPropagation()}
           >
-            {onPreviewAsset && <button onClick={() => { onPreviewAsset(asset.id);setMenu(null); }}><Play size={13} /> 预览素材</button>}
+            {onPreviewAsset && <button onClick={() => { onPreviewAsset(asset.id);setMenu(null); }}><Play size={13} /> Medyayı önizle</button>}
             <button
               disabled={asset.missing}
               onClick={() => {
@@ -260,7 +260,7 @@ export default function MediaLibrary({
                 setMenu(null);
               }}
             >
-              <Plus size={13} /> 添加到时间线
+              <Plus size={13} /> Zaman çizelgesine ekle
             </button>
             {onRevealAsset && (
               <button
@@ -270,7 +270,7 @@ export default function MediaLibrary({
                 }}
               >
                 <FolderOpen size={13} />{" "}
-                {asset.missing ? "重新链接素材" : "在文件夹中显示"}
+                {asset.missing ? "Medyayı yeniden bağla" : "Klasörde göster"}
               </button>
             )}
             <button
@@ -281,7 +281,7 @@ export default function MediaLibrary({
                 if (selected === asset.id) setSelected(null);
               }}
             >
-              <Trash2 size={13} /> 从素材库移除
+              <Trash2 size={13} /> Kitaplıktan kaldır
             </button>
           </div>
         )}
@@ -291,7 +291,7 @@ export default function MediaLibrary({
   return (
     <section
       className={`media-library ${draggingFiles ? "is-file-drop" : ""}`}
-      aria-label="本地素材库"
+      aria-label="Yerel medya kitaplığı"
       onDragEnter={(event) => {
         if (event.dataTransfer.types.includes("Files")) {
           event.preventDefault();
@@ -327,7 +327,7 @@ export default function MediaLibrary({
       <div className="media-top">
         <div className="media-top-title">
           <FolderOpen size={15} />
-          <span>项目素材</span>
+          <span>Proje medyası</span>
           <b>{project.assets.length}</b>
         </div>
         <button
@@ -340,36 +340,36 @@ export default function MediaLibrary({
           ) : (
             <Plus size={13} />
           )}{" "}
-          {importing ? "导入中" : "导入素材"}
+          {importing ? "İçe aktarılıyor" : "Medya içe aktar"}
         </button>
       </div>
       <div className="media-tools">
         <div className="media-search">
           <Search size={13} />
           <input
-            aria-label="搜索素材"
-            placeholder="搜索素材"
+            aria-label="Medya ara"
+            placeholder="Medya ara"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
           {query && (
-            <button aria-label="清空搜索" onClick={() => setQuery("")}>
+            <button aria-label="Aramayı temizle" onClick={() => setQuery("")}>
               <X size={12} />
             </button>
           )}
         </div>
         <div className="media-view">
           <button
-            title="网格视图"
-            aria-label="网格视图"
+            title="Izgara görünümü"
+            aria-label="Izgara görünümü"
             className={view === "grid" ? "is-active" : ""}
             onClick={() => setView("grid")}
           >
             <Grid2X2 size={14} />
           </button>
           <button
-            title="列表视图"
-            aria-label="列表视图"
+            title="Liste görünümü"
+            aria-label="Liste görünümü"
             className={view === "list" ? "is-active" : ""}
             onClick={() => setView("list")}
           >
@@ -377,7 +377,7 @@ export default function MediaLibrary({
           </button>
         </div>
       </div>
-      <div className="media-filters" role="tablist" aria-label="素材类型">
+      <div className="media-filters" role="tablist" aria-label="Medya türü">
         {(["all", "video", "audio", "image"] as const).map((value) => (
           <button
             role="tab"
@@ -387,12 +387,12 @@ export default function MediaLibrary({
             onClick={() => setKind(value)}
           >
             {value === "all"
-              ? "全部"
+              ? "Tümü"
               : value === "video"
-                ? "视频"
+                ? "Video"
                 : value === "audio"
-                  ? "音频"
-                  : "图片"}
+                  ? "Ses"
+                  : "Görsel"}
             {value !== "all" && (
               <span>
                 {project.assets.filter((a) => a.kind === value).length}
@@ -415,15 +415,15 @@ export default function MediaLibrary({
         ) : project.assets.length > 0 ? (
           <div className="media-empty">
             <Search size={26} />
-            <strong>没有找到匹配素材</strong>
-            <p>试试其他关键词或素材类型</p>
+            <strong>Eşleşen medya bulunamadı</strong>
+            <p>Başka bir anahtar sözcük veya medya türü deneyin</p>
             <button
               onClick={() => {
                 setQuery("");
                 setKind("all");
               }}
             >
-              查看全部素材
+              Tüm medyayı gör
             </button>
           </div>
         ) : (
@@ -433,32 +433,32 @@ export default function MediaLibrary({
               <Music2 size={18} />
               <FileImage size={19} />
             </div>
-            <strong>把灵感放进这里</strong>
+            <strong>İlhamı buraya bırakın</strong>
             <p>
-              导入视频、音频和图片
+              Video, ses ve görsel içe aktar
               <br />
-              或直接拖入本地文件
+              veya yerel dosyaları buraya sürükleyin
             </p>
             <button
               className="media-empty-import"
               onClick={startImport}
               disabled={importing}
             >
-              <Upload size={13} /> {importing ? "正在读取素材…" : "导入素材"}
+              <Upload size={13} /> {importing ? "Medya okunuyor…" : "Medya içe aktar"}
             </button>
-            <span>支持 MP4、MOV、MP3、PNG 等格式</span>
+            <span>MP4, MOV, MP3, PNG ve benzeri biçimler desteklenir</span>
           </div>
         )}
       </div>
       <div className="media-footer">
-        <span>{filtered.length} 个素材</span>
-        <span>双击添加 · 拖动到时间线</span>
+        <span>{filtered.length} medya</span>
+        <span>Eklemek için çift tıklayın · zaman çizelgesine sürükleyin</span>
       </div>
       {draggingFiles && (
         <div className="media-drop-overlay">
           <Upload size={31} />
-          <strong>松开以导入素材</strong>
-          <span>文件保留在本地，随时开始编辑</span>
+          <strong>Medyayı içe aktarmak için bırakın</strong>
+          <span>Dosyalar yerelde kalır; düzenlemeye istediğiniz an başlayın</span>
         </div>
       )}
     </section>

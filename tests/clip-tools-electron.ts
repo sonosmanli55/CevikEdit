@@ -74,7 +74,6 @@ env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,
@@ -88,7 +87,7 @@ const saveProject = async (): Promise<Project> => {
   const before = await stat(saved)
     .then((value) => value.mtimeMs)
     .catch(() => -1);
-  await page!.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page!.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect
     .poll(
       () =>
@@ -151,13 +150,13 @@ try {
         return {
           canceled: false,
           filePaths:
-            options.title === "导入素材" ? [files.source] : [files.saved],
+            options.title === "Medya içe aktar" ? [files.source] : [files.saved],
         };
       };
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
         filePath:
-          args[args.length - 1].title === "导出视频"
+          args[args.length - 1].title === "Videoyu dışa aktar"
             ? files.exported
             : files.saved,
       });
@@ -180,13 +179,13 @@ try {
 
   // Keep the export small and deterministic.
   await page.keyboard.press("Escape");
-  await page.getByRole("spinbutton", { name: "宽度", exact: true }).fill("160");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).fill("90");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).blur();
+  await page.getByRole("spinbutton", { name: "Genişlik", exact: true }).fill("160");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).fill("90");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).blur();
   await page.locator(".tl-clip").click();
-  await page.getByRole("button", { name: "速度", exact: true }).click();
-  await page.getByRole("button", { name: "倒放片段", exact: true }).click();
-  await expect(page.getByText("片段已倒放，原素材仍保留在媒体库。", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Hız", exact: true }).click();
+  await page.getByRole("button", { name: "Klibi ters oynat", exact: true }).click();
+  await expect(page.getByText("Klip ters çevrildi; özgün medya kitaplıkta korunuyor.", { exact: true })).toBeVisible({
     timeout: 60_000,
   });
   await expect(page.locator(".media-item")).toHaveCount(2, { timeout: 30_000 });
@@ -255,16 +254,16 @@ try {
   await page.locator(".tl-clip").click();
   await page.keyboard.press("Home");
   await page.keyboard.press("Shift+ArrowRight");
-  await page.getByRole("button", { name: "速度", exact: true }).click();
-  await page.getByRole("spinbutton", { name: "定格时长", exact: true }).fill("1");
-  await page.getByRole("spinbutton", { name: "定格时长", exact: true }).blur();
-  await page.getByRole("button", { name: "定格当前帧", exact: true }).click();
+  await page.getByRole("button", { name: "Hız", exact: true }).click();
+  await page.getByRole("spinbutton", { name: "Donmuş kare süresi", exact: true }).fill("1");
+  await page.getByRole("spinbutton", { name: "Donmuş kare süresi", exact: true }).blur();
+  await page.getByRole("button", { name: "Geçerli kareyi dondur", exact: true }).click();
   await expect(
-    page.getByText("已生成定格画面，可在画面属性中调整持续时长。", { exact: true }),
+    page.getByText("Donmuş kare oluşturuldu; süresini görüntü özelliklerinden ayarlayabilirsiniz.", { exact: true }),
   ).toBeVisible({ timeout: 30_000 });
   await expect(page.locator(".tl-clip")).toHaveCount(2, { timeout: 30_000 });
   await expect(
-    page.getByRole("spinbutton", { name: "片段时长", exact: true }),
+    page.getByRole("spinbutton", { name: "Klip süresi", exact: true }),
   ).toHaveValue("1");
 
   project = await saveProject();
@@ -280,7 +279,7 @@ try {
     "freeze frame must live in the managed cache",
   );
   assert(
-    project.tracks.filter((track) => track.name === "定格画面").length === 1,
+    project.tracks.filter((track) => track.name === "Donmuş kare").length === 1,
     "freeze frames use one dedicated lane",
   );
   assert.equal(
@@ -296,9 +295,9 @@ try {
   });
   await expect(page.locator(".media-item")).toHaveCount(3, { timeout: 30_000 });
 
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 90_000,
   });
 

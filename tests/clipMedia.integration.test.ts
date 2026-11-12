@@ -166,7 +166,7 @@ describe("reverseClipMedia", () => {
     await rendering;
     await new Promise((resolve) => setTimeout(resolve, 100));
     await cancelReverseClip(jobId);
-    await expect(job).rejects.toThrow("倒放已取消");
+    await expect(job).rejects.toThrow("Ters oynatma iptal edildi");
     await expect(access(cancelled)).rejects.toThrow();
   }, 30_000);
 

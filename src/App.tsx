@@ -88,18 +88,18 @@ function cleanIPCError(error: unknown): string {
   return message.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, "");
 }
 const shortcuts = [
-  ["播放 / 暂停", "Space"],
-  ["分割片段", "⌘ / Ctrl + B"],
-  ["删除片段", "Delete / Backspace"],
-  ["撤销 / 重做", "⌘ + Z / ⇧ + ⌘ + Z"],
-  ["复制 / 粘贴", "⌘ + C / ⌘ + V"],
-  ["复制片段", "⌘ / Ctrl + D"],
-  ["全选片段", "⌘ / Ctrl + A"],
-  ["上一帧 / 下一帧", "← / →"],
-  ["新建 / 打开 / 保存", "⌘ + N / O / S"],
-  ["导入 / 导出", "⌘ + I / E"],
-  ["时间线放大 / 缩小", "+ / −"],
-  ["跳至开始 / 结束", "Home / End"],
+  ["Oynat / Duraklat", "Space"],
+  ["Klibi böl", "⌘ / Ctrl + B"],
+  ["Klibi sil", "Delete / Backspace"],
+  ["Geri al / Yinele", "⌘ + Z / ⇧ + ⌘ + Z"],
+  ["Kopyala / Yapıştır", "⌘ + C / ⌘ + V"],
+  ["Klibi kopyala", "⌘ / Ctrl + D"],
+  ["Tüm klipleri seç", "⌘ / Ctrl + A"],
+  ["Önceki kare / Sonraki kare", "← / →"],
+  ["Yeni / Aç / Kaydet", "⌘ + N / O / S"],
+  ["İçe aktar / Dışa aktar", "⌘ + I / E"],
+  ["Zaman çizelgesini yakınlaştır / uzaklaştır", "+ / −"],
+  ["Başa / sona git", "Home / End"],
 ];
 function ModalShell({
   title,
@@ -128,7 +128,7 @@ function ModalShell({
       >
         <header>
           <h2>{title}</h2>
-          <button aria-label="关闭对话框" onClick={onClose}>
+          <button aria-label="İletişim kutusunu kapat" onClick={onClose}>
             <X size={18} />
           </button>
         </header>
@@ -199,7 +199,7 @@ function ExportDialog({
           setProgress(event);
           if (["complete", "error", "cancelled"].includes(event.status)) {
             setBusy(false);
-            if (event.status === "error") setError(event.message ?? "导出失败");
+            if (event.status === "error") setError(event.message ?? "Dışa aktarma başarısız");
           }
         }
       }),
@@ -218,14 +218,14 @@ function ExportDialog({
   };
   const exportVideo = async () => {
     if (!window.editorAPI) {
-      setError("视频导出需要桌面版和本地 FFmpeg。");
+      setError("Video dışa aktarma için masaüstü sürümü ve yerel FFmpeg gerekir.");
       return;
     }
     try {
       setError("");
       if (memoryProblem) throw new Error(memoryProblem);
-      if (scope === "selected" && !selectedRange) throw new Error("请先选择时间线片段");
-      if (scope === "custom" && (!rangeStart.trim() || !rangeEnd.trim())) throw new Error("请填写区间起止时间");
+      if (scope === "selected" && !selectedRange) throw new Error("Önce zaman çizelgesinden bir klip seçin");
+      if (scope === "custom" && (!rangeStart.trim() || !rangeEnd.trim())) throw new Error("Aralığın başlangıç ve bitiş zamanlarını girin");
       resolveExportRange(project, { ...options, range: rangeOptions });
       let path = options.path;
       if (!path) {
@@ -254,7 +254,7 @@ function ExportDialog({
   const status = progress?.status;
   return (
     <ModalShell
-      title="导出视频"
+      title="Videoyu dışa aktar"
       onClose={() => {
         if (!exporting) onClose();
       }}
@@ -265,38 +265,38 @@ function ExportDialog({
           <strong>{project.name}</strong>
           <span>
             {formatTime(exportDuration, project.fps)} ·{" "}
-            {project.clips.length} 个片段
+            {project.clips.length} klip
           </span>
         </div>
-        <span className="export-badge">本地渲染</span>
+        <span className="export-badge">Yerel oluşturma</span>
       </div>
       <div className="modal-body">
         <label className="stacked-label">
-          保存位置
+          Kayıt konumu
           <div className="file-picker">
             <input
-              aria-label="导出位置"
+              aria-label="Dışa aktarma konumu"
               readOnly
               value={options.path}
-              placeholder="选择视频保存位置"
+              placeholder="Video kayıt konumunu seçin"
             />
             <button disabled={exporting} onClick={choose}>
               <FolderOpen size={16} />
             </button>
           </div>
         </label>
-        <label className="stacked-label">导出范围
-          <select aria-label="导出范围" value={scope} disabled={exporting} onChange={e => setScope(e.target.value)}>
-            <option value="all">整个时间线</option><option value="selected" disabled={!selectedRange}>选中片段所在区间</option><option value="custom">自定义区间</option>
+        <label className="stacked-label">Dışa aktarma aralığı
+          <select aria-label="Dışa aktarma aralığı" value={scope} disabled={exporting} onChange={e => setScope(e.target.value)}>
+            <option value="all">Tüm zaman çizelgesi</option><option value="selected" disabled={!selectedRange}>Seçili kliplerin bulunduğu aralık</option><option value="custom">Özel aralık</option>
           </select>
         </label>
-        {scope === "custom" && <div className="export-fields"><label>起点（秒）<input aria-label="区间起点" type="number" min="0" step={1 / project.fps} disabled={exporting} value={rangeStart} onChange={e => setRangeStart(e.target.value)} /></label><label>终点（秒）<input aria-label="区间终点" type="number" min="0" step={1 / project.fps} disabled={exporting} value={rangeEnd} onChange={e => setRangeEnd(e.target.value)} /></label></div>}
-        {scope === "selected" && selectedRange && <p className="field-hint">{selectedRange.start.toFixed(3)}–{selectedRange.end.toFixed(3)} 秒，包含该区间内所有可见画面和声音。</p>}
+        {scope === "custom" && <div className="export-fields"><label>Başlangıç (sn)<input aria-label="Aralık başlangıcı" type="number" min="0" step={1 / project.fps} disabled={exporting} value={rangeStart} onChange={e => setRangeStart(e.target.value)} /></label><label>Bitiş (sn)<input aria-label="Aralık bitişi" type="number" min="0" step={1 / project.fps} disabled={exporting} value={rangeEnd} onChange={e => setRangeEnd(e.target.value)} /></label></div>}
+        {scope === "selected" && selectedRange && <p className="field-hint">{selectedRange.start.toFixed(3)}–{selectedRange.end.toFixed(3)} sn · aralıktaki tüm görünür görüntü ve ses dahil.</p>}
         <div className="export-fields">
           <label>
-            分辨率
+            Çözünürlük
             <select
-              aria-label="导出分辨率"
+              aria-label="Dışa aktarma çözünürlüğü"
               disabled={exporting}
               value={`${options.width}:${options.height}`}
               onChange={(e) => {
@@ -307,7 +307,7 @@ function ExportDialog({
               <option
                 value={`${project.width + (project.width % 2)}:${project.height + (project.height % 2)}`}
               >
-                原始 · {project.width}×{project.height}
+                Özgün · {project.width}×{project.height}
               </option>
               {[720, 1080, 1440, 2160].map((height) => {
                 const width =
@@ -321,9 +321,9 @@ function ExportDialog({
             </select>
           </label>
           <label>
-            帧率
+            Kare hızı
             <select
-              aria-label="导出帧率"
+              aria-label="Dışa aktarma kare hızı"
               value={options.fps}
               disabled={exporting}
               onChange={(e) =>
@@ -336,9 +336,9 @@ function ExportDialog({
             </select>
           </label>
           <label>
-            画质
+            Kalite
             <select
-              aria-label="导出画质"
+              aria-label="Dışa aktarma kalitesi"
               disabled={exporting}
               value={options.quality}
               onChange={(e) =>
@@ -348,15 +348,15 @@ function ExportDialog({
                 }))
               }
             >
-              <option value="draft">草稿 · 更快</option>
-              <option value="standard">标准 · 推荐</option>
-              <option value="high">高画质</option>
+              <option value="draft">Taslak · daha hızlı</option>
+              <option value="standard">Standart · önerilen</option>
+              <option value="high">Yüksek kalite</option>
             </select>
           </label>
           <label>
-            格式
+            Biçim
             <select
-              aria-label="导出格式"
+              aria-label="Dışa aktarma biçimi"
               disabled={exporting}
               value={options.format}
               onChange={(e) => {
@@ -374,7 +374,7 @@ function ExportDialog({
           </label>
         </div>
         <p className="field-hint">
-          导出原始素材和所有可见画面轨道，按音频设置混音。无需登录或上传。
+          Özgün medyayı ve görünür tüm görüntü kanallarını dışa aktarır, ses ayarlarına göre miksler. Giriş veya yükleme gerekmez.
         </p>
         <div className="export-estimate" role="status">
           <span>
@@ -402,14 +402,14 @@ function ExportDialog({
             <div>
               <span>
                 {status === "complete"
-                  ? "导出完成"
+                  ? "Dışa aktarma tamamlandı"
                   : status === "cancelled"
-                    ? "导出已取消"
+                    ? "Dışa aktarma iptal edildi"
                     : status === "preparing"
-                      ? "正在准备素材"
+                      ? "Medya hazırlanıyor"
                       : status === "error"
-                        ? "导出失败"
-                        : "正在渲染视频"}
+                        ? "Dışa aktarma başarısız"
+                        : "Video oluşturuluyor"}
               </span>
               <strong>{Math.round(progress.progress * 100)}%</strong>
             </div>
@@ -427,7 +427,7 @@ function ExportDialog({
           <>
             <span className="muted">
               <LoaderCircle size={14} className="spin" />
-              编辑会在本地渲染完成后继续
+              Düzenleme, yerel işleme tamamlandıktan sonra sürer
             </span>
             <button
               onClick={() => {
@@ -437,7 +437,7 @@ function ExportDialog({
                     .catch((error) => setError(String(error)));
               }}
             >
-              取消导出
+              Dışa aktarmayı iptal et
             </button>
           </>
         ) : status === "complete" ? (
@@ -450,23 +450,23 @@ function ExportDialog({
               }
             >
               <FolderOpen size={15} />
-              在访达中查看
+              Dosya yöneticisinde göster
             </button>
             <button className="primary" onClick={onClose}>
               <Check size={15} />
-              完成
+              Tamam
             </button>
           </>
         ) : (
           <>
-            <button onClick={onClose}>取消</button>
+            <button onClick={onClose}>İptal</button>
             <button
               className="primary"
               onClick={exportVideo}
               disabled={!project.clips.length}
             >
               <Download size={16} />
-              开始导出
+              Dışa aktarmayı başlat
             </button>
           </>
         )}
@@ -488,7 +488,7 @@ async function browserAssets(files: File[]): Promise<MediaAsset[]> {
       image.src = url;
       await new Promise<void>((resolve, reject) => {
         image.onload = () => resolve();
-        image.onerror = () => reject(new Error(`无法读取 ${file.name}`));
+        image.onerror = () => reject(new Error(`${file.name} okunamadı`));
       });
       results.push({
         id: id(),
@@ -509,7 +509,7 @@ async function browserAssets(files: File[]): Promise<MediaAsset[]> {
       element.src = url;
       await new Promise<void>((resolve, reject) => {
         element.onloadedmetadata = () => resolve();
-        element.onerror = () => reject(new Error(`无法读取 ${file.name}`));
+        element.onerror = () => reject(new Error(`${file.name} okunamadı`));
       });
       const video = element instanceof HTMLVideoElement ? element : null;
       results.push({
@@ -537,7 +537,7 @@ export default function App() {
   const [sourceAssetId, setSourceAssetId] = useState<string | null>(null);
   const sourceAsset = s.project.assets.find(asset => asset.id === sourceAssetId);
   const [addingBuiltin, setAddingBuiltin] = useState<string | null>(null);
-  const [tab, setTab] = useState("素材"),
+  const [tab, setTab] = useState("Medya"),
     [modal, setModal] = useState<Modal>(null),
     [fileMenu, setFileMenu] = useState(false),
     [toast, setToast] = useState(""),
@@ -581,20 +581,20 @@ export default function App() {
     return () => window.removeEventListener("resize", clamp);
   }, []);
   const addBuiltin = async (definition: BuiltinAsset) => {
-    if (!window.editorAPI) throw new Error("添加内置素材需要桌面版");
+    if (!window.editorAPI) throw new Error("Yerleşik medya eklemek için masaüstü sürümü gerekir");
     if (addingBuiltin) return;
     const projectId = useEditorStore.getState().project.id;
     setAddingBuiltin(definition.id);
     try {
       const imported = await window.editorAPI.importBuiltinAsset(definition.id);
       const state = useEditorStore.getState();
-      if (state.project.id !== projectId) throw new Error("项目已切换，请重新添加素材");
+      if (state.project.id !== projectId) throw new Error("Proje değişti, medyayı yeniden ekleyin");
       state.beginTransaction();
       try {
         state.addAssets([imported]);
         const latest = useEditorStore.getState();
         const asset = latest.project.assets.find(a => a.path === imported.path)!;
-        const name = definition.category === "backgrounds" ? "内置背景" : definition.kind === "audio" ? "内置音效" : "内置装饰";
+        const name = definition.category === "backgrounds" ? "Yerleşik arka plan" : definition.kind === "audio" ? "Yerleşik ses efekti" : "Yerleşik süsleme";
         let track = latest.project.tracks.find(t => t.name === name && t.kind === definition.kind && !t.locked);
         if (!track) {
           track = createTrack(definition.kind, name);
@@ -660,7 +660,7 @@ export default function App() {
           startup = await window.editorAPI.getStartupProject();
         } catch (error) {
           notify(
-            `启动项目无法打开：${error instanceof Error ? error.message : String(error)}`,
+            `Başlangıç projesi açılamadı: ${error instanceof Error ? error.message : String(error)}`,
           );
         }
         if (startup) {
@@ -686,16 +686,16 @@ export default function App() {
     const timer = setTimeout(() => {
       void window
         .editorAPI!.autosaveProject(s.project)
-        .catch((error) => notify(`自动保存失败：${String(error)}`));
+        .catch((error) => notify(`Otomatik kaydetme başarısız: ${String(error)}`));
     }, 1000);
     return () => clearTimeout(timer);
   }, [s.project, initialized, recover]);
   const confirmReplace = () =>
     !useEditorStore.getState().dirty ||
-    window.confirm("当前项目有未保存修改，继续会关闭当前项目。建议先保存。");
+    window.confirm("Geçerli projede kaydedilmemiş değişiklikler var. Devam ederseniz proje kapanır. Önce kaydetmeniz önerilir.");
   const importMedia = async (paths?: string[]) => {
     if (!window.editorAPI) {
-      notify("浏览器预览可用拖拽文件导入。完整文件操作请运行桌面版。");
+      notify("Tarayıcı önizlemesinde dosyaları sürükleyerek içe aktarabilirsiniz. Tüm dosya işlemleri için masaüstü sürümünü çalıştırın.");
       return;
     }
     const projectId = useEditorStore.getState().project.id;
@@ -703,11 +703,11 @@ export default function App() {
     try {
       const assets = await window.editorAPI.importMedia(paths);
       if (useEditorStore.getState().project.id !== projectId) {
-        notify("项目已切换，导入素材未加入新项目");
+        notify("Proje değişti, içe aktarılan medya yeni projeye eklenmedi");
         return;
       }
       s.addAssets(assets);
-      if (assets.length) notify(`已导入 ${assets.length} 个素材`);
+      if (assets.length) notify(`${assets.length} medya içe aktarıldı`);
     } finally {
       setImporting(false);
     }
@@ -718,11 +718,11 @@ export default function App() {
         .getState()
         .project.assets.find((entry) => entry.id === clip.assetId);
     if (!asset?.hasAudio) {
-      notify("这段素材没有可分离的音频。");
+      notify("Bu materyalde ayrılacak ses yok.");
       return;
     }
     if (!window.editorAPI) {
-      notify("音频分离仅支持桌面版。");
+      notify("Ses ayırma yalnızca masaüstü uygulamasında kullanılabilir.");
       return;
     }
     if (separating) return;
@@ -731,9 +731,9 @@ export default function App() {
       const extracted = await window.editorAPI.extractAudio(asset);
       if (useEditorStore.getState().project.id !== projectId) return;
       useEditorStore.getState().separateAudio(clip.id, extracted);
-      notify("已分离音频，可在新的音频轨道上单独编辑");
+      notify("Ses ayrıldı; artık yeni ses kanalında ayrı düzenlenebilir");
     } catch (error) {
-      notify(`分离音频失败：${cleanIPCError(error)}`);
+      notify(`Ses ayırma başarısız: ${cleanIPCError(error)}`);
     } finally {
       setSeparating(false);
     }
@@ -744,19 +744,19 @@ export default function App() {
       asset = state.project.assets.find((entry) => entry.id === clip.assetId),
       track = state.project.tracks.find((entry) => entry.id === clip.trackId);
     if (!asset || asset.kind !== "video") {
-      notify("请选择一个视频片段。");
+      notify("Bir video klibi seçin.");
       return;
     }
     if (asset.missing) {
-      notify("原视频素材已丢失，无法倒放。");
+      notify("Özgün video medyası eksik; ters oynatılamıyor.");
       return;
     }
     if (track?.locked) {
-      notify("轨道已锁定，无法倒放。");
+      notify("Kanal kilitli; ters oynatılamıyor.");
       return;
     }
     if (!window.editorAPI) {
-      notify("视频倒放仅支持桌面版。");
+      notify("Video ters oynatma yalnızca masaüstü sürümünde kullanılabilir.");
       return;
     }
     if (reverseJobId.current) return;
@@ -774,15 +774,15 @@ export default function App() {
       const latest = useEditorStore.getState();
       if (latest.project.id !== projectId) return;
       if (!latest.project.clips.some((entry) => entry.id === clip.id)) {
-        notify("片段已不存在，倒放结果未加入项目。");
+        notify("Klip artık yok; ters oynatma sonucu projeye eklenmedi.");
         return;
       }
       latest.reverseClip(clip.id, reversed);
-      notify("片段已倒放，原素材仍保留在媒体库。");
+      notify("Klip ters çevrildi; özgün medya kitaplıkta korunuyor.");
     } catch (error) {
       const message = cleanIPCError(error);
-      if (message.includes("取消")) notify("倒放已取消。");
-      else notify(`倒放失败：${message}`);
+      if (message.includes("İptal")) notify("Ters oynatma iptal edildi.");
+      else notify(`Ters oynatma başarısız: ${message}`);
     } finally {
       if (reverseJobId.current === jobId) {
         reverseJobId.current = null;
@@ -810,26 +810,26 @@ export default function App() {
         ? state.project.tracks.find((entry) => entry.id === clip.trackId)
         : undefined;
     if (!clip || !asset || asset.kind !== "video") {
-      notify("请选择一个视频片段。");
+      notify("Bir video klibi seçin.");
       return;
     }
     if (asset.missing) {
-      notify("原视频素材已丢失，无法定格。");
+      notify("Özgün video medyası eksik; kare dondurulamıyor.");
       return;
     }
     if (track?.locked) {
-      notify("轨道已锁定，无法定格。");
+      notify("Kanal kilitli; kare dondurulamıyor.");
       return;
     }
     if (
       state.playhead < clip.start - 1e-9 ||
       state.playhead > clip.start + clip.duration + 1e-9
     ) {
-      notify("请先把播放头移到选中的视频片段范围内。");
+      notify("Önce oynatma başlığını seçili video klibinin aralığına taşıyın.");
       return;
     }
     if (!window.editorAPI) {
-      notify("定格画面仅支持桌面版。");
+      notify("Kare dondurma yalnızca masaüstü sürümünde kullanılabilir.");
       return;
     }
     if (freezing) return;
@@ -850,19 +850,19 @@ export default function App() {
       const latest = useEditorStore.getState();
       if (latest.project.id !== projectId) return;
       if (!latest.project.clips.some((entry) => entry.id === clip.id)) {
-        notify("片段已不存在，定格画面未加入项目。");
+        notify("Klip artık yok; donmuş kare projeye eklenmedi.");
         return;
       }
       latest.addFreezeFrame(clip.id, image, start, duration);
-      notify("已生成定格画面，可在画面属性中调整持续时长。");
+      notify("Donmuş kare oluşturuldu; süresini görüntü özelliklerinden ayarlayabilirsiniz.");
     } catch (error) {
-      notify(`生成定格画面失败：${cleanIPCError(error)}`);
+      notify(`Donmuş kare oluşturulamadı: ${cleanIPCError(error)}`);
     } finally {
       setFreezing(false);
     }
   };
   const save = async (as = false) => {    if (saving.current) {
-      notify("项目正在保存，请稍候");
+      notify("Proje kaydediliyor, lütfen bekleyin");
       return false;
     }
     if (!window.editorAPI) {
@@ -875,7 +875,7 @@ export default function App() {
       a.download = s.project.name + ".cevikedit";
       a.click();
       URL.revokeObjectURL(url);
-      notify("已下载项目 JSON。浏览器素材链接不支持跨会话恢复。");
+      notify("Proje JSON'u indirildi. Tarayıcıdaki medya bağlantıları oturumlar arasında korunmaz.");
       return false;
     }
     saving.current = true;
@@ -890,13 +890,13 @@ export default function App() {
       setRecent(await window.editorAPI.getRecentProjects());
       const latest = useEditorStore.getState();
       if (latest.project.id !== captured.id) {
-        notify("原项目快照已保存");
+        notify("Özgün projenin anlık görüntüsü kaydedildi");
         return false;
       }
       const unchanged = latest.project === captured;
       if (unchanged) latest.markSaved(file);
       else useEditorStore.setState({ path: file, dirty: true });
-      notify(unchanged ? "项目已保存" : "当前快照已保存，后续编辑尚未保存");
+      notify(unchanged ? "Proje kaydedildi" : "Geçerli anlık görüntü kaydedildi, sonraki düzenlemeler henüz kaydedilmedi");
       return unchanged;
     } finally {
       saving.current = false;
@@ -905,7 +905,7 @@ export default function App() {
   const open = async () => {
     if (!confirmReplace()) return;
     if (!window.editorAPI) {
-      notify("打开本地项目需要桌面版。");
+      notify("Yerel proje açmak için masaüstü sürümü gerekir.");
       return;
     }
     const result = await window.editorAPI.openProject();
@@ -1101,7 +1101,7 @@ export default function App() {
     const result = addTextPreset(s.project, preset, s.playhead);
     s.commit(result.project);
     s.select([result.clip.id]);
-    setTab("文本");
+    setTab("Metin");
   };
   const readSubtitles = async () => {
     if (!window.editorAPI) {
@@ -1112,13 +1112,13 @@ export default function App() {
     const result = await window.editorAPI.readTextFile(["srt", "vtt"]);
     if (!result) return;
     const cues = parseSubtitles(result.text);
-    if (!cues.length) throw new Error("没有读取到有效的 SRT / VTT 字幕");
+    if (!cues.length) throw new Error("Geçerli SRT / VTT altyazısı okunamadı");
     s.addSubtitles(cues);
-    notify(`已导入 ${cues.length} 条字幕`);
+    notify(`${cues.length} altyazı içe aktarıldı`);
   };
   const exportDraftFile = async () => {
     if (!window.editorAPI) {
-      notify("草稿导出需要桌面版。");
+      notify("Taslak dışa aktarma yalnızca masaüstü sürümde kullanılabilir.");
       return;
     }
     const draft = validateExchangeDraft(
@@ -1130,7 +1130,7 @@ export default function App() {
     );
     if (file)
       notify(
-        "草稿交换文件已导出（纯文本 JSON，可重新导入）。这不是剪映加密草稿，剪映无法直接打开。",
+        "Taslak değişim dosyası dışa aktarıldı (düz metin JSON, yeniden içe aktarılabilir). Bu, CapCut'un şifreli taslağı değildir; CapCut dosyayı doğrudan açamaz.",
       );
   };
   const exportSubtitles = async () => {
@@ -1142,7 +1142,7 @@ export default function App() {
         end: c.start + c.duration,
         text: c.text!.text,
       }));
-    if (!cues.length) throw new Error("项目没有文字或字幕");
+    if (!cues.length) throw new Error("Projede metin veya altyazı yok");
     const text = stringifySubtitles(cues);
     if (window.editorAPI)
       await window.editorAPI.writeTextFile(text, s.project.name + ".srt");
@@ -1156,7 +1156,7 @@ export default function App() {
       a.click();
       URL.revokeObjectURL(url);
     }
-    notify("SRT 已导出；字幕文件只保存时间与文本，不包含样式、位置或动画");
+    notify("SRT dışa aktarıldı; altyazı dosyası yalnızca zaman ve metni saklar; stil, konum veya animasyon içermez");
   };
   const cancelCapcutImport = () => {
     if (capcutBusyRef.current) return;
@@ -1184,7 +1184,7 @@ export default function App() {
       for (const asset of imported.project.assets) {
         try {
           const probed = (await window.editorAPI.importMedia([asset.path]))[0];
-          if (!probed) throw new Error("素材无法读取");
+          if (!probed) throw new Error("Medya okunamıyor");
           loaded.push({ ...asset, ...probed, id: asset.id, kind: asset.kind });
         } catch {
           loaded.push({
@@ -1196,7 +1196,7 @@ export default function App() {
       }
       const latest = useEditorStore.getState();
       if (latest.project.id !== pending.capturedProject.id) {
-        notify("项目已切换，请在当前项目中重新导入剪映草稿。");
+        notify("Proje değişti, CapCut taslağını geçerli projeye yeniden aktarın.");
         return;
       }
       if (latest.project !== pending.capturedProject && !confirmReplace())
@@ -1218,11 +1218,11 @@ export default function App() {
   const importDraft = async (mode: "file" | "directory" = "file") => {
     setFileMenu(false);
     if (capcutBusyRef.current || capcutImportRef.current) {
-      notify("请先完成当前剪映项目的导入。");
+      notify("Önce geçerli CapCut projesinin içe aktarımını tamamlayın.");
       return;
     }
     if (!window.editorAPI && mode === "directory") {
-      notify("导入剪映项目文件夹需要桌面版。");
+      notify("CapCut proje klasörünü içe aktarmak için masaüstü sürümü gerekir.");
       return;
     }
     if (!confirmReplace()) return;
@@ -1254,12 +1254,12 @@ export default function App() {
     }
   };
   const applySceneTransition = (transition: TransitionId, seconds: number) => {
-    if (!active) throw new Error("请选择一个画面片段");
+    if (!active) throw new Error("Bir görüntü klibi seçin");
     const result = applyTransition(s.project, active.id, transition, seconds);
     s.commit(result.project);
     notify(transition === "dissolve"
-      ? `已添加 ${result.duration.toFixed(2)} 秒叠化（后片段提前重叠）`
-      : `已添加 ${result.duration.toFixed(2)} 秒转场，可撤销`);
+      ? `${result.duration.toFixed(2)} sn'lik çapraz geçiş eklendi (sonraki klip erkene ötelenir)`
+      : `${result.duration.toFixed(2)} sn'lik geçiş eklendi; geri alınabilir`);
   };
   const renderMediaLibrary = (audioOnly: boolean) => (
     <MediaLibrary
@@ -1329,21 +1329,21 @@ export default function App() {
         <div className="titlebar-menus">
           <div className="file-menu-container">
             <button
-              aria-label="文件菜单"
+              aria-label="Dosya menüsü"
               onClick={() => setFileMenu(!fileMenu)}
             >
-              文件
+              Dosya
               <ChevronDown size={12} />
             </button>
             {fileMenu && (
               <div className="file-menu">
                 {[
-                  ["new", "新建项目", "⌘N"],
-                  ["open", "打开项目", "⌘O"],
-                  ["save", "保存项目", "⌘S"],
-                  ["save-as", "另存为", "⇧⌘S"],
-                  ["import", "导入素材", "⌘I"],
-                  ["export", "导出视频", "⌘E"],
+                  ["new", "Yeni proje", "⌘N"],
+                  ["open", "Proje aç", "⌘O"],
+                  ["save", "Projeyi kaydet", "⌘S"],
+                  ["save-as", "Farklı kaydet", "⇧⌘S"],
+                  ["import", "Medya içe aktar", "⌘I"],
+                  ["export", "Videoyu dışa aktar", "⌘E"],
                 ].map(([action, label, shortcut]) => (
                   <button
                     key={action}
@@ -1354,51 +1354,51 @@ export default function App() {
                   </button>
                 ))}
                 <hr />
-                <button onClick={() => { setFileMenu(false); setModal("package"); }}>收集项目素材…</button>
+                <button onClick={() => { setFileMenu(false); setModal("package"); }}>Proje medyasını topla…</button>
                 <button onClick={() => void safe(() => importDraft("file"))}>
-                  导入剪映草稿文件<span>实验性</span>
+                  CapCut taslak dosyası içe aktar<span>Deneysel</span>
                 </button>
                 <button
                   onClick={() => void safe(() => importDraft("directory"))}
                 >
-                  导入剪映项目文件夹<span>实验性</span>
+                  CapCut proje klasörü içe aktar<span>Deneysel</span>
                 </button>
                 <button onClick={() => void safe(() => exportDraftFile())}>
-                  导出草稿交换文件 (JSON)<span>可移植</span>
+                  Taslak değişim dosyasını dışa aktar (JSON)<span>taşınabilir</span>
                 </button>              </div>
             )}
           </div>
-          <button onClick={() => setModal("shortcuts")}>快捷键</button>
+          <button onClick={() => setModal("shortcuts")}>Kısayollar</button>
         </div>
         <div className="project-title">
           <input
-            aria-label="项目名称"
+            aria-label="Proje adı"
             value={s.project.name}
             onFocus={() => s.beginTransaction()}
             onBlur={() => s.endTransaction()}
             onChange={(e) => s.updateProject({ name: e.target.value })}
           />
           <span
-            title={s.dirty ? "有未保存修改" : "已保存"}
+            title={s.dirty ? "Kaydedilmemiş değişiklik var" : "Kaydedildi"}
             className={`save-dot ${s.dirty ? "dirty" : ""}`}
           />
         </div>
         <div className="titlebar-actions">
-          <button aria-label="剪辑助手" className={assistantOpen ? "active" : ""} onClick={() => setAssistantOpen(!assistantOpen)}><MessageSquare size={15} />助手</button>
+          <button aria-label="Düzenleme asistanı" className={assistantOpen ? "active" : ""} onClick={() => setAssistantOpen(!assistantOpen)}><MessageSquare size={15} />Asistan</button>
           <span className="offline-pill">
             <CloudOff size={12} />
-            离线创作
+            Çevrimdışı düzenleme
           </span>
           <button
-            title="保存项目 ⌘S"
-            aria-label="保存项目"
+            title="Projeyi kaydet ⌘S"
+            aria-label="Projeyi kaydet"
             onClick={() => void safe(() => save())}
           >
             <Save size={16} />
           </button>
           <button
-            title="设置"
-            aria-label="设置"
+            title="Ayarlar"
+            aria-label="Ayarlar"
             onClick={() => setModal("settings")}
           >
             <Settings2 size={16} />
@@ -1411,7 +1411,7 @@ export default function App() {
             }}
           >
             <Upload size={15} />
-            导出
+            Dışa aktar
           </button>
         </div>
       </header>
@@ -1419,14 +1419,14 @@ export default function App() {
         <section className="resource-panel panel">
           <nav className="resource-tabs">
             {[
-              ["素材", Video],
-              ["音频", Music2],
-              ["文本", Type],
-              ["贴纸", Shapes],
-              ["特效", WandSparkles],
-              ["转场", Sparkles],
-              ["字幕", Subtitles],
-              ["模板", LayoutTemplate],
+              ["Medya", Video],
+              ["Ses", Music2],
+              ["Metin", Type],
+              ["Çıkartma", Shapes],
+              ["Efekt", WandSparkles],
+              ["Geçiş", Sparkles],
+              ["Altyazı", Subtitles],
+              ["Şablonlar", LayoutTemplate],
             ].map(([label, Icon]) => (
               <button
                 key={label as string}
@@ -1439,18 +1439,18 @@ export default function App() {
             ))}
           </nav>
           <div className="resource-body">
-            {tab === "贴纸" && <AssetLibrary onAdd={addBuiltin} addingId={addingBuiltin} />}
-            {tab === "素材" && renderMediaLibrary(false)}
-            {tab === "音频" && (
+            {tab === "Çıkartma" && <AssetLibrary onAdd={addBuiltin} addingId={addingBuiltin} />}
+            {tab === "Medya" && renderMediaLibrary(false)}
+            {tab === "Ses" && (
               <div className="audio-tab">
                 <div className="audio-library">{renderMediaLibrary(true)}</div>
                 <AudioTools />
               </div>
             )}
-            {tab === "文本" && <TextLibrary onAdd={addStyledText} onBlank={s.addText} />}
-            {tab === "字幕" && <SubtitlePanel onImport={() => safe(readSubtitles)} onExport={() => safe(exportSubtitles)} />}
-            {tab === "模板" && <TemplatesLibrary />}
-            {tab === "特效" && (
+            {tab === "Metin" && <TextLibrary onAdd={addStyledText} onBlank={s.addText} />}
+            {tab === "Altyazı" && <SubtitlePanel onImport={() => safe(readSubtitles)} onExport={() => safe(exportSubtitles)} />}
+            {tab === "Şablonlar" && <TemplatesLibrary />}
+            {tab === "Efekt" && (
               <EffectsPanel
                 clip={active}
                 project={s.project}
@@ -1458,11 +1458,11 @@ export default function App() {
                 locked={activeTrack?.locked}
                 onApply={(patch) => {
                   if (active) s.updateClip(active.id, patch);
-                  else notify("先选择一个时间线片段");
+                  else notify("Önce zaman çizelgesinden bir klip seçin");
                 }}
               />
             )}
-            {tab === "转场" && <TransitionLibrary
+            {tab === "Geçiş" && <TransitionLibrary
               disabled={!active || !!active.text || activeTrack?.kind === "audio" || !!activeTrack?.locked}
               onApply={(transition,seconds)=>void safe(()=>applySceneTransition(transition,seconds))}
             />}
@@ -1484,10 +1484,10 @@ export default function App() {
             );
             setSourceAssetId(null);
             notify(mode === "append"
-              ? "片段已追加到轨道末尾，可撤销"
+              ? "Klip kanal sonuna eklendi; geri alınabilir"
               : mode === "insert"
-                ? "片段已插入播放头，后续同轨片段已后移，可撤销"
-                : "片段已覆盖播放头处同轨区间，可撤销");
+                ? "Klip oynatma konumuna eklendi, sonraki klipler kaydırıldı; geri alınabilir"
+                : "Klip oynatma konumundaki kanal aralığını kapladı; geri alınabilir");
           })}
         /> : <Player
           project={s.project}
@@ -1521,12 +1521,12 @@ export default function App() {
           className="timeline-resize"
           role="separator"
           tabIndex={0}
-          aria-label="调整时间线高度"
+          aria-label="Zaman çizelgesi yüksekliğini ayarla"
           aria-orientation="horizontal"
           aria-valuenow={Math.round(timelineHeight)}
           aria-valuemin={190}
           aria-valuemax={Math.max(190, window.innerHeight - 290)}
-          title="拖动调整时间线高度"
+          title="Yüksekliği ayarlamak için sürükleyin"
           onKeyDown={(event) => {
             if (event.key === "ArrowUp" || event.key === "ArrowDown") {
               event.preventDefault();
@@ -1593,8 +1593,8 @@ export default function App() {
       <footer className="app-status">
         <span>
           <span className="status-dot" />{" "}
-          {window.editorAPI ? "桌面版" : "浏览器预览"} ·{" "}
-          {s.project.assets.length} 个素材 · {s.project.clips.length} 个片段
+          {window.editorAPI ? "Masaüstü sürümü" : "Tarayıcı önizlemesi"} ·{" "}
+          {s.project.assets.length} medya · {s.project.clips.length} klip
         </span>
         <div>
           {active?.assetId &&
@@ -1605,7 +1605,7 @@ export default function App() {
                 disabled={separating}
                 onClick={() => void separateAudio(active)}
               >
-                {separating ? "正在分离音频…" : "分离音频"}
+                {separating ? "Ses ayrılıyor…" : "Sesi ayır"}
               </button>
             )}
           {s.project.assets.some((a) => a.missing) && (
@@ -1616,11 +1616,11 @@ export default function App() {
                 )
               }
             >
-              重新链接丢失素材
+              Eksik medyayı yeniden bağla
             </button>
           )}
-          <span>{s.dirty ? "未保存 · 自动恢复已开启" : "项目就绪"}</span>
-          <button title="最近项目" onClick={() => setModal("settings")}>
+          <span>{s.dirty ? "Kaydedilmedi · otomatik kurtarma açık" : "Proje hazır"}</span>
+          <button title="Son projeler" onClick={() => setModal("settings")}>
             <FolderOpen size={12} />
           </button>
         </div>
@@ -1630,7 +1630,7 @@ export default function App() {
         <div role="status" className="toast">
           <Info size={16} />
           <span>{toast}</span>
-          <button aria-label="关闭提示" onClick={() => setToast("")}>
+          <button aria-label="Bildirimi kapat" onClick={() => setToast("")}>
             <X size={13} />
           </button>
         </div>
@@ -1645,16 +1645,16 @@ export default function App() {
         />
       )}
       {modal === "capcut" && capcutImport && (
-        <ModalShell title="选择剪映时间线" onClose={cancelCapcutImport}>
+        <ModalShell title="CapCut zaman çizelgesini seçin" onClose={cancelCapcutImport}>
           <div className="modal-body">
             <p>
               <strong>{capcutImport.selection.name}</strong>{" "}
-              包含多条时间线，请选择要导入的内容。
+              Birden fazla zaman çizelgesi içeriyor; içe aktarılacak içeriği seçin.
             </p>
             <label>
-              时间线
+              Zaman çizelgesi
               <select
-                aria-label="剪映时间线"
+                aria-label="CapCut zaman çizelgesi"
                 value={capcutTimelineId}
                 disabled={capcutBusy}
                 onChange={(event) => setCapcutTimelineId(event.target.value)}
@@ -1662,8 +1662,8 @@ export default function App() {
                 {capcutImport.selection.timelines.map((timeline) => (
                   <option key={timeline.id} value={timeline.id}>
                     {timeline.name}
-                    {timeline.isActive ? " · 当前编辑" : ""}
-                    {timeline.isMain ? " · 主时间线" : ""}
+                    {timeline.isActive ? " · şu anda düzenleniyor" : ""}
+                    {timeline.isMain ? " · ana zaman çizelgesi" : ""}
                   </option>
                 ))}
               </select>
@@ -1673,11 +1673,11 @@ export default function App() {
                 {warning}
               </p>
             ))}
-            <p className="muted">导入后请核对画面、文字和效果。</p>
+            <p className="muted">İçe aktardıktan sonra görüntüyü, metni ve efektleri kontrol edin.</p>
           </div>
           <footer>
             <button disabled={capcutBusy} onClick={cancelCapcutImport}>
-              取消
+              İptal
             </button>
             <button
               className="primary"
@@ -1688,13 +1688,13 @@ export default function App() {
                 )
               }
             >
-              {capcutBusy ? "正在导入…" : "导入所选时间线"}
+              {capcutBusy ? "İçe aktarılıyor…" : "Seçili zaman çizelgesini içe aktar"}
             </button>
           </footer>
         </ModalShell>
       )}
       {modal === "shortcuts" && (
-        <ModalShell title="键盘快捷键" onClose={() => setModal(null)}>
+        <ModalShell title="Klavye kısayolları" onClose={() => setModal(null)}>
           <div className="shortcut-list">
             {shortcuts.map(([action, keys]) => (
               <div key={action}>
@@ -1705,56 +1705,57 @@ export default function App() {
           </div>
           <footer>
             <span className="muted small">
-              Windows / Linux 使用 Ctrl 替代 ⌘
+              Windows / Linux üzerinde ⌘ yerine Ctrl kullanın
             </span>
             <button className="primary" onClick={() => setModal(null)}>
-              知道了
+              Anladım
             </button>
           </footer>
         </ModalShell>
       )}
       {modal === "about" && (
-        <ModalShell title="关于 CevikEdit" onClose={() => setModal(null)}>
+        <ModalShell title="CevikEdit hakkında" onClose={() => setModal(null)}>
           <div className="about-body">
             <div className="about-logo">
-              <img src="./icons/cevikedit.png" width="58" height="58" alt="CevikEdit 图标" />
+              <img src="./icons/cevikedit.png" width="58" height="58" alt="CevikEdit simgesi" />
             </div>
             <h2>CevikEdit</h2>
-            <span>{appVersion} · 独立开源桌面视频编辑器</span>
+            <span>{appVersion} · Bağımsız açık kaynak masaüstü video düzenleyici</span>
             <p>
-              利用 REA
-              研究可观察的剪辑流程，以独立代码实现离线编辑。核心源码采用 MIT
-              许可证。macOS 安装包内置 FFmpeg / FFprobe 与 x264（GPL-2.0-or-later），对应源码、构建脚本及许可文件位于应用资源的 media-tools 目录。
+              Tümüyle yerel düzenleme için gözlemlenebilir kurgu akışlarını inceler ve bağımsız
+              kodla uygular. Çekirdek kaynak MIT lisanslıdır. macOS kurulumu FFmpeg / FFprobe ve
+              x264 (GPL-2.0-or-later) içerir; ilgili kaynak, derleme betikleri ve lisans dosyaları
+              uygulama kaynaklarının media-tools dizinindedir.
             </p>
             <p className="muted">
-              非剪映官方产品。不包含剪映的专有代码、库或素材。
+              Resmî bir CapCut ürünü değildir. CapCut'a ait tescilli kod, kütüphane veya materyal içermez.
             </p>
           </div>
           <footer>
             <button className="primary" onClick={() => setModal(null)}>
-              关闭
+              Kapat
             </button>
           </footer>
         </ModalShell>
       )}
       {modal === "settings" && (
-        <ModalShell title="设置与最近项目" onClose={() => setModal(null)}>
+        <ModalShell title="Ayarlar ve son projeler" onClose={() => setModal(null)}>
           <div className="modal-body">
-            <h3>本地渲染引擎</h3>
+            <h3>Yerel oluşturma motoru</h3>
             <div className={`engine-status ${system.ffmpeg ? "ready" : ""}`}>
               {system.ffmpeg ? <CheckCircle2 size={18} /> : <Info size={18} />}
               <div>
                 <strong>
-                  {system.ffmpeg ? "FFmpeg 已就绪" : "未找到 FFmpeg / FFprobe"}
+                  {system.ffmpeg ? "FFmpeg hazır" : "FFmpeg / FFprobe bulunamadı"}
                 </strong>
                 <span>
                   {system.ffmpegVersion ??
-                    "请检查应用是否完整，或在此选择自定义 FFmpeg / FFprobe。"}
+                    "Uygulamanın eksiksiz olduğunu kontrol edin veya buradan özel FFmpeg / FFprobe seçin."}
                 </span>
               </div>
             </div>
             <p className="muted small">
-              {system.ffmpegPath ?? "macOS 安装包默认使用内置引擎，无需另外安装。"}
+              {system.ffmpegPath ?? "macOS kurulumu varsayılan olarak yerleşik motoru kullanır; ayrıca kurulum gerekmez."}
             </p>
             <div className="button-row">
               <button
@@ -1765,7 +1766,7 @@ export default function App() {
                   })
                 }
               >
-                选择 FFmpeg
+                FFmpeg seç
               </button>
               <button
                 onClick={() =>
@@ -1775,12 +1776,12 @@ export default function App() {
                   })
                 }
               >
-                选择 FFprobe
+                FFprobe seç
               </button>
             </div>
             <UpdateSettings updater={updater} />
-            <h3>最近项目</h3>            {recent.length === 0 ? (
-              <p className="muted small">保存或打开项目后会出现在这里。</p>
+            <h3>Son projeler</h3>            {recent.length === 0 ? (
+              <p className="muted small">Proje kaydettiğinizde veya açtığınızda burada görünür.</p>
             ) : (
               <div className="recent-list">
                 {recent.map((p) => (
@@ -1810,44 +1811,44 @@ export default function App() {
             <div className="future-feature">
               <CloudOff size={16} />
               <div>
-                <strong>云端与 API AI</strong>
-                <p>尚未接入；此版本仅执行本地编辑。</p>
+                <strong>Bulut ve API yapay zekâsı</strong>
+                <p>Henüz bağlı değil; bu sürüm yalnızca yerel düzenleme yapar.</p>
               </div>
             </div>
           </div>
           <footer>
-            <button onClick={() => setModal("about")}>关于</button>
+            <button onClick={() => setModal("about")}>Hakkında</button>
             <button className="primary" onClick={() => setModal(null)}>
-              完成
+              Tamam
             </button>
           </footer>
         </ModalShell>
       )}
       {recover && (
         <ModalShell
-          title="恢复上次编辑"
+          title="Son düzenlemeyi geri yükle"
           onClose={() => {
             setRecover(null);
           }}
         >
           <div className="modal-body">
             <p>
-              发现本机自动保存的项目 <strong>{recover.name}</strong>，包含{" "}
-              {recover.clips.length} 个片段。
+              Bu cihazda otomatik kaydedilmiş proje: <strong>{recover.name}</strong> · içinde{" "}
+              {recover.clips.length} klip var.
             </p>
-            <p className="muted">恢复后可继续编辑，并另存为项目文件。</p>
+            <p className="muted">Geri yükledikten sonra düzenlemeye devam edebilir ve proje dosyası olarak kaydedebilirsiniz.</p>
           </div>
           <footer>
-            <button onClick={() => setRecover(null)}>新建空项目</button>
+            <button onClick={() => setRecover(null)}>Boş proje oluştur</button>
             <button
               className="primary"
               onClick={() => {
                 s.setProject(recover);
                 setRecover(null);
-                notify("已恢复上次编辑");
+                notify("Son düzenleme geri yüklendi");
               }}
             >
-              恢复项目
+              Projeyi geri yükle
             </button>
           </footer>
         </ModalShell>
@@ -1868,7 +1869,7 @@ export default function App() {
                 notify(imported.warnings.join(" "));
               } else {
                 const cues = parseSubtitles(text);
-                if (!cues.length) throw new Error("字幕文件没有有效字幕");
+                if (!cues.length) throw new Error("Altyazı dosyasında geçerli altyazı yok");
                 s.addSubtitles(cues);
               }
             });

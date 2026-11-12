@@ -79,21 +79,21 @@
       },
       "assets": [
         {
-          "name": "午夜渐层",
+          "name": "Gece yarısı degradesi",
           "kind": "image",
           "width": 1920,
           "height": 1080,
           "duration": 0
         },
         {
-          "name": "四角星光",
+          "name": "Dört köşe yıldız ışığı",
           "kind": "image",
           "width": 512,
           "height": 512,
           "duration": 0
         },
         {
-          "name": "清亮提示",
+          "name": "Berrak bildirim",
           "kind": "audio",
           "width": 0,
           "height": 0,
@@ -265,7 +265,7 @@
       }
     },
     "text": {
-      "content": "REA 第二轮",
+      "content": "REA ikinci tur",
       "duration": 3
     },
     "checks": [
@@ -522,21 +522,21 @@
       },
       "assets": [
         {
-          "name": "午夜渐层",
+          "name": "Gece yarısı degradesi",
           "kind": "image",
           "width": 1920,
           "height": 1080,
           "duration": 0
         },
         {
-          "name": "四角星光",
+          "name": "Dört köşe yıldız ışığı",
           "kind": "image",
           "width": 512,
           "height": 512,
           "duration": 0
         },
         {
-          "name": "清亮提示",
+          "name": "Berrak bildirim",
           "kind": "audio",
           "width": 0,
           "height": 0,

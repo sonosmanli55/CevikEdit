@@ -18,7 +18,7 @@ await rpc('initialize', { protocolVersion: '2025-11-25', capabilities: {}, clien
 let state = (await tool('cevikedit_open')).structuredContent;
 if (!state.clips.length) {
   state = (await tool('cevikedit_import', { builtinId: 'bg-ocean' })).structuredContent;
-  await tool('cevikedit_edit', { revision: state.revision, actions: [{ type: 'setProject', name: 'MCP App 本地交互验收', width: 640, height: 360 }, { type: 'addAsset', assetId: state.assets[0].id, start: 0, duration: 5 }, { type: 'addText', text: '在 Codex 内剪辑', start: 0, duration: 5, fontSize: 48 }] });
+  await tool('cevikedit_edit', { revision: state.revision, actions: [{ type: 'setProject', name: 'MCP App yerel etkileşim kabulü', width: 640, height: 360 }, { type: 'addAsset', assetId: state.assets[0].id, start: 0, duration: 5 }, { type: 'addText', text: 'Codex içinde kurgula', start: 0, duration: 5, fontSize: 48 }] });
 }
 const ui = (await rpc('resources/read', { uri: 'ui://cevikedit/editor-v1.html' })).contents[0].text;
 const js = (await build({ entryPoints: ['tests/plugin-harness-client.ts'], bundle: true, platform: 'browser', format: 'esm', write: false })).outputFiles[0].text;
@@ -41,7 +41,7 @@ const server = createServer(async (req, res) => {
   res.setHeader('Content-Type', req.url === base + 'host.js' ? 'text/javascript' : 'text/html');
   if (req.url === base + 'widget') res.end(await readFile('dist/plugin.html', 'utf8'));
   else if (req.url === base + 'host.js') res.end(js);
-  else if (req.url === base) res.end('<!doctype html><meta charset="utf-8"><title>CevikEdit MCP App — 本地验证宿主</title><style>body{margin:0;background:#111;color:white;font:12px system-ui}p{margin:0;padding:6px}iframe{border:0;width:100%;height:calc(100vh - 28px)}</style><p>本地 MCP Apps 验证宿主 · 真实编辑器 · 非 Codex 宿主验收</p><iframe title="CevikEdit MCP App"></iframe><script type="module" src="host.js"></script>');
+  else if (req.url === base) res.end('<!doctype html><meta charset="utf-8"><title>CevikEdit MCP App — yerel doğrulama ana makinesi</title><style>body{margin:0;background:#111;color:white;font:12px system-ui}p{margin:0;padding:6px}iframe{border:0;width:100%;height:calc(100vh - 28px)}</style><p>Yerel MCP Apps doğrulama ana makinesi · gerçek düzenleyici · Codex dışı ana makine kabulü</p><iframe title="CevikEdit MCP App"></iframe><script type="module" src="host.js"></script>');
   else res.writeHead(404).end();
 });
 server.listen(0, '127.0.0.1', async () => { origin = `http://127.0.0.1:${(server.address() as any).port}`; const url = origin + base; await writeFile(path.join(output, 'url.txt'), url); console.log(url); });

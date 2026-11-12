@@ -1,114 +1,114 @@
-# 使用指南
+# Kullanım kılavuzu
 
-## 第一个项目
+## İlk proje
 
-启动桌面应用，确认“设置”显示 FFmpeg / FFprobe 可用。macOS 安装包已内置工具，无需额外安装；也可分别选择自定义可执行文件。新项目默认 1920×1080、30 fps；没有选中片段时，右侧项目参数可修改名称、画布比例、尺寸、帧率和背景。
+Masaüstü uygulamasını başlatın, "Ayarlar" bölümünde FFmpeg / FFprobe'in kullanılabilir olduğunu doğrulayın. macOS paketi araçları yerleşiktir, ekstra kurulum gerekmez; ayrıca ayrıca özel çalıştırılabilir dosyalar seçilebilir. Yeni proje varsayılan olarak 1920×1080, 30 fps'tir; hiçbir parça seçili değilse, sağ taraftaki proje parametreleri isim, tuval oranı, boyut, kare hızı ve arka planı değiştirilebilir.
 
-点击素材区“导入”，选择本地视频、图片或音频，也可以把本机文件拖进窗口。双击素材或点击素材的添加按钮将它加入时间线；拖到指定可编辑轨道可选择位置。导入可能需要探测、缩略图或本地预览代理转换。
+"İçe aktar" düğmesiyle yerel video, resim veya ses seçin; aynı zamanda dosyaları pencereye sürükle bırakabilirsiniz. Malzama çift tıklama ya da malzamanın ekleme düğmesi zaman çizelgesine ekler; belirli düzenlenebilir kanala sürükle bırakarak konum seçilebilir. İçe aktarma gerekebilir, tespit, kısaltma veya yerel ön izleme aracı dönüşümü.
 
-普通项目保存记录素材的绝对路径。移动或删除源文件后，素材会显示丢失，需要通过素材操作重新链接。项目文件本身不包含视频、音频或图片；跨文件夹搬移可使用下文的“收集项目素材”。
+Normal projelerde malzamanın mutlak yolları saklanır. Kaynak dosyayı taşıyıp sildikten sonra malzama kaybolma gösterilir, malzama işlemleriyle yeniden bağlanma gerekir. Proje dosyası kendisi video, ses veya resim içermez; klasörler arası taşıma için aşağıdaki "Projeyi topla" kullanılır.
 
-## 先预览再选段
+## Önce önizle, sonra böl
 
-单击媒体卡片可在中间预览视频、音频或图片。视频/音频支持播放、逐帧和设置入出点；焦点在源预览区时，`I` / `O` 标记当前位置，空格播放选段。点击“添加选中片段”插入当前时间线播放头位置，保留源素材入点，可一次撤销。双击卡片或点击加号仍添加完整素材。
+Medya kartına tıklayarak orta bölümde video, ses veya resmi ön izleyebilirsiniz. Video / ses oynatma, kare başına ilerleme ve giriş / çıkış noktası ayarı destekler; odak kaynak ön izleme alanındaysa, `I` / `O` işaretçisi şu konumu işaret eder, boşluk seçili parçayı oynatır. "Eklenen seçili parçayı ekle" ile mevcut zaman çizelgesi oynatma başı konumuna ekler, kaynak malzamanın girişini korur, bir kez geri alınabilir. Kartın çift tıklaması ya da artı düğmesi hâlâ tüm malzemeyi ekler.
 
-关闭源预览或点击时间线，返回项目播放器。锁定轨道不会接收片段，自动选择其他兼容轨道或创建新轨。选段至少为项目一帧；丢失或无法解码的素材需先处理。
+Kaynak ön izlemeyi kapatın ya da zaman çizelgesine tıklayın, proje oynatıcısına dönün. Kilitli kanal parça alamaz, otomatik olarak başka uygun kanalı seçer ya da yeni kanal oluşturur. Seçili parça en az proje bir çerçevesi kadar olmalıdır; kayıp ya da çözülemez malzaman önce işlenmelidir.
 
-素材区、播放器和右侧属性区之间的分隔线可拖动调整宽度，自动记住布局。聚焦分隔线后用左右箭头微调（Shift 加速）；双击或按 Home 恢复默认。缩小窗口会保留各区最小可用宽度，调整布局不影响项目撤销历史。
+Malzama bölmesi, oynatmaç ve sağ taraftaki özellik bölmesi arasındaki ayraç yatay olarak sürükle bırakılarak genişletilebilir, yerleşim otomatik hatırlanır. Ayraç odağa gelince yukarı / aşağı ok tuşlarıyla mikro ayar (Shift hızlandırma) yapılabilir; çift tıklama ya da Home tuşu varsayılana döndürür. Pencere küçültülürse her bölümün minimum kullanılabilir genişliği korunur, yerleşim düzenimi proje geri alma geçmişini etkilemez.
 
-## 时间线
+## Zaman çizelgesi
 
-点击片段选择，配合平台的多选修饰键选择多段；拖动片段改变时间或放到兼容轨道。拖片段两侧裁剪；将播放头放在片段内，使用分割按钮或 `⌘/Ctrl+B`。复制、粘贴、复制片段和删除都可撤销。
+Parça seçili, platform çoklu seçim kısayoluyla birden fazla parça seçilebilir; sürükleme parçayı değiştirir ya da uygun kanala yerleştirir. Sürükleme parçanın iki yanından kırpılır; oynatma başı parçada konumlandırılırsa, bölme düğmesi ya da `⌘/Ctrl+B` kullanılır. Kopyalama, yapıştırma, parça kopyalama ve silme geri alınabilir.
 
-时间线可以自由缩放和平移：用工具栏的放大/缩小按钮或滑块在 2–1600 px/s 之间调整，`Ctrl/⌘ + 滚轮` 会以鼠标所在时间为锚点缩放，`Shift + 滚轮` 或触控板横向手势左右平移，中键拖动可同时平移横纵方向，松手后会惯性滑行；时间线下方的迷你地图显示全片片段、可视窗口与播放头，点击即可跳转，工具栏“Harita”可开关。工具栏右侧显示当前可见时长；“适配”按可视宽度铺满整个工程，“播放头”把播放头移回视野中央。缩放和平移只改变视图，不会修改片段或产生撤销步骤。
+Zaman çizelgesi özgür şekilde ölçeklenip kaydırılabilir: araç çubuğundaki büyütme / küçültme düğmeleri ya da kaydırıcı ile 2–1600 px/s aralığında ayarlanır; `Ctrl/⌘ + tekerlek` fare konumunda sabit tutarak ölçekler, `Shift + tekerlek` ya da dokunmatik tarayıcı yatay hareketi yatay kaydırır, orta tuş sürüklenmesi yatay ve dikey kaydı eşler, serbest bırakılınca yerçekimi kayar; zaman çizelgesinin altındaki mini harita tüm parça çubuklarını, görünen pencereyi ve oynatma başını gösterir, tıklama ile atlar; araç çubuğundaki "Harita" aç / kapat. Araç çubuğunun sağında mevcut görünen süre gösterilir; "Uyarlama" görünen genişlikle tam projeyi doldurur, "Oynatma başı" oynatma başını görünen alanın merkezine taşır. Ölçeklendirme ve kaydırma yalnızca görünümü değiştirir, parçayı ya da geri alma adımını etkilemez.
 
-预览素材时，底部的“入轨方式”决定选段如何进入时间线：**追加到末尾** 放到目标轨道最后；**插入并后移** 在播放头处插入，跨点片段会被切开、同轨后续片段整体右移；**覆盖当前位置** 替换播放头处同一轨道的对应区间，被切到的片段保留两侧剩余部分。三种方式都只影响该轨道，各为一次撤销；锁轨会拒绝修改。
+Önizleme sırasında alt tabloda "Giriş yolu" seçilen yöntemin seçili aralığın zaman çizelgesine nasıl eklendiğini belirler: **Son uca ekle** hedef kanalın sonuna koyar; **Ekle ve sonları kaydır** oynatma başında koyar, kesişen parçayı böler ve aynı kanalda sonraki parçaları sağa kaydırır; **Geçerli konuma yaz** oynatma başındaki aynı kanaldaki aralığı değiştirir, kesilen parçaların iki yanı kalan kısmı korur. Üç yöntemden yalnızca hedef kanalı etkiler, ayrı ayrı geri alınabilir; kilitli kanal reddeder.
 
-“音频”页的“分离音频”会创建独立声音轨并自动静音源视频。分离后两条片段保持关联：移动、裁剪、分割、删除、复制/粘贴或复制片段时一起变化。右侧“音频”页的“关联片段”可见说明，点击“解除关联”后两侧独立编辑；解除和后续移动都可撤销。分离音轨沿用原片段的音量、音量关键帧和声音淡入淡出，可继续单独调整。
+"Audio" sayfasındaki "Ses ayrıştırma" ayrı bir ses kanalı oluşturur ve kaynak video sessizleştirilir. Ayrılma sonrası iki parça bağ kurulu kalır: taşıma, kırpma, bölme, silme, kopyala / yapıştırma veya parça kopyalama birlikte değişir. Sağ taraftaki "Audio" sayfasındaki "Bağlı parçalar" açıklaması görünür; "Bağlantıyı kes" ile bağ kopar, iki taraf ayrı ayrı düzenlenir; kopma ve sonraki taşıma geri alınabilir. Ayrıştırılmış ses kanalı orijinal parçanın ses seviyesi, ses anahtar kareleri ve ses fade'ini kullanmaya devam eder, ayrı ayrı ayarlanabilir.
 
-“音频”页下方还有本地声音工具（界面完全为土耳其语）。选中一个带声音的片段后点击“Ses düzeyini ölç”测得其响度（LUFS）、真峰值（dBTP）与响度范围；随后选择目标（社媒 -14、在线视频 -16、对白 -18、广播 -23），点击“Ses düzeyini normalleştir”把增益写入片段音量和现有音量关键帧，同时把真峰值限制在 -1 dBTP。测量与写入都在本机完成，不上传音频。
+"Audio" sayfasının altında yerel ses araçları gelir (arayüz tamamen Türkçe). Sesli parça seçildiğinde "Ses düzeyini ölç" ile parçanın gürültü (LUFS), gerçek en yüksek değer (dBTP) ve gürültü aralığı ölçülür; sonra hedef seçilir (sosyal medya −14, çevrimiçi video −16, diyalog −18, yayın −23) ve "Ses düzeyini normalleştir" ile kazanım parçanın ses seviyesine ve mevcut ses anahtar karelerine yazılır, gerçek en yüksek değer −1 dBTP ile sıkıştırılır. Ölçüm ve yazma tamamen yerel yapılır, ses yüklenmez.
 
-压低音乐：分别选中语音片段和音乐片段，用“Seçileni ekle”加入“Konuşma”和“Müzik”列表，设置 Kısma miktarı（负数 dB）与 Geçiş süresi（秒），点击“Müziği konuşma altında kıs”。若想只在真正说话的地方压低，先点“Konuşma aralıklarını algıla”：应用会在本机解码该片段并做离线语音检测（噪声底、迟滞、合句、去爆音），检测到的区间显示为“X aralık algılandı”，再用“Yalnızca gerçek konuşma”决定是否按这些区间压低；关闭该项则退回按整段片段压低。音乐会在语音区间内降低、语音前后按过渡时长回落到原音量，结果写成普通音量关键帧，可在“动画”页继续编辑，预览与导出使用同一数值。若所选音乐与语音区间不重叠、或音乐轨道被锁定，会拒绝修改。详见 [本机验证](VALIDATION.md)。
+Müzik baskılması: önce "Konuşma" ve "Müzik" listelerine "Seçileni ekle" ile sesli ve müzik parçalarını ekleyin, Kısma miktarı (negatif dB) ve Geçiş süresi (saniye) ayarlayın, "Müziği konuşma altında kıs" tuşuna basın. Sadece gerçekten konuşulan yerlerde baskı istiyorsanız önce "Konuşma aralıklarını algıla": uygulama parçayı yerelde çözer ve çevrimdışı konuşma algılama (gürültü tabanı, gecikme, birleşme, patlama atma) yapar, algılanan aralıklar "X aralık algılandı" olarak gösterilir ve "Yalnızca gerçek konuşma" ile hangi aralıklarda baskı yapılacağına karar verilir; kapalıysa bütün parça bazında baskıya dönülür. Müzik konuşma aralıkları içinde düşürülür, konuşma öncesi/sonrası geçiş süresiyle orijinal ses seviyesine döner; sonuç normal ses anahtar karelerine yazılır, "Animasyon" sayfasından düzenlenebilir; önizleme ve dışa aktarma aynı sayı kullanır. Seçili müzik ile konuşma aralığı örtüşmüyorsa ya da müzik kanalı kilitliyse değişiklik reddedilir. Detay: [Yerel doğrulama](VALIDATION.md).
 
-轨道可以重命名、排序、删除、锁定、静音或隐藏。删除有片段的轨道先确认，删除保留素材库，并可一次撤销恢复轨道与片段；锁轨禁止删除/重命名/移动，移动也不会交换相邻锁轨。锁定禁止修改，仍会参与播放和导出；隐藏画面只隐藏视频图层，其声音仍可听见，需要单独静音。音频轨道不会作为画面绘制。拖动时间线上方分隔条可调整高度，聚焦分隔条后也能用上下箭头调整。
+Kanal yeniden adlandırılabilir, sıralanabilir, silinebilir, kilitlenebilir, sessize alınabilir ya da gizlenebilir. Parçalı kanal silinmeden önce onay istenir, malzama kitaplığı korunur ve kanal ile parçalar bir kez geri alınabilir; kilitli kanal silme / yeniden adlandırma / taşımayı reddeder, taşıma komşu kilitli kanalları değiştirmez. Kilitli kanal değişikliği reddedilir, oynatma ve dışa aktarmada yine de katılır; gizlenen görsel yalnızca video katmanını gizler, ses hâlâ duyulur, ayrı ayrı sessize alınabilir. Ses kanalları resim olarak çizilmez. Üstteki ayracın sürükle bırakılarak yükseklik ayarı yapılabilir, odak ayracında da ok tuşları ile ayar yapılabilir.
 
-吸附让片段边缘靠近时间线标记或其他边缘时对齐。磁吸在删除片段时压缩同轨后续片段；它不是所有剪映主轨磁吸行为的完整实现。同轨重叠片段显示为不同子行，避免重叠后无法选中。
+Asitleştirme parça kenarlarını zaman çizelgesi işaretleri veya diğer kenarlara yaklaştığında eşleştirir. Mıknatıs silme işleminde aynı kanaldaki sonraki parçaları sıkıştırır; tüm ClipCut ana kanal mıknatısı davranışının tam uygulaması değildir. Aynı kanalda örtüşen parçalar farklı alt satırlar halinde gösterilir, örtüşmeyi seçmek güçleşmesin diye.
 
-## 画面、声音与动画
+## Görsel, ses ve animasyon
 
-选中画面片段后，在右侧调整位置、缩放、旋转、翻转和透明度。播放器中拖动所选画面可实时预览位置变化；该属性有关键帧时整条路径一起移动，松开产生一次撤销。播放头到项目末尾时保留最后一帧供查看。“调整”或本地效果预设控制亮度、对比度、饱和度、色温和模糊。
+Görsel parça seçildiğinde sağ taraftan konum, ölçek, döndürme, çevirme ve opaklık ayarlanır. Oynatıcıda seçili görseli sürüklemek konum değişimini gerçek zamanlı ön izler; bu özelliğe anahtar kare varsa yol boyunca birlikte hareket eder, bırakma tek geri alma oluşturur. Oynatma başı proje sonuna geldiğinde son kare saklanır. "Ayarlar" ya da yerel etki ön ayarları parlaklık, kontrast, doygunluk, renk sıcaklığı ve bulanıklığı kontrol eder.
 
-“音频”控制音量、静音与声音淡入淡出；画面淡入淡出与声音分别设置。带声音的视频可通过分离音频操作创建独立声音轨，原视频会静音。常规速度范围为 0.1–8 倍；时长随速度改变，音频采用保持音高的处理。
+"Audio" sesi, sessize alma ve ses fade'ini kontrol eder; görsel fade'leri ve ses fade'leri ayrı ayrı ayarlanır. Sesli video, ses ayrıştırma işlemiyle ayrı ses kanalı oluşturabilir; orijinal video sessizleşir. Normal hız aralığı 0,1–8 kat; süre hızla değişir, ses yüksekliğini koruyan işlem kullanılır.
 
-选中视频片段后，在“变速”页的“片段工具”中可倒放或定格。倒放只处理该片段当前使用的源区间，生成一份本地缓存 MP4 并替换片段素材；视频和原有声音一起反向，时间线起点、时长、速度、关键帧与淡化不变，原素材仍保留在媒体库。操作显示进度并可取消；受内存预算限制，1080p30 片段最长约 34 秒，4K30 约 13 秒，更长片段请先分割。定格要求播放头位于选中片段内；设置“定格时长”后点击“定格当前帧”，会在文字轨下方、普通视频轨上方生成独立图片片段，继承当前画面的位置、缩放、调色、裁剪、抠像和蒙版，之后可在“画面”的“片段时长”中调整持续时间。定格图片没有自身声音，底层视频声音会继续。两类衍生文件保存在用户数据目录的 `reverse-media` 与 `freeze-frames`，项目保存后会引用这些文件；不要在项目仍使用时手动删除缓存。
+Video parçası seçildiğinde "Hız" sayfasındaki "Parça araçları" ile geri sarma veya dondurma yapılabilir. Geri sarma yalnızca parçada kullanılan kaynak aralığını işler, yerel önbellek MP4 üretir ve parçayı değiştirir; video ve orijinal ses birlikte ters çevrilir, zaman çizelgesi başlangıcı, süresi, hızı, anahtar kareleri ve fade'ler değişmez, orijinal malzama kitaplığında kalır. İşlem ilerleme gösterir ve iptal edilebilir; bellek bütçesi kısıtı, 1080p30 parçası yaklaşık 34 s, 4K30 yaklaşık 13 s'yi izler; daha uzun parça önce bölünmelidir. Dondurma için oynatma başının seçili parçada olduğuna gerek vardır; "Durdurma süresi" ayarlandıktan sonra "Şu çerceveyi dondur" ile, metin kanalının altında ve normal video kanalının üstünde ayrı resim parçası oluşturulur, mevcut görselin konumunu, ölçü, renk ayarı, kırpma, kesme ve maskeyi miras alır, sonrasında "Görsel" sayfasındaki "Parça süresi" ile süre ayarlanabilir. Dondurma resmi kendi sesi taşımaz, altta video sesi çalışmaya devam eder. İki türetilmiş dosya kullanıcı veri dizinindeki `reverse-media` ve `freeze-frames` alt dizinlerine konur; proje kaydedildiğinde referans verilir; kullanılma sırasında önbellek dosyaları elle silinmemelidir.
 
-移动播放头，点击属性旁的菱形添加关键帧；已有关键帧的属性后续调整写入当前时间。在“动画”中通过曲线和全片段列表查看关键帧：点击曲线定位播放头，拖动圆点同时调整时间与数值，或选中后精确输入时间和数值；可复制、粘贴到播放头、跳转或删除。插值可选线性、缓入、缓出、缓入缓出，曲线使用与预览、导出相同的窗口化公式。分割、裁剪和变速保留曲线与淡化包络；重新设置淡化参数会建立当前片段的新包络。插值可选具名预设，也可以切到“Özel Bézier”直接拖动两个控制点，或输入 X1/Y1/X2/Y2；Y 可以超出 0–1 制造回拉与过冲，X 必须保持单调。预览使用精确解，导出用 24 段折线近似同一条曲线。
+Oynatma başına taşınır, özelliklerin yanındaki diamant düğmesiyle anahtar kare eklenir; mevcut anahtar kare özelliklerine sonrasında yazma yapılır. "Animasyon" sayfasında çizgi ve tüm parça anahtar kare listesi ile anahtar kareleri görüntülenir: çizgide tıklama oynatma başını bulur, noktayla sürüklenme zaman ve değeri eşler, ya da seçilip hassas zaman ve değer girilir; kopyalama, oynatma başına yapıştırma, atlama veya silme yapılabilir. İlerleme seçenekleri: lineer, giren, çıkan, giren-çıkan; çizgi, ön izleme ve dışa aktarma için aynı pencereleme formülü kullanılır. Bölme, kırpma ve hız değişimi ile çizgi ve fade paketini korur; fade parametreleri yeniden ayarlanırsa mevcut parça için yeni paket oluşturulur. Adlandırılmış ön ayarlar veya "Özel Bézier" ile iki kontrol noktası sürüklenebilir ya da X1/Y1/X2/Y2 girilir; Y 0–1 dışında kullanılarak geri çekme ve aşırı geçiş üretilebilir, X tek monoton olmalıdır. Önizleme kesin çözümü, dışa aktarma 24 parçaya bölünmüş çizgi yaklaşımını kullanır.
 
-文本区提供 25 款可编辑模板，按标题、下三分之一、字幕、标记、动态、社媒分类；点击加号添加到播放头，右侧继续编辑文字。特效区有 8 款调色和 8 款动态特效，后者会覆盖对应属性的关键帧，其余参数保留。转场区提供 8 款预设，先选同轨相邻画面的前一段，再设置时长并点击加号；除「经过背景」外，后段会提前重叠，不裁掉源素材。转场不跨越间隙，不允许锁轨或与后续片段冲突，时长按帧限制到两段各一半以内。悬停或键盘聚焦缩略图可预览，添加与应用均支持一次撤销。片段淡入淡出保留在特效区。详见 [创意素材库](CREATIVE_LIBRARY.md)。右侧“画面”下的“裁剪”按源空间比例截取素材；“抠像”用 RGB 颜色、相似度与过渡移除选定颜色；“蒙版”提供矩形/椭圆、尺寸、羽化与反选。各功能默认未启用，清除操作移除对应效果，锁轨时禁止修改。它们有实际预览和导出验证，仍不是商业 AI 人物抠像或完整蒙版系统。
+Metin alanı 25 düzenlenebilir şablon içerir, başlık, alttan üçte, altyazı, etiket, animasyon ve sosyal medya kategorilerine göre; artı düğmesi oynatma başına ekler, sağ taraftan devam edilir. Etkiler bölgesi 8 renk ve 8 animasyon efekti içerir, animasyonlar ilgili özelliğe anahtar kareı üzerine yazar, diğer parametreler korunur. Geçiş bölgesi 8 ön ayar içerir, önce aynı kanalda komşu parçanın önceki bölümünü seçip sonra süre ayarlayıp artı basılır; "arka planda" dışındaki son bölüm önceden örtüşür, kaynak malzama kırpılmaz. Geçişler arasında boşlukta geçmez, kilitli kanal ve sonraki parçayla çakışma reddedilir, süre iki parça için yarım çerçeve sınırında tutulur. Kısa görüntü veya klavye odağı ön izleme yapabilir, ekleme ve uygulama bir kez geri alınabilir. Parça fade'leri etkiler bölgesinde tutulur. Detay: [Yaratıcı malzama](CREATIVE_LIBRARY.md). Sağ taraftaki "Görsel" altındaki "Kırpma" kaynak uzaklık oranında keser; "Kesme" RGB renk, benzerlik ve geçişle seçili rengi kaldırır; "Maske" dikdörtge / elips, boyut, yumuşatma ve ters seçim sağlar. Bu özellikler varsayılan kapalıdır, temizleme işlemi kaldırdığı etkiyi kaldırır, kilitli kanalda değişiklik reddedilir. Gerçek ön izleme ve dışa aktarma doğrulamaları vardır, ticari AI karakter kesme veya tam maske sistemi değildir.
 
-## 文字与字幕
+## Metin ve altyazı
 
-在“文本”添加文字或本地样式预设。右侧编辑内容、字号、内置 Noto Sans SC 或本机字体、颜色、粗体、对齐、描边、背景，以及排版区的行高、内边距、圆角与文字阴影。模板由本项目自行定义，不包含剪映字体或模板素材。
+"Metin" ekleme düğmesiyle metin veya yerel stil şablonu eklenir. Sağ taraftan içerik, boyut, yerleşik Noto Sans SC ya da yerel yazı tipi, renk, kalınlık, hizalama, çizgi, arka plan ve yerleşim satır yüksekliği, iç kenar boşluğu, köşe radyosu ve metin gölgesi düzenlenir. Şablonlar bu projede kendisi tanımlıdır, ClipCut yazı tipleri veya şablon malzemeleri içermez.
 
-在“字幕”导入 SRT 或基本 WebVTT。字幕成为文字轨上的可编辑片段，时间按项目帧率处理。导出字幕产生 SRT，包含项目中的文字片段；字幕文件只保存时间与文本，不保留样式、画面位置或文字动画，需要这些效果时请导出视频。仍不接入云端自动字幕。
+"Altyazı" SRT veya temel WebVTT içe aktarır. Altyazı yazı kanalındaki düzenlenebilir parça olur, zaman proje kare hızına göre işlenir. Dışa aktarılan altyazı SRT üretir, projedeki metin parçalarını içerir; altyazı dosyası yalnızca zaman ve metni kaydeder, stil, görsel konum veya metin animasyonu kaydedilmez, bu etkiler gerekirse video dışa aktarılmalıdır.
 
-字幕面板的“自动字幕”可用本机 whisper.cpp 识别所选片段的声音，不经过云端。选择含声音的片段（未选中时取播放头下片段）、语言和 GGML 模型后点击“生成字幕”；FFmpeg 只提取该片段对应的源区间，识别结果按片段起点、变速和项目帧率写入新的“字幕”文字轨，整个写入一次撤销，过程可取消。需要自行准备 whisper.cpp 的 `whisper-cli` 和 `.bin` 模型；应用不上传音频，也不自动下载程序或模型。发现顺序、放置位置、隐私边界和限制见 [本地 Whisper 自动字幕](TRANSCRIPTION.md)。
+Altyazı panelindeki "Otomatik altyazı", yerel whisper.cpp ile seçili parçanın sesi tanır, buluta gitmez. Sesli parça seçilirse (hiçbir şey seçilmezse oynatma başındaki parça), dil ve GGML modeli ile "Otomatik altyazı oluştur" basılır; FFmpeg yalnızca parçada ilgili kaynak aralığını çıkarır, tanıma sonucu parça başlangıcı, hız ve proje kare hızına göre yeni "Altyazı" yazı kanalına yazar, tüm yazma tek geri alma, süreç iptal edilebilir. whisper.cpp'nin `whisper-cli` ve `.bin` modeli kendisi hazırlanmalıdır; uygulama ses yüklemez, otomatik indirme yapmaz. Keşif sırası, yerleşim, gizlilik sınırları ve kısıtlar için [Yerel Whisper otomatik altyazı](TRANSCRIPTION.md) bakın.
 
-字幕面板还可选择文字轨、搜索、多选、点击定位，以及编辑内容和起止秒数。批量操作包括按播放头拆分、合并所选字幕、时间偏移、文字查找替换、统一样式和文字动画；先检查修改再应用，一次撤销即可恢复。时间按项目帧率对齐，锁轨禁止修改；编辑状态变化后需重新检查批量计划。统一样式保留各句文字、时间、位置和动画，平移时间保留片段内部动画。
+Altyazı panelinde ayrıca yazı kanalı seçimi, arama, çoklu seçim, tıklama konumlandırma ve içerik ile başlangıç / bitiş saniyesi düzenlenebilir. Toplu işlemler: oynatma başına bölme, seçili altyazıların birleştirilmesi, zaman kaydırması, metin bul ve değiştirme, tek tip stil ve metin animasyonu; önce inceleme yapılıp sonra uygulanır, tek geri alma geri getirir. Zaman proje kare hızına göre hizalanır, kilitli kanalda değişiklik reddedilir; düzenleme durumu değiştiğinde toplu plan yeniden kontrol edilmelidir. Tek tip stil her cümlenin metnini, zamanı, konumunu ve animasyonunu korur, zaman kaydırması parça içindeki animasyonu korur.
 
-拆分要求播放头位于所选字幕内部，且两侧至少各留一帧：左段保留 `[开始, 播放头)`，右段为 `[播放头, 结束)`；文本按字符比例切开，并优先选择附近的标点、换行或空白。合并只处理同一文字轨上连续且相接或重叠的字幕，时间取最早开始到最晚结束，文本用换行拼接，样式和局部动画沿用最早一条；有间隙时先调整时间再合并。拆分和合并都立即应用，各算一次撤销。
+Bölme, seçili altyazının içinde olduğuna ve iki yanında en az bir çerçeve bırakılması gerektiğine bağlıdır: sol bölüm `[başlangıç, oynatma başı)`, sağ bölüm `[oynatma başı, bitiş)`; metin karakter oranında kesilir, yakın noktaya / satır sonuna / boşluğa öncelikle seçilir. Birleştirme yalnızca aynı yazı kanalında ve devam eden / örtüşen altyazıları kabul eder, zaman en erken başlangıçtan en geç bitişe kadardır, metin satır sonuna göre birleştirilir, stil ve yerel animasyon en eski altyazıdan alınır; boşluk varsa önce zaman ayarlanır sonra birleştirilir. Bölme ve birleştirme anında uygulanır, ayrı ayrı geri alınır.
 
-“统一样式”可以直接修改字体、字号、文字/描边/背景颜色、描边宽度、行高、内边距、圆角、粗体、背景和对齐，也可以先选一条参考字幕复制样式再覆盖单项字段。它只改变样式，不改每条字幕的文案、时间段、位置和动画。若只想改一条字幕的完整样式，仍可点击该字幕后在右侧“文本”面板编辑。
+"Tek stil" doğrudan font, boyut, metin / çizgi / arka plan rengi, çizgi kalınlığı, satır yüksekliği, kenar boşluğu, köşe radyosu, kalınlık, arka plan ve hizalama değiştirebilir; önce bir referans altyazısından stil kopyalanıp tek alan üzerine yazılabilir. Yalnızca stili değiştirir, her altyazının metnini, zaman aralığını, konumunu ve animasyonunu değiştirmez. Tek altyazının tam stilini değiştirmek istiyorsa, o altyazı seçiliyse sağ taraftaki "Metin" panelinden düzenlenebilir.
 
-“文字动画”为所选字幕统一设置入场（无、淡入、上滑、缩放）、停留（静止、呼吸）和出场（无、淡出、下滑、缩放），并填写入/出场时长。时长按帧对齐，且每条字幕的入场和出场都不会超过该条时长的一半，短字幕会自动缩短。应用动画会替换所选字幕原有的位置、缩放和透明度关键帧，保留旋转和音量关键帧；逐条不同的动画仍可在右侧关键帧面板继续调整。字幕文件不保存动画，预览与导出的视频才保留效果。
+"Metin animasyonu" seçili altyazı için giriş (yok, fade, yükseliş, ölçek), kalıcılık (sakin, nefes) ve çıkış (yok, fade, iniş, ölçek) ayarlar ve giren / çıkış sürelerini doldurur. Süreler kareye hizalanır ve her altyazının giriş ve çıkışı o altyazının süresinin yarısından fazla tutulmaz, kısa altyazılar otomatik kısılır. Animasyon, seçili altyazının mevcut konum, ölçek ve opaklık anahtar karelerini değiştirir, döndürme ve ses anahtar karelerini korur; parça parça farklı animasyonlar sağ taraftaki anahtar kare panelinden devam ettirilebilir. Altyazı dosyası animasyonu kaydetmez, ön izleme ve dışa aktarılan video etkileri korur.
 
-## 模板与批量替换
+## Şablonlar ve toplu değiştirme
 
-“模板”页把常用版式变成可复用起点。**Projeyi şablon yap** 把当前工程保存为模板：画布、轨道、样式、动画和时间全部保留，但素材只记录为“媒体占位”（不写入本机路径，也不复制文件），没有任何片段使用的素材会被丢弃。随包自带三套原创模板：**Açılış kartı**（横屏 6 秒开场）、**Dikey sosyal video**（9:16，8 秒）、**Altyazı bloğu**（横屏 12 秒，三条顺序字幕）。
+"Şablon" sayfası sık kullanılan yerleşimleri yeniden kullanılabilir başlangıçlara dönüştürür. **Projeyi şablona kaydet** mevcut projeyi şablona çevirir: tuval, kanallar, stiller, animasyonlar ve zaman tam korunur; medya yalnızca "Medya yerleştirmesi" olarak kaydedilir (yerel yol yazılmaz, dosya kopyalanmaz), hiçbir parça tarafından kullanılmayan medya atılır. Paket içinde üç tane özgün şablon vardır: **Açılış kartı** (yatay 6 sn açılış), **Dikey sosyal video** (9:16, 8 sn), **Altyazı bloğu** (yatay 12 sn, üç sıralı altyazı).
 
-点选模板后填写新工程名，逐项选择媒体（可选“Yerleşik varsayılan”使用内置素材，或选择当前工程素材库中的文件），并在同一表单里修改全部文案，然后点 **Bu şablonla proje oluştur**：生成的是一份独立新工程，轨道、片段与关键帧 ID 全部重新生成，原模板不变。新素材从自身开头计时；若比模板片段短，片段会按帧缩短并同步裁剪关键帧与淡化，同时提示。可选占位留空时只跳过相关片段并给出警告；必需占位留空会拒绝创建。
+Şablon seçilince yeni proje adı girilir, her bir medya (isteğe bağlı "Yerleşik varsayılan" ile yerleşik malzama ya da mevcut projedeki malzama kitaplığından dosya) ve tüm metinler aynı forma girilir, sonra **Bu şablonla proje oluştur**: üretilen bağımsız yeni projedir, kanallar, parçalar ve anahtar kare kimlikleri yeniden üretilir, orijinal şablon değiştirilmez. Yeni malzama kendi başlangıcıyla saati başlatır; şablon parçası kısa ise parça kare basmasıyla kısılır ve anahtar kare / fade ile senkron kırpar, uyarı verir. Opsiyonel yerleştirme boş bırakılırsa ilgili parçalar atılır ve uyarı verilir; zorunlu yerleştirme boş bırakılırsa oluşturma reddedilir.
 
-**İçe aktar / 导出** 用于在电脑之间共享 `.cevikedit-template` 文件。导入前会完整校验：任何指向本机文件路径的素材、越界占位路径、媒体类型不符、重复占位键、超过 100 个媒体或 200 个文本占位、非图片封面都会被拒绝，并显示土耳其语原因。模板存放在用户数据目录的 `templates/`，删除模板只删除该文件。
+**İçe aktar / dışa aktar** `.cevikedit-template` dosyalarının bilgisayarlar arasında paylaşılması içindir. İçe aktarmadan önce tam doğrulama yapılır: yerel yol içeren malzama, çarpanlı yerleştirme yolları, medya tip uyumsuzluğu, tekrarlı yerleştirme anahtarları, 100 malya / 200 metin yerleştirmesinden fazla, resimsiz kapak reddedilir ve Türkçe neden gösterilir. Şablonlar kullanıcı veri dizinindeki `templates/` altında durur, şablon silme yalnızca o dosyayı siler.
 
-## 导入剪映本地项目
+## ClipCut yerel projesi içe aktarma
 
-在桌面端“文件”菜单选择“导入剪映项目文件夹”或“导入剪映草稿文件”。项目文件夹包含多个时间线时，会推荐上次活动的时间线；确认名称后导入，空白主时间线不会自动替代活动时间线。也可明确选择某条时间线的草稿文件。
+Masaüstünde "Dosya" menüsünde "ClipCut projesi klasörünü içe aktar" ya da "ClipCut taslak dosyasını içe aktar" seçilir. Proje klasöründe birden fazla zaman çizelgesi varsa, son geçerli zaman çizelgesi öncelikli önerilir; isim doğrulandıktan sonra içe aktarılır, boş ana zaman çizelgesi otomatik olarak geçerli zaman çizelgesini değiştirmez. Belirli bir zaman çizelgesinin taslak dosyası da seçilebilir.
 
-支持明文 JSON 和本轮验证的本地不透明载体。文件必须通过格式与完整性检查，失败会保留当前编辑。整个过程不修改原草稿；导入后保存为 `.cevikedit`。移动过的源媒体需要重新链接。
+Açık JSON ve bu tur doğrulanan yerel opak taşıyıcı desteklenir. Dosya biçim ve bütünlük kontrolünden geçmelidir, başarısız olursa mevcut düzenleme korunur. Tüm süreç orijinal taslak değiştirmez; içe aktarımdan sonra `.cevikedit` olarak kaydedilir. Taşınmış kaynak medya yeniden bağlanmalıdır.
 
-这是有损导入：基础视频、声音、文字和常规变换可以转换；字体排版、复杂效果等会显示警告。请核对画面、声音和导出，版本覆盖见 [互通说明](CAPCUT_INTEROP.md)。浏览器预览只支持明文文件，完整目录选择与解码需桌面客户端。
+Bu kayıtsız bir içe aktarımdır: temel video, ses, metin ve normal dönüşümler dönüştürülebilir; yazı tipi yerleşimi, karmaşık etkiler uyarı gösterir. Görüntüyü, sesi ve dışa aktarmayı doğrulayın; sürüm kapsamı için [İkili çalışma](CAPCUT_INTEROP.md) bakın. Tarayıcı ön izlemesi yalnızca açık dosyaları destekler, tam klasör seçimi ve çözüm için masaüstü istemcisine gerek vardır.
 
-## 保存、恢复与导出
+## Kaydetme, kurtarma ve dışa aktarma
 
-使用 `⌘/Ctrl+S` 保存 `.cevikedit` 项目。“文件”可打开、另存为或新建项目。最近项目显示在设置中。本地自动保存采用延迟写入，启动时发现可恢复项目会提示恢复；操作完成后仍应保存到自己的文件位置。
+`⌘/Ctrl+S` ile `.cevikedit` projesini kaydedin. "Dosya" açma, kaydetme ya da yeni proje yapabilir. Son proje ayarlarda gösterilir. Yerel otomatik kaydetme gecikmeli yazma kullanır, başlatma sırasında kurtarılabilir proje bulunduğunda kurtarma isteği gösterilir; işlem sonrası yine de kendi dosya konumuna kaydedilmelidir.
 
-在“文件 → 收集项目素材…”选择目标文件夹，应用创建包含 `proje.cevikedit`、`media/`、土耳其语 `KULLANIM.txt` 与首次收集校验清单的新文件夹（文件夹名为“项目名-medya-paketi-编号”）。共用原文件只复制一份，包含媒体库中未上时间线的素材。移动整个文件夹后打开其中的项目即可继续编辑；直接保存保留相对路径，新导入素材也复制进包。丢失的包内文件不会阻止保存其他编辑，播放/导出仍需重新链接。预览缓存和系统字体不打包，系统字体需在目标电脑安装。`manifest.json` 是首次收集的历史校验清单，不随编辑更新。
+"Files → Projeyi topla..." ile hedef klasör seçilir, `proje.cevikedit`, `media/`, Türkçe `KULLANIM.txt` ve ilk toplama doğrulama listesi içeren yeni bir klasör oluşturulur (klasör adı "proje-adı-medya-paketi-numara"). Paylaşılan orijinal dosyalar yalnızca bir kez kopyalanır, medya kitaplığında zaman çizelgesinde kullanılmayan malzama içerir. Tüm klasör taşınırken içinde açılan proje düzenlemeye devam eder; doğrudan kaydetme göreli yolları korur, yeni içe aktarılan malzama da pakete kopyalanır. Paket içi eksik malzama kaydetme diğer düzenlemeyi engellemez, oynatma / dışa aktarma yine yeniden bağlanmalıdır. Önizleme önbelleği ve sistem yazı tipleri paketlenmez, sistem yazı tipi hedef bilgisayarda kurulmalıdır. `manifest.json` ilk toplamada kullanılan geçmiş doğrulama listesidir, düzenlemelerle güncellenmez.
 
-导出范围支持整片、选中片段覆盖区间、自定义起止秒数。区间包含该时段全部可见图层和未静音声音，以及片段之间的空隙；不是只导出选中图层。
+Dışa aktarma kapsamı tamam, seçili parça veya özel başlangıç / bitiş saniyeli aralık destekler. Aralık o zaman dilimindeki tüm görünen katmanları ve sessiz olmayan sesleri, parçalar arasındaki boşlukları içerir; yalnızca seçili katman dışa aktarılmaz.
 
-点击导出选择保存位置、分辨率、帧率、画质和 MP4 / MOV。当前两个容器均编码为 H.264 / AAC。导出使用原素材和本机 FFmpeg，不上传媒体。进度窗口可取消；只有成功完成才替换目标文件。
+Dışa aktarma tuşuna basın, kaydetme konumu, çözünürlük, kare hızı, kalite ve MP4 / MOV seçilir. İki container şu anda H.264 / AAC ile kodlanır. Dışa aktarma orijinal malzama ve yerel FFmpeg kullanır, medya yüklenmez. İlerleme penceresi iptal edilebilir; yalnızca başarılı tamamlama hedefi değiştirir.
 
-导出前会显示帧数、峰值内存估算与提示，并列出该项目里的 HDR 源；4K 与超大工程会提示先降低分辨率或分段导出，超出内存预算时直接阻止开始。HDR（PQ/HLG）素材导入后带 HDR/HLG 徽标，导出时会自动色调映射为 SDR BT.709，文件写入 bt709 标记；当前不输出 HDR 成片。
+Dışa aktarma öncesi çerçeve sayısı, en yüksek bellek tahmini ve uyarılar gösterilir, projedeki HDR kaynakları listelenir; 4K ve çok büyük projelerde önce çözünürlük düşürme ya da bölme önerilir, bellek bütçesini aşarsa başlatma doğrudan reddedilir. HDR (PQ/HLG) malzama içe aktarıldıktan sonra HDR/HLG rozeti taşır, dışa aktarım sırasında otomatik olarak SDR BT.709'e ton eşleme yapar, dosya bt709 işareti yazar; şu an HDR dışa aktarmanız yapılmaz.
 
-“文件 → Taslak değişim dosyasını dışa aktar (JSON)”写出开放纯文本草稿交换文件，可被 CevikEdit 重新导入；它不是剪映加密草稿，剪映无法直接打开。
+"Files → Taslak değişim dosyasını dışa aktar (JSON)" açık metin taslak değişim dosyasını yazar, CevikEdit tarafından yeniden içe aktarılabilir; ClipCut şifreli taslak değildir, ClipCut doğrudan açamaz.
 
-若项目引用的源时间超出文件、素材丢失、文字图层过大或参数超出支持范围，导出会给出错误，先修正项目再重试。Chromium 预览不支持的编码会尝试代理；若代理转换失败，界面提示预览问题，导出是否可用仍取决于原素材与 FFmpeg 能力。
+Projenin kaynak zamanı dosya, malzama kaybı, metin katmanı çok büyük ya da parametreler destek aralığının dışındaysa dışa aktarma hata verir, önce proje düzeltilir sonra yeniden denenmelidir. Chromium ön izlemesi desteklenmeyen kodlamayı araçla deneyebilir; araç dönüşü başarısızsa arayüz ön izleme sorununu söyler, dışa aktarmanın kullanılabilirliği yine orijinal malzama ve FFmpeg yeteneğine bağlı kalır.
 
-## 快捷键
+## Kısayollar
 
-| 操作 | macOS / Windows、Linux |
+| İşlem | macOS / Windows, Linux |
 | --- | --- |
-| 播放 / 暂停 | Space |
-| 分割 | ⌘ / Ctrl + B |
-| 复制 / 粘贴 | ⌘ / Ctrl + C / V |
-| 复制片段 | ⌘ / Ctrl + D |
-| 撤销 / 重做 | ⌘ / Ctrl + Z / Shift + Z |
-| 全选片段 | ⌘ / Ctrl + A |
-| 删除 | Delete / Backspace |
-| 前后帧 | ← / → |
-| 前后 1 秒 | Shift + ← / → |
-| 项目新建 / 打开 / 保存 | ⌘ / Ctrl + N / O / S |
-| 导入 / 导出 | ⌘ / Ctrl + I / E |
-| 时间线缩放 | + / − |
+| Oynat / duraklat | Space |
+| Böl | ⌘ / Ctrl + B |
+| Kopyala / yapıştır | ⌘ / Ctrl + C / V |
+| Parça kopyala | ⌘ / Ctrl + D |
+| Geri al / yinele | ⌘ / Ctrl + Z / Shift + Z |
+| Tüm parçaları seç | ⌘ / Ctrl + A |
+| Sil | Delete / Backspace |
+| Önceki / sonraki çerçeve | ← / → |
+| Önceki / sonraki 1 sn | Shift + ← / → |
+| Proje yeni / aç / kaydet | ⌘ / Ctrl + N / O / S |
+| İçe aktar / dışa aktar | ⌘ / Ctrl + I / E |
+| Zaman çizelgesi ölçekle | + / − |
 
-输入框编辑时保留正常文字输入行为。浏览器预览没有完整桌面文件桥接、可靠跨会话媒体恢复或 FFmpeg 视频导出。
+Girdi kutularında normal yazı giriş davranışı korunur. Tarayıcı ön izlemesi tam masaüstü dosya köprüsü, güvenilir çapraz oturum medya kurtarma veya FFmpeg video dışa aktarma desteklemez.

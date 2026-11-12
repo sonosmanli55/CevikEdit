@@ -446,6 +446,5 @@ export interface EditorAPI {
 declare global {
   interface Window {
     editorAPI?: EditorAPI;
-    cevikeditLocale?: string;
   }
 }

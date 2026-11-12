@@ -15,10 +15,10 @@ const fixtures = await generateFixtures(path.join(output, "media"));
 const asset = (
   await importAssets([fixtures.video], path.join(output, "cache"))
 )[0];
-const project = createProject("播放器交互验收");
+const project = createProject("Oynatıcı etkileşim kabulü");
 project.width = 320;
 project.height = 180;
-const track = createTrack("video", "视频轨道");
+const track = createTrack("video", "Video kanalı");
 const clip = createClip(asset, track.id, 0, project.fps);
 clip.duration = 3;
 clip.keyframes = [
@@ -38,7 +38,6 @@ const env: Record<string, string> = Object.fromEntries(
 env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs"), saved],
   env,
@@ -88,7 +87,7 @@ try {
     })
     .toBe(true);
   await page.mouse.up();
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect(page.locator(".save-dot")).not.toHaveClass(/dirty/);
   let savedProject: Project = JSON.parse(await readFile(saved, "utf8"));
   const moved = savedProject.clips[0],
@@ -98,14 +97,14 @@ try {
     moved.keyframes.every((k) => Math.abs(k.value - delta) < 0.1),
     "Dragging must shift the complete keyframed path",
   );
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   await expect
     .poll(async () => {
       const p = await pixel();
       return p[0] > 180 && p[1] < 70 && p[2] < 70;
     })
     .toBe(true);
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect(page.locator(".save-dot")).not.toHaveClass(/dirty/);
   savedProject = JSON.parse(await readFile(saved, "utf8"));
   assert.equal(savedProject.clips[0].transform.x, 0);

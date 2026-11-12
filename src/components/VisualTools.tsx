@@ -220,9 +220,9 @@ function ColorControl({
   const transaction = useTransaction();
   return (
     <label className="visual-color">
-      <span>目标颜色</span>
+      <span>Hedef renk</span>
       <input
-        aria-label="目标颜色"
+        aria-label="Hedef renk"
         type="color"
         value={value}
         onFocus={transaction.begin}
@@ -256,7 +256,7 @@ export default function VisualTools({
   const cropHint =
     asset && asset.width > 0 && asset.height > 0
       ? `${cropPixels!.width} × ${cropPixels!.height} px`
-      : "源素材范围";
+      : "Kaynak medya aralığı";
   const sourceAspect =
     asset && asset.width > 0 && asset.height > 0
       ? asset.width / asset.height
@@ -264,10 +264,10 @@ export default function VisualTools({
   const diagramWidth = Math.min(240, 110 * sourceAspect);
   const title =
     mode === "crop"
-      ? "源画面裁剪"
+      ? "Kaynak görüntü kırpması"
       : mode === "chroma"
-        ? "色度抠像"
-        : "形状蒙版";
+        ? "Kroma key"
+        : "Şekil maskesi";
   return (
     <section className="visual-tools" aria-label={title}>
       <div className="visual-tools-heading">
@@ -281,14 +281,14 @@ export default function VisualTools({
         <h3>{title}</h3>
         {locked && <LockKeyhole size={12} />}
       </div>
-      {locked && <p className="visual-locked">轨道已锁定，解锁后可编辑。</p>}
+      {locked && <p className="visual-locked">Kanal kilitli; kilidini açtıktan sonra düzenleyebilirsiniz.</p>}
       <fieldset disabled={locked}>
         {mode === "crop" && (
           <>
             <label className="visual-toggle">
-              <span>启用画面裁剪</span>
+              <span>Görüntü kırpmayı etkinleştir</span>
               <input
-                aria-label="启用画面裁剪"
+                aria-label="Görüntü kırpmayı etkinleştir"
                 type="checkbox"
                 checked={cropEnabled}
                 onChange={(event) =>
@@ -299,13 +299,13 @@ export default function VisualTools({
               />
             </label>
             <p className="visual-description">
-              保留源画面的选中范围，并按画布比例适配。百分比以源素材为基准。
+              Kaynak görüntünün seçili aralığını korur ve tuval oranına uyarlar. Yüzdeler kaynak medyayı temel alır.
             </p>
             <fieldset disabled={!cropEnabled} className="visual-controls">
               <label className="visual-ratio">
-                <span>居中比例</span>
+                <span>Ortalanmış oran</span>
                 <select
-                  aria-label="裁剪比例"
+                  aria-label="Kırpma oranı"
                   value={preset}
                   onChange={(event) => {
                     const value = event.target.value;
@@ -322,11 +322,11 @@ export default function VisualTools({
                     }
                   }}
                 >
-                  <option value="custom">自定义范围</option>
-                  <option value="1:1">1:1 · 方形</option>
-                  <option value="16:9">16:9 · 横屏</option>
-                  <option value="4:3">4:3 · 经典</option>
-                  <option value="9:16">9:16 · 竖屏</option>
+                  <option value="custom">Özel aralık</option>
+                  <option value="1:1">1:1 · kare</option>
+                  <option value="16:9">16:9 · yatay</option>
+                  <option value="4:3">4:3 · klasik</option>
+                  <option value="9:16">9:16 · dikey</option>
                 </select>
               </label>
               <div
@@ -358,10 +358,10 @@ export default function VisualTools({
                     key={field}
                     label={
                       {
-                        width: "裁剪宽度",
-                        height: "裁剪高度",
-                        x: "左侧位置",
-                        y: "顶部位置",
+                        width: "Kırpma genişliği",
+                        height: "Kırpma yüksekliği",
+                        x: "Sol konum",
+                        y: "Üst konum",
                       }[field]
                     }
                     value={crop[field] * 100}
@@ -405,16 +405,16 @@ export default function VisualTools({
               }}
             >
               <RotateCcw size={12} />
-              重置为完整画面
+              Tam görüntüye sıfırla
             </button>
           </>
         )}
         {mode === "chroma" && (
           <>
             <label className="visual-toggle">
-              <span>启用色度抠像</span>
+              <span>Kroma key'i etkinleştir</span>
               <input
-                aria-label="启用色度抠像"
+                aria-label="Kroma key'i etkinleştir"
                 type="checkbox"
                 checked={chromaEnabled}
                 onChange={(event) =>
@@ -427,7 +427,7 @@ export default function VisualTools({
               />
             </label>
             <p className="visual-description">
-              将所选背景色变为透明，露出下方画面或画布背景。
+              Seçilen arka plan rengini saydam yapar; alttaki görüntü veya tuval arka planı görünür olur.
             </p>
             <fieldset disabled={!chromaEnabled} className="visual-controls">
               <div className="visual-color-presets">
@@ -438,7 +438,7 @@ export default function VisualTools({
                   onClick={() => updateChroma({ color: "#00ff00" })}
                 >
                   <i style={{ background: "#00ff00" }} />
-                  绿幕
+                  Yeşil perde
                 </button>
                 <button
                   className={
@@ -447,7 +447,7 @@ export default function VisualTools({
                   onClick={() => updateChroma({ color: "#0000ff" })}
                 >
                   <i style={{ background: "#0000ff" }} />
-                  蓝幕
+                  Mavi perde
                 </button>
               </div>
               <ColorControl
@@ -455,21 +455,21 @@ export default function VisualTools({
                 onChange={(color) => updateChroma({ color })}
               />
               <RangeControl
-                label="颜色容差"
+                label="Renk toleransı"
                 value={chroma.similarity}
                 min={0.01}
                 max={1}
                 onChange={(similarity) => updateChroma({ similarity })}
               />
               <RangeControl
-                label="边缘混合"
+                label="Kenar harmanlama"
                 value={chroma.blend}
                 min={0}
                 max={1}
                 onChange={(blend) => updateChroma({ blend })}
               />
               <p className="visual-tip">
-                从较低容差开始增加，直到背景消失；边缘混合可柔化透明区域的边界。
+                Arka plan kaybolana kadar düşük toleranstan başlayıp artırın; kenar karışımı saydam alanın sınırını yumuşatabilir.
               </p>
             </fieldset>
             <button
@@ -478,16 +478,16 @@ export default function VisualTools({
               onClick={() => onUpdate({ chromaKey: undefined })}
             >
               <RotateCcw size={12} />
-              清除色度抠像
+              Kroma key'i temizle
             </button>
           </>
         )}
         {mode === "mask" && (
           <>
             <label className="visual-toggle">
-              <span>启用形状蒙版</span>
+              <span>Şekil maskesini etkinleştir</span>
               <input
-                aria-label="启用形状蒙版"
+                aria-label="Şekil maskesini etkinleştir"
                 type="checkbox"
                 checked={maskEnabled}
                 onChange={(event) =>
@@ -500,7 +500,7 @@ export default function VisualTools({
               />
             </label>
             <p className="visual-description">
-              以画面中心为基准保留指定形状，也可以反选隐藏中心区域。
+              Görüntü merkezine göre belirtilen şekli korur; ters çevirerek merkez bölgeyi gizleyebilirsiniz.
             </p>
             <fieldset disabled={!maskEnabled} className="visual-controls">
               <div className="visual-shapes">
@@ -510,7 +510,7 @@ export default function VisualTools({
                   onClick={() => updateMask({ shape: "rectangle" })}
                 >
                   <Square size={18} />
-                  <span>矩形</span>
+                  <span>Dikdörtgen</span>
                 </button>
                 <button
                   className={mask.shape === "ellipse" ? "active" : ""}
@@ -518,25 +518,25 @@ export default function VisualTools({
                   onClick={() => updateMask({ shape: "ellipse" })}
                 >
                   <Circle size={18} />
-                  <span>椭圆</span>
+                  <span>Elips</span>
                 </button>
               </div>
               <div className="visual-numbers-grid">
                 <NumberControl
-                  label="蒙版宽度"
+                  label="Maske genişliği"
                   value={mask.width * 100}
                   min={1}
                   onChange={(width) => updateMask({ width: width / 100 })}
                 />
                 <NumberControl
-                  label="蒙版高度"
+                  label="Maske yüksekliği"
                   value={mask.height * 100}
                   min={1}
                   onChange={(height) => updateMask({ height: height / 100 })}
                 />
               </div>
               <RangeControl
-                label="蒙版羽化"
+                label="Maske yumuşatma"
                 value={mask.feather}
                 min={0}
                 max={0.5}
@@ -544,9 +544,9 @@ export default function VisualTools({
                 onChange={(feather) => updateMask({ feather })}
               />
               <label className="visual-toggle visual-invert">
-                <span>反选蒙版</span>
+                <span>Maskeyi ters çevir</span>
                 <input
-                  aria-label="反选蒙版"
+                  aria-label="Maskeyi ters çevir"
                   type="checkbox"
                   checked={mask.invert}
                   onChange={(event) =>
@@ -568,7 +568,7 @@ export default function VisualTools({
                 />
               </div>
               <p className="visual-tip">
-                蒙版尺寸相对于源画面，羽化值控制边缘过渡宽度。
+                Maske boyutu kaynak görüntüye göredir; yumuşatma değeri kenar geçiş genişliğini belirler.
               </p>
             </fieldset>
             <button
@@ -577,7 +577,7 @@ export default function VisualTools({
               onClick={() => onUpdate({ mask: undefined })}
             >
               <RotateCcw size={12} />
-              清除蒙版
+              Maskeyi temizle
             </button>
           </>
         )}

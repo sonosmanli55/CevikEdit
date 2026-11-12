@@ -17,9 +17,9 @@ function manifest() {
     version: 0,
     main_timeline_id: main,
     timelines: [
-      { id: main, name: "时间线01", is_marked_delete: false },
-      { id: active, name: "时间线02", is_marked_delete: false },
-      { id: deleted, name: "旧时间线", is_marked_delete: true },
+      { id: main, name: "Zaman çizelgesi 01", is_marked_delete: false },
+      { id: active, name: "Zaman çizelgesi 02", is_marked_delete: false },
+      { id: deleted, name: "Eski zaman çizelgesi", is_marked_delete: true },
     ],
   };
 }
@@ -45,11 +45,11 @@ describe("modern Capcut timeline selection", () => {
     });
     expect(plan.recommendedTimelineId).toBe(active);
     expect(plan.requiresTimelineChoice).toBe(true);
-    expect(() => selectCapcutTimelineDraft(plan)).toThrow("明确选择");
+    expect(() => selectCapcutTimelineDraft(plan)).toThrow("birden fazla");
     expect(selectCapcutTimelineDraft(plan, active)).toBe(
       `/fixtures/project/Timelines/${active}/draft_info.json`,
     );
-    expect(() => selectCapcutTimelineDraft(plan, deleted)).toThrow("清单");
+    expect(() => selectCapcutTimelineDraft(plan, deleted)).toThrow("zaman çizelgesi");
   });
 
   it("recognizes root, manifest, layout and explicit timeline selections", () => {
@@ -88,13 +88,13 @@ describe("modern Capcut timeline selection", () => {
 
   it("supports Windows paths independently of the test host", () => {
     const plan = planCapcutProjectImport(
-      "C:\\Projects\\用户草稿\\Timelines\\project.json",
+      "C:\\Projects\\kullanici-taslak\\Timelines\\project.json",
       "file",
       manifest(),
     );
-    expect(plan.selection.projectDirectory).toBe("C:\\Projects\\用户草稿");
+    expect(plan.selection.projectDirectory).toBe("C:\\Projects\\kullanici-taslak");
     expect(selectCapcutTimelineDraft(plan, active)).toBe(
-      `C:\\Projects\\用户草稿\\Timelines\\${active}\\draft_info.json`,
+      `C:\\Projects\\kullanici-taslak\\Timelines\\${active}\\draft_info.json`,
     );
   });
 
@@ -139,7 +139,7 @@ describe("modern Capcut timeline selection", () => {
     );
     expect(malformed.recommendedTimelineId).toBe(main);
     expect(malformed.warnings).toEqual([
-      "时间线布局无法验证，已忽略活动时间线提示。",
+      "Zaman çizelgesi düzeni doğrulanamadı; etkin zaman çizelgesi ipucu yok sayıldı.",
     ]);
   });
 
@@ -162,35 +162,35 @@ describe("modern Capcut timeline selection", () => {
       source.timelines[0].id = id;
       expect(() =>
         planCapcutProjectImport("/fixtures/project", "directory", source),
-      ).toThrow("安全");
+      ).toThrow("güvenli");
     }
     expect(() =>
       describeCapcutProjectSelection("https://example.com/project", "file"),
-    ).toThrow("绝对路径");
+    ).toThrow("yerel tam yol");
     const uncertain = {
       version: 0,
-      timelines: [{ id: main, name: "未知状态" }],
+      timelines: [{ id: main, name: "Bilinmeyen durum" }],
     };
     expect(() =>
       planCapcutProjectImport("/fixtures/project", "directory", uncertain),
-    ).toThrow("删除状态");
+    ).toThrow("silinme durumu");
     expect(() =>
       planCapcutProjectImport(
         `/fixtures/project/Timelines/${deleted}/draft_info.json`,
         "file",
         manifest(),
       ),
-    ).toThrow("已删除");
+    ).toThrow("silinmiş");
   });
 
   it("bounds byte size, timeline count and duplicates before producing paths", () => {
     const oversized = JSON.stringify({
       ...manifest(),
-      ignored: "中".repeat(CAPCUT_SIDECAR_MAX_BYTES / 2),
+      ignored: "€".repeat(CAPCUT_SIDECAR_MAX_BYTES / 2),
     });
     expect(() =>
       planCapcutProjectImport("/fixtures/project", "directory", oversized),
-    ).toThrow("大小限制");
+    ).toThrow("okuma");
     expect(() =>
       planCapcutProjectImport("/fixtures/project", "directory", {
         version: 0,
@@ -199,17 +199,17 @@ describe("modern Capcut timeline selection", () => {
           is_marked_delete: false,
         })),
       }),
-    ).toThrow("数量");
+    ).toThrow("sayısı");
     const duplicate = manifest();
     duplicate.timelines[1].id = main.toLowerCase();
     expect(() =>
       planCapcutProjectImport("/fixtures/project", "directory", duplicate),
-    ).toThrow("重复");
+    ).toThrow("yineleniyor");
     const empty = manifest();
     empty.timelines.forEach((entry) => (entry.is_marked_delete = true));
     expect(() =>
       planCapcutProjectImport("/fixtures/project", "directory", empty),
-    ).toThrow("没有可导入");
+    ).toThrow("içe aktarılabilir");
   });
 
   it("ignores manifest-supplied paths and preserves names strictly as labels", () => {

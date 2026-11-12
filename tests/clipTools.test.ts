@@ -4,7 +4,6 @@ import {
   reverseProjectClip,
 } from "../src/core/clipTools";
 import { evaluateKeyframes, createClip, createProject } from "../src/core/model";
-import { t } from "../src/i18n/locale";
 import type { Clip, MediaAsset, Project } from "../src/core/types";
 
 const video: MediaAsset = {
@@ -110,22 +109,22 @@ describe("reverseProjectClip", () => {
         clip.id,
         reversed,
       ),
-    ).toThrow("轨道已锁定，无法倒放");
+    ).toThrow("Kanal kilitli; ters oynatılamıyor");
     expect(() =>
       reverseProjectClip(project, clip.id, { ...reversed, kind: "audio" }),
-    ).toThrow("倒放结果不是视频");
+    ).toThrow("Ters oynatma sonucu video değil");
     expect(() =>
       reverseProjectClip(project, clip.id, { ...reversed, duration: 2 }),
-    ).toThrow("倒放结果时长不足，请重试");
+    ).toThrow("Ters oynatma sonucu çok kısa; tekrar deneyin");
     expect(() =>
       reverseProjectClip(project, clip.id, { ...reversed, hasAudio: false }),
-    ).toThrow("倒放结果缺少原声，请重试");
+    ).toThrow("Ters oynatma sonucunda özgün ses yok; tekrar deneyin");
   });
 
   it("rejects clips outside the original source range", () => {
     const { project, clip } = fixture({ sourceIn: 9, duration: 2, speed: 2 });
     expect(() => reverseProjectClip(project, clip.id, reversed)).toThrow(
-      "片段超出原视频范围",
+      "Klip özgün video aralığının dışında",
     );
   });
 });
@@ -179,7 +178,7 @@ describe("addFreezeFrameClip", () => {
       "audio",
     ]);
     expect(result.project.tracks[0].kind).toBe("text");
-    expect(track.name).toBe(t("定格画面"));
+    expect(track.name).toBe("Donmuş kare");
     expect(freeze.start).toBe(2.5);
     expect(freeze.duration).toBe(1.5);
     expect(freeze.assetId).toBe(still.id);
@@ -209,7 +208,7 @@ describe("addFreezeFrameClip", () => {
       1,
     );
     expect(
-      second.project.tracks.filter((track) => track.name === t("定格画面")),
+      second.project.tracks.filter((track) => track.name === "Donmuş kare"),
     ).toHaveLength(1);
     expect(second.project.clips).toHaveLength(3);
     expect(second.clip.assetId).toBe("still");
@@ -219,12 +218,12 @@ describe("addFreezeFrameClip", () => {
     const { project, clip } = freezeFixture();
     expect(() =>
       addFreezeFrameClip(project, clip.id, still, 6, 1),
-    ).toThrow("播放头必须在选中视频片段范围内");
+    ).toThrow("Oynatma başlığı seçili video klibinin aralığında olmalıdır");
     expect(() =>
       addFreezeFrameClip(project, clip.id, still, 2, 0),
-    ).toThrow("定格时长无效");
+    ).toThrow("Donmuş kare süresi geçersiz");
     expect(() =>
       addFreezeFrameClip(project, clip.id, { ...still, kind: "video" }, 2, 1),
-    ).toThrow("定格结果不是图片");
+    ).toThrow("Kare dondurma sonucu görsel değil");
   });
 });

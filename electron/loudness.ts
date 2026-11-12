@@ -12,11 +12,11 @@ import { runMediaToolWithDiagnostics } from "./media";
  */
 export function validateLoudnessRequest(input: unknown): LoudnessRequest {
   if (!input || typeof input !== "object" || Array.isArray(input))
-    throw new Error("响度测量请求无效");
+    throw new Error("Ses düzeyi ölçüm isteği geçersiz");
   const raw = input as Record<string, unknown>;
   const source = raw.source;
   if (typeof source !== "string" || !path.isAbsolute(source) || source.length > 4096)
-    throw new Error("响度测量需要本地素材的绝对路径");
+    throw new Error("Ses düzeyi ölçümü için yerel medyanın tam yolu gerekli");
   for (const [key, min, max] of [
     ["sourceIn", 0, 86400],
     ["duration", 1 / 1000, 86400],
@@ -24,7 +24,7 @@ export function validateLoudnessRequest(input: unknown): LoudnessRequest {
   ] as const) {
     const value = raw[key];
     if (typeof value !== "number" || !Number.isFinite(value) || value < min || value > max)
-      throw new Error("响度测量的时间范围无效");
+      throw new Error("Ses düzeyi ölçümünün zaman aralığı geçersiz");
   }
   return {
     source: path.resolve(source),

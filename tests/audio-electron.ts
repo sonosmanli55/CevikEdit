@@ -47,7 +47,7 @@ const saveProject = async (): Promise<Project> => {
   const before = await stat(saved)
     .then((value) => value.mtimeMs)
     .catch(() => -1);
-  await page.getByRole("button", { name: "保存项目", exact: true }).click();
+  await page.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
   await expect
     .poll(
       async () =>
@@ -98,7 +98,6 @@ const audioLevels = () =>
   });
 
 try {
-env.CEVIKEDIT_LOCALE = "zh";
   app = await electron.launch({
     args: [path.join(root, "dist-electron", "main.cjs")],
     env,
@@ -109,9 +108,9 @@ env.CEVIKEDIT_LOCALE = "zh";
       (dialog as any).showOpenDialog = async (...args: any[]) => {
         const options = args[args.length - 1];
         const file =
-          options.title === "导入素材"
+          options.title === "Medya içe aktar"
             ? files.source
-            : options.title === "打开 CevikEdit 项目"
+            : options.title === "CevikEdit projesi aç"
               ? files.saved
               : files.replacement;
         return { canceled: false, filePaths: [file] };
@@ -119,7 +118,7 @@ env.CEVIKEDIT_LOCALE = "zh";
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
         filePath:
-          args[args.length - 1].title === "导出视频"
+          args[args.length - 1].title === "Videoyu dışa aktar"
             ? files.exported
             : files.saved,
       });
@@ -162,7 +161,7 @@ env.CEVIKEDIT_LOCALE = "zh";
       return rgba[0] > 220 && rgba[1] < 30 && rgba[2] < 30;
     })
     .toBe(true);
-  await page.getByRole("button", { name: "分离音频", exact: true }).click();
+  await page.getByRole("button", { name: "Sesi ayır", exact: true }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(2);
   await expect(page.locator(".media-item")).toHaveCount(2);
   let project = await saveProject();
@@ -187,7 +186,7 @@ env.CEVIKEDIT_LOCALE = "zh";
       .locator(`[data-clip-id="${audioClip.id}"]`)
       .click({ position: { x: 25, y: 26 } });
     await page.keyboard.press("Home");
-    await page.getByRole("button", { name: "播放", exact: true }).click();
+    await page.getByRole("button", { name: "Oynat", exact: true }).click();
     await expect
       .poll(
         async () =>
@@ -210,14 +209,14 @@ env.CEVIKEDIT_LOCALE = "zh";
     assert.equal(original.gain, 0);
     assert(original.rms < 0.001);
     assert(separated.gain > 0.99);
-    await page.getByRole("button", { name: "暂停", exact: true }).click();
+    await page.getByRole("button", { name: "Duraklat", exact: true }).click();
     return levels;
   };
   const levelsBeforeMove = await playAndMeasure();
 
   await rename(source, replacement);
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "打开项目", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Proje aç", exact: false }).click();
   await expect(page.locator(".media-item.is-missing")).toHaveCount(2, {
     timeout: 30_000,
   });
@@ -225,7 +224,7 @@ env.CEVIKEDIT_LOCALE = "zh";
   await page
     .locator(`[data-asset-id="${audioAsset.id}"]`)
     .click({ button: "right" });
-  await page.getByRole("button", { name: "重新链接素材", exact: true }).click();
+  await page.getByRole("button", { name: "Medyayı yeniden bağla", exact: true }).click();
   await expect(page.locator(".media-item.is-missing")).toHaveCount(0, {
     timeout: 30_000,
   });
@@ -266,12 +265,12 @@ env.CEVIKEDIT_LOCALE = "zh";
   const levelsAfterMove = await playAndMeasure();
 
   await page.keyboard.press("Escape");
-  await page.getByRole("spinbutton", { name: "宽度", exact: true }).fill("320");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).fill("180");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).blur();
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("spinbutton", { name: "Genişlik", exact: true }).fill("320");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).fill("180");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).blur();
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 60_000,
   });
   const probe = await probeFile(exported);

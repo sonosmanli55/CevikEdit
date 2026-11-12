@@ -58,7 +58,7 @@ describe("independently verified local draft envelope", () => {
   });
 
   it("accepts plain object JSON with BOM/whitespace while retaining text semantics", () => {
-    const source = '{"name":"自建测试","tracks":[],"materials":{}}';
+    const source = '{"name":"Kendi testim","tracks":[],"materials":{}}';
     expect(decodeCapcutDraft(` \n\uFEFF ${source} \t`)).toEqual({
       text: source,
       encoding: "json",
@@ -68,45 +68,45 @@ describe("independently verified local draft envelope", () => {
 
   it("rejects JSON primitives, arrays and malformed apparent JSON", () => {
     for (const value of ["null", "true", "123", '"text"', "[]"])
-      expect(() => decodeCapcutDraft(value)).toThrow("JSON 对象");
-    expect(() => decodeCapcutDraft("{broken")).toThrow("无法解析");
-    expect(() => decodeCapcutDraft("[broken")).toThrow("无法解析");
+      expect(() => decodeCapcutDraft(value)).toThrow("JSON nesnesi");
+    expect(() => decodeCapcutDraft("{broken")).toThrow("ayrıştırılamıyor");
+    expect(() => decodeCapcutDraft("[broken")).toThrow("ayrıştırılamıyor");
   });
 
   it("authenticates both ciphertext and embedded material rather than guessing plaintext", () => {
     const changedBody = knownCarrier.slice(0, -10) +
       (knownCarrier.at(-10) === "A" ? "B" : "A") + knownCarrier.slice(-9);
-    expect(() => decodeCapcutDraft(changedBody)).toThrow("认证失败");
+    expect(() => decodeCapcutDraft(changedBody)).toThrow("kimlik doğrulaması");
     expect(() => decodeCapcutDraft("1" + knownCarrier.slice(1))).toThrow(
-      "认证失败",
+      "kimlik doğrulaması",
     );
     expect(() => decodeCapcutDraft(knownCarrier.slice(0, -4))).toThrow();
   });
 
   it("rejects unknown, too-short, non-ASCII and malformed Base64 carriers explicitly", () => {
     for (const source of ["", "opaque-unrecognized", knownCarrier.slice(0, 100)])
-      expect(() => decodeCapcutDraft(source)).toThrow("不透明");
-    expect(() => decodeCapcutDraft("中" + knownCarrier.slice(1))).toThrow(
-      "不透明",
+      expect(() => decodeCapcutDraft(source)).toThrow("opak");
+    expect(() => decodeCapcutDraft("€" + knownCarrier.slice(1))).toThrow(
+      "opak",
     );
     expect(() =>
       decodeCapcutDraft(knownCarrier.slice(0, 140) + "!" + knownCarrier.slice(141)),
-    ).toThrow("不透明");
+    ).toThrow("opak");
     expect(() =>
       decodeCapcutDraft(knownCarrier.slice(0, 140) + "\n" + knownCarrier.slice(141)),
-    ).toThrow("不透明");
+    ).toThrow("opak");
   });
 
   it("requires canonical padding bits and standard rather than URL-safe Base64", () => {
     // Changing the final U to V changes only unused padding bits. Permissive
     // Buffer decoding produces the same bytes; canonical round-trip rejects it.
     expect(() => decodeCapcutDraft(knownCarrier.slice(0, -2) + "V=")).toThrow(
-      "不规范",
+      "opak",
     );
     expect(() => decodeCapcutDraft(knownCarrier.replace("+", "-"))).toThrow(
-      "不透明",
+      "opak",
     );
-    expect(() => decodeCapcutDraft(knownCarrier + "=")).toThrow("不透明");
+    expect(() => decodeCapcutDraft(knownCarrier + "=")).toThrow("opak");
   });
 
   it("validates UTF-8 and object JSON only after successful authentication", () => {
@@ -115,19 +115,19 @@ describe("independently verified local draft envelope", () => {
     expect(() => decodeCapcutDraft(neutralCarrier(invalidUtf8))).toThrow("UTF-8");
     expect(() =>
       decodeCapcutDraft(neutralCarrier(JSON.stringify("x".repeat(180)))),
-    ).toThrow("JSON 对象");
+    ).toThrow("JSON nesnesi");
     expect(() =>
       decodeCapcutDraft(neutralCarrier(JSON.stringify(["x".repeat(180)]))),
-    ).toThrow("JSON 对象");
+    ).toThrow("JSON nesnesi");
     expect(() => decodeCapcutDraft(neutralCarrier("x".repeat(180)))).toThrow(
-      "无法解析",
+      "ayrıştırılamıyor",
     );
   });
 
   it("supports authenticated Unicode object JSON and encrypted BOM/whitespace", () => {
     const text = JSON.stringify({
-      name: "独立编写的中性样例",
-      note: "无人身份信息".repeat(10),
+      name: "Bağımsız yazılmış nötr örnek",
+      note: "kimlik bilgisi yok".repeat(10),
     });
     expect(decodeCapcutDraft(neutralCarrier(`\uFEFF \n${text}\t`))).toEqual({
       text,
@@ -140,7 +140,7 @@ describe("independently verified local draft envelope", () => {
       "20 MiB",
     );
     expect(() =>
-      decodeCapcutDraft("中".repeat(Math.floor(CAPCUT_CODEC_MAX_BYTES / 3) + 1)),
+      decodeCapcutDraft("€".repeat(Math.floor(CAPCUT_CODEC_MAX_BYTES / 3) + 1)),
     ).toThrow("20 MiB");
   });
 });

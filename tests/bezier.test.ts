@@ -125,10 +125,10 @@ describe("free cubic-Bézier easing", () => {
     expect(() => validateProject(project)).not.toThrow();
     const broken = clone(project);
     broken.clips[0].keyframes[1].bezier = { x1: 0.9, y1: 0, x2: 0.2, y2: 1 };
-    expect(() => validateProject(broken)).toThrow("贝塞尔");
+    expect(() => validateProject(broken)).toThrow("Bézier");
     const outOfRange = clone(project);
     outOfRange.clips[0].keyframes[1].bezier = { x1: 0, y1: 0, x2: 1, y2: 5 };
-    expect(() => validateProject(outOfRange)).toThrow("贝塞尔");
+    expect(() => validateProject(outOfRange)).toThrow("Bézier");
   });
   it("export expression follows the same curve within the table tolerance", () => {
     const clip = fixture({});

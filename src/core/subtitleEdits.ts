@@ -41,11 +41,11 @@ function text(
     value.includes("\0") ||
     (!empty && !value.length)
   )
-    throw new Error(`${label}无效（最多 20000 字）`);
+    throw new Error(`${label} geçersiz (en fazla 20000 karakter)`);
 }
 function finite(value: unknown, label: string): asserts value is number {
   if (typeof value !== "number" || !Number.isFinite(value))
-    throw new Error(`${label}必须是有限数值`);
+    throw new Error(`${label} sonlu bir sayı olmalı`);
 }
 function range(
   value: unknown,
@@ -55,7 +55,7 @@ function range(
 ): asserts value is number {
   finite(value, label);
   if (value < min || value > max)
-    throw new Error(`${label}须在 ${min}～${max} 之间`);
+    throw new Error(`${label} ${min}–${max} arasında olmalı`);
 }
 function color(value: unknown, label: string): asserts value is string {
   text(value, label, false);
@@ -64,7 +64,7 @@ function color(value: unknown, label: string): asserts value is string {
     (!/^#[\da-f]{6}([\da-f]{2})?$/i.test(value) &&
       !/^(black|white|red|green|blue|transparent)$/i.test(value))
   )
-    throw new Error(`${label}无效`);
+    throw new Error(`${label} geçersiz`);
 }
 function record(value: unknown, label: string): Record<string, unknown> {
   if (
@@ -73,16 +73,16 @@ function record(value: unknown, label: string): Record<string, unknown> {
     Array.isArray(value) ||
     ![Object.prototype, null].includes(Object.getPrototypeOf(value))
   )
-    throw new Error(`${label}无效`);
+    throw new Error(`${label} geçersiz`);
   return value as Record<string, unknown>;
 }
 function cue(project: Project, id: string, editable = true): Clip {
   const clip = project.clips.find((c) => c.id === id);
   const track = project.tracks.find((t) => t.id === clip?.trackId);
   if (!clip?.text || track?.kind !== "text")
-    throw new Error("所选字幕不存在或不是文字片段");
+    throw new Error("Seçili altyazı yok veya bir metin klibi değil");
   if (editable && track.locked)
-    throw new Error(`轨道“${track.name}”已锁定，请先解锁`);
+    throw new Error(`“${track.name}” kanalı kilitli; önce kilidini açın`);
   return clip;
 }
 
@@ -103,57 +103,57 @@ const STYLE_KEYS = new Set([
 
 /** Validate an editable subset of TextStyle; content is never accepted here. */
 export function subtitleStylePatch(value: unknown): SubtitleStylePatch {
-  const raw = record(value, "字幕样式");
+  const raw = record(value, "Altyazı stili");
   const result: SubtitleStylePatch = {};
   for (const key of Object.keys(raw)) {
-    if (!STYLE_KEYS.has(key)) throw new Error(`不支持的字幕样式字段“${key}”`);
+    if (!STYLE_KEYS.has(key)) throw new Error(`Desteklenmeyen altyazı stil alanı “${key}”`);
     const next = raw[key];
     if (next === undefined) continue;
     switch (key) {
       case "fontFamily":
-        text(next, "字幕字体", false);
-        if (next.length > 256) throw new Error("字幕字体无效");
+        text(next, "Altyazı yazı tipi", false);
+        if (next.length > 256) throw new Error("Altyazı yazı tipi geçersiz");
         result.fontFamily = next;
         break;
       case "fontSize":
-        range(next, "字幕字号", 1, 1000);
+        range(next, "Altyazı yazı boyutu", 1, 1000);
         result.fontSize = next;
         break;
       case "color":
-        color(next, "字幕文字颜色");
+        color(next, "Altyazı metin rengi");
         result.color = next;
         break;
       case "background":
-        color(next, "字幕背景颜色");
+        color(next, "Altyazı arka plan rengi");
         result.background = next;
         break;
       case "align":
         if (next !== "left" && next !== "center" && next !== "right")
-          throw new Error("字幕对齐无效");
+          throw new Error("Altyazı hizalaması geçersiz");
         result.align = next;
         break;
       case "bold":
-        if (typeof next !== "boolean") throw new Error("字幕粗体设置无效");
+        if (typeof next !== "boolean") throw new Error("Altyazı kalın ayarı geçersiz");
         result.bold = next;
         break;
       case "stroke":
-        color(next, "字幕描边颜色");
+        color(next, "Altyazı kontur rengi");
         result.stroke = next;
         break;
       case "strokeWidth":
-        range(next, "字幕描边宽度", 0, 100);
+        range(next, "Altyazı kontur genişliği", 0, 100);
         result.strokeWidth = next;
         break;
       case "lineHeight":
-        range(next, "字幕行高", 0.8, 3);
+        range(next, "Altyazı satır yüksekliği", 0.8, 3);
         result.lineHeight = next;
         break;
       case "padding":
-        range(next, "字幕内边距", 0, 1.5);
+        range(next, "Altyazı iç boşluğu", 0, 1.5);
         result.padding = next;
         break;
       case "radius":
-        range(next, "字幕圆角", 0, 2);
+        range(next, "Altyazı köşe yarıçapı", 0, 2);
         result.radius = next;
         break;
       case "shadow": {
@@ -161,11 +161,11 @@ export function subtitleStylePatch(value: unknown): SubtitleStylePatch {
           result.shadow = undefined;
           break;
         }
-        const shadow = record(next, "字幕阴影");
-        color(shadow.color, "字幕阴影颜色");
-        range(shadow.blur, "字幕阴影模糊", 0, 200);
-        range(shadow.offsetX, "字幕阴影偏移 X", -200, 200);
-        range(shadow.offsetY, "字幕阴影偏移 Y", -200, 200);
+        const shadow = record(next, "Altyazı gölgesi");
+        color(shadow.color, "Altyazı gölge rengi");
+        range(shadow.blur, "Altyazı gölge bulanıklığı", 0, 200);
+        range(shadow.offsetX, "Altyazı gölge kayması X", -200, 200);
+        range(shadow.offsetY, "Altyazı gölge kayması Y", -200, 200);
         result.shadow = {
           color: shadow.color,
           blur: shadow.blur,
@@ -184,7 +184,9 @@ function referenceStyle(reference: Clip): SubtitleStylePatch {
   return clone(style);
 }
 
-const sentenceBreak = /[。！？!?；;，,、：:]/;
+// Cümle sonu sayılan noktalama: ASCII işaretler ve içe aktarılan metinlerde
+// görülebilen Tam Genişlik (CJK) karşılıkları.
+const sentenceBreak = /[\u3002\uFF01\uFF1F!?;,\uFF1B\uFF0C\u3001\uFF1A:]/;
 
 /**
  * Split text proportionally to the selected time. A sentence punctuation mark,
@@ -196,7 +198,7 @@ export function splitSubtitleText(
   ratio: number,
 ): [string, string] {
   const chars = Array.from(value);
-  if (chars.length < 2) throw new Error("字幕文本太短，无法拆分");
+  if (chars.length < 2) throw new Error("Altyazı metni bölmek için çok kısa");
   const target = Math.max(
     1,
     Math.min(chars.length - 1, Math.round(chars.length * Math.max(0, Math.min(1, ratio)))),
@@ -227,7 +229,7 @@ export function splitSubtitleText(
     left = chars.slice(0, cut).join("").trim();
     right = chars.slice(cut).join("").trim();
   }
-  if (!left || !right) throw new Error("字幕文本太短，无法拆分为两条");
+  if (!left || !right) throw new Error("Altyazı metni iki parçaya bölmek için çok kısa");
   return [left, right];
 }
 
@@ -244,24 +246,24 @@ export function prepareSubtitleEdit(
     ids.length > 10000 ||
     new Set(ids).size !== ids.length
   )
-    throw new Error("请选择不重复的字幕");
+    throw new Error("Yinelenmeyen altyazılar seçin");
   const originals = ids.map((id) => cue(project, id));
   if (new Set(originals.map((c) => c.trackId)).size !== 1)
-    throw new Error("每次批量操作只能修改一个字幕轨道");
-  if (!edit || typeof edit !== "object") throw new Error("字幕操作无效");
+    throw new Error("Her toplu işlem yalnızca bir altyazı kanalını değiştirebilir");
+  if (!edit || typeof edit !== "object") throw new Error("Altyazı işlemi geçersiz");
   let structuralIds: string[] | undefined;
 
   if (edit.type === "cue") {
-    if (ids.length !== 1) throw new Error("逐条编辑只能选择一条字幕");
-    text(edit.text, "字幕内容");
-    finite(edit.start, "开始时间");
-    finite(edit.end, "结束时间");
+    if (ids.length !== 1) throw new Error("Tek tek düzenlemede yalnızca bir altyazı seçilebilir");
+    text(edit.text, "Altyazı içeriği");
+    finite(edit.start, "Başlangıç zamanı");
+    finite(edit.end, "Bitiş zamanı");
     if (edit.start < 0 || edit.end > 86400 || edit.end <= edit.start)
-      throw new Error("字幕时间须在 0～86400 秒内，结束时间须晚于开始时间");
+      throw new Error("Altyazı zamanı 0–86400 sn aralığında olmalı ve bitiş, başlangıçtan sonra gelmelidir");
     const start = snapToFrame(edit.start, project.fps),
       end = snapToFrame(edit.end, project.fps);
     if (end - start < 1 / project.fps - 1e-9)
-      throw new Error("字幕时长至少为一帧");
+      throw new Error("Altyazı süresi en az bir kare olmalıdır");
     const original = originals[0];
     const originalEnd = original.start + original.duration;
     if (
@@ -286,31 +288,31 @@ export function prepareSubtitleEdit(
       Math.abs(next.start - start) > 1e-8 ||
       Math.abs(next.start + next.duration - end) > 1e-8
     )
-      throw new Error("无法应用所选字幕时间");
+      throw new Error("Seçili altyazı zamanı uygulanamıyor");
     next.text!.text = edit.text;
     next.name = edit.text.slice(0, 4096);
   } else if (edit.type === "offset") {
-    finite(edit.seconds, "偏移量");
-    if (Math.abs(edit.seconds) > 86400) throw new Error("偏移量超出范围");
+    finite(edit.seconds, "Kaydırma miktarı");
+    if (Math.abs(edit.seconds) > 86400) throw new Error("Kaydırma miktarı aralığın dışında");
     const delta = snapToFrame(edit.seconds, project.fps);
     for (const clip of originals) {
       const start = snapToFrame(clip.start + delta, project.fps);
       if (start < 0 || start + clip.duration > 86400)
-        throw new Error("偏移后字幕超出时间线范围，未修改任何字幕");
+        throw new Error("Kaydırma sonrası altyazılar zaman çizelgesi aralığının dışına çıkıyor; hiçbir altyazı değiştirilmedi");
       clip.start = start;
     }
   } else if (edit.type === "replace") {
-    text(edit.find, "查找内容", false);
-    text(edit.replacement, "替换内容");
+    text(edit.find, "Aranan içerik", false);
+    text(edit.replacement, "Yeni içerik");
     for (const clip of originals) {
       const pieces = clip.text!.text.split(edit.find);
       const size =
         clip.text!.text.length +
         (pieces.length - 1) * (edit.replacement.length - edit.find.length);
       if (size > 20000)
-        throw new Error("替换后的字幕内容无效（最多 20000 字）");
+        throw new Error("Değiştirilmiş altyazı içeriği geçersiz (en fazla 20000 karakter)");
       const value = pieces.join(edit.replacement);
-      text(value, "替换后的字幕内容");
+      text(value, "Değiştirilmiş altyazı içeriği");
       clip.text!.text = value;
       clip.name = value.slice(0, 4096);
     }
@@ -321,7 +323,7 @@ export function prepareSubtitleEdit(
     if (edit.referenceId !== undefined && edit.referenceId !== "")
       reference = referenceStyle(cue(project, edit.referenceId, false));
     if (!reference && !Object.keys(patch).length)
-      throw new Error("请选择参考字幕，或直接编辑一项字幕样式");
+      throw new Error("Bir referans altyazı seçin veya doğrudan bir altyazı stilini düzenleyin");
     for (const clip of originals)
       clip.text = {
         ...clip.text!,
@@ -329,21 +331,21 @@ export function prepareSubtitleEdit(
         ...clone(patch),
       };
   } else if (edit.type === "split") {
-    if (ids.length !== 1) throw new Error("拆分只能选择一条字幕");
-    finite(edit.at, "播放头时间");
+    if (ids.length !== 1) throw new Error("Bölme için yalnızca bir altyazı seçin");
+    finite(edit.at, "Oynatma konumu zamanı");
     const original = originals[0];
     const at = snapToFrame(edit.at, project.fps);
     const minimum = 1 / project.fps;
     const local = at - original.start;
     if (local < minimum - 1e-9 || original.duration - local < minimum - 1e-9)
-      throw new Error("播放头必须位于所选字幕内部，且两侧各留出至少一帧");
+      throw new Error("Oynatma konumu seçili altyazının içinde olmalı ve iki tarafta en az bir kare kalmalıdır");
     const before = new Set(project.clips.map((clip) => clip.id));
     project = splitClip(project, original.id, at);
     const left = project.clips.find((clip) => clip.id === original.id);
     const right = project.clips.find(
       (clip) => !before.has(clip.id) && clip.trackId === original.trackId,
     );
-    if (!left?.text || !right?.text) throw new Error("无法拆分所选字幕");
+    if (!left?.text || !right?.text) throw new Error("Seçili altyazı bölünemiyor");
     const [leftText, rightText] = splitSubtitleText(
       original.text!.text,
       local / original.duration,
@@ -354,7 +356,7 @@ export function prepareSubtitleEdit(
     right.name = rightText.slice(0, 4096);
     structuralIds = [left.id, right.id];
   } else if (edit.type === "merge") {
-    if (ids.length < 2) throw new Error("请选择至少两条字幕再合并");
+    if (ids.length < 2) throw new Error("Birleştirmek için en az iki altyazı seçin");
     const sorted = [...originals].sort(
       (a, b) => a.start - b.start || a.id.localeCompare(b.id),
     );
@@ -365,23 +367,23 @@ export function prepareSubtitleEdit(
     const positions = new Map(trackClips.map((clip, index) => [clip.id, index]));
     for (let index = 1; index < sorted.length; index++) {
       if (positions.get(sorted[index].id) !== positions.get(sorted[index - 1].id)! + 1)
-        throw new Error("只能合并轨道上连续相邻的字幕");
+        throw new Error("Yalnızca kanaldaki ardışık komşu altyazılar birleştirilebilir");
       const previous = sorted[index - 1];
       if (sorted[index].start > previous.start + previous.duration + 1e-9)
-        throw new Error("只能合并相接或时间重叠的字幕，请先补合间隙");
+        throw new Error("Yalnızca bitişik veya zaman olarak örtüşen altyazılar birleştirilebilir; önce boşluğu kapatın");
     }
     const start = sorted[0].start;
     const end = Math.max(
       ...sorted.map((clip) => clip.start + clip.duration),
     );
     if (end - start < 1 / project.fps - 1e-9)
-      throw new Error("合并后的字幕时长至少为一帧");
+      throw new Error("Birleşen altyazı en az bir kare olmalıdır");
     const keep = sorted[0];
     const merged = sorted
       .map((clip) => clip.text!.text.trim())
       .join("\n");
     if (merged.length > 20000)
-      throw new Error("合并后的字幕内容无效（最多 20000 字）");
+      throw new Error("Birleşen altyazı içeriği geçersiz (en fazla 20000 karakter)");
     keep.start = start;
     keep.duration = end - start;
     keep.text!.text = merged;
@@ -405,7 +407,7 @@ export function prepareSubtitleEdit(
       delete clip.audioFadeWindow;
       Object.assign(clip, textAnimationPatch(clip, animation, project));
     }
-  } else throw new Error("不支持的字幕操作");
+  } else throw new Error("Desteklenmeyen altyazı işlemi");
 
   project = validateProject(project);
   return {
@@ -427,6 +429,6 @@ export function applySubtitleEdit(
   plan: SubtitleEditPlan,
 ): Project {
   if (JSON.stringify(current) !== plan.base)
-    throw new Error("项目已变化，请重新检查字幕修改后再应用");
+    throw new Error("Proje değişti; uygulamadan önce altyazı değişikliklerini yeniden denetleyin");
   return validateProject(clone(plan.project));
 }

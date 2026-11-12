@@ -27,8 +27,8 @@ export interface UpdateInfo {
 }
 
 export const UPDATE_RELEASES_URL =
-  "https://api.github.com/repos/sonosanli55/CevikEdit/releases?per_page=20";
-export const UPDATE_PAGE_URL = "https://github.com/sonosanli55/CevikEdit/releases";
+  "https://api.github.com/repos/sonosmanli55/CevikEdit/releases?per_page=20";
+export const UPDATE_PAGE_URL = "https://github.com/sonosmanli55/CevikEdit/releases";
 
 /** `1.2.3`, `v1.2.3`, `1.2.3-beta.1` → comparable numbers. */
 export function parseVersion(value: string): {

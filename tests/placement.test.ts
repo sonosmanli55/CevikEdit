@@ -28,7 +28,9 @@ function fixture(): Project {
   const project = createProject("Yerleştirme");
   project.fps = 30;
   project.assets = [clone(VIDEO)];
-  const track = createTrack("video", "Video 1");
+  // The default project already owns a "Video 1" track; use a distinct name so
+  // `incoming()` binds to this fixture track instead of the default one.
+  const track = createTrack("video", "Video A");
   project.tracks.push(track);
   const first = createClip(VIDEO, track.id, 0, 30);
   first.id = "first";
@@ -41,7 +43,7 @@ function fixture(): Project {
 }
 
 function incoming(project: Project, start: number, duration = 2) {
-  const clip = createClip(VIDEO, project.tracks.find((t) => t.name === "Video 1")!.id, start, 30);
+  const clip = createClip(VIDEO, project.tracks.find((t) => t.name === "Video A")!.id, start, 30);
   clip.id = "incoming";
   clip.duration = duration;
   return clip;
@@ -112,20 +114,20 @@ describe("timeline placement modes", () => {
   });
   it("rejects locked tracks, invalid modes and out-of-range clips", () => {
     const project = fixture();
-    project.tracks.find((track) => track.name === "Video 1")!.locked = true;
-    expect(() => placeClip(project, incoming(project, 1), "insert")).toThrow("锁定");
+    project.tracks.find((track) => track.name === "Video A")!.locked = true;
+    expect(() => placeClip(project, incoming(project, 1), "insert")).toThrow("kilitli");
     const unlocked = fixture();
     expect(() => placeClip(unlocked, incoming(unlocked, 1), "replace" as PlacementMode)).toThrow(
-      "入轨模式",
+      "yerleştirme biçimi",
     );
-    expect(() => placeClip(unlocked, incoming(unlocked, 86399, 5), "insert")).toThrow("时间线");
+    expect(() => placeClip(unlocked, incoming(unlocked, 86399, 5), "insert")).toThrow("zaman çizelgesi aralığının dışında");
     const detached = incoming(unlocked, 1);
     detached.trackId = "missing";
-    expect(() => placeClip(unlocked, detached, "append")).toThrow("轨道");
+    expect(() => placeClip(unlocked, detached, "append")).toThrow("kanalı bulunamadı");
   });
   it("commits each mode as one undo step through the store", () => {
     const project = fixture();
-    const trackId = project.tracks.find((track) => track.name === "Video 1")!.id;
+    const trackId = project.tracks.find((track) => track.name === "Video A")!.id;
     useEditorStore.getState().setProject(project);
     const before = clone(project);
     useEditorStore

@@ -33,8 +33,8 @@ async function createModern() {
       version: 0,
       main_timeline_id: main,
       timelines: [
-        { id: main, name: "空主时间线", is_marked_delete: false },
-        { id: active, name: "实际剪辑时间线", is_marked_delete: false },
+        { id: main, name: "Boş ana zaman çizelgesi", is_marked_delete: false },
+        { id: active, name: "Gerçek kurgu zaman çizelgesi", is_marked_delete: false },
       ],
     }),
   );
@@ -79,10 +79,10 @@ describe("bounded read-only Capcut project loader", () => {
     expect(plan.timelines).toHaveLength(2);
     expect(plan.mainTimelineId).toBe(main);
     expect(plan.activeTimelineId).toBe(active);
-    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("明确选择");
+    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("birden fazla");
     expect(await readSelectedCapcutTimeline(plan, active)).toEqual({
       text: nativePayload,
-      name: "实际剪辑时间线",
+      name: "Gerçek kurgu zaman çizelgesi",
       path: join(project, "Timelines", active, "draft_info.json"),
     });
     expect(await readFile(join(project, "draft_info.json"))).toEqual(before);
@@ -165,17 +165,17 @@ describe("bounded read-only Capcut project loader", () => {
       "directory",
     );
     expect(malformedLayout.warnings).toContain(
-      "时间线布局无法验证，已忽略活动时间线提示。",
+      "Zaman çizelgesi düzeni doğrulanamadı; etkin zaman çizelgesi ipucu yok sayıldı.",
     );
     await writeFile(join(project, "Timelines", "project.json"), "{malformed");
     await expect(
       discoverSelectedCapcutProject(project, "directory"),
-    ).rejects.toThrow("不是可读取的 JSON");
+    ).rejects.toThrow("okunabilir JSON");
     await rm(join(project, "Timelines", "project.json"));
     await mkdir(join(project, "Timelines", "project.json"));
     await expect(
       discoverSelectedCapcutProject(project, "directory"),
-    ).rejects.toThrow("不是普通文件");
+    ).rejects.toThrow("normal bir dosya");
   });
 
   it("enforces byte limits for sidecars and payloads before decoding", async () => {
@@ -186,12 +186,12 @@ describe("bounded read-only Capcut project loader", () => {
     );
     await expect(
       discoverSelectedCapcutProject(project, "directory"),
-    ).rejects.toThrow("大小限制");
+    ).rejects.toThrow("okuma");
     await createModern();
     await oversized(join(project, "timeline_layout.json"), CAPCUT_SIDECAR_MAX_BYTES);
     await expect(
       discoverSelectedCapcutProject(project, "directory"),
-    ).rejects.toThrow("大小限制");
+    ).rejects.toThrow("okuma");
     await rm(join(project, "timeline_layout.json"));
     const plan = await discoverSelectedCapcutProject(project, "directory");
     await oversized(
@@ -199,7 +199,7 @@ describe("bounded read-only Capcut project loader", () => {
       CAPCUT_DRAFT_MAX_BYTES,
     );
     await expect(readSelectedCapcutTimeline(plan, active)).rejects.toThrow(
-      "大小限制",
+      "okuma",
     );
   });
 
@@ -207,13 +207,13 @@ describe("bounded read-only Capcut project loader", () => {
     await mkdir(join(project, "draft_info.json"));
     await writeFile(join(project, "draft_content.json"), "not-a-fallback");
     const plan = await discoverSelectedCapcutProject(project, "directory");
-    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("不是普通文件");
+    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("normal bir dosya");
   });
 
   it("diagnoses non-UTF8 carriers rather than silently replacing bytes", async () => {
     await writeFile(join(project, "draft_info.json"), Buffer.from([0xff, 0xfe, 0x00]));
     const plan = await discoverSelectedCapcutProject(project, "directory");
-    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("非 UTF-8");
+    await expect(readSelectedCapcutTimeline(plan)).rejects.toThrow("UTF-8");
   });
 
   it.skipIf(process.platform === "win32")(
@@ -231,7 +231,7 @@ describe("bounded read-only Capcut project loader", () => {
         await symlink(outside, target);
         await expect(
           discoverSelectedCapcutProject(project, "directory"),
-        ).rejects.toThrow("逃离");
+        ).rejects.toThrow("dışına çıkıyor");
         await rm(target);
         await writeFile(target, original);
       }
@@ -239,7 +239,7 @@ describe("bounded read-only Capcut project loader", () => {
       const target = join(project, "Timelines", active, "draft_info.json");
       await rm(target);
       await symlink(outside, target);
-      await expect(readSelectedCapcutTimeline(plan, active)).rejects.toThrow("逃离");
+      await expect(readSelectedCapcutTimeline(plan, active)).rejects.toThrow("dışına çıkıyor");
     },
   );
 
@@ -254,7 +254,7 @@ describe("bounded read-only Capcut project loader", () => {
       await writeFile(join(project, "draft_info.json"), "must-not-use-root");
       await expect(
         discoverSelectedCapcutProject(project, "directory"),
-      ).rejects.toThrow("逃离");
+      ).rejects.toThrow("dışına çıkıyor");
     },
   );
 
@@ -274,7 +274,7 @@ describe("bounded read-only Capcut project loader", () => {
       await writeFile(join(other, "draft_info.json"), "different-project");
       await symlink(other, alias);
       await expect(readSelectedCapcutTimeline(selected)).rejects.toThrow(
-        "目录已发生变化",
+        "Dizin değişti",
       );
     },
   );

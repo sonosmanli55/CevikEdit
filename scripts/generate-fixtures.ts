@@ -14,11 +14,11 @@ export async function generateFixtures(
   quadrants: string;
 }> {
   await mkdir(directory, { recursive: true });
-  const video = path.join(directory, "红色 video '素材'.mp4");
-  const audio = path.join(directory, "tone 音频.wav");
-  const image = path.join(directory, "蓝色 image.png");
-  const temporal = path.join(directory, "时间变化.mp4");
-  const quadrants = path.join(directory, "四象限.png");
+  const video = path.join(directory, "kırmızı video 'medya'.mp4");
+  const audio = path.join(directory, "ton ses.wav");
+  const image = path.join(directory, "mavi image.png");
+  const temporal = path.join(directory, "zamansal değişim.mp4");
+  const quadrants = path.join(directory, "dört bölge.png");
   await runMediaTool("ffmpeg", [
     "-v",
     "error",

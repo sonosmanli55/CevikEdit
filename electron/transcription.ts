@@ -96,12 +96,12 @@ export async function resolveWhisperExecutable(
   if (options.savedExecutable) {
     if (await usableFile(options.savedExecutable, platform))
       return path.resolve(options.savedExecutable);
-    throw new Error("所选 Whisper 不可用，请重新选择可执行文件。");
+    throw new Error("Seçili Whisper kullanılamıyor; çalıştırılabilir dosyayı yeniden seçin.");
   }
   if (env.CEVIKEDIT_WHISPER) {
     if (await usableFile(env.CEVIKEDIT_WHISPER, platform))
       return path.resolve(env.CEVIKEDIT_WHISPER);
-    throw new Error("环境变量 CEVIKEDIT_WHISPER 指向的程序不可用。");
+    throw new Error("CEVIKEDIT_WHISPER ortam değişkeninin gösterdiği program kullanılamıyor.");
   }
 
   const bundledNames = bundledExecutableNames(platform);
@@ -125,7 +125,7 @@ export async function resolveWhisperExecutable(
   for (const candidate of candidates)
     if (await usableFile(candidate, platform)) return path.resolve(candidate);
   throw new Error(
-    "找不到 Whisper。请安装 whisper.cpp，或在字幕面板中选择可执行文件。",
+    "Whisper bulunamadı. whisper.cpp kurun veya altyazı panelinden çalıştırılabilir dosyayı seçin.",
   );
 }
 
@@ -216,7 +216,7 @@ function runProcess(
   args: string[],
   options: ProcessOptions,
 ): Promise<void> {
-  if (options.job.cancelled) return Promise.reject(new Error("转写已取消"));
+  if (options.job.cancelled) return Promise.reject(new Error("Yazıya dökme iptal edildi"));
   return new Promise<void>((resolve, reject) => {
     let child: ChildProcess;
     try {
@@ -228,7 +228,7 @@ function runProcess(
     } catch (error) {
       reject(
         new Error(
-          `无法启动 ${options.label}：${error instanceof Error ? error.message : String(error)}`,
+          `${options.label} başlatılamadı: ${error instanceof Error ? error.message : String(error)}`,
         ),
       );
       return;
@@ -239,8 +239,8 @@ function runProcess(
     let settled = false;
     const timeoutMessage =
       options.label === "Whisper"
-        ? "Whisper 超时，请缩短片段或更换更小的模型。"
-        : "音频提取超时，请检查媒体文件。";
+        ? "Whisper zaman aşımına uğradı; klibi kısaltın veya daha küçük bir model kullanın."
+        : "Ses çıkarma zaman aşımına uğradı; medya dosyasını denetleyin.";
     const timer = setTimeout(() => {
       failure = new Error(timeoutMessage);
       child.kill("SIGKILL");
@@ -259,7 +259,7 @@ function runProcess(
       options.job.child = undefined;
       reject(
         new Error(
-          `无法启动 ${options.label}：${error.message || String(error)}`,
+          `${options.label} başlatılamadı: ${error.message || String(error)}`,
         ),
       );
     });
@@ -268,12 +268,12 @@ function runProcess(
       if (settled) return;
       settled = true;
       options.job.child = undefined;
-      if (options.job.cancelled) reject(new Error("转写已取消"));
+      if (options.job.cancelled) reject(new Error("Yazıya dökme iptal edildi"));
       else if (failure) reject(failure);
       else if (code !== 0)
         reject(
           new Error(
-            `${options.label} 执行失败：${diagnostic.trim() || code}`,
+            `${options.label} çalıştırılamadı: ${diagnostic.trim() || code}`,
           ),
         );
       else resolve();
@@ -289,7 +289,7 @@ async function readWhisperResults(prefix: string): Promise<string[]> {
       const metadata = await stat(file);
       if (!metadata.isFile()) continue;
       if (metadata.size > 64 * 1024 * 1024)
-        throw new Error("Whisper 输出超过安全限制。");
+        throw new Error("Whisper çıktısı güvenlik sınırını aşıyor.");
       results.push(await readFile(file, "utf8"));
     } catch (error) {
       if ((error as NodeJS.ErrnoException)?.code === "ENOENT") continue;
@@ -309,9 +309,9 @@ export async function transcribeAudio(
     onProgress?: (progress: number, stage: TranscriptionStage) => void;
   } = {},
 ): Promise<{ cues: Subtitle[] }> {
-  if (shuttingDown) throw new Error("应用正在关闭。");
-  if (cancelledJobs.delete(request.jobId)) throw new Error("转写已取消");
-  if (jobs.size > 0) throw new Error("已有转写任务在运行");
+  if (shuttingDown) throw new Error("Uygulama kapanıyor.");
+  if (cancelledJobs.delete(request.jobId)) throw new Error("Yazıya dökme iptal edildi");
+  if (jobs.size > 0) throw new Error("Zaten çalışan bir yazıya dökme görevi var");
 
   let finish!: () => void;
   const completion = new Promise<void>((resolve) => {
@@ -336,10 +336,10 @@ export async function transcribeAudio(
       model.size <= 0 ||
       model.size > 8 * 1024 * 1024 * 1024
     )
-      throw new Error("Whisper 模型文件无效");
+      throw new Error("Whisper model dosyası geçersiz");
 
     const ffmpeg = await findMediaTool("ffmpeg");
-    if (job.cancelled) throw new Error("转写已取消");
+    if (job.cancelled) throw new Error("Yazıya dökme iptal edildi");
     const wav = path.join(directory, "audio.wav");
     const sourceSeconds = request.duration * request.speed;
     progress(4, "extracting");
@@ -380,7 +380,7 @@ export async function transcribeAudio(
         ),
       },
     );
-    if (job.cancelled) throw new Error("转写已取消");
+    if (job.cancelled) throw new Error("Yazıya dökme iptal edildi");
 
     const executable = await resolveWhisperExecutable(options);
     progress(8, "transcribing");
@@ -419,11 +419,11 @@ export async function transcribeAudio(
         },
       },
     );
-    if (job.cancelled) throw new Error("转写已取消");
+    if (job.cancelled) throw new Error("Yazıya dökme iptal edildi");
 
     progress(97, "parsing");
     const rawResults = await readWhisperResults(prefix);
-    if (!rawResults.length) throw new Error("Whisper 未生成结果文件。");
+    if (!rawResults.length) throw new Error("Whisper sonuç dosyası oluşturmadı.");
     let parsed: TranscriptionCue[] = [];
     for (const raw of rawResults) {
       try {
@@ -433,7 +433,7 @@ export async function transcribeAudio(
       }
       if (parsed.length) break;
     }
-    if (!parsed.length) throw new Error("Whisper 没有识别到语音");
+    if (!parsed.length) throw new Error("Whisper konuşma algılamadı");
 
     const cues = buildSubtitleCues(parsed, {
       offset: request.start,
@@ -442,8 +442,8 @@ export async function transcribeAudio(
       fps: request.fps,
     });
     if (!cues.length)
-      throw new Error("自动字幕为空，请检查音频或更换模型");
-    if (job.cancelled) throw new Error("转写已取消");
+      throw new Error("Otomatik altyazı boş; sesi denetleyin veya modeli değiştirin");
+    if (job.cancelled) throw new Error("Yazıya dökme iptal edildi");
     progress(100, "complete");
     return { cues };
   } finally {

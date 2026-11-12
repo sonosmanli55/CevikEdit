@@ -31,7 +31,7 @@ def command():
                 if tuple(int(v) for v in version.split('.')[:2]) < (0, 5):
                     raise RuntimeError('CevikEdit 0.5.0 or newer is required. Install the matching DMG first.')
             return [str(binary), '--cevikedit-plugin']
-    raise RuntimeError('Install CevikEdit 0.5.0+ in /Applications, or run install-plugin.sh --app /absolute/path/CevikEdit.app.')
+    raise RuntimeError('Install CevikEdit 0.8.0+ in /Applications, or run install-plugin.sh --app /absolute/path/CevikEdit.app.')
 
 
 def editor_html():

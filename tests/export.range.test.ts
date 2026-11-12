@@ -10,10 +10,10 @@ import type { ExportOptions, Project } from "../src/core/types";
 let directory:string;
 beforeAll(async()=>{directory=await mkdtemp(path.join(tmpdir(),'cevikedit-range-'));});
 afterAll(async()=>{await rm(directory,{recursive:true,force:true});});
-const baseProject=()=>{const p=createProject('区间');const c=createClip(undefined,p.tracks[0].id,0,30);c.duration=4;p.clips=[c];return p;};
+const baseProject=()=>{const p=createProject('aralığı');const c=createClip(undefined,p.tracks[0].id,0,30);c.duration=4;p.clips=[c];return p;};
 describe('export range',()=>{
  it.each([{start:-1,end:2},{start:2,end:1},{start:0,end:8},{start:0,end:0},{start:NaN,end:2},{start:0,end:Infinity},{start:1,end:1.001},null,'bad'])('rejects invalid range %j',range=>{
-  expect(()=>resolveExportRange(baseProject(),{fps:30,range:range as any})).toThrow('区间');
+  expect(()=>resolveExportRange(baseProject(),{fps:30,range:range as any})).toThrow('aralığı');
  });
  it('selects the bounding interval, preserving gaps and overlapping tracks',()=>{
   const p=baseProject();p.clips.push({...p.clips[0],id:'other',start:8,duration:2});
@@ -24,7 +24,7 @@ describe('export range',()=>{
   const source=path.join(directory,'source.mkv');
   await runMediaTool('ffmpeg',['-v','error','-y','-f','lavfi','-i',"nullsrc=s=160x90:r=30:d=5,format=gbrp,geq=r='mod(N*7,240)':g='100':b='20'",'-f','lavfi','-i','sine=frequency=440:duration=5:sample_rate=48000','-c:v','ffv1','-c:a','pcm_s16le',source]);
   const [asset]=await importAssets([source],path.join(directory,'cache'));
-  const p=createProject('动态范围');p.width=160;p.height=90;p.background='#000000';p.assets=[asset];
+  const p=createProject('Dinamik aralık');p.width=160;p.height=90;p.background='#000000';p.assets=[asset];
   const c=createClip(asset,p.tracks.find(t=>t.kind==='video')!.id,1,30);
   c.sourceIn=.5;c.speed=1.5;c.duration=2;c.fadeIn=.6;c.audioFadeIn=.8;c.audioFadeOut=.5;
   c.keyframes=[{id:'volume-a',property:'volume',time:0,value:.3,easing:'linear'},{id:'volume-b',property:'volume',time:2,value:1,easing:'easeInOut'},{id:'opacity-a',property:'opacity',time:0,value:.2,easing:'linear'},{id:'opacity-b',property:'opacity',time:2,value:1,easing:'easeInOut'}];p.clips=[c];
@@ -49,7 +49,7 @@ describe('export range',()=>{
   const asset={id:'missing',name:'outside',path:path.join(directory,'absent.mp4'),url:'file:///absent.mp4',kind:'video' as const,duration:2,width:160,height:90,fps:30,hasAudio:false,missing:true};
   p.assets=[asset];p.clips.push({...createClip(asset,p.tracks.find(t=>t.kind==='video')!.id,5,30),duration:2});
   const result=await render(p,'outside',{start:0,end:1});expect(result).toContain('outside.mp4');
-  await expect(render(p,'missing-range',{start:5,end:6})).rejects.toThrow('素材丢失');
+  await expect(render(p,'missing-range',{start:5,end:6})).rejects.toThrow('Medya eksik');
  },20000);
 });
 async function render(project:Project,name:string,range?:ExportOptions['range']):Promise<string>{

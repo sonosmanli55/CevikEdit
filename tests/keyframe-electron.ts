@@ -40,7 +40,6 @@ env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
 
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,
@@ -63,9 +62,9 @@ try {
         return {
           canceled: false,
           filePaths:
-            options.title === "导入素材"
+            options.title === "Medya içe aktar"
               ? [files.source]
-              : options.title === "打开 CevikEdit 项目"
+              : options.title === "CevikEdit projesi aç"
                 ? [files.saved]
                 : [files.saved],
         };
@@ -73,7 +72,7 @@ try {
       (dialog as any).showSaveDialog = async (...args: any[]) => ({
         canceled: false,
         filePath:
-          args[args.length - 1].title === "导出视频"
+          args[args.length - 1].title === "Videoyu dışa aktar"
             ? files.exported
             : files.saved,
       });
@@ -94,7 +93,7 @@ try {
     const before = await stat(saved)
       .then((value) => value.mtimeMs)
       .catch(() => -1);
-    await page!.getByRole("button", { name: "保存项目", exact: true }).click();
+    await page!.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
     await expect
       .poll(
         () =>
@@ -131,7 +130,7 @@ try {
     await row(label, time).click();
     const input = page!
       .locator(".keyframe-detail")
-      .getByLabel("精确关键帧数值", { exact: true });
+      .getByLabel("Tam anahtar kare değeri", { exact: true });
     await input.fill(String(value));
     await input.blur();
   };
@@ -143,7 +142,7 @@ try {
     await row(label, time).click();
     await page!
       .locator(".keyframe-detail")
-      .getByLabel("关键帧插值", { exact: true })
+      .getByLabel("Anahtar kare ara değeri", { exact: true })
       .selectOption(easing);
   };
   const preview = async (): Promise<CanvasSnapshot> =>
@@ -170,19 +169,19 @@ try {
 
   // Use a small deterministic canvas and a three second image clip.
   await page.keyboard.press("Escape");
-  await page.getByRole("spinbutton", { name: "宽度", exact: true }).fill("160");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).fill("90");
-  await page.getByRole("spinbutton", { name: "高度", exact: true }).blur();
+  await page.getByRole("spinbutton", { name: "Genişlik", exact: true }).fill("160");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).fill("90");
+  await page.getByRole("spinbutton", { name: "Yükseklik", exact: true }).blur();
   await page.locator(".tl-clip").click();
   await page
-    .getByRole("spinbutton", { name: "片段时长", exact: true })
+    .getByRole("spinbutton", { name: "Klip süresi", exact: true })
     .fill("3");
   await page
-    .getByRole("spinbutton", { name: "片段时长", exact: true })
+    .getByRole("spinbutton", { name: "Klip süresi", exact: true })
     .blur();
   await page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "动画", exact: true })
+    .getByRole("button", { name: "Animasyon", exact: true })
     .click();
 
   const add = (name: string) =>
@@ -191,25 +190,25 @@ try {
       .getByRole("button", { name, exact: true })
       .click();
   await seekSeconds(0);
-  await add("缩放");
-  await add("位置 X");
-  await add("透明度");
+  await add("Ölçek");
+  await add("Konum X");
+  await add("Opaklık");
   await seekSeconds(2);
-  await add("缩放");
-  await add("位置 X");
-  await add("透明度");
+  await add("Ölçek");
+  await add("Konum X");
+  await add("Opaklık");
   await expect(page.locator(".keyframe-row")).toHaveCount(6);
 
-  await setKeyValue("缩放", "00:00:02:00", 2);
-  await setEasing("缩放", "00:00:02:00", "easeIn");
-  await setKeyValue("位置 X", "00:00:02:00", 40);
-  await setEasing("位置 X", "00:00:02:00", "easeOut");
-  await setKeyValue("透明度", "00:00:02:00", 0.2);
-  await setEasing("透明度", "00:00:02:00", "easeInOut");
+  await setKeyValue("Ölçek", "00:00:02:00", 2);
+  await setEasing("Ölçek", "00:00:02:00", "easeIn");
+  await setKeyValue("Konum X", "00:00:02:00", 40);
+  await setEasing("Konum X", "00:00:02:00", "easeOut");
+  await setKeyValue("Opaklık", "00:00:02:00", 0.2);
+  await setEasing("Opaklık", "00:00:02:00", "easeInOut");
 
   // Drag the scale point, then undo the single drag transaction.
-  await row("缩放", "00:00:02:00").click();
-  await expect(page.getByLabel("曲线属性", { exact: true })).toHaveValue(
+  await row("Ölçek", "00:00:02:00").click();
+  await expect(page.getByLabel("Eğri özelliği", { exact: true })).toHaveValue(
     "scale",
   );
   const points = page.locator(".keyframe-point");
@@ -257,34 +256,34 @@ try {
   await page.locator(".tl-clip").click();
   await page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "动画", exact: true })
+    .getByRole("button", { name: "Animasyon", exact: true })
     .click();
 
   // Copy the x key at 2 s, paste it at 1 s and delete it again.
-  await row("位置 X", "00:00:02:00").click();
-  await page.getByLabel("复制关键帧", { exact: true }).click();
+  await row("Konum X", "00:00:02:00").click();
+  await page.getByLabel("Anahtar kareyi kopyala", { exact: true }).click();
   await seekSeconds(1);
-  await page.getByLabel("粘贴关键帧", { exact: true }).click();
+  await page.getByLabel("Anahtar kareyi yapıştır", { exact: true }).click();
   await expect(page.locator(".keyframe-row")).toHaveCount(7);
-  await expect(row("位置 X", "00:00:01:00")).toHaveCount(1);
+  await expect(row("Konum X", "00:00:01:00")).toHaveCount(1);
   await page
     .locator(".keyframe-detail")
-    .getByLabel("删除关键帧", { exact: true })
+    .getByLabel("Anahtar kareyi sil", { exact: true })
     .click();
   await expect(page.locator(".keyframe-row")).toHaveCount(6);
 
   // Precise time input must move a key between real frames.
-  await row("位置 X", "00:00:02:00").click();
+  await row("Konum X", "00:00:02:00").click();
   const exactTime = page
     .locator(".keyframe-detail")
-    .getByLabel("精确关键帧时间", { exact: true });
+    .getByLabel("Tam anahtar kare zamanı", { exact: true });
   await exactTime.fill("1.9");
   await exactTime.blur();
-  await expect(row("位置 X", "00:00:01:27")).toHaveCount(1);
-  await row("位置 X", "00:00:01:27").click();
+  await expect(row("Konum X", "00:00:01:27")).toHaveCount(1);
+  await row("Konum X", "00:00:01:27").click();
   await exactTime.fill("2");
   await exactTime.blur();
-  await expect(row("位置 X", "00:00:02:00")).toHaveCount(1);
+  await expect(row("Konum X", "00:00:02:00")).toHaveCount(1);
 
   const beforeReopen = await saveProject();
   const finalClip = beforeReopen.clips[0];
@@ -317,12 +316,12 @@ try {
   await page.locator(".tl-clip").click();
   const animationTab = page
     .locator(".inspector-tabs")
-    .getByRole("button", { name: "动画", exact: true });
+    .getByRole("button", { name: "Animasyon", exact: true });
   await expect(animationTab).toBeVisible();
   await animationTab.click();
   await expect(page.locator(".keyframe-row")).toHaveCount(6);
-  await expect(page.getByLabel("曲线属性", { exact: true })).toBeVisible();
-  await page.getByLabel("曲线属性", { exact: true }).selectOption("scale");
+  await expect(page.getByLabel("Eğri özelliği", { exact: true })).toBeVisible();
+  await page.getByLabel("Eğri özelliği", { exact: true }).selectOption("scale");
   await expect(page.locator(".keyframe-point")).toHaveCount(2);
   const reopened = await saveProject();
   assert.deepEqual(reopened.clips[0].keyframes, finalClip.keyframes);
@@ -348,9 +347,9 @@ try {
       );
   }
 
-  await page.getByRole("button", { name: "导出", exact: true }).click();
-  await page.getByRole("button", { name: "开始导出", exact: true }).click();
-  await expect(page.getByText("导出完成", { exact: true })).toBeVisible({
+  await page.getByRole("button", { name: "Dışa aktar", exact: true }).click();
+  await page.getByRole("button", { name: "Dışa aktarmayı başlat", exact: true }).click();
+  await expect(page.getByText("Dışa aktarma tamamlandı", { exact: true })).toBeVisible({
     timeout: 90_000,
   });
 

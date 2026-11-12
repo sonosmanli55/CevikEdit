@@ -17,12 +17,12 @@ const fixtures = await generateFixtures(path.join(output, "media")),
     [fixtures.video, fixtures.audio],
     path.join(output, "fixture-cache"),
   );
-const project = createProject("轨道管理验收");
+const project = createProject("Kanal yönetimi kabulü");
 project.assets = assets;
 project.tracks = [
-  createTrack("video", "主画面"),
-  createTrack("video", "叠加画面"),
-  createTrack("audio", "音乐"),
+  createTrack("video", "Ana görüntü"),
+  createTrack("video", "Üst görüntü"),
+  createTrack("audio", "Müzik"),
 ];
 project.clips = [
   { ...createClip(assets[0], project.tracks[0].id, 0, 30), duration: 2 },
@@ -40,7 +40,6 @@ const env: Record<string, string> = Object.fromEntries(
 env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
-env.CEVIKEDIT_LOCALE = "zh";
 const app = await electron.launch({
   args: [path.join(root, "dist-electron", "main.cjs")],
   env,
@@ -70,8 +69,8 @@ try {
   page.on("pageerror", (error) => errors.push(error.message));
   await page.waitForSelector(".app-shell");
   const initialGeometry = await verifyEditorViewport(page);
-  await page.getByRole("button", { name: "文件菜单", exact: true }).click();
-  await page.getByRole("button", { name: "打开项目", exact: false }).click();
+  await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+  await page.getByRole("button", { name: "Proje aç", exact: false }).click();
   await expect(page.locator(".tl-clip")).toHaveCount(3);
   let firstSave = true;
   const save = async (): Promise<Project> => {
@@ -80,10 +79,10 @@ try {
       .catch(() => -1);
     if (firstSave) {
       firstSave = false;
-      await page!.getByRole("button", { name: "文件菜单", exact: true }).click();
-      await page!.getByRole("button", { name: "另存为", exact: false }).click();
+      await page!.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
+      await page!.getByRole("button", { name: "Farklı kaydet", exact: false }).click();
     } else {
-      await page!.getByRole("button", { name: "保存项目", exact: true }).click();
+      await page!.getByRole("button", { name: "Projeyi kaydet", exact: true }).click();
     }
     await expect
       .poll(() =>
@@ -111,61 +110,61 @@ try {
     edited.clips.find((c) => c.id === project.clips[0].id)?.trackId,
     project.tracks[1].id,
   );
-  await page.getByRole("button", { name: "音乐轨道操作", exact: true }).click();
-  await page.getByRole("menuitem", { name: "重命名轨道", exact: true }).click();
+  await page.getByRole("button", { name: "Müzik kanal işlemleri", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı yeniden adlandır", exact: true }).click();
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
-    .fill("背景音乐");
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
+    .fill("Arka plan müziği");
   await page
-    .getByRole("textbox", { name: "轨道名称", exact: true })
+    .getByRole("textbox", { name: "Kanal adı", exact: true })
     .press("Enter");
   edited = await save();
-  assert.equal(edited.tracks[2].name, "背景音乐");
+  assert.equal(edited.tracks[2].name, "Arka plan müziği");
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
   await page
-    .getByRole("menuitem", { name: "向上移动轨道", exact: true })
+    .getByRole("menuitem", { name: "Kanalı yukarı taşı", exact: true })
     .click();
   edited = await save();
   assert.equal(edited.tracks[1].id, project.tracks[2].id);
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
   await page
-    .getByRole("menuitem", { name: "向下移动轨道", exact: true })
+    .getByRole("menuitem", { name: "Kanalı aşağı taşı", exact: true })
     .click();
   edited = await save();
   assert.deepEqual(
     edited.tracks.map((t) => t.id),
     project.tracks.map((t) => t.id),
   );
-  await page.getByRole("button", { name: "锁定背景音乐", exact: true }).click();
+  await page.getByRole("button", { name: "Arka plan müziği kanalını kilitle", exact: true }).click();
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  for (const action of ["重命名轨道", "向上移动轨道", "删除轨道"])
+  for (const action of ["Kanalı yeniden adlandır", "Kanalı yukarı taşı", "Kanalı sil"])
     await expect(
       page.getByRole("menuitem", { name: action, exact: true }),
     ).toBeDisabled();
-  await page.getByRole("button", { name: "解锁背景音乐", exact: true }).click();
-  await page.getByRole("button", { name: "锁定叠加画面", exact: true }).click();
+  await page.getByRole("button", { name: "Arka plan müziği kanalının kilidini aç", exact: true }).click();
+  await page.getByRole("button", { name: "Üst görüntü kanalını kilitle", exact: true }).click();
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
   await expect(
-    page.getByRole("menuitem", { name: "向上移动轨道", exact: true }),
+    page.getByRole("menuitem", { name: "Kanalı yukarı taşı", exact: true }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "解锁叠加画面", exact: true }).click();
+  await page.getByRole("button", { name: "Üst görüntü kanalının kilidini aç", exact: true }).click();
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "删除轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı sil", exact: true }).click();
   await expect(
-    page.getByRole("dialog", { name: "删除轨道确认", exact: true }),
+    page.getByRole("dialog", { name: "Kanal silme onayı", exact: true }),
   ).toBeVisible();
   await page.keyboard.press("Backspace");
-  await page.getByRole("button", { name: "取消", exact: true }).click();
+  await page.getByRole("button", { name: "İptal", exact: true }).click();
   edited = await save();
   assert.equal(
     edited.clips.length,
@@ -173,24 +172,24 @@ try {
     "delete shortcut must not edit selected clips while confirmation is open",
   );
   await page
-    .getByRole("button", { name: "背景音乐轨道操作", exact: true })
+    .getByRole("button", { name: "Arka plan müziği kanal işlemleri", exact: true })
     .click();
-  await page.getByRole("menuitem", { name: "删除轨道", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Kanalı sil", exact: true }).click();
   await page
-    .getByRole("button", { name: "删除轨道和片段", exact: true })
+    .getByRole("button", { name: "Kanalı ve klipleri sil", exact: true })
     .click();
   edited = await save();
   assert.equal(edited.tracks.length, 2);
   assert.equal(edited.clips.length, 2);
   assert.equal(edited.assets.length, 2);
-  await page.getByRole("button", { name: "撤销", exact: true }).click();
+  await page.getByRole("button", { name: "Geri al", exact: true }).click();
   edited = await save();
   assert.equal(edited.tracks.length, 3);
   assert.equal(edited.clips.length, 3);
-  assert.equal(edited.tracks[2].name, "背景音乐");
+  assert.equal(edited.tracks[2].name, "Arka plan müziği");
   for (let i = 0; i < 4; i++) {
-    await page.getByRole("button", { name: "添加轨道", exact: true }).click();
-    await page.getByRole("button", { name: "视频轨道", exact: true }).click();
+    await page.getByRole("button", { name: "Kanal ekle", exact: true }).click();
+    await page.getByRole("button", { name: "Video kanalı", exact: true }).click();
   }
   await page.locator(".tl-scroll").evaluate((el) => {
     el.scrollTop = 140;
@@ -199,7 +198,7 @@ try {
   await expect
     .poll(async () => {
       const handle = (await page!
-        .getByRole("slider", { name: "播放位置", exact: true })
+        .getByRole("slider", { name: "Oynatma konumu", exact: true })
         .boundingBox())!;
       return handle.y >= scrollBox.y && handle.y < scrollBox.y + 30;
     })
