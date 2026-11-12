@@ -1214,7 +1214,11 @@ export default function Timeline(props: TimelineProps) {
                 <div className="tl-track-controls">
                   <button
                     title={track.locked ? "Kanalın kilidini aç" : "Kanalı kilitle"}
-                    aria-label={`${track.locked ? "Kilidi aç" : "Kilitle"}${track.name}`}
+                    aria-label={
+                      track.locked
+                        ? `${track.name} kanalının kilidini aç`
+                        : `${track.name} kanalını kilitle`
+                    }
                     className={track.locked ? "is-active" : ""}
                     onClick={() =>
                       props.onTrackUpdate(track.id, { locked: !track.locked })
@@ -1228,7 +1232,11 @@ export default function Timeline(props: TimelineProps) {
                   </button>
                   <button
                     title={track.hidden ? "Kanalı göster" : "Kanalı gizle"}
-                    aria-label={`${track.hidden ? "Göster" : "Gizle"}${track.name}`}
+                    aria-label={
+                      track.hidden
+                        ? `${track.name} kanalını göster`
+                        : `${track.name} kanalını gizle`
+                    }
                     className={track.hidden ? "is-active" : ""}
                     onClick={() =>
                       props.onTrackUpdate(track.id, { hidden: !track.hidden })
@@ -1239,7 +1247,11 @@ export default function Timeline(props: TimelineProps) {
                   {track.kind !== "text" && (
                     <button
                       title={track.muted ? "Sesi aç" : "Kanalı sessize al"}
-                      aria-label={`${track.muted ? "Sesi aç" : "Sessiz"}${track.name}`}
+                      aria-label={
+                        track.muted
+                          ? `${track.name} kanalının sesini aç`
+                          : `${track.name} kanalını sessize al`
+                      }
                       className={track.muted ? "is-active" : ""}
                       onClick={() =>
                         props.onTrackUpdate(track.id, { muted: !track.muted })
@@ -1255,7 +1267,7 @@ export default function Timeline(props: TimelineProps) {
                   <button
                     className="tl-track-more"
                     title="Kanal işlemleri"
-                    aria-label={`${track.name}Kanal işlemleri`}
+                    aria-label={`${track.name} kanal işlemleri`}
                     aria-expanded={trackActions?.id === track.id}
                     onClick={(event) => {
                       const rect = event.currentTarget.getBoundingClientRect();

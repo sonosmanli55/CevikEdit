@@ -261,7 +261,7 @@ export default function EffectsPanel({
                     <button
                       disabled={colorDisabled}
                       onClick={() => onApply(presetPatch(preset, clip))}
-                      aria-label={`Uygula${preset.name}Renk ayarı`}
+                      aria-label={`${preset.name} renk ayarını uygula`}
                       aria-pressed={!!clip && active?.id === preset.id}
                     >
                       <Check size={12} />

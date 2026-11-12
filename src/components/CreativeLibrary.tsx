@@ -145,7 +145,7 @@ export function MotionLibrary({
               </span>
               <button
                 disabled={disabled}
-                aria-label={`Uygula${p.name}Efekt`}
+                aria-label={`${p.name} efektini uygula`}
                 onClick={() => onApply(p.id)}
               >
                 <Plus size={14} />
@@ -229,7 +229,7 @@ export function TransitionLibrary({
                 <button
                   disabled={disabled}
                   className="transition-apply"
-                  aria-label={`Uygula${p.name}Geçiş`}
+                  aria-label={`${p.name} geçişini uygula`}
                   onClick={() => onApply(p.id, seconds)}
                 >
                   <Plus size={14} />

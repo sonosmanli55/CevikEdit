@@ -114,7 +114,7 @@ try {
   await page.getByRole("button", { name: "Geçiş", exact: true }).click();
   await page.getByRole("button", {name:"Çapraz geçiş geçişini uygula",exact:true}).click();
   await expect(
-    page.getByText("0.50 sn çapraz geçiş eklendi (sonraki klip öne bindirildi)", { exact: true }),
+    page.getByText("0.50 sn'lik çapraz geçiş eklendi (sonraki klip erkene ötelenir)", { exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
   await page.getByRole("button", { name: "Farklı kaydet", exact: false }).click();

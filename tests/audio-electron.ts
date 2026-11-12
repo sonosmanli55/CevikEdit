@@ -178,9 +178,28 @@ try {
     "original video audio must be muted after separation",
   );
   assert(!audioClip.muted, "the independent audio must remain audible");
-  assert.equal(videoAsset.path, audioAsset.path);
+  // Separation writes its own extracted track into the profile folder; the
+  // original container keeps playing through the preview proxy.
+  assert.notEqual(
+    videoAsset.path,
+    audioAsset.path,
+    "separated audio must not reuse the video container path",
+  );
+  assert.equal(videoAsset.path, source);
+  assert.equal(
+    path.dirname(audioAsset.path),
+    path.join(output, "user-data", "extracted-audio"),
+    "extracted audio belongs to the profile folder",
+  );
+  assert.equal(path.extname(audioAsset.path), ".m4a");
+  assert.equal((await stat(audioAsset.path)).isFile(), true);
   assert(videoAsset.previewUrl, "MKV should use a local preview proxy");
-  assert.equal(audioAsset.previewUrl, videoAsset.previewUrl);
+  assert.equal(
+    audioAsset.previewUrl,
+    undefined,
+    "the extracted track plays from its own file, not the video proxy",
+  );
+  assert.notEqual(audioAsset.id, videoAsset.id);
   const playAndMeasure = async () => {
     await page
       .locator(`[data-clip-id="${audioClip.id}"]`)
@@ -217,12 +236,13 @@ try {
   await rename(source, replacement);
   await page.getByRole("button", { name: "Dosya menüsü", exact: true }).click();
   await page.getByRole("button", { name: "Proje aç", exact: false }).click();
-  await expect(page.locator(".media-item.is-missing")).toHaveCount(2, {
+  // Only the original container went missing; the extracted track lives in the
+  // profile folder and stays available.
+  await expect(page.locator(".media-item.is-missing")).toHaveCount(1, {
     timeout: 30_000,
   });
-  // Choose the derived audio asset itself, rather than hiding its failure behind video-first relinking.
   await page
-    .locator(`[data-asset-id="${audioAsset.id}"]`)
+    .locator(`[data-asset-id="${videoAsset.id}"]`)
     .click({ button: "right" });
   await page.getByRole("button", { name: "Medyayı yeniden bağla", exact: true }).click();
   await expect(page.locator(".media-item.is-missing")).toHaveCount(0, {
@@ -235,24 +255,24 @@ try {
     project.assets.map((asset) => asset.id).sort(),
     [videoAsset.id, audioAsset.id].sort(),
   );
-  assert(
-    project.assets.every(
-      (asset) => asset.path === replacement && !asset.missing,
-    ),
-  );
   const relinkedVideo = project.assets.find(
     (asset) => asset.id === videoAsset.id,
   )!;
   const relinkedAudio = project.assets.find(
     (asset) => asset.id === audioAsset.id,
   )!;
+  assert.equal(relinkedVideo.path, replacement);
+  assert(!relinkedVideo.missing, "relinked container must be present");
+  assert.equal(relinkedAudio.path, audioAsset.path);
+  assert(!relinkedAudio.missing, "extracted track must be present");
   assert.equal(relinkedVideo.kind, "video");
   assert.equal(relinkedAudio.kind, "audio");
   assert.equal(relinkedAudio.width, 0);
   assert.equal(relinkedAudio.height, 0);
   assert.equal(relinkedVideo.name, videoAsset.name);
   assert.equal(relinkedAudio.name, audioAsset.name);
-  assert.equal(relinkedAudio.previewUrl, relinkedVideo.previewUrl);
+  assert(relinkedVideo.previewUrl, "the relinked container gets a preview proxy");
+  assert.equal(relinkedAudio.previewUrl, undefined);
   await expect
     .poll(
       async () => {
@@ -317,9 +337,9 @@ try {
       "UI separates into 2 assets / 2 clips",
       "original muted / independent audio audible",
       "actual GainNode waveform before move",
-      "missing original + derived refs after source move",
-      "relink from derived audio to shared video source",
-      "group preserves IDs/names/kinds/proxies",
+      "missing original container only after the source move",
+      "relink the moved container from the video asset",
+      "IDs, names, kinds and proxy rules preserved",
       "actual GainNode waveform after relink",
       "UI export has nonduplicated audio",
     ],
