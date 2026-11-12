@@ -37,6 +37,26 @@ export function systemFontFamilies(): string[] {
   );
 }
 
+/**
+ * Terminate a worker and, on Windows, its descendants. Launcher shims (for
+ * example the Chocolatey `ffmpeg.exe` shim) start the real encoder as a child;
+ * killing only the shim leaves the inherited stdout pipe open and the exit
+ * event never arrives.
+ */
+function terminate(child: ChildProcess, signal: NodeJS.Signals): void {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+  if (process.platform === "win32" && child.pid) {
+    const killer = spawn("taskkill", ["/pid", String(child.pid), "/T", "/F"], {
+      shell: false,
+      windowsHide: true,
+      stdio: "ignore",
+    });
+    killer.once("error", () => child.kill(signal));
+    return;
+  }
+  child.kill(signal);
+}
+
 export async function runMediaTool(
   name: "ffmpeg" | "ffprobe",
   args: string[],
@@ -86,13 +106,13 @@ export async function runMediaToolWithDiagnostics(
     let failure: Error | undefined;
     const timer = setTimeout(() => {
       failure = new Error(`${name} zaman aşımına uğradı; medyanın bozuk olup olmadığını kontrol edin.`);
-      child.kill("SIGKILL");
+      terminate(child, "SIGKILL");
     }, timeout);
     child.stdout.on("data", (data: Buffer) => {
       bytes += data.length;
       if (bytes > limit) {
         failure = new Error(`${name} çıktısı güvenli sınırı aşıyor.`);
-        child.kill("SIGKILL");
+        terminate(child, "SIGKILL");
       } else output.push(data);
     });
     child.stderr.on("data", (data) => {
@@ -122,11 +142,9 @@ export async function runMediaToolWithDiagnostics(
 export async function shutdownMediaTasks(): Promise<void> {
   mediaShuttingDown = true;
   const pending = [...mediaTasks];
-  for (const [child] of pending) child.kill("SIGTERM");
+  for (const [child] of pending) terminate(child, "SIGTERM");
   const timer = setTimeout(() => {
-    for (const [child] of pending)
-      if (child.exitCode === null && child.signalCode === null)
-        child.kill("SIGKILL");
+    for (const [child] of pending) terminate(child, "SIGKILL");
   }, 2000);
   timer.unref();
   try {

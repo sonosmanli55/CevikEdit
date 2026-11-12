@@ -107,7 +107,7 @@ describe.skipIf(!unixOnly)("local whisper runner", () => {
       },
       { savedExecutable: slowWhisper, userDataDirectory: userData },
     );
-    const outcome = expect(pending).rejects.toThrow("İptal");
+    const outcome = expect(pending).rejects.toThrow("iptal edildi");
     await new Promise((resolve) => setTimeout(resolve, 300));
     await cancelTranscription(jobId);
     await outcome;

@@ -216,7 +216,7 @@ export default function SubtitlePanel({ onImport, onExport }: Props) {
     } catch (e) {
       if (transcriptionJobId.current !== jobId) return;
       const message = ipcMessage(e);
-      if (message.includes("İptal")) setTranscriptionNotice("Yazıya dökme iptal edildi");
+      if (message.toLowerCase().includes("iptal")) setTranscriptionNotice("Yazıya dökme iptal edildi");
       else setTranscriptionError(message);
     } finally {
       if (transcriptionJobId.current === jobId) {

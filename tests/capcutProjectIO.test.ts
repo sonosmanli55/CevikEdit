@@ -274,7 +274,7 @@ describe("bounded read-only Capcut project loader", () => {
       await writeFile(join(other, "draft_info.json"), "different-project");
       await symlink(other, alias);
       await expect(readSelectedCapcutTimeline(selected)).rejects.toThrow(
-        "Dizin değişti",
+        "Seçili CapCut proje klasörü değişti",
       );
     },
   );
