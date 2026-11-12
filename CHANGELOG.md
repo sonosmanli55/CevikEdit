@@ -1,5 +1,15 @@
 # Değişiklik günlüğü
 
+## 0.9.0 - 2026-11-13
+
+Medya içe aktarma ve sürükle-bırak düzeltmeleri.
+
+- **"ffprobe bulunamadı" hatası giderildi**: Kurulum paketi artık FFmpeg 8.0 ve FFprobe'u kendi içinde taşıyor (`resources/media-tools`). Araç keşfi sırayla gömülü dizinlere, `CEVIKEDIT_FFMPEG`/`CEVIKEDIT_FFPROBE` ayarına, `PATH`'e ve bilinen kurulum konumlarına bakar. Windows'ta WinGet paketleri, WinGet Links, Chocolatey, Scoop ve `C:\ffmpeg\bin`; Linux/macOS'ta Homebrew, `/usr/local/bin`, `/usr/bin`, `/snap/bin` otomatik bulunur. Arayüzden başlatılan uygulamalar geliştirici kabuğunun `PATH`'ini devralmadığı için bu konum taraması zorunluydu.
+- **Bozuk paket artık uygulamayı kilitlemiyor**: Gömülü araç eksikse çalışan bir sistem FFmpeg'ine düşülür; daha önce bu durumda hiçbir medya içe aktarılamıyordu.
+- **Sürükle-bırak sağlamlaştırıldı**: Dosya yolu taşımayan bırakmalar (tarayıcıdan, arşivden veya kısıtlı kabuktan gelen dosyalar) için bayt tabanlı içe aktarma eklendi; dosyalar profil klasörüne içerik adresli olarak kopyalanır, özgün dosya adı korunur. Sürükleme sırasında pencere üzerinde "Medyayı bırakın" katmanı görünür.
+- **Medya kitaplığına bırakma** da aynı yolu kullanır; böylece pencere geneline bırakma ile kitaplık üzerine bırakma aynı davranır.
+- **Doğrulama**: 470 test (464 geçti, 6 atlandı), 9 masaüstü regresyon betiği, boş `PATH` altında gerçek sürükle-bırak + 1920×1080 H.264/AAC render testi ve paketlenmiş uygulama kontrolleri geçti.
+
 ## 0.8.0 - 2026-11-12
 
 Ürün adı **CevikEdit** olarak sabitlendi; ilk herkese açık sürüm.

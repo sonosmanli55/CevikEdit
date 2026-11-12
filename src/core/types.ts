@@ -364,6 +364,9 @@ export interface EditorAPI {
   getAssistantHistory: (projectId: string) => Promise<AssistantMessage[]>;
   saveAssistantHistory: (projectId: string, messages: AssistantMessage[]) => Promise<void>;
   importMedia: (paths?: string[]) => Promise<MediaAsset[]>;
+  importDroppedMedia: (
+    files: { name: string; data: ArrayBuffer }[],
+  ) => Promise<MediaAsset[]>;
   relinkAsset: (asset: MediaAsset) => Promise<MediaAsset | null>;
   extractAudio: (asset: MediaAsset) => Promise<MediaAsset>;
   reverseClip: (request: ReverseClipRequest) => Promise<MediaAsset>;

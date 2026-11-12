@@ -32,6 +32,11 @@ const env: Record<string, string> = Object.fromEntries(
 env.CEVIKEDIT_USER_DATA = path.join(output, "user-data");
 delete env.ELECTRON_RUN_AS_NODE;
 delete env.VITE_DEV_SERVER_URL;
+// The installer must import and export with its own FFmpeg: no shell PATH and no
+// saved tool override, which is exactly the situation reported by users.
+env.PATH = "";
+delete env.CEVIKEDIT_FFMPEG;
+delete env.CEVIKEDIT_FFPROBE;
 
 const app = await electron.launch({
   executablePath: executable,
@@ -62,7 +67,7 @@ try {
   await page.waitForSelector(".app-shell", { timeout: 60_000 });
 
   const info = await page.evaluate(() => window.editorAPI!.getSystemInfo());
-  assert.equal(info.version, "0.8.0", `paket sürümü ${info.version}`);
+  assert.equal(info.version, "0.9.0", `paket sürümü ${info.version}`);
   assert.equal(info.platform, "win32");
   checks.push(`packaged binary reports version ${info.version} on ${info.platform}`);
 

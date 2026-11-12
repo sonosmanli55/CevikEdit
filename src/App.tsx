@@ -542,6 +542,7 @@ export default function App() {
     [fileMenu, setFileMenu] = useState(false),
     [toast, setToast] = useState(""),
     [importing, setImporting] = useState(false),
+  [dropActive, setDropActive] = useState(false),
     [separating, setSeparating] = useState(false),
     [reverseJob, setReverseJob] = useState<ReverseProgress | null>(null),
     [freezing, setFreezing] = useState(false),
@@ -708,6 +709,40 @@ export default function App() {
       }
       s.addAssets(assets);
       if (assets.length) notify(`${assets.length} medya içe aktarıldı`);
+    } finally {
+      setImporting(false);
+    }
+  };
+  /**
+   * Files dropped from the OS keep a real path we can hand to FFprobe. Files
+   * that come from a browser or an archive have no path, so their bytes are
+   * copied into the profile folder first. Either way the drop ends up as normal
+   * project media.
+   */
+  const importDropped = async (files: File[]) => {
+    const api = window.editorAPI;
+    if (!api) return false;
+    if (!files.length) return false;
+    const projectId = useEditorStore.getState().project.id;
+    setImporting(true);
+    try {
+      const located: string[] = [];
+      const payload: { name: string; data: ArrayBuffer }[] = [];
+      for (const file of files) {
+        const filePath = api.getPathForFile(file);
+        if (filePath) located.push(filePath);
+        else payload.push({ name: file.name, data: await file.arrayBuffer() });
+      }
+      const imported: MediaAsset[] = [];
+      if (located.length) imported.push(...(await api.importMedia(located)));
+      if (payload.length) imported.push(...(await api.importDroppedMedia(payload)));
+      if (useEditorStore.getState().project.id !== projectId) {
+        notify("Proje değişti, bırakılan medya yeni projeye eklenmedi");
+        return true;
+      }
+      useEditorStore.getState().addAssets(imported);
+      if (imported.length) notify(`${imported.length} medya içe aktarıldı`);
+      return imported.length > 0;
     } finally {
       setImporting(false);
     }
@@ -1282,6 +1317,7 @@ export default function App() {
       }}
       onRemoveAsset={(assetId) => void safe(() => s.removeAsset(assetId))}
       importing={importing}
+      onDropFiles={(files) => void safe(() => importDropped(files))}
       onImportFiles={(files) =>
         void safe(async () => s.addAssets(await browserAssets(files)))
       }
@@ -1302,23 +1338,43 @@ export default function App() {
         gridTemplateRows: `44px minmax(180px,1fr) ${timelineHeight}px 26px`,
       }}
       onDragOver={(e) => {
-        if (e.dataTransfer.types.includes("Files")) e.preventDefault();
+        if (e.dataTransfer.types.includes("Files")) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+          if (!dropActive) setDropActive(true);
+        }
+      }}
+      onDragLeave={(e) => {
+        if (!e.dataTransfer.types.includes("Files")) return;
+        if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+        setDropActive(false);
       }}
       onDrop={(e) => {
         if (!e.dataTransfer.types.includes("Files")) return;
         e.preventDefault();
+        setDropActive(false);
         const files = Array.from(e.dataTransfer.files);
         void safe(async () => {
-          if (window.editorAPI)
+          if (window.editorAPI) {
+            if (await importDropped(files)) return;
             await importMedia(
               files
                 .map((file) => window.editorAPI!.getPathForFile(file))
                 .filter(Boolean),
             );
-          else s.addAssets(await browserAssets(files));
+          } else s.addAssets(await browserAssets(files));
         });
       }}
     >
+      {dropActive && (
+        <div className="drop-overlay" aria-hidden="true">
+          <div className="drop-overlay-card">
+            <Upload size={30} />
+            <strong>Medyayı bırakın</strong>
+            <span>Video, ses ve görseller proje medyasına eklenir</span>
+          </div>
+        </div>
+      )}
       <header className="titlebar">
         <div className="brand">
           <span className="brand-icon">

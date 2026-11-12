@@ -1,6 +1,6 @@
 {
   "name": "cevikedit",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": true,
   "description": "An open source offline desktop video editor informed by REA research",
   "type": "module",
@@ -56,7 +56,10 @@
     "test:plugin": "tsx tests/plugin-electron.ts",
     "test:plugin:launcher": "python3 tests/plugin-launcher.py",
     "clean": "node scripts/clean-artifacts.mjs",
-    "rebrand": "node scripts/rebrand.mjs"
+    "rebrand": "node scripts/rebrand.mjs",
+    "test:drop": "npm run build && tsx tests/drop-electron.ts",
+    "test:media-tools": "tsx tests/mediaTools.test.ts",
+    "media:fetch:win": "node scripts/fetch-media-tools-win.mjs"
   },
   "dependencies": {
     "@napi-rs/canvas": "^1.0.11",
@@ -120,7 +123,16 @@
       "target": [
         "nsis"
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "extraResources": [
+        {
+          "from": "media-tools/win32-${arch}",
+          "to": "media-tools",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
     },
     "linux": {
       "target": [

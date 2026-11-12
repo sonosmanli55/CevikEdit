@@ -87,8 +87,19 @@ const pluginMode = process.argv.includes("--cevikedit-plugin");
 if (process.platform === "darwin") app.setActivationPolicy(pluginMode ? "accessory" : "regular");
 if (pluginMode && !process.env.CEVIKEDIT_USER_DATA)
   app.setPath("userData", path.join(app.getPath("appData"), "CevikEdit-Plugin", "sessions", randomUUID()));
-if (app.isPackaged && process.platform === "darwin")
-  setBundledMediaToolsDirectory(path.join(process.resourcesPath, "media-tools"));
+if (app.isPackaged)
+  setBundledMediaToolsDirectory([
+    path.join(process.resourcesPath, "media-tools"),
+    path.join(app.getAppPath(), "media-tools"),
+  ]);
+else
+  setBundledMediaToolsDirectory([
+    // Development builds read the tools the release packager would bundle.
+    path.join(app.getAppPath(), "media-tools", `${process.platform}-${process.arch}`),
+    path.join(app.getAppPath(), "media-tools"),
+    path.join(process.cwd(), "media-tools", `${process.platform}-${process.arch}`),
+    path.join(process.cwd(), "media-tools"),
+  ]);
 if (process.env.CEVIKEDIT_USER_DATA)
   app.setPath("userData", path.resolve(process.env.CEVIKEDIT_USER_DATA));
 protocol.registerSchemesAsPrivileged([
@@ -160,6 +171,11 @@ function validateCapcutToken(token: unknown): asserts token is string {
 const menuAction = (action: string) =>
   window?.webContents.send("menu-action", action);
 const userFile = (name: string) => path.join(app.getPath("userData"), name);
+const MEDIA_EXTENSIONS = new Set([
+  ".mp4", ".mov", ".mkv", ".webm", ".m4v", ".avi",
+  ".mp3", ".wav", ".m4a", ".aac", ".ogg", ".flac",
+  ".png", ".jpg", ".jpeg", ".webp", ".bmp", ".avif", ".heic", ".gif",
+]);
 const cacheDir = () => userFile("thumbnails");
 const reverseDir = () => userFile("reverse-media");
 const freezeDir = () => userFile("freeze-frames");
@@ -526,6 +542,50 @@ function registerIPC() {
       throw new Error("En fazla 100 yerel medya için tam yol sağlayın");
     const assets = await importAssets(selected, cacheDir());
     assets.forEach(authorizeAsset);
+    return assets;
+  });
+  handle("import-dropped-media", async (input: unknown) => {
+    if (!Array.isArray(input) || !input.length || input.length > 100)
+      throw new Error("Sürükleyerek en fazla 100 medya dosyası bırakabilirsiniz");
+    const directory = userFile("dropped");
+    await mkdir(directory, { recursive: true });
+    const written: string[] = [];
+    const displayNames = new Map<string, string>();
+    for (const raw of input) {
+      const entry = raw as { name?: unknown; data?: unknown };
+      const name = path.basename(String(entry?.name ?? "medya"));
+      const extension = path.extname(name).toLocaleLowerCase();
+      if (!MEDIA_EXTENSIONS.has(extension))
+        throw new Error(`Desteklenmeyen medya türü: ${extension || name}`);
+      const data = entry?.data;
+      const buffer =
+        data instanceof ArrayBuffer
+          ? Buffer.from(data)
+          : ArrayBuffer.isView(data)
+            ? Buffer.from(data.buffer, data.byteOffset, data.byteLength)
+            : Buffer.alloc(0);
+      if (!buffer.length) throw new Error(`${name} boş bir dosya`);
+      if (buffer.length > 4 * 1024 * 1024 * 1024)
+        throw new Error(`${name} 4 GB sınırını aşıyor`);
+      // Content-addressed so dropping the same file twice reuses one copy.
+      const key = createHash("sha256").update(buffer).digest("hex").slice(0, 20);
+      const target = path.join(directory, `${key}${extension}`);
+      try {
+        await access(target);
+      } catch {
+        await writeFile(target, buffer);
+      }
+      written.push(target);
+      // Keep the name the user sees in Explorer instead of the content hash.
+      const friendly = path.basename(name, extension).trim();
+      if (friendly) displayNames.set(path.resolve(target), friendly);
+    }
+    const assets = await importAssets(written, cacheDir());
+    for (const asset of assets) {
+      const friendly = displayNames.get(path.resolve(asset.path));
+      if (friendly) asset.name = friendly;
+      authorizeAsset(asset);
+    }
     return assets;
   });
   handle("extract-audio", async (asset: MediaAsset) => {

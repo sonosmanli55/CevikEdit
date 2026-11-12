@@ -21,6 +21,7 @@ beforeAll(async () => {
   }
 });
 afterAll(() => rm(directory, { recursive: true, force: true }));
+
 it("uses both bundled tools even with a competing PATH", async () => {
   for (const name of ["ffmpeg", "ffprobe"] as const)
     expect(
@@ -31,6 +32,7 @@ it("uses both bundled tools even with a competing PATH", async () => {
       }),
     ).toBe(path.join(bundledDirectory, tool(name)));
 });
+
 it("keeps an explicit user override ahead of the bundled tool", async () => {
   const override = path.join(system, tool("ffmpeg"));
   expect(
@@ -41,15 +43,34 @@ it("keeps an explicit user override ahead of the bundled tool", async () => {
     }),
   ).toBe(override);
 });
-it("reports a damaged bundle instead of silently using system tools", async () => {
-  await expect(
-    resolveMediaTool("ffprobe", {
-      platform: process.platform,
-      bundledDirectory: path.join(directory, "missing"),
-      env: { PATH: system },
-    }),
-  ).rejects.toThrow("Gömülü ffprobe");
+
+it("falls back to a working system tool instead of failing on a damaged bundle", async () => {
+  // A packaged app that shipped without media tools must still import media when
+  // the user has FFmpeg installed; refusing to start was the reported bug.
+  for (const name of ["ffmpeg", "ffprobe"] as const)
+    expect(
+      await resolveMediaTool(name, {
+        platform: process.platform,
+        bundledDirectory: path.join(directory, "missing"),
+        env: { PATH: system },
+      }),
+    ).toBe(path.join(system, tool(name)));
 });
+
+it("accepts several bundled directories and keeps their order", async () => {
+  const secondary = path.join(directory, "resources media-tools");
+  await mkdir(secondary, { recursive: true });
+  await writeFile(path.join(secondary, tool("ffprobe")), "#!/bin/sh\nexit 0\n");
+  await chmod(path.join(secondary, tool("ffprobe")), 0o755);
+  expect(
+    await resolveMediaTool("ffprobe", {
+      platform: process.platform,
+      bundledDirectory: [path.join(directory, "missing"), secondary],
+      env: { PATH: "" },
+    }),
+  ).toBe(path.join(secondary, tool("ffprobe")));
+});
+
 it("does not hide a stale explicit override with the bundled tool", async () => {
   await expect(
     resolveMediaTool("ffmpeg", {
@@ -59,6 +80,7 @@ it("does not hide a stale explicit override with the bundled tool", async () => 
     }),
   ).rejects.toThrow("Seçili ffmpeg");
 });
+
 it("retains PATH discovery for source development", async () => {
   expect(
     await resolveMediaTool("ffmpeg", {
@@ -66,4 +88,15 @@ it("retains PATH discovery for source development", async () => {
       env: { PATH: system },
     }),
   ).toBe(path.join(system, tool("ffmpeg")));
+});
+
+it("explains how to install FFmpeg when nothing is available", async () => {
+  const empty = path.join(directory, "empty-home");
+  await mkdir(empty, { recursive: true });
+  await expect(
+    resolveMediaTool("ffprobe", {
+      platform: "linux",
+      env: { PATH: "", HOME: empty },
+    }),
+  ).rejects.toThrow(/ffprobe bulunamadı/);
 });

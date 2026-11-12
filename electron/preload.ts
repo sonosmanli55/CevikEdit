@@ -28,6 +28,7 @@ const api: EditorAPI = {
     return () => ipcRenderer.removeListener("assistant-event", listener);
   },
   importMedia: (paths) => ipcRenderer.invoke("import-media", paths),
+  importDroppedMedia: (files) => ipcRenderer.invoke("import-dropped-media", files),
   relinkAsset: (asset) => ipcRenderer.invoke("relink-asset", asset),
   extractAudio: (asset) => ipcRenderer.invoke("extract-audio", asset),
   reverseClip: (request) => ipcRenderer.invoke("reverse-clip", request),

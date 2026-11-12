@@ -29,6 +29,7 @@ export interface MediaLibraryProps {
   onRemoveAsset: (assetId: string) => void;
   importing?: boolean;
   onImportFiles?: (files: File[]) => void;
+  onDropFiles?: (files: File[]) => void;
   onRevealAsset?: (assetId: string) => void;
   onPreviewAsset?: (assetId: string) => void;
 }
@@ -53,6 +54,7 @@ export default function MediaLibrary({
   onRemoveAsset,
   importing = false,
   onImportFiles,
+  onDropFiles,
   onRevealAsset,
   onPreviewAsset,
 }: MediaLibraryProps) {
@@ -81,6 +83,10 @@ export default function MediaLibrary({
   const receiveFiles = (files: File[]) => {
     if (!files.length) return;
     if (window.editorAPI) {
+      if (onDropFiles) {
+        onDropFiles(files);
+        return;
+      }
       const paths = files
         .map((file) => window.editorAPI!.getPathForFile(file))
         .filter(Boolean);
