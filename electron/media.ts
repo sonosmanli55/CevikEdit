@@ -100,6 +100,8 @@ export async function runMediaToolWithDiagnostics(
     });
     child.once("error", (error) => {
       clearTimeout(timer);
+      mediaTasks.delete(child);
+      finish();
       reject(error);
     });
     child.once("close", (code) => {
