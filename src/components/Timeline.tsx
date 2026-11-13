@@ -52,6 +52,10 @@ import {
   pointerVelocity,
 } from "../core/timelineMotion";
 import { performanceNotes, visibleClips } from "../core/limits";
+import {
+  laneKindForAsset,
+  resolveDropTrack,
+} from "../core/timelineDrop";
 import "./Timeline.css";
 
 export interface TimelineProps {
@@ -72,16 +76,16 @@ export interface TimelineProps {
   onAddTrack: (kind: TrackKind) => void;
   onTrackDelete?: (id: string) => void;
   onTrackMove?: (id: string, direction: "up" | "down") => void;
-  onDropAsset?: (assetId: string, time: number, trackId: string) => void;
-  /** Several library assets dropped at once; `index` preserves the library order. */
-  onDropAssets?: (assetIds: string[], time: number, trackId: string) => void;
+  onDropAsset?: (assetId: string, time: number, trackId?: string) => void;
+  /** Several library assets dropped at once; `trackId` is a hint only. */
+  onDropAssets?: (assetIds: string[], time: number, trackId?: string) => void;
   /** A creative-library preset (transition, motion, effect or text template). */
   onDropPreset?: (
     preset: LibraryPreset,
     target: { clipId?: string; time: number; trackId?: string },
   ) => void;
   /** A bundled (offline) asset dropped from the inspiration library. */
-  onDropBuiltin?: (builtinId: string, time: number, trackId: string) => void;
+  onDropBuiltin?: (builtinId: string, time: number, trackId?: string) => void;
   snapping?: boolean;
   onSnappingChange?: (value: boolean) => void;
   magnetic?: boolean;
@@ -929,7 +933,21 @@ export default function Timeline(props: TimelineProps) {
     const c = project.clips.find((c) => c.id === id);
     return c && !project.tracks.find((t) => t.id === c.trackId)?.locked;
   });
-  const onDrop = (event: React.DragEvent, track: Track) => {
+  /**
+   * Where a media drop should land. A video dropped on the audio lane still
+   * belongs to a video lane, so the hovered lane is only a hint: we route it to
+   * the nearest lane that accepts the kind and let the store create one when the
+   * project has none yet.
+   */
+  const mediaDropTarget = (
+    assets: MediaAsset[],
+    hovered: Track | undefined,
+  ): Track | undefined => {
+    if (!assets.length) return undefined;
+    const kind = laneKindForAsset(assets[0]);
+    return resolveDropTrack(project.tracks, kind, hovered?.id);
+  };
+  const onDrop = (event: React.DragEvent, hovered?: Track) => {
     event.preventDefault();
     setDropTarget(null);
     const time = snapToFrame(
@@ -938,12 +956,15 @@ export default function Timeline(props: TimelineProps) {
     );
     const preset = readPresetDrag(event.dataTransfer);
     if (preset) {
-      if (!track.locked) props.onDropPreset?.(preset, { time, trackId: track.id });
+      if (hovered && !hovered.locked)
+        props.onDropPreset?.(preset, { time, trackId: hovered.id });
       return;
     }
     const builtin = event.dataTransfer.getData(BUILTIN_DRAG_TYPE);
     if (builtin) {
-      if (!track.locked) props.onDropBuiltin?.(builtin, time, track.id);
+      // The importer knows whether the bundled asset is audio, so the app
+      // resolves the final lane after importing it.
+      props.onDropBuiltin?.(builtin, time, hovered?.id);
       return;
     }
     const batch = event.dataTransfer.getData(ASSET_IDS_DRAG_TYPE);
@@ -951,18 +972,18 @@ export default function Timeline(props: TimelineProps) {
       try {
         const ids = JSON.parse(batch) as unknown;
         if (Array.isArray(ids) && ids.length) {
-          const usable = ids.filter((entry): entry is string => {
-            if (typeof entry !== "string") return false;
-            const candidate = project.assets.find((a) => a.id === entry);
-            return (
-              !!candidate &&
-              !candidate.missing &&
-              (candidate.kind === track.kind ||
-                (candidate.kind === "image" && track.kind === "video"))
+          const assets = ids
+            .filter((entry): entry is string => typeof entry === "string")
+            .map((entry) => project.assets.find((a) => a.id === entry))
+            .filter((asset): asset is MediaAsset => !!asset && !asset.missing);
+          if (assets.length) {
+            const target = mediaDropTarget(assets, hovered);
+            props.onDropAssets?.(
+              assets.map((asset) => asset.id),
+              time,
+              target?.id,
             );
-          });
-          if (usable.length && !track.locked)
-            props.onDropAssets?.(usable, time, track.id);
+          }
           return;
         }
       } catch {
@@ -973,14 +994,10 @@ export default function Timeline(props: TimelineProps) {
       event.dataTransfer.getData(ASSET_DRAG_TYPE) ||
       event.dataTransfer.getData("assetid");
     const asset = project.assets.find((a) => a.id === id);
-    if (
-      asset &&
-      !asset.missing &&
-      !track.locked &&
-      (asset.kind === track.kind ||
-        (asset.kind === "image" && track.kind === "video"))
-    )
-      props.onDropAsset?.(id, time, track.id);
+    if (asset && !asset.missing) {
+      const target = mediaDropTarget([asset], hovered);
+      props.onDropAsset?.(id, time, target?.id);
+    }
   };
 
   return (
@@ -1224,6 +1241,33 @@ export default function Timeline(props: TimelineProps) {
             minWidth: "100%",
             minHeight: "100%",
           }}
+          onDragOver={(event) => {
+            // Empty space below the last lane is still a valid drop area.
+            const carriesMedia =
+              event.dataTransfer.types.includes(ASSET_DRAG_TYPE) ||
+              event.dataTransfer.types.includes(ASSET_IDS_DRAG_TYPE) ||
+              event.dataTransfer.types.includes(BUILTIN_DRAG_TYPE) ||
+              event.dataTransfer.types.includes("assetid");
+            if (!carriesMedia) return;
+            const sourceKind = (["audio", "video", "image"] as const).find(
+              (kind) =>
+                event.dataTransfer.types.includes(
+                  `application/x-cevikedit-kind-${kind}`,
+                ),
+            );
+            const hovered = targetTrack(event.clientY);
+            const target = sourceKind
+              ? resolveDropTrack(project.tracks, sourceKind, hovered?.id)
+              : hovered;
+            if (!target) return;
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+            setDropTarget({
+              trackId: target.id,
+              time: Math.max(0, locate(event.clientX, event.clientY).x / pps),
+            });
+          }}
+          onDrop={(event) => onDrop(event, targetTrack(event.clientY))}
         >
           <div className="tl-ruler" style={{ height: RULER }}>
             <div className="tl-ruler-label">
@@ -1425,9 +1469,14 @@ export default function Timeline(props: TimelineProps) {
                 }}
                 onPointerDown={startSelection}
                 onDragOver={(event) => {
-                  const id =
+                  // Media can be dropped anywhere; the lane under the pointer is
+                  // only a hint, so we highlight the lane it will really land on.
+                  const carriesMedia =
                     event.dataTransfer.types.includes(ASSET_DRAG_TYPE) ||
+                    event.dataTransfer.types.includes(ASSET_IDS_DRAG_TYPE) ||
+                    event.dataTransfer.types.includes(BUILTIN_DRAG_TYPE) ||
                     event.dataTransfer.types.includes("assetid");
+                  if (!carriesMedia) return;
                   const sourceKind = (
                     ["audio", "video", "image"] as const
                   ).find((kind) =>
@@ -1435,20 +1484,14 @@ export default function Timeline(props: TimelineProps) {
                       `application/x-cevikedit-kind-${kind}`,
                     ),
                   );
-                  if (
-                    track.locked ||
-                    !id ||
-                    (sourceKind &&
-                      !(
-                        sourceKind === track.kind ||
-                        (sourceKind === "image" && track.kind === "video")
-                      ))
-                  )
-                    return;
+                  const target = sourceKind
+                    ? resolveDropTrack(project.tracks, sourceKind, track.id)
+                    : track;
+                  if (!target) return;
                   event.preventDefault();
                   event.dataTransfer.dropEffect = "copy";
                   setDropTarget({
-                    trackId: track.id,
+                    trackId: target.id,
                     time: Math.max(
                       0,
                       locate(event.clientX, event.clientY).x / pps,
@@ -1461,7 +1504,10 @@ export default function Timeline(props: TimelineProps) {
                   )
                     setDropTarget(null);
                 }}
-                onDrop={(event) => onDrop(event, track)}
+                onDrop={(event) => {
+                  event.stopPropagation();
+                  onDrop(event, track);
+                }}
               >
                 {(() => {
                   const trackClips = clips.filter((c) => c.trackId === track.id);

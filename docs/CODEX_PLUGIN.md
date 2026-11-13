@@ -1,10 +1,10 @@
 # Codex'te CevikEdit kullanımı
 
-CevikEdit iki giriş sunar: bağımsız DMG masaüstü uygulaması ile Codex masaüstü ekinin sağ kenar çubuğu paneli. İkisi aynı düzenleyiciyi ve yerel medya motorunu kullanır. Eklenti için **CevikEdit 0.10.0 veya üzeri** sürümü yerel olarak kurulu olmalıdır; bu bir bulut tabanlı video düzenleyici hizmeti değildir.
+CevikEdit iki giriş sunar: bağımsız DMG masaüstü uygulaması ile Codex masaüstü ekinin sağ kenar çubuğu paneli. İkisi aynı düzenleyiciyi ve yerel medya motorunu kullanır. Eklenti için **CevikEdit 0.11.0 veya üzeri** sürümü yerel olarak kurulu olmalıdır; bu bir bulut tabanlı video düzenleyici hizmeti değildir.
 
 ## Kurulum
 
-1. [v0.10.0 sürümü](https://github.com/sonosmanli55/CevikEdit/releases/latest) dosyalarından Windows kurulum paketini ve eklenti ZIP'ini indirin. CevikEdit DMG'sini açıp uygulamayı “Uygulamalara” sürükleyin ve en az bir kez başlatarak sistem izninin verildiğini doğrulayın.
+1. [v0.11.0 sürümü](https://github.com/sonosmanli55/CevikEdit/releases/latest) dosyalarından Windows kurulum paketini ve eklenti ZIP'ini indirin. CevikEdit DMG'sini açıp uygulamayı “Uygulamalara” sürükleyin ve en az bir kez başlatarak sistem izninin verildiğini doğrulayın.
 2. Codex masaüstü ekini ve CLI'sini kurun; terminalin `codex` çalıştığını ve Python 3 olduğunu doğrulayın.
 3. CevikEdit kaynak dizininde ya da açılmış eklenti ZIP dizininde şu komutları çalıştırın:
 

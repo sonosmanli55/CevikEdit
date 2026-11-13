@@ -1,5 +1,17 @@
 # Değişiklik günlüğü
 
+## 0.11.0 - 2026-11-13
+
+Sürükle-bırakta otomatik kanal yönlendirmesi.
+
+- **Kanala nişan almanız gerekmiyor**: Proje medyasından bir video sürükleyip ses kanalının üzerine bıraksanız bile klip doğru yere, yani bir video kanalına yerleşir. Ses dosyası video kanalına bırakılırsa ses kanalına gider, görseller video kanalına yerleşir.
+- **Yönlendirme kuralı**: İmlecin bulunduğu kanal yalnızca bir ipucudur. Kanal türü uyuyorsa oraya, uymuyorsa dikey olarak en yakın uygun ve kilitli olmayan kanala bırakılır. Hiç uygun kanal yoksa uygulama yenisini oluşturur.
+- **Karışık seçim tek bırakmada dağılır**: Birden çok medya seçip tek bir kanala bıraktığınızda ses dosyaları ses kanalına, video ve görseller video kanalına ayrı ayrı yerleşir; her kanal kendi zaman imlecini ilerletir, böylece parçalar üst üste binmez.
+- **Boş alana bırakma**: Kanalların altındaki boş alana bırakma da çalışır; medya yine uygun kanala yerleşir.
+- **Bırakma önizlemesi doğru kanalı gösterir**: Sürüklerken vurgulanan kanal, öğenin gerçekten yerleşeceği kanaldır — yanlış kanalda bıraktığınızda "hiçbir şey olmadı" hissi kalmaz.
+- **Yerleşik malzeme**: Çıkartma, arka plan ve ses efektleri içe aktarıldıktan sonra türlerine göre yönlendirilir.
+- **Doğrulama**: `tests/timelineDrop.test.ts` 7 birim testi (yönlendirme tablosu, yakın kanal seçimi, kilitli kanal atlama, karışık gruplama) ve `tests/drop-routing-electron.ts` 4 gerçek masaüstü kontrolü (video→ses kanalı, ses→video kanalı, boş alana bırakma, karışık toplu bırakma) geçti. Tam paket: 477 test (471 geçti, 6 atlandı), 9 masaüstü regresyon betiği.
+
 ## 0.10.0 - 2026-11-13
 
 Düzenleme etkileşimleri: önizlemede ölçekleme, toplu medya ekleme ve kütüphaneden sürükle-bırak.

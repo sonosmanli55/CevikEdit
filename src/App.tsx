@@ -71,6 +71,10 @@ import MediaLibrary from "./components/MediaLibrary";
 import SourcePreview from "./components/SourcePreview";
 import EditorWorkspace from "./components/EditorWorkspace";
 import Timeline, { type LibraryPreset } from "./components/Timeline";
+import {
+  groupAssetsByLane,
+  resolveDropTrack,
+} from "./core/timelineDrop";
 import EffectsPanel, {
   COLOR_PRESETS,
   presetPatch,
@@ -1492,7 +1496,7 @@ export default function App() {
           <span className="brand-icon">
             <img src="./icons/cevikedit.png" alt="" />
           </span>
-          <strong>CevikEdit</strong>
+          <strong>CevikEdit</strong>
         </div>
         <div className="titlebar-menus">
           <div className="file-menu-container">
@@ -1744,20 +1748,45 @@ export default function App() {
           onTrackMove={s.reorderTrack}
           onAddTrack={s.addTrack}
           onDropAsset={(assetId, time, trackId) => {
-            setSourceAssetId(null); s.addAssetClip(assetId, time, trackId);
+            setSourceAssetId(null);
+            // The store picks a compatible lane and creates one when needed.
+            useEditorStore.getState().addAssetClip(assetId, time, trackId);
+            const asset = useEditorStore
+              .getState()
+              .project.assets.find((a) => a.id === assetId);
+            if (asset)
+              notify(
+                `${asset.name} ${asset.kind === "audio" ? "ses" : "video"} kanalına eklendi`,
+              );
           }}
           onDropAssets={(assetIds, time, trackId) => {
             setSourceAssetId(null);
-            let cursor = time;
-            for (const assetId of assetIds) {
-              const asset = useEditorStore
-                .getState()
-                .project.assets.find((a) => a.id === assetId);
-              if (!asset || asset.missing) continue;
-              useEditorStore.getState().addAssetClip(assetId, cursor, trackId);
-              cursor += asset.duration > 0 ? asset.duration : 3;
+            const project = useEditorStore.getState().project;
+            const dropped = assetIds
+              .map((id) => project.assets.find((a) => a.id === id))
+              .filter((asset): asset is MediaAsset => !!asset && !asset.missing);
+            // Mixed selections fan out: audio to audio lanes, everything else to
+            // video lanes. Each lane keeps its own running cursor.
+            const cursors = new Map<string, number>();
+            for (const group of groupAssetsByLane(dropped)) {
+              const lane = resolveDropTrack(
+                useEditorStore.getState().project.tracks,
+                group.lane,
+                trackId,
+              )?.id;
+              const key = lane ?? `new-${group.lane}`;
+              let cursor = cursors.get(key) ?? time;
+              for (const asset of group.assets) {
+                useEditorStore.getState().addAssetClip(asset.id, cursor, lane);
+                cursor += asset.duration > 0 ? asset.duration : 3;
+              }
+              cursors.set(key, cursor);
             }
-            notify(`${assetIds.length} medya zaman çizelgesine eklendi`);
+            notify(
+              dropped.length === 1
+                ? "Medya zaman çizelgesine eklendi"
+                : `${dropped.length} medya uygun kanallara eklendi`,
+            );
           }}
           onDropPreset={(preset, target) =>
             void safe(() => applyDroppedPreset(preset, target))
@@ -1768,7 +1797,14 @@ export default function App() {
               const imported = await window.editorAPI.importBuiltinAsset(builtinId);
               if (!imported) throw new Error("Yerleşik medya içe aktarılamadı");
               useEditorStore.getState().addAssets([imported]);
-              useEditorStore.getState().addAssetClip(imported.id, time, trackId);
+              const lane = resolveDropTrack(
+                useEditorStore.getState().project.tracks,
+                imported.kind === "audio" ? "audio" : "video",
+                trackId,
+              );
+              useEditorStore
+                .getState()
+                .addAssetClip(imported.id, time, lane?.id);
               notify(`${imported.name} zaman çizelgesine eklendi`);
             })
           }

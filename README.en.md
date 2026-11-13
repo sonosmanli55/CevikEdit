@@ -20,7 +20,7 @@ CevikEdit brings media management, multitrack editing, subtitles and video expor
 
 The project uses [REA](https://github.com/morluto/rea) to study Jianying's interface behavior and local project formats, then independently implements an editor with Electron, React, TypeScript and FFmpeg. REA supports development research; REA, Ghidra and Jianying are not runtime dependencies.
 
-> **Current release: v0.10.0 — preview scaling and library drag & drop.** The installer ships FFmpeg 8.0 and FFprobe; discovery checks bundled folders, your saved override, `PATH`, then WinGet / Chocolatey / Scoop / Homebrew locations. Drag & drop now works for files that carry no OS path. The interface is Turkish only. Windows x64 NSIS was built and launched on this machine; macOS was not rebuilt this cycle and Linux is unverified. See the [website](https://sonosmanli55.github.io/CevikEdit/) and the [latest release](https://github.com/sonosmanli55/CevikEdit/releases). A 30-second showcase is in [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); per-feature evidence is in [docs/VALIDATION.md](docs/VALIDATION.md).
+> **Current release: v0.11.0 — automatic lane routing on drop.** The installer ships FFmpeg 8.0 and FFprobe; discovery checks bundled folders, your saved override, `PATH`, then WinGet / Chocolatey / Scoop / Homebrew locations. Drag & drop now works for files that carry no OS path. The interface is Turkish only. Windows x64 NSIS was built and launched on this machine; macOS was not rebuilt this cycle and Linux is unverified. See the [website](https://sonosmanli55.github.io/CevikEdit/) and the [latest release](https://github.com/sonosmanli55/CevikEdit/releases). A 30-second showcase is in [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); per-feature evidence is in [docs/VALIDATION.md](docs/VALIDATION.md).
 
 ## Features
 
@@ -42,13 +42,13 @@ See the [feature matrix](docs/FEATURE_MATRIX.md) for detailed support and limita
 
 ### Option 1: Windows installer or one-click launcher
 
-Download the [CevikEdit 0.10.0 installer](https://github.com/sonosmanli55/CevikEdit/releases/latest) (`CevikEdit-Kurulum.exe`) and run it. If you prefer a ~200 KB download that fetches and installs the app in the background, use `CevikEdit-Kurucu.exe` from the same release; it asks before downloading and installing anything.
+Download the [CevikEdit 0.11.0 installer](https://github.com/sonosmanli55/CevikEdit/releases/latest) (`CevikEdit-Kurulum.exe`) and run it. If you prefer a ~200 KB download that fetches and installs the app in the background, use `CevikEdit-Kurucu.exe` from the same release; it asks before downloading and installing anything.
 
 The [macOS 0.5.0 DMG](https://github.com/sonosmanli55/CevikEdit/releases/tag/v0.5.0) remains available for Apple Silicon; it is ad-hoc signed, not Apple-notarized, and has not been rebuilt since this week's work.
 
 ### Option 2: inside the Codex side panel
 
-Install **CevikEdit 0.10.0+**, Codex desktop, its `codex` CLI, and Python 3. Download the [Codex plugin ZIP](https://github.com/sonosmanli55/CevikEdit/releases/latest), then run from its extracted directory or this repository:
+Install **CevikEdit 0.11.0+**, Codex desktop, its `codex` CLI, and Python 3. Download the [Codex plugin ZIP](https://github.com/sonosmanli55/CevikEdit/releases/latest), then run from its extracted directory or this repository:
 
 ```sh
 sh scripts/install-plugin.sh
