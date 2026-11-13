@@ -10,6 +10,7 @@ import {
   type TransitionId,
 } from "../core/creativePresets";
 import PresetPreview from "./PresetPreview";
+import { writePresetDrag } from "./Timeline";
 import "./CreativeLibrary.css";
 function SearchBox({
   value,
@@ -89,7 +90,19 @@ export function TextLibrary({
         </p>
         <div className="creative-grid">
           {presets.map((p) => (
-            <article className="creative-card" key={p.id} data-preset-id={p.id}>
+            <article
+              className="creative-card"
+              key={p.id}
+              data-preset-id={p.id}
+              draggable
+              title="Zaman çizelgesine sürükleyin"
+              onDragStart={(event) =>
+                writePresetDrag(event.dataTransfer, {
+                  kind: "text",
+                  id: p.id,
+                })
+              }
+            >
               <PresetPreview text={p} label={p.name} />
               <div>
                 <span title={p.style.text}>
@@ -136,7 +149,19 @@ export function MotionLibrary({
       </p>
       <div className="creative-grid">
         {presets.map((p) => (
-          <article className="creative-card" key={p.id} data-preset-id={p.id}>
+          <article
+            className="creative-card"
+            key={p.id}
+            data-preset-id={p.id}
+            draggable
+            title="Bir klibin üzerine sürükleyin"
+            onDragStart={(event) =>
+              writePresetDrag(event.dataTransfer, {
+                kind: "motion",
+                id: p.id,
+              })
+            }
+          >
             <PresetPreview motion={p.id} label={p.name} />
             <div>
               <span title={p.description}>
@@ -217,7 +242,20 @@ export function TransitionLibrary({
         </p>
         <div className="creative-grid">
           {presets.map((p) => (
-            <article className="creative-card" key={p.id} data-preset-id={p.id}>
+            <article
+              className="creative-card"
+              key={p.id}
+              data-preset-id={p.id}
+              draggable
+              title="İki klip arasına sürükleyin"
+              onDragStart={(event) =>
+                writePresetDrag(event.dataTransfer, {
+                  kind: "transition",
+                  id: p.id,
+                  seconds,
+                })
+              }
+            >
               <PresetPreview transition={p.id} label={p.name} />
               <div>
                 <span title={p.description}>

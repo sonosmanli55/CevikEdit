@@ -339,6 +339,96 @@ export default function Player({
   const aspect = project.width / project.height,
     displayW = Math.min(size.w, size.h * aspect) * viewScale,
     displayH = displayW / aspect;
+  // Corner handles so the preview itself can scale the selected clip.
+  const selectedClip =
+    selectedIds.length === 1
+      ? project.clips.find((c) => c.id === selectedIds[0])
+      : undefined;
+  const selectedAsset = selectedClip?.assetId
+    ? project.assets.find((a) => a.id === selectedClip.assetId)
+    : undefined;
+  const selectedTrack = selectedClip
+    ? project.tracks.find((t) => t.id === selectedClip.trackId)
+    : undefined;
+  const evaluated = selectedClip
+    ? evaluateKeyframes(selectedClip, Math.max(0, playhead - selectedClip.start)).transform
+    : undefined;
+  const scaleBox = (() => {
+    if (!selectedClip || !selectedAsset || !evaluated) return null;
+    if (selectedClip.text || selectedTrack?.kind === "audio") return null;
+    if (selectedTrack?.hidden || selectedTrack?.locked) return null;
+    if (
+      playhead < selectedClip.start ||
+      playhead >= selectedClip.start + selectedClip.duration
+    )
+      return null;
+    if (!selectedAsset.width || !selectedAsset.height) return null;
+    const contain = Math.min(
+      project.width / selectedAsset.width,
+      project.height / selectedAsset.height,
+    );
+    const factor = displayW / project.width;
+    const width = selectedAsset.width * contain * evaluated.scale * factor;
+    const height = selectedAsset.height * contain * evaluated.scale * factor;
+    return {
+      left: displayW / 2 + evaluated.x * factor - width / 2,
+      top: displayH / 2 + evaluated.y * factor - height / 2,
+      width,
+      height,
+    };
+  })();
+  const beginScale = (
+    event: React.PointerEvent<HTMLDivElement>,
+    box: { left: number; top: number; width: number; height: number },
+  ) => {
+    if (!selectedClip || !evaluated || event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const clipId = selectedClip.id;
+    const centerX = box.left + box.width / 2;
+    const centerY = box.top + box.height / 2;
+    const startDist = Math.hypot(
+      event.clientX - event.nativeEvent.offsetX * 0 - centerX,
+      event.clientY - centerY,
+    );
+    // Fall back to the pointer offset inside the handle when perfectly centred.
+    const baseDist = startDist || Math.max(1, Math.min(box.width, box.height));
+    const startScale = evaluated.scale;
+    onPlayingChange(false);
+    const move = (e: PointerEvent) => {
+      const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+      const next = Math.max(
+        0.02,
+        Math.min(10, (startScale * dist) / baseDist),
+      );
+      const latest = current.current.project.clips.find(
+        (c) => c.id === clipId,
+      );
+      if (
+        !latest ||
+        current.current.project.tracks.find((t) => t.id === latest.trackId)
+          ?.locked
+      )
+        return;
+      const ratio = next / startScale;
+      onUpdateClip(clipId, {
+        transform: { ...latest.transform, scale: next },
+        keyframes: latest.keyframes.map((key) =>
+          key.property === "scale"
+            ? { ...key, value: Math.max(0.02, Math.min(10, key.value * ratio)) }
+            : key,
+        ),
+      });
+    };
+    const finish = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", finish);
+      window.removeEventListener("pointercancel", finish);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", finish, { once: true });
+    window.addEventListener("pointercancel", finish, { once: true });
+  };
   return (
     <section className="player-panel panel" aria-label="Oynatıcı">
       <div className="panel-heading">
@@ -348,7 +438,11 @@ export default function Player({
         </span>
       </div>
       <div className="player-stage" ref={hostRef}>
-        <canvas
+        <div
+          className="player-frame"
+          style={{ width: displayW, height: displayH }}
+        >
+          <canvas
           ref={canvasRef}
           aria-label="Video önizlemesi"
           width={Math.max(
@@ -426,6 +520,56 @@ export default function Player({
               });
           }}
         />
+          {scaleBox && selectedClip && (
+            <div
+              className="player-scale-box"
+              style={{
+                left: scaleBox.left,
+                top: scaleBox.top,
+                width: scaleBox.width,
+                height: scaleBox.height,
+              }}
+            >
+              <span className="player-scale-label">
+                %{Math.round((evaluated?.scale ?? 1) * 100)}
+              </span>
+              {(
+                [
+                  ["nw", "Sol üst köşeden ölçekle"],
+                  ["ne", "Sağ üst köşeden ölçekle"],
+                  ["sw", "Sol alt köşeden ölçekle"],
+                  ["se", "Sağ alt köşeden ölçekle"],
+                ] as const
+              ).map(([corner, label]) => (
+                <div
+                  key={corner}
+                  className={`player-scale-handle player-scale-${corner}`}
+                  role="slider"
+                  tabIndex={0}
+                  aria-label={label}
+                  aria-valuenow={Math.round((evaluated?.scale ?? 1) * 100)}
+                  aria-valuemin={2}
+                  aria-valuemax={1000}
+                  title={`${label} · sürükleyin`}
+                  onPointerDown={(event) => beginScale(event, scaleBox)}
+                  onKeyDown={(event) => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight")
+                      return;
+                    event.preventDefault();
+                    const delta = event.key === "ArrowRight" ? 0.05 : -0.05;
+                    const next = Math.max(
+                      0.02,
+                      Math.min(10, (evaluated?.scale ?? 1) + delta),
+                    );
+                    onUpdateClip(selectedClip.id, {
+                      transform: { ...selectedClip.transform, scale: next },
+                    });
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
         {!project.clips.length && (
           <div className="player-empty">
             <div className="preview-mark">

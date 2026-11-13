@@ -70,10 +70,21 @@ import type { BuiltinAsset } from "./core/builtinAssets";
 import MediaLibrary from "./components/MediaLibrary";
 import SourcePreview from "./components/SourcePreview";
 import EditorWorkspace from "./components/EditorWorkspace";
-import Timeline from "./components/Timeline";
-import EffectsPanel from "./components/EffectsPanel";
+import Timeline, { type LibraryPreset } from "./components/Timeline";
+import EffectsPanel, {
+  COLOR_PRESETS,
+  presetPatch,
+} from "./components/EffectsPanel";
 import { TextLibrary, TransitionLibrary } from "./components/CreativeLibrary";
-import { addTextPreset, applyTransition, type TextPreset, type TransitionId } from "./core/creativePresets";
+import {
+  TEXT_PRESETS,
+  addTextPreset,
+  applyTransition,
+  motionPatch,
+  type MotionId,
+  type TextPreset,
+  type TransitionId,
+} from "./core/creativePresets";
 import Player from "./components/Player";
 import Inspector from "./components/Inspector";
 import "./styles.css";
@@ -1296,6 +1307,103 @@ export default function App() {
       ? `${result.duration.toFixed(2)} sn'lik çapraz geçiş eklendi (sonraki klip erkene ötelenir)`
       : `${result.duration.toFixed(2)} sn'lik geçiş eklendi; geri alınabilir`);
   };
+  /** Appends library assets one after another, starting at the playhead. */
+  const appendAssets = (assetIds: string[]) => {
+    let cursor = s.playhead;
+    for (const assetId of assetIds) {
+      const asset = useEditorStore
+        .getState()
+        .project.assets.find((a) => a.id === assetId);
+      if (!asset || asset.missing) continue;
+      useEditorStore.getState().addAssetClip(assetId, cursor);
+      cursor += asset.duration > 0 ? asset.duration : 3;
+    }
+    if (assetIds.length)
+      notify(
+        assetIds.length === 1
+          ? "Medya zaman çizelgesine eklendi"
+          : `${assetIds.length} medya arka arkaya eklendi`,
+      );
+  };
+  /**
+   * Applies a creative-library item dropped on the timeline. Transitions attach
+   * to the clip that ends where the drop landed; effects and motions patch the
+   * clip under the pointer; text templates create a new text clip.
+   */
+  const applyDroppedPreset = (
+    preset: LibraryPreset,
+    target: { clipId?: string; time: number; trackId?: string },
+  ) => {
+    const current = useEditorStore.getState();
+    const project = current.project;
+    const clip =
+      (target.clipId
+        ? project.clips.find((c) => c.id === target.clipId)
+        : undefined) ??
+      project.clips.find(
+        (c) =>
+          (!target.trackId || c.trackId === target.trackId) &&
+          c.start <= target.time &&
+          target.time < c.start + c.duration,
+      ) ??
+      project.clips.find(
+        (c) =>
+          (!target.trackId || c.trackId === target.trackId) &&
+          Math.abs(c.start + c.duration - target.time) < 1e-6,
+      );
+    if (preset.kind === "text") {
+      const template = TEXT_PRESETS.find((p) => p.id === preset.id);
+      if (!template) throw new Error("Metin şablonu bulunamadı");
+      const result = addTextPreset(project, template, target.time);
+      current.commit(result.project);
+      current.select([result.clip.id]);
+      notify(`${template.name} metni eklendi`);
+      return;
+    }
+    if (!clip) {
+      notify("Önce bir klip seçin veya geçişi bir klibin üzerine bırakın");
+      return;
+    }
+    if (project.tracks.find((t) => t.id === clip.trackId)?.locked) {
+      notify("Kanal kilitli");
+      return;
+    }
+    if (preset.kind === "transition") {
+      const track = project.tracks.find((t) => t.id === clip.trackId);
+      if (clip.text || track?.kind === "audio") {
+        notify("Geçişler yalnızca görüntü kliplerine uygulanır");
+        return;
+      }
+      // A transition belongs to the clip that ends at the drop point.
+      const previous = project.clips
+        .filter(
+          (c) =>
+            c.trackId === clip.trackId &&
+            !c.text &&
+            Math.abs(c.start + c.duration - clip.start) < 1e-6,
+        )
+        .at(0);
+      const owner = previous ?? clip;
+      const result = applyTransition(
+        project,
+        owner.id,
+        preset.id as TransitionId,
+        preset.seconds ?? 0.5,
+      );
+      current.commit(result.project);
+      notify(`${result.duration.toFixed(2)} sn'lik geçiş eklendi`);
+      return;
+    }
+    if (preset.kind === "motion") {
+      current.updateClip(clip.id, motionPatch(clip, preset.id as MotionId, project));
+      notify("Hareket uygulandı");
+      return;
+    }
+    const colorPreset = COLOR_PRESETS.find((p) => p.id === preset.id);
+    if (!colorPreset) throw new Error("Efekt bulunamadı");
+    current.updateClip(clip.id, presetPatch(colorPreset, clip));
+    notify(`${colorPreset.name} uygulandı`);
+  };
   const renderMediaLibrary = (audioOnly: boolean) => (
     <MediaLibrary
       project={
@@ -1314,6 +1422,10 @@ export default function App() {
       onAddAsset={(assetId) => {
         setSourceAssetId(null);
         s.addAssetClip(assetId);
+      }}
+      onAddAssets={(assetIds) => {
+        setSourceAssetId(null);
+        appendAssets(assetIds);
       }}
       onRemoveAsset={(assetId) => void safe(() => s.removeAsset(assetId))}
       importing={importing}
@@ -1634,6 +1746,32 @@ export default function App() {
           onDropAsset={(assetId, time, trackId) => {
             setSourceAssetId(null); s.addAssetClip(assetId, time, trackId);
           }}
+          onDropAssets={(assetIds, time, trackId) => {
+            setSourceAssetId(null);
+            let cursor = time;
+            for (const assetId of assetIds) {
+              const asset = useEditorStore
+                .getState()
+                .project.assets.find((a) => a.id === assetId);
+              if (!asset || asset.missing) continue;
+              useEditorStore.getState().addAssetClip(assetId, cursor, trackId);
+              cursor += asset.duration > 0 ? asset.duration : 3;
+            }
+            notify(`${assetIds.length} medya zaman çizelgesine eklendi`);
+          }}
+          onDropPreset={(preset, target) =>
+            void safe(() => applyDroppedPreset(preset, target))
+          }
+          onDropBuiltin={(builtinId, time, trackId) =>
+            void safe(async () => {
+              if (!window.editorAPI) return;
+              const imported = await window.editorAPI.importBuiltinAsset(builtinId);
+              if (!imported) throw new Error("Yerleşik medya içe aktarılamadı");
+              useEditorStore.getState().addAssets([imported]);
+              useEditorStore.getState().addAssetClip(imported.id, time, trackId);
+              notify(`${imported.name} zaman çizelgesine eklendi`);
+            })
+          }
           snapping={s.snapping}
           onSnappingChange={s.setSnapping}
           magnetic={s.magnetic}

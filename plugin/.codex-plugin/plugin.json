@@ -1,6 +1,6 @@
 {
   "name": "cevikedit",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Local video editing inside the Codex side panel. Requires CevikEdit 0.7.0+.",
   "author": {
     "name": "CevikEdit contributors"

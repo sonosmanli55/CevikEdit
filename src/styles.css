@@ -411,6 +411,48 @@ h3:first-child {
 .player-stage:fullscreen {
   background: #0b0c10;
 }
+.player-frame {
+  position: relative;
+  flex-shrink: 0;
+}
+.player-scale-box {
+  position: absolute;
+  border: 1px solid #48e2c4;
+  box-shadow: 0 0 0 1px #48e2c466;
+  pointer-events: none;
+}
+.player-scale-label {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: #0d2b26ee;
+  border: 1px solid #48e2c466;
+  color: #9df3e2;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.player-scale-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: #0d2b26;
+  border: 2px solid #48e2c4;
+  pointer-events: auto;
+  cursor: nwse-resize;
+  outline: none;
+}
+.player-scale-handle:focus-visible {
+  box-shadow: 0 0 0 3px #48e2c466;
+}
+.player-scale-nw { left: -7px; top: -7px; }
+.player-scale-ne { right: -7px; top: -7px; cursor: nesw-resize; }
+.player-scale-sw { left: -7px; bottom: -7px; cursor: nesw-resize; }
+.player-scale-se { right: -7px; bottom: -7px; }
 .player-stage canvas {
   box-shadow: 0 3px 28px #0005;
   flex-shrink: 0;

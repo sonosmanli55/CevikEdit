@@ -1,5 +1,17 @@
 # Değişiklik günlüğü
 
+## 0.10.0 - 2026-11-13
+
+Düzenleme etkileşimleri: önizlemede ölçekleme, toplu medya ekleme ve kütüphaneden sürükle-bırak.
+
+- **Oynatıcıdan ölçekleme**: Seçili görüntü veya metin klibi önizlemede ince bir çerçeveyle gösterilir. Dört köşe tutamacından biri sürüklenerek klip büyütülüp küçültülür; tutamaç odaklanıp ok tuşlarıyla da %5 adımlarla ayarlanabilir. Ölçek yüzdesi çerçevenin üstünde görünür ve değişiklik anahtar karelerdeki ölçek değerlerine orantılı uygulanır; tek geri alma ile döner.
+- **Toplu medya seçimi ve ekleme**: Proje medyasında Ctrl/⌘ + tıklama tek tek seçer, Shift + tıklama aralık seçer. Seçim varken üstte "N medyayı ekle" düğmesi çıkar; tümü oynatma konumundan başlayarak arka arkaya zaman çizelgesine eklenir. Seçili öğeleri sürüklemek de tüm seçimi birlikte taşır.
+- **Cetvelden sürükleyerek ölçekleme**: Zaman cetvelinde sol tuşla sağa sürüklemek zaman ölçeğini genişletir, sola sürüklemek daraltır (imlecin altındaki an sabit kalır). Cetvele sadece tıklamak eskisi gibi oynatma konumunu değiştirir.
+- **Kare ekleme düğmesi**: Medya kartındaki `+` düğmesi artık yamuk daire değil, 23×23 px kare (5 px köşe yarıçapı) olarak çizilir; liste görünümünde de aynı.
+- **Geçiş, efekt, hareket ve metin şablonlarını sürükle-bırak**: Geçiş kitaplığındaki kart bir klibin üzerine bırakıldığında geçiş o klibe (varsa bitişiğindeki klibe) uygulanır; renk efektleri ve hareket ön ayarları bırakılan klibi düzenler; metin şablonu bırakılan anda yeni metin klibi oluşturur. Sürükleme sırasında hedef klip vurgulanır.
+- **Yerleşik malzeme sürükle-bırak**: Çıkartma, arka plan ve ses efekti kartları doğrudan zaman çizelgesine sürüklenebilir; medya içe aktarılır ve bırakılan noktaya yerleştirilir.
+- **Doğrulama**: 470 birim testi (464 geçti, 6 atlandı), 9 masaüstü regresyon betiği ve yeni `tests/interactions-electron.ts` (9 kontrol: önizleme ölçekleme, ok tuşu ölçekleme, geçiş/efekt/metin bırakma, toplu ekleme, kare düğme, cetvel sürükleme ve cetvele tıklayarak konumlanma) geçti.
+
 ## 0.9.0 - 2026-11-13
 
 Medya içe aktarma ve sürükle-bırak düzeltmeleri.

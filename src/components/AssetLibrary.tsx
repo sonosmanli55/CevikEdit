@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AudioLines, Check, LoaderCircle, Pause, Play, Plus, Search, X } from "lucide-react";
 import { BUILTIN_ASSETS, BUILTIN_CATEGORIES, builtinAssetUrl, filterBuiltinAssets, type BuiltinAsset, type BuiltinAssetCategory } from "../core/builtinAssets";
+import { BUILTIN_DRAG_TYPE } from "./Timeline";
 import "./AssetLibrary.css";
 export interface AssetLibraryProps {
   onAdd: (asset: BuiltinAsset) => void | Promise<void>;
@@ -48,7 +49,7 @@ export default function AssetLibrary({ onAdd, addingId }: AssetLibraryProps) {
     {error && <p className="builtin-error" role="alert">{error}</p>}
     <div className="builtin-results">
       {category === "titles" && <p className="builtin-hint">Saydam zemin videonun üzerine eklenebilir, ardından düzenlenebilir metin ekleyin.</p>}
-      {filtered.length === 0 ? <div className="builtin-empty"><Search size={25}/><strong>Medya bulunamadı</strong><span>"Yıldız ışığı", "Seyahat" veya "Geçiş" deneyin</span><button onClick={() => {setQuery("");setCategory("all");}}>Tümünü gör</button></div> : <div className="builtin-grid">{filtered.map(asset => <article className={`builtin-card builtin-${asset.category}`} key={asset.id} data-builtin-id={asset.id}>
+      {filtered.length === 0 ? <div className="builtin-empty"><Search size={25}/><strong>Medya bulunamadı</strong><span>"Yıldız ışığı", "Seyahat" veya "Geçiş" deneyin</span><button onClick={() => {setQuery("");setCategory("all");}}>Tümünü gör</button></div> : <div className="builtin-grid">{filtered.map(asset => <article className={`builtin-card builtin-${asset.category}`} key={asset.id} data-builtin-id={asset.id} draggable title="Zaman çizelgesine sürükleyin" onDragStart={event => { event.dataTransfer.setData(BUILTIN_DRAG_TYPE, asset.id); event.dataTransfer.effectAllowed = "copy"; }}>
         {asset.kind === "audio" ? <button className="builtin-preview builtin-audio" aria-label={`${playing === asset.id ? "Durdur" : "Önizle"} ${asset.name}`} onClick={() => void previewSound(asset)}><AudioLines size={32}/><span className="builtin-play">{playing === asset.id ? <Pause size={13}/> : <Play size={13}/>}</span><small>{asset.duration.toFixed(2)}s</small></button> : <div className={`builtin-preview ${asset.transparent ? "builtin-alpha" : ""}`}><img src={builtinAssetUrl(asset)} alt={asset.name} loading="lazy" draggable={false}/>{asset.transparent && <small>Saydam</small>}</div>}
         <div className="builtin-card-footer"><div><strong title={asset.name}>{asset.name}</strong><span>{asset.kind === "audio" ? "Sentezlenmiş ses efekti" : asset.category === "titles" ? "Saydam zemin" : asset.category === "backgrounds" ? "1920 × 1080" : "Saydam çıkartma"}</span></div><button aria-label={`${asset.name} ekle`} title="Oynatma konumuna ekle" disabled={!!busy} onClick={() => void add(asset)}>{busy === asset.id ? <LoaderCircle size={15} className="builtin-spin"/> : recent === asset.id ? <Check size={15}/> : <Plus size={15}/>}</button></div>
       </article>)}</div>}

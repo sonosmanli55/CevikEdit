@@ -14,6 +14,7 @@ import "./EffectsPanel.css";
 import { MotionLibrary } from "./CreativeLibrary";
 import { motionPatch } from "../core/creativePresets";
 import PresetPreview from "./PresetPreview";
+import { writePresetDrag } from "./Timeline";
 
 export interface EffectsPanelProps {
   clip?: Clip;
@@ -248,6 +249,14 @@ export default function EffectsPanel({
                   className="creative-card"
                   key={preset.id}
                   data-preset-id={preset.id}
+                  draggable
+                  title="Bir klibin üzerine sürükleyin"
+                  onDragStart={(event) =>
+                    writePresetDrag(event.dataTransfer, {
+                      kind: "effect",
+                      id: preset.id,
+                    })
+                  }
                 >
                   <PresetPreview
                     adjustments={preset.adjustments}

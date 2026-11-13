@@ -20,7 +20,7 @@ CevikEdit medya yönetimini, çok kanallı kurguyu, altyazıları ve video dış
 
 Proje, CapCut'un arayüz davranışını ve yerel proje biçimini incelemek için [REA](https://github.com/morluto/rea) kullanır; düzenleyicinin kendisi Electron, React, TypeScript ve FFmpeg ile bağımsız olarak yazılmıştır. REA bir geliştirme araştırma aracıdır; CevikEdit'i çalıştırmak için REA, Ghidra veya CapCut kurmak gerekmez.
 
-> **Geçerli sürüm: v0.9.0.** Kurulum paketi FFmpeg 8.0 ve FFprobe'u kendi içinde taşır; araç keşfi gömülü dizin, kullanıcı ayarı, `PATH` ve WinGet/Chocolatey/Scoop/Homebrew konumlarını sırayla dener. Sürükle-bırak, dosya yolu taşımayan bırakmalar için de çalışır. Arayüz yalnızca Türkçedir. Windows x64 NSIS kurulumu bu makinede derlenmiş ve başlatılmıştır; macOS paketi bu sürümde yeniden derlenmemiştir, Linux doğrulanmamıştır. Sürümler için [GitHub Releases](https://github.com/sonosmanli55/CevikEdit/releases) sayfasına bakın. 30 saniyelik demo: [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); kanıtlar: [Yerel doğrulama kaydı](docs/VALIDATION.md).
+> **Geçerli sürüm: v0.10.0.** Kurulum paketi FFmpeg 8.0 ve FFprobe'u kendi içinde taşır; araç keşfi gömülü dizin, kullanıcı ayarı, `PATH` ve WinGet/Chocolatey/Scoop/Homebrew konumlarını sırayla dener. Sürükle-bırak, dosya yolu taşımayan bırakmalar için de çalışır. Arayüz yalnızca Türkçedir. Önizlemede köşe tutamaçlarıyla klip ölçeklenir; proje medyasında Ctrl/Shift ile çoklu seçim yapılıp topluca zaman çizelgesine eklenir; cetvelden sürükleyerek zaman ölçeği genişletilir; geçiş, efekt, hareket, metin ve yerleşik malzeme kütüphanelerden sürükle-bırak ile uygulanır. Windows x64 NSIS kurulumu bu makinede derlenmiş ve başlatılmıştır; macOS paketi bu sürümde yeniden derlenmemiştir, Linux doğrulanmamıştır. Sürümler için [GitHub Releases](https://github.com/sonosmanli55/CevikEdit/releases) sayfasına bakın. 30 saniyelik demo: [docs/media/hafta-demosu.mp4](docs/media/hafta-demosu.mp4); kanıtlar: [Yerel doğrulama kaydı](docs/VALIDATION.md).
 
 ## Temel özellikler
 
@@ -47,7 +47,7 @@ Tam destek kapsamı ve sınırlamalar için [özellik matrisi](docs/FEATURE_MATR
 
 ### Yol 2: Codex eklentisi olarak sağ panelde açma
 
-Önce **CevikEdit 0.9.0+** ve Codex masaüstü uygulamasını kurun; terminalde `codex` CLI ve Python 3 bulunmalıdır. Depodaki eklenti paketini indirip (veya depoyu klonlayıp) şu komutu çalıştırın:
+Önce **CevikEdit 0.10.0+** ve Codex masaüstü uygulamasını kurun; terminalde `codex` CLI ve Python 3 bulunmalıdır. Depodaki eklenti paketini indirip (veya depoyu klonlayıp) şu komutu çalıştırın:
 
 ```sh
 sh scripts/install-plugin.sh

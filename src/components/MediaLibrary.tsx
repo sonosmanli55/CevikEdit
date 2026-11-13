@@ -19,7 +19,7 @@ import {
   X,
 } from "lucide-react";
 import type { MediaAsset, MediaKind, Project } from "../core/types";
-import { ASSET_DRAG_TYPE } from "./Timeline";
+import { ASSET_DRAG_TYPE, ASSET_IDS_DRAG_TYPE } from "./Timeline";
 import "./MediaLibrary.css";
 
 export interface MediaLibraryProps {
@@ -29,6 +29,8 @@ export interface MediaLibraryProps {
   onRemoveAsset: (assetId: string) => void;
   importing?: boolean;
   onImportFiles?: (files: File[]) => void;
+  /** Append several library assets to the timeline in one action. */
+  onAddAssets?: (ids: string[]) => void;
   onDropFiles?: (files: File[]) => void;
   onRevealAsset?: (assetId: string) => void;
   onPreviewAsset?: (assetId: string) => void;
@@ -55,27 +57,59 @@ export default function MediaLibrary({
   importing = false,
   onImportFiles,
   onDropFiles,
+  onAddAssets,
   onRevealAsset,
   onPreviewAsset,
 }: MediaLibraryProps) {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<MediaKind | "all">("all");
   const [view, setView] = useState<"grid" | "list">("grid");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
   const [menu, setMenu] = useState<string | null>(null);
   const [draggingFiles, setDraggingFiles] = useState(false);
   const dragCounter = useRef(0);
   const fileInput = useRef<HTMLInputElement>(null);
+  /** Anchor for Shift+click range selection. */
+  const rangeAnchor = useRef<string | null>(null);
   useEffect(() => {
-    setSelected(null);
+    setSelected([]);
     setMenu(null);
     setQuery("");
+    rangeAnchor.current = null;
   }, [project.id]);
   const filtered = project.assets.filter(
     (asset) =>
       (kind === "all" || asset.kind === kind) &&
       asset.name.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
   );
+  const selectedSet = new Set(selected);
+  /** Click behaviour mirrors a file manager: plain replaces, Ctrl toggles, Shift extends. */
+  const selectAsset = (
+    id: string,
+    event: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean },
+  ) => {
+    if (event.shiftKey && rangeAnchor.current) {
+      const from = filtered.findIndex((a) => a.id === rangeAnchor.current);
+      const to = filtered.findIndex((a) => a.id === id);
+      if (from >= 0 && to >= 0) {
+        const [start, end] = from < to ? [from, to] : [to, from];
+        setSelected(filtered.slice(start, end + 1).map((a) => a.id));
+        return;
+      }
+    }
+    if (event.metaKey || event.ctrlKey) {
+      setSelected((previous) => {
+        const next = new Set(previous);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        rangeAnchor.current = id;
+        return [...next];
+      });
+      return;
+    }
+    rangeAnchor.current = id;
+    setSelected([id]);
+  };
   const startImport = () => {
     if (!window.editorAPI && onImportFiles) fileInput.current?.click();
     else onImport();
@@ -103,6 +137,7 @@ export default function MediaLibrary({
   };
   const item = (asset: MediaAsset) => {
     const inTimeline = project.clips.some((c) => c.assetId === asset.id);
+    const isSelected = selectedSet.has(asset.id);
     return (
       <div
         key={asset.id}
@@ -110,21 +145,28 @@ export default function MediaLibrary({
         role="button"
         tabIndex={0}
         aria-label={`${asset.name}, ${asset.kind === "audio" ? "Ses" : asset.kind === "image" ? "Görsel" : "Video"}${asset.missing ? ", dosya eksik" : ""}`}
-        aria-pressed={selected === asset.id}
-        className={`media-item media-item-${asset.kind} ${selected === asset.id ? "is-selected" : ""} ${asset.missing ? "is-missing" : ""}`}
+        aria-pressed={isSelected}
+        className={`media-item media-item-${asset.kind} ${isSelected ? "is-selected" : ""} ${asset.missing ? "is-missing" : ""}`}
         draggable={!asset.missing}
         onDragStart={(event) => {
+          // Dragging one item of a multi-selection carries the whole selection.
+          const batch =
+            isSelected && selected.length > 1 ? selected : [asset.id];
           event.dataTransfer.setData(ASSET_DRAG_TYPE, asset.id);
+          event.dataTransfer.setData(ASSET_IDS_DRAG_TYPE, JSON.stringify(batch));
           event.dataTransfer.setData(
             `application/x-cevikedit-kind-${asset.kind}`,
             asset.kind,
           );
           event.dataTransfer.effectAllowed = "copy";
-          setSelected(asset.id);
+          if (!isSelected) {
+            setSelected([asset.id]);
+            rangeAnchor.current = asset.id;
+          }
           setMenu(null);
         }}
         onClick={(event) => {
-          setSelected(asset.id);
+          selectAsset(asset.id, event);
           setMenu(null);
           if (!(event.target as HTMLElement).closest("button")) onPreviewAsset?.(asset.id);
         }}
@@ -137,7 +179,10 @@ export default function MediaLibrary({
         }}
         onContextMenu={(event) => {
           event.preventDefault();
-          setSelected(asset.id);
+          if (!isSelected) {
+            setSelected([asset.id]);
+            rangeAnchor.current = asset.id;
+          }
           setMenu(asset.id);
         }}
         onKeyDown={(event) => {
@@ -145,7 +190,7 @@ export default function MediaLibrary({
           if (event.key === " " && onPreviewAsset) {
             event.preventDefault();
             event.stopPropagation();
-            setSelected(asset.id);
+            setSelected([asset.id]);
             onPreviewAsset(asset.id);
           }
           if (event.key === "Enter" && !asset.missing) {
@@ -248,7 +293,7 @@ export default function MediaLibrary({
           onClick={(event) => {
             event.stopPropagation();
             setMenu(menu === asset.id ? null : asset.id);
-            setSelected(asset.id);
+            setSelected([asset.id]);
           }}
         >
           <MoreHorizontal size={15} />
@@ -284,7 +329,7 @@ export default function MediaLibrary({
               onClick={() => {
                 onRemoveAsset(asset.id);
                 setMenu(null);
-                if (selected === asset.id) setSelected(null);
+                if (selectedSet.has(asset.id)) setSelected(selected.filter((id) => id !== asset.id));
               }}
             >
               <Trash2 size={13} /> Kitaplıktan kaldır
@@ -336,6 +381,20 @@ export default function MediaLibrary({
           <span>Proje medyası</span>
           <b>{project.assets.length}</b>
         </div>
+        {selected.length > 1 && onAddAssets && (
+          <button
+            className="media-add-selected"
+            onClick={() => {
+              onAddAssets(
+                selected.filter((id) =>
+                  project.assets.some((a) => a.id === id && !a.missing),
+                ),
+              );
+            }}
+          >
+            <Plus size={14} /> {selected.length} medyayı ekle
+          </button>
+        )}
         <button
           className="media-import"
           onClick={startImport}
@@ -412,7 +471,7 @@ export default function MediaLibrary({
         onClick={(event) => {
           if (event.target === event.currentTarget) {
             setMenu(null);
-            setSelected(null);
+            setSelected([]);
           }
         }}
       >

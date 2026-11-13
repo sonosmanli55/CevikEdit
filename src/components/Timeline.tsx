@@ -73,6 +73,15 @@ export interface TimelineProps {
   onTrackDelete?: (id: string) => void;
   onTrackMove?: (id: string, direction: "up" | "down") => void;
   onDropAsset?: (assetId: string, time: number, trackId: string) => void;
+  /** Several library assets dropped at once; `index` preserves the library order. */
+  onDropAssets?: (assetIds: string[], time: number, trackId: string) => void;
+  /** A creative-library preset (transition, motion, effect or text template). */
+  onDropPreset?: (
+    preset: LibraryPreset,
+    target: { clipId?: string; time: number; trackId?: string },
+  ) => void;
+  /** A bundled (offline) asset dropped from the inspiration library. */
+  onDropBuiltin?: (builtinId: string, time: number, trackId: string) => void;
   snapping?: boolean;
   onSnappingChange?: (value: boolean) => void;
   magnetic?: boolean;
@@ -89,6 +98,44 @@ const GUTTER = 158;
 const ROW = 70;
 const RULER = 30;
 export const ASSET_DRAG_TYPE = "application/x-cevikedit-asset";
+export const ASSET_IDS_DRAG_TYPE = "application/x-cevikedit-assets";
+export const PRESET_DRAG_TYPE = "application/x-cevikedit-preset";
+export const BUILTIN_DRAG_TYPE = "application/x-cevikedit-builtin";
+export type LibraryPresetKind = "transition" | "motion" | "effect" | "text";
+export interface LibraryPreset {
+  kind: LibraryPresetKind;
+  id: string;
+  /** Transition length in seconds when the preset carries one. */
+  seconds?: number;
+}
+/** Serialises a library preset so the timeline can apply it on drop. */
+export function writePresetDrag(
+  transfer: DataTransfer,
+  preset: LibraryPreset,
+): void {
+  transfer.setData(PRESET_DRAG_TYPE, JSON.stringify(preset));
+  transfer.setData("text/plain", `${preset.kind}:${preset.id}`);
+  transfer.effectAllowed = "copy";
+}
+export function readPresetDrag(transfer: DataTransfer): LibraryPreset | null {  const raw = transfer.getData(PRESET_DRAG_TYPE);
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Partial<LibraryPreset>;
+    if (
+      !value ||
+      typeof value.id !== "string" ||
+      !["transition", "motion", "effect", "text"].includes(String(value.kind))
+    )
+      return null;
+    return {
+      kind: value.kind as LibraryPresetKind,
+      id: value.id,
+      seconds: typeof value.seconds === "number" ? value.seconds : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
 export function formatTimelineTime(seconds: number, fps = 30) {
   const frames = Math.max(0, Math.round(seconds * fps));
   const secs = Math.floor(frames / fps);
@@ -784,6 +831,53 @@ export default function Timeline(props: TimelineProps) {
     const finish = () => {};
     listenForGesture(move, finish);
   };
+  /**
+   * Dragging on the ruler stretches or compresses the time scale, the way
+   * desktop editors do it: pass right to zoom in, left to zoom out. A plain
+   * click still seeks, so the ruler keeps its original scrubbing behaviour.
+   */
+  const startRulerDrag = (event: ReactPointerEvent) => {
+    if (event.button !== 0) return;
+    event.stopPropagation();
+    const scroller = scrollRef.current;
+    if (!scroller) return scrub(event);
+    const rect = scroller.getBoundingClientRect();
+    const startX = event.clientX;
+    const startPps = pps;
+    const startScroll = scroller.scrollLeft;
+    const cursorX = startX - rect.left;
+    let moved = false;
+    const move = (e: PointerEvent) => {
+      const dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) < 4) return;
+      moved = true;
+      const nextPps = clampPps(startPps * Math.max(0.05, 1 + dx / 240));
+      if (Math.abs(nextPps - startPps) < 1e-9) return;
+      props.onZoom(nextPps);
+      const target = zoomedScrollLeft({
+        pps: startPps,
+        nextPps,
+        scrollLeft: startScroll,
+        cursorX,
+        gutter: GUTTER,
+      });
+      requestAnimationFrame(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        el.scrollLeft = clampScrollLeft(
+          target,
+          el.scrollWidth,
+          el.clientWidth,
+        );
+        setScrollLeft(el.scrollLeft);
+      });
+    };
+    const finish = () => {
+      if (moved) return;
+      onSeek(Math.max(0, (cursorX + startScroll - GUTTER) / startPps));
+    };
+    listenForGesture(move, finish);
+  };
   const startSelection = (event: ReactPointerEvent) => {
     if (event.button !== 0) return;
     const start = locate(event.clientX, event.clientY);
@@ -838,6 +932,43 @@ export default function Timeline(props: TimelineProps) {
   const onDrop = (event: React.DragEvent, track: Track) => {
     event.preventDefault();
     setDropTarget(null);
+    const time = snapToFrame(
+      Math.max(0, locate(event.clientX, event.clientY).x / pps),
+      project.fps,
+    );
+    const preset = readPresetDrag(event.dataTransfer);
+    if (preset) {
+      if (!track.locked) props.onDropPreset?.(preset, { time, trackId: track.id });
+      return;
+    }
+    const builtin = event.dataTransfer.getData(BUILTIN_DRAG_TYPE);
+    if (builtin) {
+      if (!track.locked) props.onDropBuiltin?.(builtin, time, track.id);
+      return;
+    }
+    const batch = event.dataTransfer.getData(ASSET_IDS_DRAG_TYPE);
+    if (batch) {
+      try {
+        const ids = JSON.parse(batch) as unknown;
+        if (Array.isArray(ids) && ids.length) {
+          const usable = ids.filter((entry): entry is string => {
+            if (typeof entry !== "string") return false;
+            const candidate = project.assets.find((a) => a.id === entry);
+            return (
+              !!candidate &&
+              !candidate.missing &&
+              (candidate.kind === track.kind ||
+                (candidate.kind === "image" && track.kind === "video"))
+            );
+          });
+          if (usable.length && !track.locked)
+            props.onDropAssets?.(usable, time, track.id);
+          return;
+        }
+      } catch {
+        /* fall through to the single asset path */
+      }
+    }
     const id =
       event.dataTransfer.getData(ASSET_DRAG_TYPE) ||
       event.dataTransfer.getData("assetid");
@@ -849,14 +980,7 @@ export default function Timeline(props: TimelineProps) {
       (asset.kind === track.kind ||
         (asset.kind === "image" && track.kind === "video"))
     )
-      props.onDropAsset?.(
-        id,
-        snapToFrame(
-          Math.max(0, locate(event.clientX, event.clientY).x / pps),
-          project.fps,
-        ),
-        track.id,
-      );
+      props.onDropAsset?.(id, time, track.id);
   };
 
   return (
@@ -1107,7 +1231,8 @@ export default function Timeline(props: TimelineProps) {
             </div>
             <div
               className="tl-ruler-body"
-              onPointerDown={scrub}
+              onPointerDown={startRulerDrag}
+              title="Sürükleyerek zaman ölçeğini genişletin veya daraltın · tıklayarak konumlanın"
               style={{ width: bodyWidth }}
             >
               {ticks.map((t) => (
@@ -1366,6 +1491,31 @@ export default function Timeline(props: TimelineProps) {
                         key={clip.id}
                         data-clip-id={clip.id}
                         className={`tl-clip tl-clip-${track.kind} ${selected ? "is-selected" : ""} ${dragging ? "is-dragging" : ""} ${track.hidden ? "is-hidden" : ""} ${asset?.missing ? "is-missing" : ""}`}
+                        onDragOver={(event) => {
+                          // Presets (transition, effect, motion, text) land on the clip
+                          // under the pointer, not only on the empty lane.
+                          if (!event.dataTransfer.types.includes(PRESET_DRAG_TYPE))
+                            return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          event.dataTransfer.dropEffect = "copy";
+                          event.currentTarget.classList.add("is-preset-target");
+                        }}
+                        onDragLeave={(event) => {
+                          event.currentTarget.classList.remove("is-preset-target");
+                        }}
+                        onDrop={(event) => {
+                          const preset = readPresetDrag(event.dataTransfer);
+                          if (!preset) return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          event.currentTarget.classList.remove("is-preset-target");
+                          if (track.locked) return;
+                          props.onDropPreset?.(preset, {
+                            clipId: clip.id,
+                            time: clip.start,
+                            trackId: track.id,
+                          });                        }}
                         style={{
                           left: clip.start * pps,
                           width: Math.max(4, clip.duration * pps),
