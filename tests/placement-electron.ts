@@ -95,7 +95,7 @@ try {
     await page!.waitForTimeout(100);
   };
   const openSource = async () => {
-    await page!.locator(".asset-card, .media-card, [data-asset-id]").first().click();
+    await page!.locator(".media-preview-btn").first().click();
     await expect(page!.getByRole("region", { name: "Medya kaynak önizlemesi" })).toBeVisible();
   };
   const range = async (start: number, end: number) => {

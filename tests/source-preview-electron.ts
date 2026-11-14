@@ -20,7 +20,7 @@ const page=await app.firstWindow(),errors:string[]=[],checks:string[]=[];page.on
 try {
  await app.evaluate(({dialog},exported)=>{(dialog as any).showSaveDialog=async()=>({canceled:false,filePath:exported});(dialog as any).showMessageBox=async()=>({response:2});},exported);
  await expect(page.locator('[data-asset-id]')).toHaveCount(1,{timeout:30000});
- await page.locator('[data-asset-id]').click();const source=page.getByRole('region',{name:'Medya kaynak önizlemesi'});
+ await page.locator('.media-preview-btn').first().click();const source=page.getByRole('region',{name:'Medya kaynak önizlemesi'});
  await expect(source.getByRole('button',{name:'Medyayı oynat',exact:true})).toBeEnabled();
  await source.getByLabel('Medya önizleme ilerlemesi').fill('2');await source.focus();await page.keyboard.press('i');
  await source.getByLabel('Medya önizleme ilerlemesi').fill('3');await source.focus();await page.keyboard.press('o');

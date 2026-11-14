@@ -1,5 +1,16 @@
 # Değişiklik günlüğü
 
+## 0.12.0 - 2026-11-14
+
+Proje medyasında serbest seçim.
+
+- **Karta tıklamak artık seçer, önizleme açmaz**: Önceden bir medya kartına tıklamak sol paneli kaynak önizlemesine çeviriyordu; bu yüzden ikinci bir öğe seçilemiyordu. Artık tıklama yalnızca seçim yapar ve kitaplık görünür kalır.
+- **Ctrl/⌘ + tıklama** seçime öğe ekler veya seçili öğeyi çıkarır; **Shift + tıklama** aralık seçer. Seçili kartlar yeşil çerçeveyle işaretlenir.
+- **Tümünü seç / Seçimi temizle** düğmesi kitaplık başlığına eklendi.
+- **Kaynak önizlemesi ayrı düğmede**: Her kartın üzerinde göz simgeli bir önizleme düğmesi var; Space tuşu ve sağ tık menüsündeki "Medyayı önizle" de aynı işi yapar. Böylece seçim ile önizleme birbirini engellemez.
+- **Toplu ekleme korunuyor**: Birden çok öğe seçiliyken "+ N medyayı ekle" düğmesi görünür; medya türüne göre doğru kanala yerleşir.
+- **Doğrulama**: Yeni `tests/media-select-electron.ts` 8 gerçek masaüstü kontrolü (tıklayarak seçim, Ctrl ile ekleme/çıkarma, Shift aralığı, ayrı önizleme düğmesi, tümünü seç, toplu ekleme, seçim temizleme) geçti. Tam paket: 477 test (471 geçti, 6 atlandı), 9 masaüstü regresyon betiği.
+
 ## 0.11.0 - 2026-11-13
 
 Sürükle-bırakta otomatik kanal yönlendirmesi.

@@ -17,6 +17,7 @@ import {
   Trash2,
   Upload,
   X,
+  Eye,
 } from "lucide-react";
 import type { MediaAsset, MediaKind, Project } from "../core/types";
 import { ASSET_DRAG_TYPE, ASSET_IDS_DRAG_TYPE } from "./Timeline";
@@ -166,9 +167,10 @@ export default function MediaLibrary({
           setMenu(null);
         }}
         onClick={(event) => {
+          // Selection is the primary action so several assets can be picked;
+          // the preview lives on its own button and on Space / context menu.
           selectAsset(asset.id, event);
           setMenu(null);
-          if (!(event.target as HTMLElement).closest("button")) onPreviewAsset?.(asset.id);
         }}
         onDoubleClick={(event) => {
           if (
@@ -259,6 +261,20 @@ export default function MediaLibrary({
             </span>
           )}
           {asset.missing && <span className="media-missing">Dosya eksik</span>}
+          {onPreviewAsset && (
+            <button
+              className="media-preview-btn"
+              aria-label={`${asset.name} medyasını önizle`}
+              title="Kaynak önizlemesi · Space"
+              onClick={(event) => {
+                event.stopPropagation();
+                setSelected([asset.id]);
+                onPreviewAsset(asset.id);
+              }}
+            >
+              <Eye size={14} />
+            </button>
+          )}
           <button
             className="media-add"
             aria-label={`${asset.name} medyasını zaman çizelgesine ekle`}
@@ -381,6 +397,26 @@ export default function MediaLibrary({
           <span>Proje medyası</span>
           <b>{project.assets.length}</b>
         </div>
+        <button
+          className="media-select-all"
+          aria-label="Tüm medyayı seç veya seçimi temizle"
+          title="Tüm medyayı seç"
+          disabled={!project.assets.length}
+          onClick={() => {
+            setSelected(
+              selected.length === project.assets.length
+                ? []
+                : project.assets
+                    .filter((entry) => !entry.missing)
+                    .map((entry) => entry.id),
+            );
+            rangeAnchor.current = null;
+          }}
+        >
+          {selected.length === project.assets.length && project.assets.length > 0
+            ? "Seçimi temizle"
+            : "Tümünü seç"}
+        </button>
         {selected.length > 1 && onAddAssets && (
           <button
             className="media-add-selected"
